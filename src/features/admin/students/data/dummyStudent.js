@@ -1,0 +1,43 @@
+
+export const students = [
+  {
+    id: "HST-2401",
+    name: "Amit Kumar",
+    room: "A-204",
+    block: "Block A, Floor 2",
+    phone: "+91 9012345678",
+    email: "amit_kumar@gmail.com",
+    status: "Active",
+    payment: "Paid",
+  },
+  {
+    id: "HST-2405",
+    name: "Neha Gupta",
+    room: "B-102",
+    block: "Block B, Floor 1",
+    phone: "+91 8899776655",
+    email: "neha_gupta@gmail.com",
+    status: "Active",
+    payment: "Pending",
+  },
+  {
+    id: "HST-2389",
+    name: "Sandeep Singh",
+    room: "A-410",
+    block: "Block A, Floor 4",
+    phone: "+91 9988776655",
+    email: "sandeep@gmail.com",
+    status: "Checked-out",
+    payment: "Paid",
+  },
+  {
+    id: "HST-2412",
+    name: "Anjali Patel",
+    room: "C-305",
+    block: "Block C, Floor 3",
+    phone: "+91 9345678901",
+    email: "anjali.patel08@gmail.com",
+    status: "Active",
+    payment: "Paid",
+  },
+];

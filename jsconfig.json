@@ -1,0 +1,8 @@
+{
+  "compilerOptions": {
+    "baseUrl": ".", // this is wokring 
+    "paths": {
+      "@/*": ["./src/*"]
+    }
+  }
+}
