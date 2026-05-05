@@ -1,3 +1,5 @@
+import React, { useEffect, useState } from "react";
+import { getStudentDashboardApi } from "../../../utils/utils";
 import {
   Card,
   CardContent,
@@ -17,11 +19,45 @@ import {
 } from "lucide-react";
 
 export default function My_Dashboard() {
+  const [loaderCheck, setLoaderCheck] = useState(false);
+
+  const [dashboardData, setDashboardData] = useState(null);
+
+  // ================= API =================
+
+  const StudentDashboardApi = async () => {
+    setLoaderCheck(true);
+
+    try {
+      const response = await getStudentDashboardApi();
+
+      console.log(response);
+
+      if (response && response?.data?.status === "success") {
+        setDashboardData(response?.data?.data);
+
+        setLoaderCheck(false);
+      } else {
+        setLoaderCheck(false);
+      }
+    } catch (error) {
+      console.log(error);
+
+      setLoaderCheck(false);
+    }
+  };
+
+  useEffect(() => {
+    StudentDashboardApi();
+  }, []);
+
   return (
     <div className="p-6 space-y-6">
       {/* HEADER */}
       <div>
-        <h1 className="text-3xl font-bold">Welcome back, Sandeep</h1>
+        <h1 className="text-3xl font-bold">
+          Welcome back, {dashboardData?.studentName || "Student"}
+        </h1>
         <p className="text-muted-foreground">
           Manage your dashboard and daily operations easily
         </p>
@@ -29,9 +65,23 @@ export default function My_Dashboard() {
 
       {/* STATS */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <StatCard title="Monthly Fee" value="Paid" icon={CheckCircle} />
-        <StatCard title="Room Occupancy" value="1/2" icon={Users} />
-        <StatCard title="Attendance" value="95%" icon={Calendar} />
+        <StatCard
+          title="Monthly Fee"
+          value={dashboardData?.monthlyFeeStatus || "Paid"}
+          icon={CheckCircle}
+        />
+
+        <StatCard
+          title="Room Occupancy"
+          value={dashboardData?.roomOccupancy || "1/2"}
+          icon={Users}
+        />
+
+        <StatCard
+          title="Attendance"
+          value={dashboardData?.attendance || "95%"}
+          icon={Calendar}
+        />
       </div>
 
       {/* MAIN GRID */}
@@ -54,21 +104,14 @@ export default function My_Dashboard() {
             </CardHeader>
 
             <CardContent className="space-y-4">
-              <MenuItem
-                label="Breakfast"
-                time="8:00 - 10:00"
-                text="Scrambled Eggs, Whole Wheat Toast, Coffee"
-              />
-              <MenuItem
-                label="Lunch"
-                time="13:00 - 15:00"
-                text="Grilled Lemon Chicken, Organic Quinoa, Seasonal Salad"
-              />
-              <MenuItem
-                label="Dinner"
-                time="20:00 - 22:00"
-                text="Vegetable Lasagna, Roasted Garlic Bread"
-              />
+              {dashboardData?.todayMenu?.map((item, index) => (
+                <MenuItem
+                  key={index}
+                  label={item?.category}
+                  time={item?.time}
+                  text={item?.meal}
+                />
+              ))}
             </CardContent>
           </Card>
 
@@ -82,8 +125,12 @@ export default function My_Dashboard() {
                   Maintain your residency status.
                 </p>
 
-                <h2 className="text-2xl font-bold">₹8,500</h2>
-                <p className="text-red-500 text-sm">Due: Oct 1st</p>
+                <h2 className="text-2xl font-bold">
+                  ₹{dashboardData?.dueAmount || "8,500"}
+                </h2>
+                <p className="text-red-500 text-sm">
+                  Due: {dashboardData?.dueDate || "Oct 1st"}
+                </p>
 
                 <Button>Pay Now</Button>
               </CardContent>
@@ -92,7 +139,9 @@ export default function My_Dashboard() {
             {/* ROOM */}
             <Card>
               <CardContent className="p-5 space-y-3">
-                <h3 className="font-semibold">Room 402-B</h3>
+                <h3 className="font-semibold">
+                  {dashboardData?.roomNumber || "Room 402-B"}
+                </h3>
 
                 <div className="flex items-center gap-2 text-sm">
                   <Wifi size={16} /> High-speed WiFi
@@ -102,7 +151,7 @@ export default function My_Dashboard() {
                 </div>
 
                 <p className="text-sm text-muted-foreground">
-                  Roommate: Vacant
+                  Roommate: {dashboardData?.roommate || "Vacant"}
                 </p>
               </CardContent>
             </Card>
@@ -117,9 +166,9 @@ export default function My_Dashboard() {
               <CardTitle>Notices</CardTitle>
             </CardHeader>
             <CardContent className="space-y-3 text-sm">
-              <p>Mess closed for maintenance</p>
-              <p>New laundry schedule available</p>
-              <p>Library hours extended</p>
+              {dashboardData?.notices?.map((notice, index) => (
+                <p key={index}>{notice}</p>
+              ))}
             </CardContent>
           </Card>
 
@@ -162,9 +211,7 @@ const MenuItem = ({ label, time, text }) => (
       <p>{time}</p>
     </div>
 
-    <div className="flex-1 bg-muted p-3 rounded-md text-sm">
-      {text}
-    </div>
+    <div className="flex-1 bg-muted p-3 rounded-md text-sm">{text}</div>
   </div>
 );
 
@@ -174,4 +221,3 @@ const ActionBtn = ({ icon: Icon, text }) => (
     <span>{text}</span>
   </div>
 );
-

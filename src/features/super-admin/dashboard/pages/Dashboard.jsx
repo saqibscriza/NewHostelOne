@@ -132,7 +132,7 @@ export default function Dashboard() {
           {/* ✅ FIX: removed custom slate button */}
           <Button
             className="gap-2 w-full sm:w-auto"
-            onClick={() => navigate("/hostels/add")}
+            onClick={() => navigate("/superadmin/hostels/add")}
           >
             <Building2 className="w-4 h-4" />
             Add Hostel

@@ -54,7 +54,6 @@ export default function AddHostel() {
 
         if (res?.data?.admins) {
           setAdmins(res.data.admins); // depending on actual response structure of api.  setAdmins(res?.data?.admins || []);  we can write this also instead of if block
-          
         }
       } catch (error) {
         console.log(error);
@@ -78,9 +77,9 @@ export default function AddHostel() {
     if (activeTab === "existing") {
       formData.append("adminId", selectedAdmin?.adminId);
     } else {
-      formData.append("adminName", data.adminName);
-      formData.append("adminEmail", data.adminEmail);
-      formData.append("adminPhone", data.adminPhone);
+      formData.append("name", data.adminName);
+      formData.append("email", data.adminEmail);
+      formData.append("contactNumber", data.adminPhone);
     }
 
     setLoaderCheck(true);

@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { Button } from "../../../../../components/ui/button";
 import { Card, CardContent } from "../../../../../components/ui/Card";
@@ -14,7 +13,7 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "../../../../../components/ui/Table";
+} from "../../../Table";
 
 import {
   Select,
@@ -36,7 +35,7 @@ import {
 const RoomDetails = () => {
   const [roomData, setRoomData] = useState([]);
   const [loaderCheck, setLoaderCheck] = useState(false);
-  const [getAllData, setGetAllData] = useState([]); 
+  const [getAllData, setGetAllData] = useState([]);
 
   const navigate = useNavigate();
 

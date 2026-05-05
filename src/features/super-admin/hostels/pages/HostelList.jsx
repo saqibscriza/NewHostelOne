@@ -24,7 +24,6 @@ import { useState, useEffect } from "react";
 import { getAllHostelDetailsApi } from "../../../../utils/utils";
 import { deleteHostelById } from "../../../../utils/utils";
 
-
 const StatusBadge = ({ status }) => {
   let dotColor = "bg-primary";
   let textColor = "text-foreground";
@@ -56,89 +55,89 @@ export default function Hostel() {
 
   const [stats, setStats] = useState([]);
 
-
   // ******** Delete Hostel ********* //
   const handleDelete = async (hostelId) => {
-  const confirmDelete = window.confirm("Are you sure you want to delete this hostel?");
-  if (!confirmDelete) return;
-  const res = await deleteHostelById(hostelId);
-  if (res?.data?.status === "success") {
-    // ✅ UI se remove karo (no reload)
-    setHostelsData((prev) =>
-      prev.filter((item) => item.hostelId !== hostelId)
+    const confirmDelete = window.confirm(
+      "Are you sure you want to delete this hostel?",
     );
-  } else {
-    alert("Failed to delete hostel");
-  }
-};
-
-
-//********* Get All Hostel ********* */
-  useEffect(() => {
-  const fetchHostels = async () => {
-    try {
-      const res = await getAllHostelDetailsApi();
-
-      // ✅ Hostels Mapping
-      if (res?.data?.hostels) {
-        const formattedData = res.data.hostels.map((item, index) => ({
-          id: index,
-          hostelId: item.hostelId,
-          name: item.hostelName,
-          location: item.address || "N/A",
-
-          admin: item.adminInCharge
-            ? {
-                name: item.adminInCharge.adminName,
-                avatar:
-                  item.adminInCharge.adminPhoto ||
-                  `https://api.dicebear.com/7.x/avataaars/svg?seed=${item.adminInCharge.adminName}`,
-              }
-            : null,
-
-          students: item.totalStudents || 0,
-          occupancy: item.occupancyPercentage || 0,
-          status: item.status || "Inactive",
-        }));
-
-        setHostelsData(formattedData);
-      }
-
-      // ✅ Stats Mapping
-      if (res?.data?.dashboardStats) {
-        const statsData = res.data.dashboardStats;
-
-        setStats([
-          {
-            title: "TOTAL HOSTELS",
-            value: statsData.totalHostels,
-            icon: Building2,
-          },
-          {
-            title: "ACTIVE STUDENT",
-            value: statsData.activeStudents,
-            icon: Users,
-          },
-          {
-            title: "AVERAGE OCCUPANCY",
-            value: `${statsData.averageOccupancy}%`,
-            icon: BarChart2,
-          },
-          {
-            title: "PENDING ISSUES",
-            value: statsData.pendingIssues,
-            icon: Archive,
-          },
-        ]);
-      }
-    } catch (error) {
-      console.log("Error fetching data", error);
+    if (!confirmDelete) return;
+    const res = await deleteHostelById(hostelId);
+    if (res?.data?.status === "success") {
+      // ✅ UI se remove karo (no reload)
+      setHostelsData((prev) =>
+        prev.filter((item) => item.hostelId !== hostelId),
+      );
+    } else {
+      alert("Failed to delete hostel");
     }
   };
 
-  // ✅ function call
-  fetchHostels();
-}, []);
+  //********* Get All Hostel ********* */
+  useEffect(() => {
+    const fetchHostels = async () => {
+      try {
+        const res = await getAllHostelDetailsApi();
+
+        // ✅ Hostels Mapping
+        if (res?.data?.hostels) {
+          const formattedData = res.data.hostels.map((item, index) => ({
+            id: index,
+            hostelId: item.hostelId,
+            name: item.hostelName,
+            location: item.address || "N/A",
+
+            admin: item.adminInCharge
+              ? {
+                  name: item.adminInCharge.adminName,
+                  avatar:
+                    item.adminInCharge.adminPhoto ||
+                    `https://api.dicebear.com/7.x/avataaars/svg?seed=${item.adminInCharge.adminName}`,
+                }
+              : null,
+
+            students: item.totalStudents || 0,
+            occupancy: item.occupancyPercentage || 0,
+            status: item.status || "Inactive",
+          }));
+
+          setHostelsData(formattedData);
+        }
+
+        // ✅ Stats Mapping
+        if (res?.data?.dashboardStats) {
+          const statsData = res.data.dashboardStats;
+
+          setStats([
+            {
+              title: "TOTAL HOSTELS",
+              value: statsData.totalHostels,
+              icon: Building2,
+            },
+            {
+              title: "ACTIVE STUDENT",
+              value: statsData.activeStudents,
+              icon: Users,
+            },
+            {
+              title: "AVERAGE OCCUPANCY",
+              value: `${statsData.averageOccupancy}%`,
+              icon: BarChart2,
+            },
+            {
+              title: "PENDING ISSUES",
+              value: statsData.pendingIssues,
+              icon: Archive,
+            },
+          ]);
+        }
+      } catch (error) {
+        console.log("Error fetching data", error);
+      }
+    };
+
+    // ✅ function call
+    fetchHostels();
+  }, []);
 
   return (
     <div className="min-h-screen bg-background p-8">
@@ -153,7 +152,7 @@ export default function Hostel() {
 
         <Button
           className="gap-2 bg-muted text-foreground"
-          onClick={() => navigate("/hostels/add")}
+          onClick={() => navigate("/superadmin/hostels/add")}
         >
           <Building2 className="w-4 h-4" />
           Add Hostel
@@ -291,16 +290,24 @@ export default function Hostel() {
                       >
                         <DropdownMenuItem
                           className="cursor-pointer text-muted-foreground focus:bg-accent focus:text-foreground"
-                          onClick={() => navigate(`/hostels/${hostel.hostelId}`)}
+                          onClick={() =>
+                             navigate(`/superadmin/hostels/${hostel.hostelId}`)
+                          }
                         >
                           View
                         </DropdownMenuItem>
-                        <DropdownMenuItem className="cursor-pointer text-muted-foreground focus:bg-accent focus:text-foreground"
-                        onClick={() => navigate(`/hostels/update/${hostel.hostelId}`)}>
+                        <DropdownMenuItem
+                          className="cursor-pointer text-muted-foreground focus:bg-accent focus:text-foreground"
+                          onClick={() =>
+                            navigate(`/superadmin/hostels/update/${hostel.hostelId}`)
+                          }
+                        >
                           Edit
                         </DropdownMenuItem>
-                        <DropdownMenuItem className="cursor-pointer text-muted-foreground focus:bg-accent focus:text-foreground"
-                         onClick={() => handleDelete(hostel.hostelId)}>
+                        <DropdownMenuItem
+                          className="cursor-pointer text-muted-foreground focus:bg-accent focus:text-foreground"
+                          onClick={() => handleDelete(hostel.hostelId)}
+                        >
                           Delete
                         </DropdownMenuItem>
                       </DropdownMenuContent>

@@ -1,21 +1,62 @@
+import React, { useEffect, useState } from "react";
+
 import { Card, CardContent } from "../../../components/ui/Card";
 import { Button } from "../../../components/ui/button";
-import {
-  Wifi,
-  Snowflake,
-  Bath,
-  WashingMachine,
-  BookOpen,
-  Wrench,
-} from "lucide-react";
+
+import { Wifi, Snowflake, Bath, WashingMachine, BookOpen } from "lucide-react";
+
+import { getStudentMyRoomApi } from "../../../utils/utils";
 
 export default function MyRoom() {
+  const [loaderCheck, setLoaderCheck] = useState(false);
+
+  const [roomData, setRoomData] = useState(null);
+
+  // ================= API CALL =================
+
+  const StudentMyRoomApi = async () => {
+    setLoaderCheck(true);
+
+    try {
+      const response = await getStudentMyRoomApi();
+
+      console.log("student room data", response);
+
+      if (response?.data?.status === "success") {
+        setRoomData(response?.data?.data);
+
+        setLoaderCheck(false);
+      } else {
+        setLoaderCheck(false);
+      }
+    } catch (error) {
+      console.log(error);
+
+      setLoaderCheck(false);
+    }
+  };
+
+  useEffect(() => {
+    StudentMyRoomApi();
+  }, []);
+
+  // ================= LOADER =================
+
+  if (loaderCheck) {
+    return (
+      <div className="p-6">
+        <p className="text-muted-foreground">Loading room details...</p>
+      </div>
+    );
+  }
+
   return (
     <div className="p-6 space-y-6">
       {/* HEADER */}
       <div className="flex justify-between items-center">
         <div>
           <h1 className="text-2xl font-semibold">My Room</h1>
+
           <p className="text-muted-foreground text-sm">
             Manage your living space and roommate details
           </p>
@@ -31,21 +72,33 @@ export default function MyRoom() {
         {/* ROOM CARD */}
         <Card className="lg:col-span-2 overflow-hidden">
           <img
-            src="https://images.unsplash.com/photo-1560448204-e02f11c3d0e2"
+            src={
+              roomData?.roomImage ||
+              "https://images.unsplash.com/photo-1560448204-e02f11c3d0e2"
+            }
             className="h-52 w-full object-cover"
           />
 
           <CardContent className="p-5 space-y-4">
-            <h2 className="text-xl font-bold">Room 402-B</h2>
+            <h2 className="text-xl font-bold">
+              {roomData?.roomNumber || "Room 402-B"}
+            </h2>
+
             <p className="text-sm text-muted-foreground">
-              Deluxe Wing, North Block
+              {roomData?.blockName || "Deluxe Wing, North Block"}
             </p>
 
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
-              <Info label="Floor" value="4th Floor" />
-              <Info label="Type" value="Twin Sharing" />
-              <Info label="Check-in" value="Aug 12, 2023" />
-              <Info label="Status" value="Occupied" />
+              <Info label="Floor" value={roomData?.floor || "4th Floor"} />
+
+              <Info label="Type" value={roomData?.roomType || "Twin Sharing"} />
+
+              <Info
+                label="Check-in"
+                value={roomData?.checkInDate || "Aug 12, 2023"}
+              />
+
+              <Info label="Status" value={roomData?.status || "Occupied"} />
             </div>
           </CardContent>
         </Card>
@@ -54,13 +107,19 @@ export default function MyRoom() {
         <Card>
           <CardContent className="p-5 flex flex-col items-center text-center gap-3">
             <img
-              src="https://randomuser.me/api/portraits/men/32.jpg"
+              src={
+                roomData?.roommateImage ||
+                "https://randomuser.me/api/portraits/men/32.jpg"
+              }
               className="w-20 h-20 rounded-full"
             />
 
-            <h3 className="font-semibold">Sandeep Kumar</h3>
+            <h3 className="font-semibold">
+              {roomData?.roommateName || "Sandeep Kumar"}
+            </h3>
+
             <p className="text-sm text-muted-foreground">
-              B.Tech CSE, 3rd Year
+              {roomData?.roommateCourse || "B.Tech CSE, 3rd Year"}
             </p>
 
             <Button variant="secondary" className="w-full">
@@ -76,9 +135,13 @@ export default function MyRoom() {
 
         <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
           <Amenity icon={Wifi} text="High-speed WiFi" />
+
           <Amenity icon={Snowflake} text="Central AC" />
+
           <Amenity icon={Bath} text="Attached Washroom" />
+
           <Amenity icon={WashingMachine} text="Laundry Service" />
+
           <Amenity icon={BookOpen} text="Study Desk" />
         </div>
       </div>
@@ -91,7 +154,9 @@ export default function MyRoom() {
             <h3 className="font-semibold">Maintenance History</h3>
 
             <Row title="AC Repair" status="Completed" />
+
             <Row title="Lightbulb Change" status="Pending" />
+
             <Row title="Drainage Cleaning" status="Completed" />
           </CardContent>
         </Card>
@@ -102,7 +167,9 @@ export default function MyRoom() {
             <h3 className="font-semibold">Room Rules & Guidelines</h3>
 
             <Rule text="Visitors allowed between 10 AM - 8 PM" />
+
             <Rule text="No smoking inside rooms" />
+
             <Rule text="Maintain silence after 11 PM" />
           </CardContent>
         </Card>
@@ -111,11 +178,12 @@ export default function MyRoom() {
   );
 }
 
-/* ===== SMALL COMPONENTS ===== */
+/* ================= SMALL COMPONENTS ================= */
 
 const Info = ({ label, value }) => (
   <div>
     <p className="text-muted-foreground text-xs">{label}</p>
+
     <p className="font-medium">{value}</p>
   </div>
 );
@@ -123,6 +191,7 @@ const Info = ({ label, value }) => (
 const Amenity = ({ icon: Icon, text }) => (
   <div className="bg-muted p-4 rounded-lg flex flex-col items-center text-center gap-2">
     <Icon className="w-5 h-5" />
+
     <p className="text-sm">{text}</p>
   </div>
 );
@@ -130,6 +199,7 @@ const Amenity = ({ icon: Icon, text }) => (
 const Row = ({ title, status }) => (
   <div className="flex justify-between text-sm">
     <span>{title}</span>
+
     <span className="text-muted-foreground">{status}</span>
   </div>
 );

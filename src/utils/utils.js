@@ -1475,3 +1475,40 @@ export const Getadminswitchaccount = async (params = {}) => {
     return error?.response || [];
   }
 };
+
+
+// ================= STUDENT GET API =================
+
+export const getStudentMyRoomApi = async () => {
+  try {
+    axios.defaults.headers.common["Authorization"] = token;
+
+    var res = await axios.get(`${Domain}student/my-room`);
+
+    if (res) {
+      return res;
+    } else {
+      return [];
+    }
+  } catch (error) {
+    return [];
+  }
+};
+
+
+
+// === Student dashboard GET api
+
+export const getStudentDashboardApi = async () => {
+  try {
+    axios.defaults.headers.common["Authorization"] = token;
+
+    const res = await axios.get(`${Domain}student/dashboard`);
+
+    return res;
+  } catch (error) {
+    console.log(error);
+
+    return null;
+  }
+};
