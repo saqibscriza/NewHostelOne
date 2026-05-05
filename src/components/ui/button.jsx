@@ -7,7 +7,7 @@ import { cn } from "../../lib/utils";
  */
 const Button = React.forwardRef(
   (
-    { className, variant = "default", size = "default", ...props },
+    { className, variant = "default", size = "default",asChild = false, ...props },
     ref
   ) => {
     const variants = {

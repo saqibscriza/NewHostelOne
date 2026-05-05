@@ -82,6 +82,7 @@ import AddCategoryPage from "../src/features/chef/inventory/pages/inventoryCateg
 import CategoryDetailsPage from "../src/features/chef/inventory/pages/inventoryCategory/CategoryDetailsPage";
 import EditCategoryPage from "../src/features/chef/inventory/pages/inventoryCategory/EditCategoryPage";
 import EditCategoryItemPage from "../src/features/chef/inventory/pages/inventoryCategory/EditCategoryItemPage";
+import AddCategoryItemPage from "../src/features/chef/inventory/pages/inventoryCategory/AddCategoryItemPage";
 import FeedbackPage from "../src/features/chef/feedback/pages/FeedbackPage";
 
 export default function AppRoutes() {
@@ -222,6 +223,8 @@ export default function AppRoutes() {
                 path="inventory/category/add"
                 element={<AddCategoryPage />}
               />
+
+              <Route path="inventory/category/:categoryId/item/add" element={<AddCategoryItemPage />} />
 
               <Route
                 path="inventory/category/:id"

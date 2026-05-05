@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { use, useEffect, useState } from "react";
 import { 
   Plus,
   Wheat,
@@ -18,23 +18,38 @@ import { Link } from 'react-router-dom';
 import { Card, CardContent } from '../../../../../components/ui/Card';
 import { Button } from '../../../../../components/ui/button';
 import {getAllInventoryCategoryApi} from '../../../../../utils/utils';
+import { deleteInventoryCategoryApi } from "../../../../../utils/utils";
 
 
 export default function InventoryCategoryPage() {
-  const categories = [
-    { id: 1, name: "Dairy", skus: 12, icon: Egg },
-    { id: 2, name: "Grains & Cereals", skus: 24, icon: Wheat },
-    { id: 3, name: "Vegetables", skus: 48, icon: Apple },
-    { id: 4, name: "Spices", skus: 65, icon: Flame },
-    { id: 5, name: "Meat & Poultry", skus: 18, icon: Fish },
-    { id: 6, name: "Cleaning Supplies", skus: 32, icon: Brush },
-    { id: 7, name: "Bakery", skus: 15, icon: Croissant },
-    { id: 8, name: "Beverages", skus: 42, icon: Coffee },
-    { id: 9, name: "Dairy", skus: 12, icon: Egg },
-    { id: 10, name: "Grains & Cereals", skus: 24, icon: Wheat },
-    { id: 11, name: "Vegetables", skus: 48, icon: Apple },
-    { id: 12, name: "Spices", skus: 65, icon: Flame }
-  ];
+
+const [categories, setCategories] = useState([]);
+
+// Get all categories from the API
+const getAllCategories = async () => {
+    try {
+      const response = await getAllInventoryCategoryApi();
+      console.log('Categories:', response);
+      setCategories(response.categories || []);
+    } catch (error) {
+      console.error('Error fetching categories:', error);
+    }
+  };
+  useEffect(() => {
+    getAllCategories();
+  }, []);
+
+  //Delete category By Id
+const deleteCategory = async (id) => {
+  try {
+    await deleteInventoryCategoryApi(id);
+    setCategories(prev =>
+      prev.filter((cat) => cat.category.id !== id)
+    );
+  } catch (error) {
+    console.error('Error deleting category:', error);
+  }
+};
 
 
   return (
@@ -56,8 +71,21 @@ export default function InventoryCategoryPage() {
 
       {/* Grid Section */}
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-6">
-        {categories.map((category) => {
-          const IconComponent = category.icon || Egg;
+        {categories.map((catObj) => {
+            const category = catObj.category;
+            const items = catObj.items;
+
+              const iconMap = {
+    spices: Flame,
+    grain: Wheat,
+    seeds: Apple,
+    dairy: Egg,
+    beverages: Coffee,
+    bakery: Croissant,
+  };
+
+  const IconComponent =
+    iconMap[category.categoryName?.toLowerCase()] || Egg;
           return (
             <Card key={category.id} className="border-none shadow-sm rounded-2xl bg-card ring-1 ring-border/50 hover:shadow-md transition-all">
               <CardContent className="p-6 flex flex-col items-start relative">
@@ -66,7 +94,10 @@ export default function InventoryCategoryPage() {
                     <IconComponent className="w-6 h-6 stroke-[1.5]" />
                   </div>
                   <div className="flex items-center gap-3">
-                    <button className="text-slate-400 hover:text-red-500 transition-colors p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800">
+                    <button 
+                      className="text-slate-400 hover:text-red-500 transition-colors p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800"
+                      onClick={() => deleteCategory(category.id)}
+                    >
                       <Trash2 className="w-[18px] h-[18px]" />
                     </button>
                     <Link to={`/chef/inventory/category/${category.id}/edit`} className="text-slate-400 hover:text-foreground transition-colors p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800">
@@ -74,13 +105,16 @@ export default function InventoryCategoryPage() {
                     </Link>
                   </div>
                 </div>
-                <h3 className="text-[19px] font-bold text-foreground mb-1">{category.name}</h3>
-                <p className="text-[13px] font-medium text-muted-foreground mb-7">{category.skus} SKUs tracked</p>
-                <Button asChild variant="outline" className="w-full rounded-xl h-11 border-border/80 text-foreground font-semibold hover:bg-muted/50 transition-colors">
-                  <Link to={`/chef/inventory/category/${category.id}`}>
-                    View Items
-                  </Link>
-                </Button>
+                <h3 className="text-[19px] font-bold text-foreground mb-1">{category.categoryName}</h3>
+                <p className="text-[13px] font-medium text-muted-foreground mb-7">{category.skuCount} SKUs tracked</p>
+<Link to={`/chef/inventory/category/${category.id}`}>
+  <Button
+    variant="outline"
+    className="w-full rounded-xl h-11 border-border/80 text-foreground font-semibold hover:bg-muted/50 transition-colors"
+  >
+    View Items
+  </Button>
+</Link>
               </CardContent>
             </Card>
           );

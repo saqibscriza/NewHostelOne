@@ -695,6 +695,7 @@ export const addInventoryCategoryApi = async (data) => {
   }
 };
 
+// Get all inventory categories
 export const getAllInventoryCategoryApi = async () => {
   try {
     axios.defaults.headers.common["Authorization"] = token;
@@ -706,6 +707,43 @@ export const getAllInventoryCategoryApi = async () => {
   }
 };
 
+// Get category details by category id
+export const getCategoryItemsByIdApi = async (id) => {
+  try {
+    axios.defaults.headers.common["Authorization"] = token;
+    const res = await axios.get(`${Domain}/inventory/category/${id}`);
+    return res.data;
+  } catch (error) {
+    console.log("GET INVENTORY CATEGORY BY ID ERROR 👉", error);
+    return null;
+  }
+};
+
+// Delete inventory category by id
+export const deleteInventoryCategoryApi = async (id) => {
+  try {
+    axios.defaults.headers.common["Authorization"] = token;
+    const res = await axios.delete(`${Domain}/inventory/category/delete/${id}`);
+    return res.data;
+  } catch (error) {
+    console.log("DELETE INVENTORY CATEGORY ERROR 👉", error);
+    return null;
+  }
+};
+
+// Update inventory category by id
+export const updateInventoryCategoryApi = async (id, data) => {
+  try {
+    axios.defaults.headers.common["Authorization"] = token;
+    const res = await axios.put(`${Domain}/inventory/category/update/${id}`, data);
+    return res.data;
+  } catch (error) {
+    console.log("UPDATE INVENTORY CATEGORY ERROR 👉", error);
+    return null;
+  }
+};
+
+// Update inventory category item by id
 export const updateInventoryCategoryItemApi = async (id, data) => {
   try {
     axios.defaults.headers.common["Authorization"] = token;
@@ -719,6 +757,30 @@ export const updateInventoryCategoryItemApi = async (id, data) => {
     return null;
   }
 };
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 // ******************************************************************************************************
 // ASIM //

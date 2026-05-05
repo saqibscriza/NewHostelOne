@@ -1,7 +1,8 @@
-import React from "react";
-import { Search, Edit2, Trash2, ChevronLeft, ChevronRight } from "lucide-react";
-import { Link } from "react-router-dom";
-import { Card, CardContent } from "../../../../../components/ui/Card";
+import React, { useEffect, useState } from "react";
+import { useParams } from "react-router-dom";
+import { Search, Edit2, Trash2, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { Card, CardContent } from '../../../../../components/ui/Card';
 import {
   Table,
   TableBody,
@@ -9,16 +10,29 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "../../../../admin/Table";
-import { Badge } from "../../../../../components/ui/badge";
+} from "../../../../../components/ui/Table";
+import { Badge } from '../../../../../components/ui/badge';
+import {getCategoryItemsByIdApi} from '../../../../../utils/utils';
 
 export default function CategoryDetailsPage() {
-  const items = [
-    { id: 1, name: "Fresh Whole Milk", sku: "MK-DAI-001" },
-    { id: 2, name: "Amul Butter (500g)", sku: "MK-DAI-008" },
-    { id: 3, name: "Curd (Bulk)", sku: "MK-DAI-012" },
-    { id: 4, name: "Amul Butter (500g)", sku: "MK-DAI-008" },
-  ];
+  const { id } = useParams(); // 🔥 URL se id mil rahi hai
+  const [category, setCategory] = useState(null);
+  const [items, setItems] = useState([]);
+
+    const getCategoryDetails = async () => {
+    try {
+      const res = await getCategoryItemsByIdApi(id);
+      console.log("DETAIL:", res);
+      setCategory(res.category);
+      setItems(res.items || []);
+    } catch (error) {
+      console.error("Error fetching category:", error);
+    }
+  };
+
+  useEffect(() => {
+    getCategoryDetails();
+  }, [id]);
 
   return (
     <div className="max-w-7xl mx-auto space-y-6 pb-10">
@@ -60,35 +74,21 @@ export default function CategoryDetailsPage() {
             </TableHeader>
             <TableBody>
               {items.map((item, index) => (
-                <TableRow
-                  key={index}
-                  className="border-border hover:bg-muted/30 transition-colors"
-                >
+                <TableRow key={index.id} className="border-border hover:bg-muted/30 transition-colors">
                   <TableCell className="pl-6 py-5">
-                    <span className="font-bold text-[15px] text-foreground">
-                      {item.name}
-                    </span>
+                     <span className="font-bold text-[15px] text-foreground">{item.itemName}</span>
                   </TableCell>
                   <TableCell className="py-5">
-                    <Badge
-                      variant="secondary"
-                      className="bg-muted text-muted-foreground font-semibold rounded-md px-2 py-0.5 pointer-events-none hover:bg-muted"
-                    >
-                      {item.sku}
+                    <Badge variant="secondary" className="bg-muted text-muted-foreground font-semibold rounded-md px-2 py-0.5 pointer-events-none hover:bg-muted">
+                      {item.skuId}
                     </Badge>
                   </TableCell>
                   <TableCell className="py-5 text-right pr-6">
-                    <Link
-                      to={`/chef/inventory/category/1/item/${item.id}/edit`}
-                      className="inline-flex text-muted-foreground hover:text-foreground transition-colors p-2 rounded-lg hover:bg-muted"
-                    >
+                    <Link to={`/chef/inventory/category/${item.categoryId}/item/${item.id}/edit`} className="inline-flex text-muted-foreground hover:text-foreground transition-colors p-2 rounded-lg hover:bg-muted">
                       <Edit2 className="w-4 h-4" />
                     </Link>
 
-                    <Link
-                      to={`/chef/inventory/category/1/item/${item.id}/delete`}
-                      className="inline-flex text-muted-foreground hover:text-foreground transition-colors p-2 rounded-lg hover:bg-muted"
-                    >
+                    <Link to={`/chef/inventory/category/${item.categoryId}/item/${item.id}/delete`} className="inline-flex text-muted-foreground hover:text-foreground transition-colors p-2 rounded-lg hover:bg-muted">
                       <Trash2 className="w-4 h-4" />
                     </Link>
                   </TableCell>
