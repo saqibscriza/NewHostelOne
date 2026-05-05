@@ -1,11 +1,40 @@
-import React from "react";
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "../../../../components/ui/Card";
 import { Button } from "../../../../components/ui/button";
 import { ArrowRight, Clock, User } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Download } from "lucide-react";
+import { getFeeReceipt } from "../../../../utils/utils";
+import { useSearchParams } from "react-router-dom";
 
 export default function GenerateReceiptPage() {
+
+const [receiptData, setReceiptData] = useState(null);
+const [searchParams] = useSearchParams();
+const transactionId = searchParams.get("transactionId");
+
+const myFeeReceipt = async () => {
+  try {
+    const response = await getFeeReceipt(transactionId);
+    console.log("RECEIPT =>", response);
+
+    setReceiptData(response);
+  } catch (error) {
+    console.error("Error fetching fee receipt:", error);
+  }
+};
+useEffect(() => {
+  console.log("USE EFFECT RUN");
+  console.log("Transaction ID =>", transactionId);
+
+  if (transactionId) {
+    myFeeReceipt();
+  }
+}, [transactionId]);
+
+console.log("Transaction ID =>", transactionId);
+console.log("Receipt Data =>", receiptData);
+
   return (
     <div className="max-w-7xl mx-auto pb-8">
       {/* ReceiptHeader */}
@@ -47,8 +76,8 @@ export default function GenerateReceiptPage() {
                     <div className="text-left sm:text-right">
                       <h2 className="text-2xl font-bold text-foreground mb-4 uppercase tracking-wide">Payment Receipt</h2>
                       <div className="space-y-1">
-                        <p className="text-base font-bold text-foreground">#RCV-882190</p>
-                        <p className="text-sm text-muted-foreground">Date: 20 Oct 2023</p>
+                        <p className="text-base font-bold text-foreground">#{receiptData?.feeId}</p>
+                        <p className="text-sm text-muted-foreground">Date: {receiptData?.paymentDate}</p>
                       </div>
                     </div>
                   </div>
@@ -57,20 +86,20 @@ export default function GenerateReceiptPage() {
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-8 mb-10">
                     <div>
                       <h3 className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-3">Student Information</h3>
-                      <p className="text-base font-bold text-foreground mb-1">Rohan Mehra</p>
-                      <p className="text-sm text-muted-foreground">ID: STU-2024-001</p>
-                      <p className="text-sm text-muted-foreground">Room: B-204</p>
+                      <p className="text-base font-bold text-foreground mb-1">{receiptData?.studentName}</p>
+                      <p className="text-sm text-muted-foreground">ID: {receiptData?.studentId}</p>
+                      <p className="text-sm text-muted-foreground">Room: {receiptData?.roomNumber}</p>
                     </div>
                     <div>
                       <h3 className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-3">Transaction Details</h3>
                       <div className="space-y-2 text-sm">
                         <div className="flex items-center gap-2">
                           <span className="text-muted-foreground">Method:</span>
-                          <span className="font-bold text-foreground">Bank Transfer</span>
+                          <span className="font-bold text-foreground">{receiptData?.paymentMethod}</span>
                         </div>
                         <div className="flex items-center gap-2">
                           <span className="text-muted-foreground">Status:</span>
-                          <span className="px-2 py-0.5 bg-muted text-foreground text-[10px] font-bold rounded-md tracking-wider uppercase">Paid</span>
+                          <span className="px-2 py-0.5 bg-muted text-foreground text-[10px] font-bold rounded-md tracking-wider uppercase">{receiptData?.status}</span>
                         </div>
                       </div>
                     </div>
@@ -85,19 +114,19 @@ export default function GenerateReceiptPage() {
                     <div className="divide-y divide-border">
                       <div className="flex justify-between items-center py-4 px-4">
                         <span className="text-sm text-foreground">Room Rent (Monthly)</span>
-                        <span className="text-sm font-bold text-foreground">₹8,500.00</span>
+                        <span className="text-sm font-bold text-foreground">₹{receiptData?.roomRent}</span>
                       </div>
                       <div className="flex justify-between items-center py-4 px-4">
                         <span className="text-sm text-foreground">Mess Charges</span>
-                        <span className="text-sm font-bold text-foreground">₹3,200.00</span>
+                        <span className="text-sm font-bold text-foreground">₹{receiptData?.messCharges}</span>
                       </div>
                       <div className="flex justify-between items-center py-4 px-4">
                         <span className="text-sm text-foreground">Electricity & Utility</span>
-                        <span className="text-sm font-bold text-foreground">₹450.00</span>
+                        <span className="text-sm font-bold text-foreground">₹{receiptData?.electricityCharges}</span>
                       </div>
                       <div className="flex justify-between items-center py-4 px-4">
                         <span className="text-sm text-foreground">Late Fee Penalty</span>
-                        <span className="text-sm font-bold text-foreground">₹200.00</span>
+                        <span className="text-sm font-bold text-foreground">₹{receiptData?.lateFee}</span>
                       </div>
                     </div>
                   </div>
@@ -105,7 +134,7 @@ export default function GenerateReceiptPage() {
                   {/* Total */}
                   <div className="bg-muted/30 rounded-xl p-6 flex justify-between items-center mb-16">
                     <span className="text-base font-bold text-foreground uppercase tracking-wider">Total Paid</span>
-                    <span className="text-3xl font-bold text-foreground">₹12,350.00</span>
+                    <span className="text-3xl font-bold text-foreground">₹{receiptData?.totalAmount}</span>
                   </div>
           
                   {/* Footer */}
@@ -136,18 +165,18 @@ export default function GenerateReceiptPage() {
           <div className="space-y-4">
             <div className="flex justify-between items-center">
               <span className="text-sm text-muted-foreground">Transaction ID</span>
-              <span className="text-sm font-bold text-foreground">TXN_99210452</span>
+              <span className="text-sm font-bold text-foreground">{receiptData?.transactionId}</span>
             </div>
             <div className="flex justify-between items-center">
               <span className="text-sm text-muted-foreground">Billing Cycle</span>
-              <span className="text-sm font-bold text-foreground">October 2023</span>
+              <span className="text-sm font-bold text-foreground">{receiptData?.billingCycle}</span>
             </div>
             <div className="flex justify-between items-center">
               <span className="text-sm text-muted-foreground">Late Days</span>
-              <span className="text-sm font-bold text-foreground">4 Days</span>
+              <span className="text-sm font-bold text-foreground">{receiptData?.lateDays} Days</span>
             </div>
           </div>
-          <Link to="/admin/fees/history" className="block w-full">
+          <Link to={`/admin/fees/history?studentId=${receiptData?.studentId}`} className="block w-full">
             <Button variant="outline" className="w-full bg-muted/50 hover:bg-muted border-none text-foreground font-bold flex items-center justify-center gap-2 h-11">
               <Clock className="w-4 h-4" />
               View Payment History
@@ -177,18 +206,18 @@ export default function GenerateReceiptPage() {
               <User className="w-6 h-6 text-background" />
             </div>
             <div>
-              <h4 className="text-base font-bold">Rohan Mehra</h4>
-              <p className="text-sm text-background/70">Management Student</p>
+              <h4 className="text-base font-bold">{receiptData?.studentName}</h4>
+              <p className="text-sm text-background/70">{receiptData?.roomType}</p>
             </div>
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div className="bg-background/10 rounded-lg p-3">
               <p className="text-xs text-background/70 mb-1">Room Status</p>
-              <p className="text-sm font-bold">Occupied</p>
+              <p className="text-sm font-bold">{receiptData?.roomStatus}</p>
             </div>
             <div className="bg-background/10 rounded-lg p-3">
               <p className="text-xs text-background/70 mb-1">Dues Left</p>
-              <p className="text-sm font-bold">₹0.00</p>
+              <p className="text-sm font-bold">₹{receiptData?.pendingAmount}</p>
             </div>
           </div>
         </CardContent>

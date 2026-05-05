@@ -20,7 +20,14 @@ const EditRoom = () => {
       console.log("ROOM BY ID ===========", response);
 
       if (response?.data?.status === "success") {
-        setRoomData(response?.data?.data);
+        const room =
+          response?.data?.data?.Room || // current structure
+          response?.data?.Room || // fallback
+          {};
+
+        console.log("FINAL ROOM 👉", room);
+
+        setRoomData(room);
       }
     } catch (error) {
       console.log(error);

@@ -1,9 +1,7 @@
-import React from 'react'
+import Dashboard from "../../../features/user-registration/Dashboard/Dashboard.jsx";
 
 export default function MyRoom() {
   return (
-    <div>
-      MyRoom
-    </div>
-  )
+ <Dashboard/>
+  );
 }

@@ -8,7 +8,7 @@ export const AuthProvider = ({ children }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isReady, setIsReady] = useState(false);
 
-  // ================= SESSION RESTORE =================
+  // SESSION RESTORE
   useEffect(() => {
     const storedRole = sessionStorage.getItem("role");
     const storedToken = sessionStorage.getItem("token");
@@ -22,15 +22,17 @@ export const AuthProvider = ({ children }) => {
     setIsReady(true);
   }, []);
 
-  // ================= DEV GLOBAL ACCESS =================
-  useEffect(() => {
-    window.devUser = () => login("user", "dummy-token");
-    window.devAdmin = () => login("admin", "dummy-token");
-    window.devSuper = () => login("superadmin", "dummy-token");
-  }, []);
-
-  // ================= LOGIN =================
+  // LOGIN
   const login = (userRole, userToken) => {
+    if (!userRole || !userToken) {
+      console.error("Invalid login data");
+      return;
+    }
+
+    // safer clear
+    sessionStorage.removeItem("role");
+    sessionStorage.removeItem("token");
+
     sessionStorage.setItem("role", userRole);
     sessionStorage.setItem("token", userToken);
 
@@ -39,27 +41,16 @@ export const AuthProvider = ({ children }) => {
     setIsAuthenticated(true);
   };
 
-  // ================= LOGOUT =================
+  // LOGOUT
   const logout = () => {
     sessionStorage.removeItem("role");
     sessionStorage.removeItem("token");
+    sessionStorage.removeItem("selectedHostel");
+    sessionStorage.removeItem("hostelSelectionToken");
 
     setRole(null);
     setToken(null);
     setIsAuthenticated(false);
-  };
-
-  // ================= DEV OVERRIDE =================
-  const devLoginAsUser = () => {
-    login("user", "dummy-token");
-  };
-
-  const devLoginAsAdmin = () => {
-    login("admin", "dummy-token");
-  };
-
-  const devLoginAsSuperAdmin = () => {
-    login("superadmin", "dummy-token");
   };
 
   return (
@@ -68,14 +59,9 @@ export const AuthProvider = ({ children }) => {
         role,
         token,
         isAuthenticated,
+        isReady,
         login,
         logout,
-        isReady,
-
-        // DEV
-        devLoginAsUser,
-        devLoginAsAdmin,
-        devLoginAsSuperAdmin,
       }}
     >
       {children}

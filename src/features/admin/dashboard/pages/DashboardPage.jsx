@@ -1,14 +1,57 @@
+import { useEffect, useState } from "react";
+import { getDashboardAdminApi } from "../../../../utils/utils";
+
 import StatCard from "../components/StatCard";
 import OccupancyChart from "../components/OccupancyChart";
 import QuickActions from "../components/QuickActions";
 import MessMenu from "../components/MessMenu";
 import RecentApplicationsTable from "../components/RecentApplicationsTable";
 import ActivityFeed from "../components/ActivityFeed";
-import { CalendarDays, ChevronDown } from "lucide-react";
 
-import { Users, BedDouble, IndianRupee, Wrench } from "lucide-react";
+import {
+  CalendarDays,
+  ChevronDown,
+  Users,
+  BedDouble,
+  IndianRupee,
+  Wrench,
+} from "lucide-react";
 
 export default function DashboardPage() {
+  const [dashboardData, setDashboardData] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  // API CALL
+  const fetchDashboard = async () => {
+    setLoading(true);
+
+    const res = await getDashboardAdminApi();
+
+    console.log("FULL RESPONSE 👉", res);
+
+    if (res?.data?.status === "success") {
+      setDashboardData(res?.data?.data);
+    } else {
+      console.error(res?.data?.message || "Failed to load dashboard");
+    }
+
+    setLoading(false);
+  };
+
+  useEffect(() => {
+    fetchDashboard();
+  }, []);
+
+  if (loading) {
+    return <div className="p-6">Loading...</div>;
+  }
+
+  // fallback safety
+  const stats = dashboardData || {};
+  const metrics = stats.keyMetrics || {};
+
+  console.log("DASHBOARD DATA 👉", dashboardData);
+
   return (
     <div className="p-6 space-y-6 bg-background min-h-screen">
       {/* Header */}
@@ -31,32 +74,41 @@ export default function DashboardPage() {
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <StatCard
           title="Total Students"
-          value="842"
+          value={metrics.totalStudents || 0}
           icon={<Users />}
-          badge="+12%"
+          badge={`${metrics.totalStudentsGrowth || 0}%`}
         />
-        <StatCard title="Available Beds" value="158" icon={<BedDouble />} />
+
+        <StatCard
+          title="Available Beds"
+          value={metrics.availableBeds || 0}
+          icon={<BedDouble />}
+        />
+
         <StatCard
           title="Monthly Revenue"
-          value="₹45,280"
+          value={`₹${metrics.monthlyRevenue || 0}`}
           icon={<IndianRupee />}
         />
-        <StatCard title="Maintenance" value="24" icon={<Wrench />} />
+
+        <StatCard
+          title="Maintenance"
+          value={metrics.maintenance || 0}
+          icon={<Wrench />}
+        />
       </div>
 
       {/* Layout */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-        {/* LEFT */}
         <div className="lg:col-span-2 space-y-4">
-          <OccupancyChart />
-          <RecentApplicationsTable />
+          <OccupancyChart data={stats.roomOccupancy} />
+          <RecentApplicationsTable data={stats.recentApplications} />
         </div>
 
-        {/* RIGHT */}
         <div className="space-y-4">
           <QuickActions />
-          <MessMenu />
-          <ActivityFeed />
+          <MessMenu data={stats.todayMessMenu} />
+          <ActivityFeed data={stats.recentActivity} />
         </div>
       </div>
     </div>

@@ -1,81 +1,67 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Button } from "../../../../../src/components/ui/button";
 import { Link } from "react-router-dom";
 import { Wallet, Calendar, TrendingUp, TrendingDown, ArrowUpRight, ArrowDownRight, CalendarDays } from "lucide-react";
 import { ChevronDown } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "../../../../../src/components/ui/Card";
 import { Eye, CreditCard, Banknote, Building, ChevronLeft, ChevronRight } from "lucide-react";
-import UrgentReminders from "../../../../../src/features/admin/fees/components/UrgentReminders";
+import { AlertCircle, Mail } from "lucide-react";
+import {getFeeDashboard} from "../../../../utils/utils";
 
 export default function FeesPage() {
+
+const [dashboardData, setDashboardData] = useState(null);
+
+const fetchDashboard = async () => {
+  try {
+    const response = await getFeeDashboard();
+    console.log("FEE DASHBOARD =>", response);
+    setDashboardData(response);
+  } catch (error) {
+    console.error("Error fetching fee dashboard:", error);
+  }
+};
+  useEffect(() => {
+  fetchDashboard();
+}, []);
 
   const stats = [
     {
       title: "Total Collected",
-      value: "₹45,250",
-      trend: "+12.5%",
-      trendIcon: ArrowUpRight,
+      value: `₹${dashboardData?.totalCollected || 0}`,
+      trend: "",
+      trendIcon: null,
       icon: Wallet,
     },
     {
       title: "Pending Dues",
-      value: "₹12,400",
-      trend: "-4.2%",
-      trendIcon: ArrowDownRight,
+      value: `₹${dashboardData?.pendingDues || 0}`,
+      trend: "",
+      trendIcon: null,
       icon: Wallet, // The image has a clipboard icon for pending dues
     },
     {
       title: "Upcoming Deadline",
-      value: "Oct 31st",
-      trend: "8 Days Left",
+      value: dashboardData?.billingCycleOverview?.currentBillingCycle || "-",
+      trend: `${dashboardData?.studentPaymentStatus?.completionRate || 0}% Completed`,
       trendIcon: null,
       icon: CalendarDays,
     },
   ];
 
 
-  const transactions = [
-  {
-    id: "H-1024",
-    name: "Amit Kumar",
-    initials: "AK",
-    amount: "₹1,200.00",
-    date: "Oct 23, 2023",
-    method: "Credit Card",
-    methodIcon: CreditCard,
+const transactions =
+  dashboardData?.recentTransactions?.map((tx) => ({
+    id: tx.transactionId,
+    name: tx.studentName,
+    initials: tx.studentName?.slice(0, 2).toUpperCase(),
+    amount: `₹${tx.amount}`,
+    date: tx.paymentDate,
+    method: tx.paymentMethod,
+    methodIcon: tx.paymentMethod === "CASH" ? Banknote : CreditCard,
     status: "Success",
-  },
-  {
-    id: "H-1025",
-    name: "Neha Gupta",
-    initials: "NG",
-    amount: "₹950.00",
-    date: "Oct 22, 2023",
-    method: "Cash",
-    methodIcon: Banknote,
-    status: "Processing",
-  },
-  {
-    id: "H-1028",
-    name: "Sandeep Singh",
-    initials: "SS",
-    amount: "₹1,500.00",
-    date: "Oct 20, 2023",
-    method: "Bank Transfer",
-    methodIcon: Building,
-    status: "Success",
-  },
-  {
-    id: "H-1031",
-    name: "Anjali Patel",
-    initials: "AP",
-    amount: "₹800.00",
-    date: "Oct 19, 2023",
-    method: "Debit Card",
-    methodIcon: CreditCard,
-    status: "Failed",
-  },
-];
+  })) || [];
+
 
 const getStatusColor = (status) => {
   switch (status) {
@@ -90,12 +76,28 @@ const getStatusColor = (status) => {
   }
 };
 
-const methods = [
-    { name: "Bank Transfer", percentage: 45 },
-    { name: "Credit/Debit Card", percentage: 30 },
-    { name: "Cash", percentage: 25 },
-  ];
+const totalPayments =
+  (dashboardData?.paymentMethodsDistribution?.CASH || 0) +
+  (dashboardData?.paymentMethodsDistribution?.ONLINE || 0);
 
+const methods = [
+  {
+    name: "Cash",
+    percentage: totalPayments
+      ? Math.round(
+          (dashboardData?.paymentMethodsDistribution?.CASH / totalPayments) * 100
+        )
+      : 0,
+  },
+  {
+    name: "Online",
+    percentage: totalPayments
+      ? Math.round(
+          (dashboardData?.paymentMethodsDistribution?.ONLINE / totalPayments) * 100
+        )
+      : 0,
+  },
+];
 
 
   return (
@@ -260,7 +262,53 @@ const methods = [
       {/* Urgent Reminders and Payment Methods */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
 
-         <UrgentReminders />
+<Card className="border border-slate-100 shadow-sm rounded-xl h-full">
+  <CardHeader className="p-6 pb-4">
+    <CardTitle className="text-lg font-bold text-slate-900">
+      Urgent Fee Reminders
+    </CardTitle>
+  </CardHeader>
+
+  <CardContent className="p-6 pt-0 space-y-4">
+
+    {/* Empty State */}
+    {!dashboardData?.urgentReminders?.length && (
+      <p className="text-sm text-slate-500">No urgent reminders</p>
+    )}
+
+    {/* Dynamic Data */}
+    {dashboardData?.urgentReminders?.map((item, index) => {
+      const Icon =
+        item.type === "OVERDUE" ? AlertCircle : Mail;
+
+      return (
+        <div
+          key={index}
+          className="bg-slate-100 rounded-xl p-4 flex items-start justify-between gap-4"
+        >
+          <div className="flex items-start gap-3">
+            <div className="w-8 h-8 rounded-full bg-slate-900 flex items-center justify-center shrink-0 mt-0.5">
+              <Icon className="w-4 h-4 text-white" />
+            </div>
+
+            <div>
+              <h4 className="text-sm font-bold text-slate-900">
+                {item.title}
+              </h4>
+              <p className="text-xs text-slate-600 mt-0.5">
+                {item.description}
+              </p>
+            </div>
+          </div>
+
+          <button className="text-xs font-bold text-slate-900 hover:underline whitespace-nowrap mt-1">
+            {item.action || "VIEW"}
+          </button>
+        </div>
+      );
+    })}
+  </CardContent>
+</Card>
 
         {/* Payment Methods */}
          <Card className="border border-slate-100 shadow-sm rounded-xl h-full">
@@ -286,9 +334,6 @@ const methods = [
              </Card>
          
       </div>
-
-
-
     </div>
   );
 }

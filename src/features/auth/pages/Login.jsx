@@ -1,6 +1,8 @@
+
+
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useAuth } from "../../../../src/context/AuthContext";
+import { useAuth } from "../../../context/AuthContext";
 import { useForm } from "react-hook-form";
 import { Rings } from "react-loader-spinner";
 
@@ -30,81 +32,82 @@ export default function Login() {
     setLoading(true);
     setApiError("");
 
-    await new Promise((r) => setTimeout(r, 50));
-    const startTime = Date.now();
-
     try {
       const response = await loginApi({
-        username: data.email, // 👈 same field (email or phone)
+        username: data.email,
         password: data.password,
       });
 
-      const elapsed = Date.now() - startTime;
-      const remainingTime = 2500 - elapsed;
-
-      if (remainingTime > 0) {
-        await new Promise((r) => setTimeout(r, remainingTime));
-      }
-
-      if (response?.data?.status === "success") {
+        const status = response.data.status;
         const token = response.data.token;
-        console.log("My token :", token);
-        let userRole = response.data.role;
-        localStorage.setItem("token", token);
 
-        userRole = userRole?.toLowerCase()?.trim();
+        let userRole = response.data.role;
+
+        // normalize role
+        const roleMap = {
+          superadmin: "superadmin",
+          "super-admin": "superadmin",
+          super_admin: "superadmin",
+          admin: "admin",
+          user: "user",
+          student:"student"
+        };
+
+        userRole =
+          roleMap[userRole?.toLowerCase()] || userRole?.toLowerCase()?.trim();
 
         if (!userRole) {
           setApiError("Role not found");
           return;
         }
+        
+    // 🔥 FIRST HANDLE MULTIPLE HOSTELS
+    if (status === "multiple-hostels") {
+      const hostels = response?.data?.hostels || [];
 
-        login(userRole, token);
+      sessionStorage.setItem("hostelSelectionToken", token);
 
-        if (userRole === "superadmin" || userRole === "super-admin") {
-          navigate("/");
-        } else if (userRole === "admin") {
-          navigate("/");
-        } else {
-          navigate("/");
-        }
-      } else if (response?.data?.status === "multiple-hostels") {
-        const token = response.data.token;
-        let userRole = response.data.role;
-        const hostels = response.data.hostels || [];
-
-        userRole = userRole?.toLowerCase()?.trim();
-
-        if (!userRole) {
-          setApiError("Role not found");
-          return;
-        }
-
-        // Navigate to select-hostel page with the temporary token and hostels list
-        navigate("/select-hostel", { state: { token, userRole, hostels } });
-      } else {
-        setApiError(response?.data?.message || "Login failed");
-      }
-    } catch (error) {
-      console.error(error);
-      setApiError("Server error. Please try again.");
-    } finally {
-      setLoading(false);
+      navigate("/select-hostel", {
+        state: { token, userRole, hostels },
+      });
+      return;
     }
-  };
+
+    // 🔥 THEN HANDLE SUCCESS
+    if (status === "success") {
+      login(userRole, token);
+
+      if (userRole === "superadmin") navigate("/superadmin");
+      else if (userRole === "admin") navigate("/admin");
+      else if (userRole === "student") navigate("/student");
+      else navigate("/user");
+
+      return;
+    }
+
+    setApiError(response?.data?.message || "Login failed");
+
+  } catch (error) {
+    console.error(error);
+    setApiError("Server error. Please try again.");
+  } finally {
+    setLoading(false);
+  }
+};
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-slate-50 p-4">
+    <div className="min-h-screen flex flex-col items-center justify-center bg-background p-4">
+      {/* LOADER */}
       {loading && (
         <div className="fixed inset-0 flex items-center justify-center bg-black/40 z-50">
-          <Rings height="100" width="100" color="#bec4c4" />
+          <Rings height="100" width="100" color="#888" />
         </div>
       )}
 
-      <Card className="w-full max-w-[450px] rounded-2xl shadow-sm border border-gray-200">
+      <Card className="w-full max-w-[450px] rounded-2xl border border-border shadow-sm">
         <CardHeader className="space-y-1 pb-6">
-          <CardTitle className="text-4xl font-extrabold">Login</CardTitle>
-          <p className="text-gray-500 text-lg">
+          <CardTitle className="text-3xl font-bold">Login</CardTitle>
+          <p className="text-muted-foreground">
             Access your dashboard securely
           </p>
         </CardHeader>
@@ -113,7 +116,7 @@ export default function Login() {
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
             {/* EMAIL */}
             <div className="space-y-2">
-              <label className="text-sm font-medium text-gray-900">
+              <label className="text-sm font-medium text-foreground">
                 Email ID / User ID
               </label>
 
@@ -122,54 +125,31 @@ export default function Login() {
                 placeholder="Enter Email / User ID"
                 {...register("email", {
                   required: "Email or Phone is required",
-                  validate: (value) => {
-                    const emailRegex =
-                      /^[a-zA-Z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$/;
-
-                    const phoneRegex = /^[6-9]\d{9}$/;
-
-                    if (emailRegex.test(value) || phoneRegex.test(value)) {
-                      return true;
-                    }
-
-                    return "Enter valid Email or Phone Number";
-                  },
                 })}
-                className={`w-full p-3 rounded-lg border focus:outline-none focus:ring-2 focus:ring-slate-900 focus:border-transparent ${
-                  errors.email ? "border-red-500" : "border-gray-300"
+                className={`w-full p-3 rounded-lg border bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-ring ${
+                  errors.email ? "border-red-500" : "border-border"
                 }`}
               />
 
               {errors.email && (
-                <p className="text-red-500 text-sm mt-1">
-                  {errors.email.message}
-                </p>
+                <p className="text-red-500 text-sm">{errors.email.message}</p>
               )}
             </div>
 
             {/* PASSWORD */}
             <div className="space-y-2">
-              <div className="flex items-center justify-between">
-                <label className="text-sm font-medium text-gray-900">
-                  Password
-                </label>
-                <a href="#" className="text-sm text-gray-900 hover:underline">
-                  Forgot your password?
-                </a>
-              </div>
+              <label className="text-sm font-medium text-foreground">
+                Password
+              </label>
 
               <input
                 type="password"
                 placeholder="Enter Password"
                 {...register("password", {
                   required: "Password is required",
-                  minLength: {
-                    value: 6,
-                    message: "Minimum 6 characters required",
-                  },
                 })}
-                className={`w-full p-3 rounded-lg border ${
-                  errors.password ? "border-red-500" : "border-gray-300"
+                className={`w-full p-3 rounded-lg border bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-ring ${
+                  errors.password ? "border-red-500" : "border-border"
                 }`}
               />
 
@@ -179,28 +159,26 @@ export default function Login() {
                 </p>
               )}
             </div>
-            {/* 
-            API ERROR
+
+            {/* ERROR */}
             {apiError && (
-              <p className="text-red-600 text-sm text-center">{apiError}</p>
-            )} */}
+              <p className="text-red-500 text-sm text-center">{apiError}</p>
+            )}
 
             {/* BUTTON */}
-            <Button
-              type="submit"
-              disabled={loading}
-              className="w-full h-12 bg-[#0f172a] text-white rounded-lg"
-            >
+            <Button type="submit" className="w-full h-12">
               Login
             </Button>
           </form>
         </CardContent>
       </Card>
-      <div className="mt-6 text-center text-gray-900 text-[15px]">
-        Don't have an account?{" "}
+
+      {/* SIGNUP */}
+      <div className="mt-6 text-center text-sm text-muted-foreground">
+        Don’t have an account?{" "}
         <span
           onClick={() => navigate("/signup")}
-          className="font-bold cursor-pointer hover:underline"
+          className="font-medium cursor-pointer hover:underline text-foreground"
         >
           Sign Up
         </span>
@@ -208,3 +186,4 @@ export default function Login() {
     </div>
   );
 }
+

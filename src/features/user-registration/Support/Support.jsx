@@ -1,9 +1,8 @@
-import React from 'react'
+import Dashboard from "../../../features/user-registration/Dashboard/Dashboard.jsx";
+
 
 export default function Support() {
   return (
-    <div>
-      Support
-    </div>
+   <Dashboard/>
   )
 }

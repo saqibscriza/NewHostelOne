@@ -50,6 +50,7 @@ export default function SelectHostelForm() {
       const response = await selectHostelApi(selectedHostel, token);
       if (response?.data?.status === "success") {
         const newToken = response.data.token;
+        sessionStorage.setItem("hostelSelectionToken", token);
         sessionStorage.setItem("selectedHostel", selectedHostel);
         login(userRole, newToken);
         navigate("/");

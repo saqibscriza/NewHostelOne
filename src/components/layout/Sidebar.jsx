@@ -20,6 +20,7 @@ const Sidebar = ({ menu = [], onItemClick }) => {
 
   return (
     <div className="flex h-full w-64 flex-col border-r border-border bg-background">
+      
       {/* Logo */}
       <div className="flex h-16 items-center border-b border-border px-4">
         <img src={Logo} alt="Logo" className="w-44 mt-3 object-contain" />
@@ -29,7 +30,6 @@ const Sidebar = ({ menu = [], onItemClick }) => {
       <nav className="flex-1 p-3 space-y-1">
         {menu.map((item) => {
           const Icon = item.icon;
-          // const fullPath = `/${role}${item.path}`;
           const fullPath =
             item.path === "/" ? `/${role}` : `/${role}${item.path}`;
           const isActive = location.pathname === fullPath;
@@ -37,6 +37,7 @@ const Sidebar = ({ menu = [], onItemClick }) => {
 
           return (
             <div key={item.name}>
+              
               {/* Parent Item */}
               <div
                 onClick={() => {
@@ -71,7 +72,8 @@ const Sidebar = ({ menu = [], onItemClick }) => {
                 <div className="ml-8 mt-1 space-y-1">
                   {item.children.map((child) => {
                     const childPath = `/${role}${child.path}`;
-                    const isChildActive = location.pathname === childPath;
+                    const isChildActive =
+                      location.pathname === childPath;
 
                     return (
                       <NavLink
@@ -94,21 +96,37 @@ const Sidebar = ({ menu = [], onItemClick }) => {
           );
         })}
       </nav>
-      <div className="py-4 px-1 mt-4 ">
-        <Card className="bg-black text-white border-none rounded-2xl">
-          <CardContent className="p-4 space-y-3">
-            <h3 className="text-sm font-semibold">Register as Hostel</h3>
 
-            <p className="text-xs text-gray-300 leading-relaxed">
+      {/* Register Card */}
+      <div className="px-3">
+        <Card className="bg-black text-white rounded-3xl shadow-md">
+          <CardContent className="p-5 space-y-4">
+            
+            <h3 className="text-base font-semibold">
+              Register as Hostel
+            </h3>
+
+            <p className="text-sm text-gray-300 leading-relaxed">
               Start listing your hostel with us today
             </p>
 
-            <Button className="w-full bg-white text-black hover:bg-gray-200">
+            <Button
+              className="w-full bg-white text-black hover:bg-gray-200"
+              onClick={() => {
+                const url = new URL(window.location);
+                url.searchParams.set("register", "true");
+                navigate(
+                  `${location.pathname}?${url.searchParams.toString()}`
+                );
+              }}
+            >
               Register Hostel
             </Button>
+
           </CardContent>
         </Card>
       </div>
+
       {/* Logout */}
       <div className="border-t border-border p-3">
         <button

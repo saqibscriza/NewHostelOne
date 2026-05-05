@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { Button } from "../../../../../components/ui/button";
 import { Card, CardContent } from "../../../../../components/ui/Card";
@@ -35,7 +36,7 @@ import {
 const RoomDetails = () => {
   const [roomData, setRoomData] = useState([]);
   const [loaderCheck, setLoaderCheck] = useState(false);
-  const [getAllData, setGetAllData] = useState([]);
+  const [getAllData, setGetAllData] = useState([]); 
 
   const navigate = useNavigate();
 
@@ -44,26 +45,26 @@ const RoomDetails = () => {
 
     try {
       const params = {
-        searchKey: "",
-        blockFloor: "",
-        page: 0,
+        page: 1,
         size: 10,
       };
 
       const response = await getRoomAllData(params);
 
       console.log("ROOM API 👉", response?.data);
+      console.log("ROOM response ", response);
 
-      if (response?.data?.status === "success") {
-        setGetAllData(response?.data?.data?.content);
-        // const list =
-        //   response?.data?.data ||
-        //   response?.data?.rooms ||
-        //   response?.data?.result ||
-        //   [];
+      // ✅ FIX: handle both success + failure safely
+      const list = response?.data?.data?.content || [];
 
-        setRoomData(Array.isArray(list) ? list : []);
+      if (Array.isArray(list)) {
+        setRoomData(list);
       } else {
+        setRoomData([]);
+      }
+
+      // optional error toast (kept logic)
+      if (response?.data?.status !== "success") {
         toast.error(response?.data?.message || "Something went wrong");
       }
     } catch (error) {
@@ -191,7 +192,6 @@ const RoomDetails = () => {
       {/* Table */}
       <Card>
         <CardContent className="p-0">
-          {/* ✅ LOADER */}
           {loaderCheck && (
             <div className="text-center py-6 text-muted-foreground">
               Loading rooms...
@@ -212,7 +212,8 @@ const RoomDetails = () => {
             </TableHeader>
 
             <TableBody>
-              {getAllData?.length === 0 && !loaderCheck && (
+              {/* ✅ FIX */}
+              {roomData?.length === 0 && !loaderCheck && (
                 <TableRow>
                   <TableCell colSpan={7} className="text-center py-6">
                     No rooms found
@@ -220,7 +221,8 @@ const RoomDetails = () => {
                 </TableRow>
               )}
 
-              {getAllData?.map((room, index) => (
+              {/* ✅ FIX */}
+              {roomData?.map((room, index) => (
                 <TableRow key={room?.id || index}>
                   <TableCell>
                     <div>
@@ -257,7 +259,6 @@ const RoomDetails = () => {
                       <Pencil
                         className="w-4 h-4 cursor-pointer"
                         onClick={() =>
-                          // navigate(`/admin/rooms/edit/${room?.id}`)
                           navigate(`/admin/rooms/edit/${room?.roomId}`)
                         }
                       />
@@ -268,7 +269,6 @@ const RoomDetails = () => {
             </TableBody>
           </Table>
 
-          {/* Footer */}
           <div className="flex justify-between items-center p-4 text-sm text-muted-foreground">
             <span>Showing rooms</span>
 

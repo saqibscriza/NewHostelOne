@@ -1,71 +1,59 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Search, Ticket, Edit2, Eye } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "../../../../components/ui/dialog";
 import { Input } from "../../../../components/ui/input";
 import { Button } from "../../../../components/ui/button";
 import { Label } from "../../../../components/ui/label";
+import {
+  getAllSupportTicketsApi,
+  updateSupportTicketApi,
+} from "../../../../utils/utils"; 
 
 export default function SupportPage() {
   const navigate = useNavigate();
-  const [tickets, setTickets] = useState([
-    {
-      id: 1,
-      studentName: "Aarav Sharma",
-      roomNo: "302",
-      subject: "Issue with monthly billing automation",
-      priority: "High",
-      status: "Open",
-      created: "2 hours ago",
-      avatar: "https://i.pravatar.cc/150?u=a",
-    },
-    {
-      id: 2,
-      studentName: "Vivaan Singh",
-      roomNo: "514",
-      subject: "API key renewal request",
-      priority: "Medium",
-      status: "Pending",
-      created: "Yesterday",
-      avatar: "https://i.pravatar.cc/150?u=v",
-    },
-    {
-      id: 3,
-      studentName: "Aditya Verma",
-      roomNo: "318",
-      subject: "Wrong room assignment log",
-      priority: "Low",
-      status: "Resolved",
-      created: "2 days ago",
-      avatar: "https://i.pravatar.cc/150?u=ad",
-    },
-    {
-      id: 4,
-      studentName: "Arjun Gupta",
-      roomNo: "423",
-      subject: "Dashboard analytics not updating",
-      priority: "High",
-      status: "Open",
-      created: "4 hours ago",
-      avatar: "https://i.pravatar.cc/150?u=ar",
-    },
-  ]);
-
+  const [tickets, setTickets] = useState([]);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [selectedTicket, setSelectedTicket] = useState(null);
+
+
+const fetchSupportTickets = async () => {
+  try {
+    const response = await getAllSupportTicketsApi();
+    console.log("getAllSupportTicketsApi response =>", response);
+
+    const ticketList = Array.isArray(response?.SupportTickets)
+      ? response.SupportTickets
+      : [];
+
+    setTickets(ticketList);
+  } catch (error) {
+    console.error("Error fetching support tickets:", error);
+    setTickets([]);
+  }
+};
+  useEffect(() => {
+    fetchSupportTickets();
+  }, []);
+
+
 
   const handleEditClick = (ticket) => {
     setSelectedTicket({ ...ticket });
     setIsEditModalOpen(true);
   };
 
-  const handleUpdate = () => {
-    if (selectedTicket) {
-      setTickets((prev) =>
-        prev.map((t) => (t.id === selectedTicket.id ? selectedTicket : t))
-      );
+  const handleUpdate = async () => {
+    if (!selectedTicket) return;
+
+    const ticketId = selectedTicket.id || selectedTicket._id;
+    const updated = await updateSupportTicketApi(ticketId, selectedTicket);
+
+    if (updated !== null) {
+      await fetchSupportTickets();
+      setIsEditModalOpen(false);
+      setSelectedTicket(null);
     }
-    setIsEditModalOpen(false);
   };
 
   return (
@@ -117,54 +105,71 @@ export default function SupportPage() {
               </tr>
             </thead>
             <tbody className="divide-y divide-border">
-              {tickets.map((ticket) => (
-                <tr key={ticket.id} className="hover:bg-muted/30 transition-colors">
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="flex items-center gap-3">
-                      <img
-                        src={ticket.avatar}
-                        alt={ticket.studentName}
-                        className="w-8 h-8 rounded-full border border-border object-cover"
-                      />
-                      <span className="font-medium text-foreground">
-                        {ticket.studentName}
-                      </span>
-                    </div>
-                  </td>
-                  <td className="px-6 py-4 text-foreground whitespace-nowrap">{ticket.roomNo}</td>
-                  <td className="px-6 py-4 text-foreground min-w-[250px]">{ticket.subject}</td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <span className="px-3 py-1 bg-muted text-foreground text-xs font-medium rounded-full">
-                      {ticket.priority}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <span className="px-3 py-1 bg-muted text-foreground text-xs font-medium rounded-full">
-                      {ticket.status}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4 text-muted-foreground whitespace-nowrap">{ticket.created}</td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="flex items-center justify-end gap-4">
-                      <button 
-                        onClick={() => handleEditClick(ticket)}
-                        className="text-muted-foreground hover:text-foreground transition-colors" 
-                        title="Edit"
-                      >
-                        <Edit2 className="w-4 h-4" />
-                      </button>
-                      <button 
-                        onClick={() => navigate(`/admin/support/${ticket.id}`)}
-                        className="text-muted-foreground hover:text-foreground transition-colors" 
-                        title="View"
-                      >
-                        <Eye className="w-4 h-4" />
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
+  {tickets.map((ticket) => (
+    <tr
+      key={ticket.id || ticket._id}
+      className="hover:bg-muted/30 transition-colors"
+    >
+      <td className="px-6 py-4 whitespace-nowrap">
+        <div className="flex items-center gap-3">
+          <img
+            src={ticket.avatar}
+            alt={ticket.studentName || ticket.userName}
+            className="w-8 h-8 rounded-full border border-border object-cover"
+          />
+          <span className="font-medium text-foreground">
+            {ticket.studentName || ticket.userName}
+          </span>
+        </div>
+      </td>
+
+      <td className="px-6 py-4 text-foreground whitespace-nowrap">
+        {ticket.roomNo}
+      </td>
+
+      <td className="px-6 py-4 text-foreground min-w-[250px]">
+        {ticket.subject}
+      </td>
+
+      <td className="px-6 py-4 whitespace-nowrap">
+        <span className="px-3 py-1 bg-muted text-foreground text-xs font-medium rounded-full">
+          {ticket.priority}
+        </span>
+      </td>
+
+      <td className="px-6 py-4 whitespace-nowrap">
+        <span className="px-3 py-1 bg-muted text-foreground text-xs font-medium rounded-full">
+          {ticket.status}
+        </span>
+      </td>
+
+      <td className="px-6 py-4 text-muted-foreground whitespace-nowrap">
+        {ticket.createdAt || ticket.created}
+      </td>
+
+      <td className="px-6 py-4 whitespace-nowrap">
+        <div className="flex items-center justify-end gap-4">
+          <button
+            onClick={() => handleEditClick(ticket)}
+            className="text-muted-foreground hover:text-foreground transition-colors"
+            title="Edit"
+          >
+            <Edit2 className="w-4 h-4" />
+          </button>
+
+          <button
+            onClick={() => navigate(`/admin/support/${ticket.id || ticket._id}`)}
+            className="text-muted-foreground hover:text-foreground transition-colors"
+            title="View"
+          >
+            <Eye className="w-4 h-4" />
+          </button>
+        </div>
+      </td>
+    </tr>
+  ))}
+</tbody>
+
           </table>
         </div>
       </div>
