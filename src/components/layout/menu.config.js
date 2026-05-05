@@ -43,6 +43,7 @@ export const menuConfig = {
     { name: "Settings", path: "/settings", icon: Settings },
     { name: "Queries Details", path: "/Queries/details", icon: MessageSquare },
     { name: "Support", path: "/support", icon: HelpCircle },
+    { name: "Notices", path: "/notices", icon: Bell },
   ],
 
   user: [
