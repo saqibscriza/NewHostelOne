@@ -11,6 +11,15 @@ import {getFeeDashboard} from "../../../../utils/utils";
 export default function FeesPage() {
 
 const [dashboardData, setDashboardData] = useState(null);
+const [filterStudent, setFilterStudent] = useState("All Student");
+const [filterMethod, setFilterMethod] = useState("All Payment Method");
+const [filterStatus, setFilterStatus] = useState("All Status");
+
+const clearFilters = () => {
+  setFilterStudent("All Student");
+  setFilterMethod("All Payment Method");
+  setFilterStatus("All Status");
+};
 
 const fetchDashboard = async () => {
   try {
@@ -61,6 +70,17 @@ const transactions =
     methodIcon: tx.paymentMethod === "CASH" ? Banknote : CreditCard,
     status: "Success",
   })) || [];
+
+const uniqueStudents = [...new Set(transactions.map(tx => tx.name).filter(Boolean))];
+const uniqueMethods = [...new Set(transactions.map(tx => tx.method).filter(Boolean))];
+const uniqueStatuses = [...new Set(transactions.map(tx => tx.status).filter(Boolean))];
+
+const filteredTransactions = transactions.filter(tx => {
+  const matchStudent = filterStudent === "All Student" || tx.name === filterStudent;
+  const matchMethod = filterMethod === "All Payment Method" || tx.method === filterMethod;
+  const matchStatus = filterStatus === "All Status" || tx.status === filterStatus;
+  return matchStudent && matchMethod && matchStatus;
+});
 
 
 const getStatusColor = (status) => {
@@ -154,28 +174,48 @@ const methods = [
           <span className="text-sm text-slate-500 font-medium mr-2">Filter by:</span>
           
           <div className="relative">
-            <select className="appearance-none bg-white border border-slate-200 text-slate-700 text-sm rounded-lg focus:outline-none focus:ring-2 focus:ring-slate-900 focus:border-transparent py-2 pl-3 pr-8 cursor-pointer">
-              <option>All Student</option>
+            <select 
+              value={filterStudent}
+              onChange={(e) => setFilterStudent(e.target.value)}
+              className="appearance-none bg-white border border-slate-200 text-slate-700 text-sm rounded-lg focus:outline-none focus:ring-2 focus:ring-slate-900 focus:border-transparent py-2 pl-3 pr-8 cursor-pointer">
+              <option value="All Student">All Student</option>
+              {uniqueStudents.map(s => (
+                <option key={s} value={s}>{s}</option>
+              ))}
             </select>
             <ChevronDown className="w-4 h-4 text-slate-400 absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
           </div>
 
           <div className="relative">
-            <select className="appearance-none bg-white border border-slate-200 text-slate-700 text-sm rounded-lg focus:outline-none focus:ring-2 focus:ring-slate-900 focus:border-transparent py-2 pl-3 pr-8 cursor-pointer">
-              <option>All Payment Method</option>
+            <select 
+              value={filterMethod}
+              onChange={(e) => setFilterMethod(e.target.value)}
+              className="appearance-none bg-white border border-slate-200 text-slate-700 text-sm rounded-lg focus:outline-none focus:ring-2 focus:ring-slate-900 focus:border-transparent py-2 pl-3 pr-8 cursor-pointer">
+              <option value="All Payment Method">All Payment Method</option>
+              {uniqueMethods.map(m => (
+                <option key={m} value={m}>{m}</option>
+              ))}
             </select>
             <ChevronDown className="w-4 h-4 text-slate-400 absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
           </div>
 
           <div className="relative">
-            <select className="appearance-none bg-white border border-slate-200 text-slate-700 text-sm rounded-lg focus:outline-none focus:ring-2 focus:ring-slate-900 focus:border-transparent py-2 pl-3 pr-8 cursor-pointer">
-              <option>All Status</option>
+            <select 
+              value={filterStatus}
+              onChange={(e) => setFilterStatus(e.target.value)}
+              className="appearance-none bg-white border border-slate-200 text-slate-700 text-sm rounded-lg focus:outline-none focus:ring-2 focus:ring-slate-900 focus:border-transparent py-2 pl-3 pr-8 cursor-pointer">
+              <option value="All Status">All Status</option>
+              {uniqueStatuses.map(s => (
+                <option key={s} value={s}>{s}</option>
+              ))}
             </select>
             <ChevronDown className="w-4 h-4 text-slate-400 absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
           </div>
         </div>
 
-        <button className="text-sm font-medium text-slate-900 hover:underline whitespace-nowrap">
+        <button 
+          onClick={clearFilters}
+          className="text-sm font-medium text-slate-900 hover:underline whitespace-nowrap">
           Clear all filters
         </button>
       </CardContent>
@@ -203,7 +243,7 @@ const methods = [
                 </tr>
               </thead>
               <tbody>
-                {transactions?.map((tx, index) => {
+                {filteredTransactions?.map((tx, index) => {
                   const MethodIcon = tx.methodIcon;
                   return (
                     <tr key={index} className="bg-white border-b border-slate-50 last:border-0 hover:bg-slate-50/50">

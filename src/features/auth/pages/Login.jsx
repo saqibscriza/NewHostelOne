@@ -1,5 +1,3 @@
-
-
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../../context/AuthContext";
@@ -11,7 +9,7 @@ import {
   CardContent,
   CardHeader,
   CardTitle,
-} from "../../../components/ui/Card";
+} from "../../../components/ui/card";
 import { Button } from "../../../components/ui/button";
 import { loginApi } from "../../../utils/utils";
 
@@ -40,6 +38,7 @@ export default function Login() {
 
         const status = response.data.status;
         const token = response.data.token;
+        const name = response.data.name || response.data.studentName || response.data.userName || response.data.fullName || "";
 
         let userRole = response.data.role;
 
@@ -65,8 +64,6 @@ export default function Login() {
     if (status === "multiple-hostels") {
       const hostels = response?.data?.hostels || [];
 
-      sessionStorage.setItem("hostelSelectionToken", token);
-
       navigate("/select-hostel", {
         state: { token, userRole, hostels },
       });
@@ -75,7 +72,7 @@ export default function Login() {
 
     // 🔥 THEN HANDLE SUCCESS
     if (status === "success") {
-      login(userRole, token);
+      login(userRole, token, name);
 
       if (userRole === "superadmin") navigate("/superadmin");
       else if (userRole === "admin") navigate("/admin");
@@ -85,6 +82,7 @@ export default function Login() {
       return;
     }
 
+    // ❌ ERROR
     setApiError(response?.data?.message || "Login failed");
 
   } catch (error) {
@@ -186,4 +184,3 @@ export default function Login() {
     </div>
   );
 }
-

@@ -15,11 +15,7 @@ export default function Fees() {
 
   const extractPayload = (response) => {
     if (response?.data?.data) return response.data.data;
-    if (
-      response?.data &&
-      !response?.data?.content &&
-      !response?.data?.currentDues
-    ) {
+    if (response?.data && !response?.data?.content && !response?.data?.currentDues) {
       return response.data;
     }
     if (response?.data) return response.data;
@@ -249,9 +245,7 @@ export default function Fees() {
               {transactions.length > 0 ? (
                 transactions.map((transaction) => (
                   <tr key={transaction.transactionId}>
-                    <td className="px-6 py-4">
-                      {formatDate(transaction.date)}
-                    </td>
+                    <td className="px-6 py-4">{formatDate(transaction.date)}</td>
                     <td className="px-6 py-4">
                       <div className="font-bold text-gray-900">
                         {transaction.description || transaction.billingCycle}
@@ -266,7 +260,7 @@ export default function Fees() {
                     <td className="px-6 py-4 text-center">
                       <span
                         className={`${getStatusStyle(
-                          transaction.status,
+                          transaction.status
                         )} text-[10px] font-bold px-2 py-1 rounded uppercase tracking-wider`}
                       >
                         {transaction.status}
@@ -318,21 +312,22 @@ export default function Fees() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 md:p-8 col-span-1 lg:col-span-2">
           <h3 className="font-bold text-gray-900 text-[15px] flex items-center gap-2 mb-4">
-            <AlertCircle className="w-5 h-5 text-gray-400" /> Payment Guidelines
+            <AlertCircle className="w-5 h-5 text-gray-400" /> Payment
+            Guidelines
           </h3>
           <ul className="space-y-4 mt-6">
             <li className="flex gap-4">
               <span className="font-bold text-gray-900">01.</span>
               <span className="text-sm text-gray-500">
-                Online payments may take up to 24 hours to reflect in the portal
-                dashboard.
+                Online payments may take up to 24 hours to reflect in the
+                portal dashboard.
               </span>
             </li>
             <li className="flex gap-4">
               <span className="font-bold text-gray-900">02.</span>
               <span className="text-sm text-gray-500">
-                Late fees are calculated at 2% interest per week after the grace
-                period.
+                Late fees are calculated at 2% interest per week after the
+                grace period.
               </span>
             </li>
             <li className="flex gap-4">
@@ -344,11 +339,11 @@ export default function Fees() {
             </li>
           </ul>
         </div>
-        <div className="bg-[#0f172a] rounded-2xl shadow-sm p-6 md:p-8 text-white flex flex-col justify-center">
+        {/* <div className="bg-[#0f172a] rounded-2xl shadow-sm p-6 md:p-8 text-white flex flex-col justify-center">
           <h3 className="font-bold text-lg mb-2">Need Financial Assistance?</h3>
           <p className="text-slate-300 text-sm leading-relaxed mb-8">
-            If you&apos;re facing difficulties with payment or have
-            discrepancies in your bill, our support desk is ready to help.
+            If you&apos;re facing difficulties with payment or have discrepancies
+            in your bill, our support desk is ready to help.
           </p>
           <div className="flex flex-wrap gap-3">
             <button className="bg-white text-slate-900 px-5 py-2.5 rounded-lg text-sm font-bold shadow-sm">
@@ -358,7 +353,7 @@ export default function Fees() {
               Call Support
             </button>
           </div>
-        </div>
+        </div> */}
       </div>
     </div>
   );
@@ -366,12 +361,7 @@ export default function Fees() {
 
 function BedIcon() {
   return (
-    <svg
-      className="w-5 h-5"
-      fill="none"
-      viewBox="0 0 24 24"
-      stroke="currentColor"
-    >
+    <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
       <path
         strokeLinecap="round"
         strokeLinejoin="round"
@@ -384,12 +374,7 @@ function BedIcon() {
 
 function UtensilIcon() {
   return (
-    <svg
-      className="w-5 h-5"
-      fill="none"
-      viewBox="0 0 24 24"
-      stroke="currentColor"
-    >
+    <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
       <path
         strokeLinecap="round"
         strokeLinejoin="round"
@@ -402,12 +387,7 @@ function UtensilIcon() {
 
 function ZapIcon() {
   return (
-    <svg
-      className="w-5 h-5"
-      fill="none"
-      viewBox="0 0 24 24"
-      stroke="currentColor"
-    >
+    <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
       <path
         strokeLinecap="round"
         strokeLinejoin="round"
@@ -420,12 +400,7 @@ function ZapIcon() {
 
 function AlertTriangleIcon() {
   return (
-    <svg
-      className="w-5 h-5"
-      fill="none"
-      viewBox="0 0 24 24"
-      stroke="currentColor"
-    >
+    <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
       <path
         strokeLinecap="round"
         strokeLinejoin="round"

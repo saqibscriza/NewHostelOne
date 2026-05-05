@@ -12,7 +12,16 @@ const Sidebar = ({ menu = [], onItemClick }) => {
   const location = useLocation();
   const { logout, role } = useAuth();
 
-  const [openMenu, setOpenMenu] = useState(null);
+    const [openMenu, setOpenMenu] = useState(() => {
+    const activeItem = menu.find(
+      (item) =>
+        item.children &&
+        item.children.some(
+           (child) => location.pathname === `/${role}${child.path}` || location.pathname.startsWith(`/${role}${child.path}/`)
+        )
+    );
+    return activeItem ? activeItem.name : null;
+  });
 
   const toggleMenu = (name) => {
     setOpenMenu(openMenu === name ? null : name);
@@ -26,14 +35,21 @@ const Sidebar = ({ menu = [], onItemClick }) => {
         <img src={Logo} alt="Logo" className="w-44 mt-3 object-contain" />
       </div>
 
-      {/* Menu */}
+        {/* Menu */}
       <nav className="flex-1 p-3 space-y-1">
         {menu.map((item) => {
           const Icon = item.icon;
+          // const fullPath = `/${role}${item.path}`;
           const fullPath =
             item.path === "/" ? `/${role}` : `/${role}${item.path}`;
-          const isActive = location.pathname === fullPath;
           const hasChildren = item.children;
+          const isActive =
+           location.pathname === fullPath ||
+            (fullPath !== `/${role}` && location.pathname.startsWith(fullPath + '/')) ||
+            (hasChildren &&
+              item.children.some(
+                 (child) => location.pathname === `/${role}${child.path}` || location.pathname.startsWith(`/${role}${child.path}/`)
+              ));
 
           return (
             <div key={item.name}>
@@ -72,8 +88,8 @@ const Sidebar = ({ menu = [], onItemClick }) => {
                 <div className="ml-8 mt-1 space-y-1">
                   {item.children.map((child) => {
                     const childPath = `/${role}${child.path}`;
-                    const isChildActive =
-                      location.pathname === childPath;
+                    const isChildActive = location.pathname === childPath || location.pathname.startsWith(childPath + '/');
+
 
                     return (
                       <NavLink

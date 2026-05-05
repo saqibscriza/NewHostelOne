@@ -77,7 +77,6 @@ const EditStudent = () => {
 
     if (res?.data?.status === "success") {
       const d = res.data.data;
-
       const formatted = {
         fullName: d.personalInformation?.fullName || "",
         dob: d.personalInformation?.dob || "",
@@ -120,36 +119,71 @@ const EditStudent = () => {
       return;
     }
 
-    const formData = new FormData();
+    // if (Object.keys(params).length === 0) {
+    //   alert("No changes made");
+    //   return;
+    // }
 
-    formData.append("fullName", form.fullName);
-    formData.append("dob", form.dob);
-    formData.append("gender", form.gender);
-    formData.append("bloodGroup", form.bloodGroup);
-    formData.append("dateOfJoining", form.dateOfJoining);
+    const formatDate = (date) => {
+      if (!date) return null;
+      if (date.includes("/")) {
+        const [d, m, y] = date.split("/");
+        return `${y}-${m}-${d}`;
+      }
+      return date;
+    };
 
-    formData.append("course", form.course);
-    formData.append("year", Number(form.year));
-    formData.append("email", form.email);
-    formData.append("phone", form.phone);
+    // ONLY SEND CHANGED VALUES
 
-    formData.append("guardianName", form.guardianName);
-    formData.append("relation", form.relation);
-    formData.append("emergencyContact", form.emergencyContact);
+    const allowedFields = [
+      "fullName",
+      "dob",
+      "gender",
+      "bloodGroup",
+      "dateOfJoining",
+      "course",
+      "year",
+      "email",
+      "phone",
+      "guardianName",
+      "relation",
+      "emergencyContact",
+      "roomId",
+    ];
 
-    formData.append("roomId", form.roomId);
+    Object.keys(form).forEach((key) => {
+      if (!allowedFields.includes(key)) return;
 
-    console.log("FORM DATA 👉", Object.fromEntries(formData));
+      if (
+        form[key] !== originalData[key] &&
+        form[key] !== "" &&
+        form[key] !== null &&
+        form[key] !== undefined
+      ) {
+        params[key] = form[key];
+      }
+    });
 
-    const res = await updateStudentApi(id, formData);
+    // ✅ FIX DATE FORMAT
+    if (params.dateOfJoining) {
+      params.dateOfJoining = params.dateOfJoining.includes("/")
+        ? params.dateOfJoining.split("/").reverse().join("-")
+        : params.dateOfJoining;
+    }
+
+    // ✅ FIX YEAR TYPE
+    if (params.year) {
+      params.year = Number(params.year);
+    }
+
+    console.log("FINAL PARAMS 👉", params);
+
+    const res = await updateStudentApi(id, params);
 
     if (res?.data?.status === "success") {
       navigate("/admin/students");
-    } else {
-      console.log(res?.data?.message);
     }
   };
-
   return (
     <div className="p-6 space-y-6">
       {/* Header */}

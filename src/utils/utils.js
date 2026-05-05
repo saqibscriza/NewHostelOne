@@ -147,38 +147,15 @@ export const getHostelById = async (id) => {
 //********* Get All Hostel Details********* */
 export const getAllHostelDetailsApi = async () => {
   try {
-    const token = sessionStorage.getItem("token");
-    var res = await axios.get(`${Domain}/hostel/getAll`, {
-      headers: {
-        Authorization: token,
-      },
-    });
+    axios.defaults.headers.common["Authorization"] = token;
+    var res = await axios.get(`${Domain}/hostel/getAll`);
     if (res) {
       return res;
     } else {
       return [];
     }
   } catch (error) {
-    return error?.response || [];
-  }
-};
-
-export const Getadminswitchaccount = async (params = {}) => {
-  try {
-    const token = sessionStorage.getItem("token");
-    var res = await axios.get(`${Domain}/login/my-hostels`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-      params,
-    });
-    if (res) {
-      return res;
-    } else {
-      return [];
-    }
-  } catch (error) {
-    return error?.response || [];
+    return [];
   }
 };
 
@@ -186,9 +163,7 @@ export const Getadminswitchaccount = async (params = {}) => {
 export const deleteHostelById = async (id) => {
   try {
     axios.defaults.headers.common["Authorization"] = token;
-    var res = await axios.delete(`${Domain}/hostel/delete`, {
-      params: { hostelId: id }, // ✅ IMPORTANT
-    });
+    var res = await axios.delete(`${Domain}/hostel/delete/${id}`);
     if (res) {
       return res;
     } else {
@@ -460,12 +435,9 @@ export const registerHostelApi = async (data) => {
 
 export const addHostelRegisterApi = async (data) => {
   try {
-    const token = sessionStorage.getItem("token");
+    axios.defaults.headers.common["Authorization"] = token;
     var res = await axios.post(`${Domain}/hostel/user-create`, data, {
-      params: data,
-      headers: {
-        Authorization: token,
-      },
+      params: data, // ✅ send data as query params
     });
     if (res) {
       return res;
@@ -473,70 +445,16 @@ export const addHostelRegisterApi = async (data) => {
       return [];
     }
   } catch (error) {
-    return error?.response || [];
-  }
-};
-
-export const createAdminHostelApi = async (data) => {
-  try {
-    const token = sessionStorage.getItem("token");
-    if (!token) {
-      return {
-        data: {
-          status: "failure",
-          message: "Authorization header required",
-        },
-      };
-    }
-
-    const { hostelImage = "", ...params } = data;
-
-    const res = await axios.post(
-      `${Domain}/hostel/create`,
-      {
-        hostelImage,
-      },
-      {
-        params,
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      },
-    );
-
-    return res;
-  } catch (error) {
-    return error?.response || null;
-  }
-};
-
-export const getStudentProfileApi = async () => {
-  try {
-    axios.defaults.headers.common["Authorization"] = token;
-    const res = await axios.get(`${Domain}/student/profile`);
-    return res.data;
-  } catch (error) {
-    console.log("GET STUDENT PROFILE ERROR 👉", error);
-    return null;
-  }
-};
-
-export const getStudentProfileByIdApi = async () => {
-  try {
-    axios.defaults.headers.common["Authorization"] = token;
-    const res = await axios.get(`${Domain}/student/getById`);
-    return res.data;
-  } catch (error) {
-    console.log("GET STUDENT PROFILE BY ID ERROR 👉", error);
-    return null;
+    return [];
   }
 };
 
 // ******************************************** Student APIs ******************************************** */
 
+
 export const getAllStudentApi = async ({ page = 0, size = 10 }) => {
   try {
-    axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+    axios.defaults.headers.common["Authorization"] = token;
 
     const res = await axios.get(`${Domain}/student/all`, {
       params: {
@@ -552,13 +470,16 @@ export const getAllStudentApi = async ({ page = 0, size = 10 }) => {
   }
 };
 
-export const getFeeSummaryByIdApi = async (studentId) => {
-  try {
-    axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
 
-    const res = await axios.get(`${Domain}/fee/student-fee-summary`, {
-      params: { studentId },
-    });
+
+export const getStudentByIdApi = async (studentId) => {
+  try {
+    axios.defaults.headers.common["Authorization"] = token;
+
+    const res = await axios.get(
+      `${Domain}/student/getById/${studentId}`
+    );
+
     return res?.data;
   } catch (error) {
     console.log("GET STUDENT BY ID ERROR 👉", error);
@@ -566,80 +487,73 @@ export const getFeeSummaryByIdApi = async (studentId) => {
   }
 };
 
-export const getFeeDashboard = async (data) => {
+
+
+export const getFeeSummaryByIdApi = async (studentId) => {
   try {
-    axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+    axios.defaults.headers.common["Authorization"] = token;
+
+    const res = await axios.get(
+      `${Domain}/fee/student-fee-summary`,
+      {
+        params: { studentId }
+      }
+    );
+    return res?.data;
+  } catch (error) {
+    console.log("GET STUDENT BY ID ERROR 👉", error);
+    return null;
+  }
+};
+
+
+export const getFeeDashboard  = async (data) => {
+  try {
+    axios.defaults.headers.common["Authorization"] = token;
 
     const res = await axios.get(`${Domain}/fee/dashboard`);
     return res?.data;
   } catch (error) {
     console.log("GET FEE DASHBOARD ERROR 👉", error);
     return null;
-  }
+   }      
 };
 
-export const getFeeStudentDetails = async () => {
-  try {
-    const token = sessionStorage.getItem("token");
-
-    const res = await axios.get(`${Domain}/fee/dashboard`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
-
-    return res;
-  } catch (error) {
-    console.log("GET FEE STUDENT DETAILS ERROR 👉", error);
-    return error?.response || null;
-  }
-};
-
-export const getStudentTransectionsApi = async (page = 1) => {
-  try {
-    axios.defaults.headers.common["Authorization"] = token;
-    const res = await axios.get(`${Domain}/fee/student/my-transactions`, {
-      params: {
-        page: page,
-      },
-    });
-    return res.data;
-  } catch (error) {
-    console.log("GET STUDENT TRANSACTION HISTORY ERROR 👉", error);
-    return null;
-  }
-};
 
 // get FeeReceipt data by id
 export const getFeeReceipt = async (id) => {
   try {
     axios.defaults.headers.common["Authorization"] = token;
-    const res = await axios.get(`${Domain}/fee/receipt`, {
-      params: { transactionId: id },
-    });
+    const res = await axios.get(`${Domain}/fee/receipt`,
+      {
+    params: { transactionId : id },
+  }
+    );
     return res?.data;
   } catch (error) {
     console.log("GET FEE RECEIPT ERROR 👉", error);
     return null;
-  }
-};
+   } 
+}
 
-export const getFeePaymentHistory = async (studentId, page = 1) => {
+
+export const getFeePaymentHistory = async (studentId, page=1) => {
   try {
     axios.defaults.headers.common["Authorization"] = token;
-    const res = await axios.get(`${Domain}/fee/student/payment-history`, {
+    const res = await axios.get(`${Domain}/fee/student/payment-history`,{
       params: {
         studentId,
-        page, // ✅ add this
-        size: 10,
-      },
+        page,   // ✅ add this
+        size: 10
+      }
     });
     return res?.data;
   } catch (error) {
     console.log("GET FEE PAYMENT HISTORY ERROR 👉", error);
     return null;
-  }
-};
+   }   
+}
+
 
 export const postCollectFeeApi = async (data) => {
   try {
@@ -651,8 +565,9 @@ export const postCollectFeeApi = async (data) => {
   } catch (error) {
     console.log("COLLECT FEE ERROR 👉", error);
     return null;
-  }
-};
+   }   
+}
+
 
 // *************************** ADMIN SUPPORT TICKETS APIS **************************** */
 
@@ -691,6 +606,152 @@ export const updateSupportTicketApi = async (id, payload) => {
     return null;
   }
 };
+
+export const getSupportTicketByIdApi = async (id) => {
+  try {
+    axios.defaults.headers.common["Authorization"] = token;
+
+    const res = await axios.get(`${Domain}/support/tickets/${id}`);
+
+    return res.data;
+  } catch (error) {
+    console.log("GET SUPPORT TICKET BY ID ERROR 👉", error);
+    return null;
+  }
+}; 
+
+
+// *************************** Student Panel Apis  **************************** */
+// Fees Module
+
+export const getFeeStudentDetails = async () => {
+  try {
+    axios.defaults.headers.common["Authorization"] = token; 
+    const res = await axios.get(`${Domain}/fee/student/my-fee-details`);
+    return res.data;
+  } catch (error) {
+    console.log("GET FEE STUDENT DETAILS ERROR 👉", error);
+    return null;
+  }
+};
+
+export const getStudentTransectionsApi = async (page=1) => {
+  try {
+    axios.defaults.headers.common["Authorization"] = token;
+    const res = await axios.get(`${Domain}/fee/student/my-transactions`,{ 
+      params: { 
+        page: page
+      }
+    });
+    return res.data;
+  } catch (error) {
+    console.log("GET STUDENT TRANSACTION HISTORY ERROR 👉", error);
+    return null;
+  }
+};
+
+
+// Student Profile
+export const getStudentProfileApi = async () => {
+  try {
+    axios.defaults.headers.common["Authorization"] = token;
+    const res = await axios.get(`${Domain}/student/profile`);
+    return res.data;
+  } catch (error) {
+    console.log("GET STUDENT PROFILE ERROR 👉", error);
+    return null;
+  }
+};
+
+export const getStudentProfileByIdApi = async () => {
+  try {
+    axios.defaults.headers.common["Authorization"] = token;
+    const res = await axios.get(`${Domain}/student/getById`);
+    return res.data;
+  } catch (error) {
+    console.log("GET STUDENT PROFILE BY ID ERROR 👉", error);
+    return null;
+  }
+};  
+
+
+export const updateStudentProfileApi = async (data) => {
+  try {
+    axios.defaults.headers.common["Authorization"] = token;
+    const res = await axios.put(`${Domain}/student/edit-profile`, data);
+    return res.data;
+  } catch (error) {
+    console.log("UPDATE STUDENT PROFILE ERROR 👉", error);
+    return null;
+  }
+};
+
+// Student Support Tickets
+
+export const createSupportTicketApi = async (data) => {
+  try {
+    axios.defaults.headers.common["Authorization"] = token;
+    const res = await axios.post(`${Domain}/support/createTicket`, null, {
+      params: data,
+    });
+    return res.data;
+  } catch (error) {
+    console.log("CREATE SUPPORT TICKET ERROR 👉", error);
+    return null;
+  }
+};
+
+/************************************ CHEFF **********************************/
+
+/******Inventory********/
+export const addInventoryCategoryApi = async (data) => {
+  try {
+    axios.defaults.headers.common["Authorization"] = token;
+    const res = await axios.post(`${Domain}/inventory/category/add`, data);
+    return res.data;
+  } catch (error) {
+    console.log("ADD INVENTORY CATEGORY ERROR 👉", error);
+    return null;
+  }
+};
+
+export const getAllInventoryCategoryApi = async () => {
+  try {
+    axios.defaults.headers.common["Authorization"] = token;
+    const res = await axios.get(`${Domain}/inventory/category/getAll`);
+    return res.data;
+  } catch (error) {
+    console.log("GET ALL INVENTORY CATEGORY ERROR 👉", error);
+    return [];
+  }
+};
+
+export const updateInventoryCategoryItemApi = async (id, data) => {
+  try {
+    axios.defaults.headers.common["Authorization"] = token;
+    const res = await axios.put(`${Domain}/inventory/categoryItem/update/${id}`, data);
+    return res.data;
+  } catch (error) {
+    console.log("UPDATE INVENTORY CATEGORY ITEM ERROR 👉", error);
+    return null;
+  }
+};
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 // ******************************************************************************************************
 // ASIM //
@@ -806,7 +867,7 @@ export const addAmenityApi = async (name, file) => {
 
 export const getAllAmenitiesApi = async () => {
   try {
-    axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+    axios.defaults.headers.common["Authorization"] = token;
 
     const res2 = await axios.get(`${Domain}/amenities/all`);
 
@@ -947,7 +1008,7 @@ export const deleteOccupancyById = async (id) => {
 
 export const getAllCategoryApi = async () => {
   try {
-    axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+    axios.defaults.headers.common["Authorization"] = token;
 
     const res = await axios.get(`${Domain}/category/all`);
 
@@ -1049,17 +1110,17 @@ export const addStudentApi = async (formData) => {
 
 // GET by ID api for student view
 
-export const getStudentByIdApi = async (id) => {
-  try {
-    const token = sessionStorage.getItem("token");
-    axios.defaults.headers.common["Authorization"] = token;
+// export const getStudentByIdApi = async (id) => {
+//   try {
+//     const token = sessionStorage.getItem("token");
+//     axios.defaults.headers.common["Authorization"] = token;
 
-    const res = await axios.get(`${Domain}/student/getById/${id}`);
-    return res || [];
-  } catch (error) {
-    return [];
-  }
-};
+//     const res = await axios.get(`${Domain}/student/getById/${id}`);
+//     return res || [];
+//   } catch (error) {
+//     return [];
+//   }
+// };
 
 // GET api for student
 
@@ -1097,40 +1158,25 @@ export const getAllStudentsApi = async (params) => {
 
 // Admin student  UPDATE (PUT)
 
-// export const updateStudentApi = async (id, params) => {
-//   try {
-//     const token = sessionStorage.getItem("token");
-
-//     axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
-
-//     const res = await axios.put(`${Domain}/student/update/${id}`, null, {
-//       params: params,
-//     });
-
-//     return res;
-//   } catch (error) {
-//     console.log("UPDATE STUDENT ERROR 👉", error);
-//     return null;
-//   }
-// };
-
-// admin PUT api
-
-export const updateStudentApi = async (id, formData) => {
+export const updateStudentApi = async (id, params) => {
   try {
     const token = sessionStorage.getItem("token");
 
-    const res = await axios.put(`${Domain}/student/update/${id}`, formData, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-        "Content-Type": "multipart/form-data",
-      },
-    });
+    // ✅ SAME STYLE AS YOUR PACKAGE API
+    axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+
+    const res = await axios.put(
+      `${Domain}/student/update/${id}`,
+      null,
+      {
+        params: params,
+      }
+    );
 
     return res;
   } catch (error) {
     console.log("UPDATE STUDENT ERROR 👉", error);
-    return error?.response || null;
+    return null;
   }
 };
 
@@ -1153,9 +1199,11 @@ export const getAdminStudentByIdApi = async (id) => {
   }
 };
 
+
 // =================
 // =================
 // =================
+
 
 // Admin Queries GET api
 
@@ -1165,14 +1213,17 @@ export const getAllQueriesApi = async (params = {}) => {
 
     axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
 
-    const res = await axios.get(`${Domain}/enrollment/admin/all-requests`, {
-      params: {
-        status: params.status,
-        hostelId: params.hostelId,
-        page: params.page || 0,
-        size: params.size || 10,
-      },
-    });
+    const res = await axios.get(
+      `${Domain}/enrollment/admin/all-requests`,
+      {
+        params: {
+          status: params.status,
+          hostelId: params.hostelId,
+          page: params.page || 0,
+          size: params.size || 10,
+        },
+      }
+    );
 
     return res;
   } catch (error) {
@@ -1188,7 +1239,9 @@ export const approveRequestApi = async (requestId) => {
 
     axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
 
-    const res = await axios.put(`${Domain}/enrollment/approve/${requestId}`);
+    const res = await axios.put(
+      `${Domain}/enrollment/approve/${requestId}`
+    );
 
     return res;
   } catch (error) {
@@ -1211,7 +1264,7 @@ export const rejectRequestApi = async (requestId, reason) => {
         params: {
           rejectionReason: reason || "Rejected by admin",
         },
-      },
+      }
     );
 
     return res;
@@ -1221,46 +1274,8 @@ export const rejectRequestApi = async (requestId, reason) => {
   }
 };
 
-// ============
-// ============
-// ============
 
-// ADMIN ADD HOSTEL POST API
 
-// export const createHostelApi = async (params) => {
-//   try {
-//     axios.defaults.headers.common["Authorization"] = token;
-
-//     const queryString = new URLSearchParams(params).toString();
-
-//     const res = await axios.post(
-//       `${Domain}/hostel/user-create?${queryString}`, // ✅ FIXED ENDPOINT
-//     );
-
-//     return res;
-//   } catch (error) {
-//     console.log("CREATE HOSTEL ERROR 👉", error);
-//     return null;
-//   }
-// };
-
-export const createHostelApi = async (data) => {
-  try {
-    const token = sessionStorage.getItem("token");
-
-    const res = await axios.post(`${Domain}/hostel/user-create`, null, {
-      params: data,
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
-
-    return res;
-  } catch (error) {
-    console.error("CREATE HOSTEL ERROR", error.response?.data || error.message);
-    return error.response || null;
-  }
-};
 
 //*************************** User Apis **************************** */
 //*************************** User Apis **************************** */
@@ -1314,6 +1329,7 @@ export const createEnrollmentRequest = async (data) => {
   }
 };
 
+
 // *************************** Dashboard API **************************** //
 
 export const getDashboardAdminApi = async () => {
@@ -1329,180 +1345,6 @@ export const getDashboardAdminApi = async () => {
     }
   } catch (error) {
     console.log("DASHBOARD API ERROR 👉", error);
-    return [];
-  }
-};
-
-
-// Admin profile Get API
-
-
-export const getAdminProfileApi = async () => {
-  try {
-    axios.defaults.headers.common["Authorization"] = token;
-
-    const res = await axios.get(
-      `${Domain}/admin/profile`
-    );
-
-    if (res) {
-      return res;
-    } else {
-      return [];
-    }
-  } catch (error) {
-    console.log("GET ADMIN PROFILE ERROR 👉", error);
-    return [];
-  }
-};
-
-// Admin profilt PUT api 
-
-
-export const updateAdminPersonalDetailsApi = async (data) => {
-  try {
-    axios.defaults.headers.common["Authorization"] = token;
-
-    const res = await axios.put(
-      `${Domain}/admin/updatePersonalDetails`,
-      null,
-      {
-        params: {
-          fullName: data.fullName,
-          email: data.email,
-          phone: data.phone,
-          address: data.address,
-          pinCode: data.pinCode,
-          country: data.country,
-          state: data.state,
-          city: data.city,
-        },
-      }
-    );
-
-    if (res) {
-      return res;
-    } else {
-      return [];
-    }
-  } catch (error) {
-    console.log("UPDATE ADMIN PROFILE ERROR 👉", error);
-    return [];
-  }
-};
-
-
-
-// Admin Notic POST api
-
-
-export const createNoticeApi = async (data) => {
-  try {
-    axios.defaults.headers.common["Authorization"] = token;
-
-    const res = await axios.post(
-      `${Domain}/notice/create`,
-      null,
-      {
-        params: {
-          title: data.title,
-          description: data.description,
-          category: data.category,
-          priority: data.priority,
-        },
-      }
-    );
-
-    if (res) {
-      return res;
-    } else {
-      return [];
-    }
-  } catch (error) {
-    console.log("CREATE NOTICE ERROR 👉", error);
-    return [];
-  }
-};
-
-
-// Admin Notice GET api
-
-export const getAllNoticesApi = async () => {
-  try {
-    axios.defaults.headers.common["Authorization"] = token;
-
-    const res = await axios.get(`${Domain}/notice/all`);
-
-    if (res) {
-      return res;
-    } else {
-      return [];
-    }
-  } catch (error) {
-    return [];
-  }
-};
-
-
-// admin Notice DELETE api
-
-
-export const deleteNoticeApi = async (noticeId) => {
-  try {
-    axios.defaults.headers.common["Authorization"] = token;
-
-    const res = await axios.delete(
-      `${Domain}/notice/delete/${noticeId}`
-    );
-
-    return res;
-  } catch (error) {
-    console.log("DELETE NOTICE ERROR 👉", error);
-    return null;
-  }
-};
-
-// admin notice PUT api 
-
-export const updateNoticeApi = async (noticeId, data) => {
-  try {
-    axios.defaults.headers.common["Authorization"] = token;
-
-    const res = await axios.put(
-      `${Domain}/notice/update/${noticeId}`,
-      null,
-      {
-        params: {
-          title: data.title,
-          description: data.description,
-          category: data.category,
-          priority: data.priority,
-          status: true,
-        },
-      }
-    );
-
-    return res;
-  } catch (error) {
-    console.log("UPDATE NOTICE ERROR 👉", error);
-    return null;
-  }
-};
-
-// Admin Package GET api
-
-export const getAllPackageData = async () => {
-  try {
-    axios.defaults.headers.common["Authorization"] = token;
-
-    const res = await axios.get(`${Domain}package/all`);
-
-    if (res) {
-      return res;
-    } else {
-      return [];
-    }
-  } catch (error) {
     return [];
   }
 };

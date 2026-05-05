@@ -4,6 +4,7 @@ import {
   Package,
   BarChart3,
   BedDouble,
+  Bell,
   Users,
   Utensils,
   IndianRupee,
@@ -11,8 +12,7 @@ import {
   Settings,
   HelpCircle,
   User,
-  MessageSquare,
-  Bell
+  MessageSquare
 } from "lucide-react";
 
 export const menuConfig = {
@@ -42,7 +42,6 @@ export const menuConfig = {
     { name: "Staff", path: "/staff", icon: UserCog },
     { name: "Settings", path: "/settings", icon: Settings },
     { name: "Queries Details", path: "/Queries/details", icon: MessageSquare },
-    { name: "Notices", path: "/notices", icon: Bell },
     { name: "Support", path: "/support", icon: HelpCircle },
   ],
 
@@ -64,5 +63,22 @@ export const menuConfig = {
     { name: "Support", path: "/support", icon: HelpCircle },
     { name: "Profile", path: "/profile", icon: User },
   ],
+
+  chef: [
+    { name: "Dashboard", path: "/", icon: LayoutDashboard },
+    { name: "Menu Planner", path: "/menu", icon: Utensils },
+    {
+      name: "Inventory",
+      path: "/inventory",
+      icon: Package,
+      children: [
+        { name: "Inventory Details", path: "/inventory/details" },
+        { name: "Inventory Category", path: "/inventory/category" },
+      ]
+    },
+    { name: "Feedback", path: "/feedback", icon: MessageSquare },
+    { name: "Notices", path: "/notices", icon: Bell },
+  ],
 };
+
 

@@ -24,69 +24,6 @@ import { useState, useEffect } from "react";
 import { getAllHostelDetailsApi } from "../../../../utils/utils";
 import { deleteHostelById } from "../../../../utils/utils";
 
-// const stats = [
-//   { title: "TOTAL HOSTELS", value: "128", change: "+5.4%", icon: Building2 },
-//   { title: "ACTIVE STUDENT", value: "3,450", change: "+2.1%", icon: Users },
-//   {
-//     title: "AVERAGE OCCUPANCY",
-//     value: "74.2%",
-//     change: "+12.8%",
-//     icon: BarChart2,
-//   },
-//   { title: "PENDING ISSUES", value: "12", change: "+8.2%", icon: Archive },
-// ];
-
-// const hostelsData = [
-//   {
-//     id: 1,
-//     name: "Grand Residency",
-//     location: "Noida,\nUP",
-//     admin: {
-//       name: "Sandeep",
-//       avatar:
-//         "https://api.dicebear.com/7.x/avataaars/svg?seed=Sandeep&backgroundColor=e2e8f0",
-//     },
-//     students: 150,
-//     occupancy: 85,
-//     status: "Active",
-//   },
-//   {
-//     id: 2,
-//     name: "Lakeside Dorms",
-//     location: "Ghaziabad,\nUP",
-//     admin: {
-//       name: "Aadya",
-//       avatar:
-//         "https://api.dicebear.com/7.x/avataaars/svg?seed=Aadya&backgroundColor=e2e8f0",
-//     },
-//     students: 80,
-//     occupancy: 60,
-//     status: "Active",
-//   },
-//   {
-//     id: 3,
-//     name: "Heritage Hall",
-//     location: "New Delhi\nDelhi",
-//     admin: {
-//       name: "Mukesh",
-//       avatar:
-//         "https://api.dicebear.com/7.x/avataaars/svg?seed=Mukesh&backgroundColor=e2e8f0",
-//     },
-//     students: 45,
-//     occupancy: 30,
-//     status: "Under Maintenance",
-//   },
-//   {
-//     id: 4,
-//     name: "Sunset Suites",
-//     location: "Mumbai\nMH",
-//     admin: null,
-//     students: 0,
-//     occupancy: 0,
-//     status: "Pending",
-//   },
-// ];
-
 
 const StatusBadge = ({ status }) => {
   let dotColor = "bg-primary";
