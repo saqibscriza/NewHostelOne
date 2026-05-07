@@ -84,6 +84,7 @@ import EditCategoryPage from "../src/features/chef/inventory/pages/inventoryCate
 import EditCategoryItemPage from "../src/features/chef/inventory/pages/inventoryCategory/EditCategoryItemPage";
 import AddCategoryItemPage from "../src/features/chef/inventory/pages/inventoryCategory/AddCategoryItemPage";
 import FeedbackPage from "../src/features/chef/feedback/pages/FeedbackPage";
+import NoticesPage from "../src/features/chef/notices/pages/NoticesPage";
 
 export default function AppRoutes() {
   const { role } = useAuth();
@@ -240,6 +241,7 @@ export default function AppRoutes() {
                 path="inventory/category/:categoryId/item/:itemId/edit"
                 element={<EditCategoryItemPage />}
               />
+              <Route path="notices" element={<NoticesPage />} />
 
               <Route path="feedback" element={<FeedbackPage />} />
             </Route>

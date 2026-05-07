@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import {
   Star,
   MessageSquare,
@@ -15,7 +15,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "../../../../components/ui/select";
-import { Badge } from "../../../../components/ui/badge";
+import { Badge } from "../../../../components/ui/Badge";
 import {
   Table,
   TableBody,
@@ -23,18 +23,56 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "../../../admin/Table";
+} from "../../../../components/ui/Table";
+import { getFeedbackStatsApi, getFeedbackListApi } from '../../../../../src/utils/utils';
 
 export default function FeedbackPage() {
-  const feedbacks = Array(4).fill({
-    studentName: "Sandeep Sharma",
-    date: "12 June 2026",
-    mealName: "Grilled Salmon",
-    mealType: "Non-Veg",
-    rating: 4,
-    sentiment: "POSITIVE",
-    comment: "The salmon was perfectly cooked and season...",
-  });
+const [feedbacks, setFeedbacks] = useState([]);
+const [stats, setStats] = useState(null);
+const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+  fetchFeedbacksStates();
+  fetchFeedbacksList();
+}, []);
+
+const fetchFeedbacksStates = async () => {
+  try {
+    setLoading(true);
+
+    const res = await getFeedbackStatsApi();
+
+    console.log("FEEDBACK RESPONSE:", res);
+
+    if (res?.status === "success") {
+  setStats(res?.stats);
+}
+  } catch (error) {
+    console.log("FEEDBACK FETCH ERROR:", error);
+  } finally {
+    setLoading(false);
+  }
+};
+
+const fetchFeedbacksList = async () => {
+  try {
+    setLoading(true);
+
+    const res = await getFeedbackListApi();
+
+    console.log("FEEDBACK RESPONSE:", res);
+
+        if (res?.status === "success") {
+      setFeedbacks(res?.data?.feedbacks || []);
+    }
+  } catch (error) {
+    console.log("FEEDBACK FETCH ERROR:", error);
+  } finally {
+    setLoading(false);
+  }
+};
+
+
 
   return (
     <div className="max-w-7xl mx-auto space-y-6 pb-10">
@@ -60,7 +98,7 @@ export default function FeedbackPage() {
                 <div>
                   <div className="flex items-baseline gap-2">
                     <span className="text-3xl font-bold text-foreground">
-                      4.2
+                      {stats?.overallRating || 0}
                     </span>
                     <span className="text-sm font-semibold text-muted-foreground">
                       / 5.0
@@ -68,7 +106,7 @@ export default function FeedbackPage() {
                   </div>
                   <div className="flex items-center gap-1 mt-2 text-green-600 dark:text-green-500 text-sm font-semibold">
                     <TrendingUp className="w-4 h-4" />
-                    <span>+0.3 from last week</span>
+                    <span>{stats?.ratingChange || 0} from last week</span>
                   </div>
                 </div>
               </div>
@@ -88,7 +126,7 @@ export default function FeedbackPage() {
                 </p>
                 <div>
                   <div className="text-3xl font-bold text-foreground">
-                    1,284
+                    {stats?.totalFeedbacks || 0}
                   </div>
                   <p className="text-sm font-medium text-muted-foreground mt-2">
                     Last 30 days active response
@@ -113,11 +151,13 @@ export default function FeedbackPage() {
               </div>
             </div>
             <div>
-              <div className="text-3xl font-bold text-foreground mb-4">88%</div>
+              <div className="text-3xl font-bold text-foreground mb-4">{stats?.positiveSentimentPercentage || 0}%</div>
               <div className="w-full bg-muted rounded-full h-2">
                 <div
                   className="bg-[#0f1419] dark:bg-white h-2 rounded-full"
-                  style={{ width: "88%" }}
+                  style={{
+  width: `${stats?.positiveSentimentPercentage || 0}%`,
+}}
                 ></div>
               </div>
             </div>
@@ -132,25 +172,19 @@ export default function FeedbackPage() {
             Rating Distribution
           </p>
           <div className="space-y-4">
-            {[
-              { stars: 5, percent: 65 },
-              { stars: 4, percent: 20 },
-              { stars: 3, percent: 10 },
-              { stars: 2, percent: 3 },
-              { stars: 1, percent: 2 },
-            ].map((item) => (
-              <div key={item.stars} className="flex items-center gap-4">
+            {stats?.ratingDistribution?.map((item) => (
+              <div key={item.star} className="flex items-center gap-4">
                 <span className="text-sm font-medium text-foreground w-12">
-                  {item.stars} Star
+                  {item.star} Star
                 </span>
                 <div className="flex-1 bg-muted rounded-full h-2.5">
                   <div
                     className="bg-slate-700 dark:bg-slate-300 h-2.5 rounded-full"
-                    style={{ width: `${item.percent}%` }}
+                    style={{ width: `${item.percentage}%` }}
                   ></div>
                 </div>
                 <span className="text-sm font-medium text-muted-foreground w-10 text-right">
-                  {item.percent}%
+                  {item.percentage}%
                 </span>
               </div>
             ))}
@@ -172,6 +206,10 @@ export default function FeedbackPage() {
               <SelectItem value="all-rating">All Rating</SelectItem>
               <SelectItem value="5-star">5 Stars</SelectItem>
               <SelectItem value="4-star">4 Stars</SelectItem>
+              <SelectItem value="3-star">3 Stars</SelectItem>
+              <SelectItem value="2-star">2 Stars</SelectItem>
+              <SelectItem value="1-star">1 Stars</SelectItem>
+
             </SelectContent>
           </Select>
 
@@ -251,7 +289,7 @@ export default function FeedbackPage() {
                       {item.mealName}
                     </div>
                     <div className="text-xs text-muted-foreground mt-1">
-                      {item.mealType}
+                      {item.category}
                     </div>
                   </TableCell>
                   <TableCell className="py-5">

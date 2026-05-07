@@ -10,7 +10,7 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "../../../admin/Table";
+} from "../../../../components/ui/Table";
 
 export default function Support() {
   const navigate = useNavigate();

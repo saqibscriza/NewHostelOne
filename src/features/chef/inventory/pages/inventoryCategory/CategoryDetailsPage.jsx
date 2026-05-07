@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
-import { Search, Edit2, Trash2, ChevronLeft, ChevronRight } from 'lucide-react';
+import { useNavigate, useParams } from 'react-router-dom';
+import { Search, Edit2, Trash2, ChevronLeft, ChevronRight,Plus } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Card, CardContent } from '../../../../../components/ui/Card';
 import {
@@ -11,20 +11,27 @@ import {
   TableHeader,
   TableRow,
 } from "../../../../../components/ui/Table";
-import { Badge } from '../../../../../components/ui/badge';
-import {getCategoryItemsByIdApi} from '../../../../../utils/utils';
+import { Badge } from '../../../../../components/ui/Badge';
+import {getCategoryItemsByIdApi, deleteInventoryItemApi, } from '../../../../../utils/utils';
 
 export default function CategoryDetailsPage() {
   const { id } = useParams(); // 🔥 URL se id mil rahi hai
   const [category, setCategory] = useState(null);
   const [items, setItems] = useState([]);
+  const navigate = useNavigate();
 
     const getCategoryDetails = async () => {
     try {
       const res = await getCategoryItemsByIdApi(id);
       console.log("DETAIL:", res);
-      setCategory(res.category);
-      setItems(res.items || []);
+
+      // ✅ Correct extraction
+      const categoryData = res.categoryDetails?.category;
+      const itemsData = res.categoryDetails?.items;
+
+      setCategory(categoryData);
+      setItems(itemsData || []);
+      
     } catch (error) {
       console.error("Error fetching category:", error);
     }
@@ -34,28 +41,59 @@ export default function CategoryDetailsPage() {
     getCategoryDetails();
   }, [id]);
 
+
+  const handleDeleteItem = async (itemId) => {
+    console.log('DELETE FUNCTION CALLED:', itemId);
+  
+    try {
+      const res = await deleteInventoryItemApi(itemId);
+      console.log('DELETE RESPONSE:', res);
+  
+      if (res?.status === 'success') {
+        await getCategoryDetails();
+      } else {
+        setError(res?.message || 'Failed to delete item.');
+      }
+    } catch (error) {
+      console.error('Error deleting item:', error);
+      setError('Failed to delete item.');
+    }
+  };
+
   return (
     <div className="max-w-7xl mx-auto space-y-6 pb-10">
       <div>
         <h1 className="text-3xl font-bold text-foreground tracking-tight">
-          Dairy Category Item Details
+            "{category?.categoryName} Category Item Details"
         </h1>
         <p className="text-muted-foreground mt-1 text-sm">
-          View and update all dairy category item information
+          View and update all {category?.categoryName} category item information
         </p>
       </div>
 
       <Card className="border border-border shadow-sm rounded-2xl overflow-hidden bg-card">
-        <div className="p-6 border-b border-border">
-          <div className="relative w-full max-w-md">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-            <input
-              type="text"
-              placeholder="Search dairy products, SKUs..."
-              className="w-full bg-muted/40 border-none text-foreground text-sm rounded-xl focus:outline-none focus:ring-2 focus:ring-foreground py-2.5 pl-10 pr-4"
-            />
-          </div>
-        </div>
+<div className="p-6 border-b border-border">
+  <div className="flex items-center justify-between gap-4">
+    
+    {/* Search Input */}
+    <div className="relative w-full max-w-md">
+      <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+      <input
+        type="text"
+        placeholder="Search dairy products, SKUs..."
+        className="w-full bg-muted/40 border-none text-foreground text-sm rounded-xl focus:outline-none focus:ring-2 focus:ring-foreground py-2.5 pl-10 pr-4"
+      />
+    </div>
+
+    {/* Add Button */}
+    <button onClick={() => navigate(`/chef/inventory/category/${id}/item/add`)}
+     className="bg-black text-white text-sm font-semibold px-4 py-2 rounded-xl flex items-center gap-2 hover:bg-gray-800 transition">
+      <Plus className="w-4 h-4" />
+      ADD MORE ITEM
+    </button>
+
+  </div>
+</div>
 
         <div className="overflow-x-auto">
           <Table>
@@ -88,9 +126,13 @@ export default function CategoryDetailsPage() {
                       <Edit2 className="w-4 h-4" />
                     </Link>
 
-                    <Link to={`/chef/inventory/category/${item.categoryId}/item/${item.id}/delete`} className="inline-flex text-muted-foreground hover:text-foreground transition-colors p-2 rounded-lg hover:bg-muted">
-                      <Trash2 className="w-4 h-4" />
-                    </Link>
+                          <button
+                          type="button"
+                          onClick={() => handleDeleteItem(item.id)}
+                          className="inline-flex text-muted-foreground hover:text-red-500 transition-colors p-2 rounded-lg hover:bg-muted"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
                   </TableCell>
                 </TableRow>
               ))}

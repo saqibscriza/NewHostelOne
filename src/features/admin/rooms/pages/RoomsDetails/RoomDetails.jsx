@@ -13,7 +13,7 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "../../../Table";
+} from "../../../../../components/ui/Table";
 
 import {
   Select,

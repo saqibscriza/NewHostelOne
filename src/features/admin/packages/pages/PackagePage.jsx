@@ -11,7 +11,7 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "../../Table";
+} from "../../../../components/ui/Table";
 
 const historyRows = [
   ["Basic", "₹49.00", "22 Aug 2024", "SC23654125478", "Monthly", "21 Aug 2025"],

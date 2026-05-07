@@ -48,6 +48,7 @@ export default function AddCategoryPage() {
     try{
       const response = await addInventoryCategoryApi(formData);
       if(response?.status === "success"){
+        navigate("/chef/inventory/category");
         console.log("Category added successfully");
       } else {
         console.error("Failed to add category");

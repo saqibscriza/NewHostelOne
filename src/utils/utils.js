@@ -707,6 +707,18 @@ export const getAllInventoryCategoryApi = async () => {
   }
 };
 
+// Get all inventory Items
+export const getAllInventoryItemApi = async() => {
+ try {
+    axios.defaults.headers.common["Authorization"] = token;
+    const res = await axios.get(`${Domain}/inventory/item/getAll`);
+    return res.data;
+  } catch (error) {
+    console.log("GET ALL INVENTORY CATEGORY ERROR 👉", error);
+    return [];
+  }
+};
+
 // Get category details by category id
 export const getCategoryItemsByIdApi = async (id) => {
   try {
@@ -719,6 +731,8 @@ export const getCategoryItemsByIdApi = async (id) => {
   }
 };
 
+
+
 // Delete inventory category by id
 export const deleteInventoryCategoryApi = async (id) => {
   try {
@@ -727,6 +741,18 @@ export const deleteInventoryCategoryApi = async (id) => {
     return res.data;
   } catch (error) {
     console.log("DELETE INVENTORY CATEGORY ERROR 👉", error);
+    return null;
+  }
+};
+
+// Delete inventory item by id
+export const deleteInventoryItemApi = async (id) => {
+  try {
+    axios.defaults.headers.common['Authorization'] = token;
+    const res = await axios.delete(`${Domain}/inventory/item/delete/${id}`);
+    return res.data;
+  } catch (error) {
+    console.log('DELETE INVENTORY ITEM ERROR 👉', error?.response?.data || error);
     return null;
   }
 };
@@ -743,17 +769,135 @@ export const updateInventoryCategoryApi = async (id, data) => {
   }
 };
 
-// Update inventory category item by id
-export const updateInventoryCategoryItemApi = async (id, data) => {
+// // Update inventory category item by id
+// export const updateInventoryCategoryItemApi = async (id, data) => {
+//   try {
+//     axios.defaults.headers.common["Authorization"] = token;
+//     const res = await axios.put(
+//       `${Domain}/inventory/categoryItem/update/${id}`,
+//       data,
+//     );
+//     return res.data;
+//   } catch (error) {
+//     console.log("UPDATE INVENTORY CATEGORY ITEM ERROR 👉", error);
+//     return null;
+//   }
+// };
+
+export const updateCategoryItemsApi = async (categoryId, data) => {
   try {
     axios.defaults.headers.common["Authorization"] = token;
+
+    const formData = new FormData();
+
+    data.itemName.forEach((name) => {
+      formData.append("itemName", name);
+    });
+
+    data.skuId.forEach((sku) => {
+      formData.append("skuId", sku);
+    });
+
     const res = await axios.put(
-      `${Domain}/inventory/categoryItem/update/${id}`,
-      data,
+      `${Domain}/inventory/categoryItem/update/${categoryId}`,
+      formData
     );
+
     return res.data;
   } catch (error) {
-    console.log("UPDATE INVENTORY CATEGORY ITEM ERROR 👉", error);
+    console.log(
+      "UPDATE CATEGORY ITEMS ERROR 👉",
+      error?.response?.data || error
+    );
+    return null;
+  }
+};
+
+
+// // Update inventory item Only by id
+export const updateInventoryItemOnlyApi = async (id, data) => {
+  try {
+    axios.defaults.headers.common["Authorization"] = token;
+
+    const res = await axios.put(
+      `${Domain}/inventory/item/update/${id}`,
+      null,
+      {
+        params: {
+          itemName: data.itemName,
+          skuId: data.skuId,
+          categoryId: data.categoryId,
+        },
+      }
+    );
+
+    return res.data;
+  } catch (error) {
+    console.log("UPDATE INVENTORY ITEM ERROR 👉", error);
+    return null;
+  }
+};
+
+// Update  inventory item by id
+export const updateInventoryItemApi = async (id, data) => {
+  try {
+    axios.defaults.headers.common["Authorization"] = token; 
+    const res = await axios.put(  
+      `${Domain}/inventory/item/update/${id}`,  
+      data,
+    );  
+    return res.data;        
+  } catch (error) { 
+    console.log("UPDATE INVENTORY ITEM ERROR 👉", error)        
+    return null;
+  }   
+};
+
+
+// INVENTORY Stock Dashboard API
+
+export const getInventoryStockDashboardApi = async () => {
+  try {
+    axios.defaults.headers.common["Authorization"] = token;
+    const res = await axios.get(`${Domain}/inventory/stock/dashboard`);
+    return res.data;
+  } catch (error) {
+    console.log("GET INVENTORY STOCK DASHBOARD ERROR 👉", error);
+    return null;
+  }
+};
+
+export const addStockApi = async (data) => {
+  try {
+    axios.defaults.headers.common["Authorization"] = token;
+    const res = await axios.post(`${Domain}/inventory/stock/add`, data);
+    return res.data;
+  } catch (error) {
+    console.log("ADD STOCK ERROR 👉", error);
+    return null;
+  }
+};
+
+// FeedBack Stats
+export const getFeedbackStatsApi = async (id) => {
+  try {
+    axios.defaults.headers.common["Authorization"] = token;
+    const res = await axios.get(`${Domain}/chef/feedback/stats`);
+    return res.data;
+  } catch (error) {
+    console.log("GET FeedBack stats ERROR 👉", error);
+    return null;
+  }
+};
+
+//FeedBack List
+export const getFeedbackListApi = async (id) => {
+  try{
+    axios.defaults.headers.common["Authorization"] = token;
+    const res = await axios.get(`${Domain}/chef/feedback/list`);
+    return res.data;
+  }catch (error) {
+    console.log("GET FeedBack ERROR 👉", error);
     return null;
   }
 };
