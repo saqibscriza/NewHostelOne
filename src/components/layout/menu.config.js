@@ -21,6 +21,7 @@ export const menuConfig = {
     { name: "Hostels", path: "/hostels", icon: Building2 },
     { name: "Packages", path: "/packages", icon: Package },
     { name: "Reports", path: "/reports", icon: BarChart3 },
+    { name: "Queries Details", path: "/queries/details", icon: MessageSquare },
     { name: "Settings", path: "/settings", icon: Settings },
   ],
 
@@ -81,5 +82,4 @@ export const menuConfig = {
     { name: "Notices", path: "/notices", icon: Bell },
   ],
 };
-
 

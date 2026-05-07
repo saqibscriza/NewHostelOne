@@ -1,49 +1,48 @@
 import { Routes, Route, Navigate, BrowserRouter } from "react-router-dom";
-import { useAuth } from "../src/context/AuthContext";
-import MainLayout from "../src/components/layout/MainLayout";
+import { useAuth } from "./context/AuthContext";
+import MainLayout from "./components/layout/MainLayout";
 import { Toaster } from "react-hot-toast";
 import { useSearchParams } from "react-router-dom";
-
 // AUTH
-import Login from "../src/features/auth/pages/Login";
-import SignUp from "../src/features/auth/pages/SignUp";
-import SelectHostelForm from "../src/features/auth/pages/HostelLogin";
-import RegisterHostel from "../src/features/auth/pages/RegisterHostel";
+import Login from "./features/auth/pages/Login";
+import SignUp from "./features/auth/pages/SignUp";
+import SelectHostelForm from "./features/auth/pages/HostelLogin";
+import RegisterHostel from "./features/auth/pages/RegisterHostel";
 
 // ADMIN
-import AdminDashboard from "../src/features/admin/dashboard/pages/DashboardPage";
-import StudentList from "../src/features/admin/students/pages/StudentList";
-import Rooms from "../src/features/admin/rooms/pages/RoomsCategory/Rooms";
-import RoomDetails from "../src/features/admin/rooms/pages/RoomsDetails/RoomDetails";
-import AddRoom from "../src/features/admin/rooms/pages/RoomsDetails/AddRoom";
-import EditRoom from "../src/features/admin/rooms/pages/RoomsDetails/EditRoom";
+import AdminDashboard from "./features/admin/dashboard/pages/DashboardPage";
+import StudentList from "./features/admin/students/pages/StudentList";
+import Rooms from "./features/admin/rooms/pages/RoomsCategory/Rooms";
+import RoomDetails from "./features/admin/rooms/pages/RoomsDetails/RoomDetails";
+import AddRoom from "./features/admin/rooms/pages/RoomsDetails/AddRoom";
+import EditRoom from "./features/admin/rooms/pages/RoomsDetails/EditRoom";
 
-import FeesPage from "../src/features/admin/fees/pages/FeesPage";
-import CollectFeePage from "../src/features/admin/fees/pages/CollectFeePage";
-import GenerateReceiptPage from "../src/features/admin/fees/pages/GenerateReceiptPage";
-import PaymentHistoryPage from "../src/features/admin/fees/pages/PaymentHistoryPage";
+import FeesPage from "./features/admin/fees/pages/FeesPage";
+import CollectFeePage from "./features/admin/fees/pages/CollectFeePage";
+import GenerateReceiptPage from "./features/admin/fees/pages/GenerateReceiptPage";
+import PaymentHistoryPage from "./features/admin/fees/pages/PaymentHistoryPage";
 
-import StaffManagement from "../src/features/admin/staff/pages/StaffManagement";
-import AddStaffPage from "../src/features/admin/staff/pages/AddStaffPage";
-import EditStaffPage from "../src/features/admin/staff/pages/EditStaffPage";
+import StaffManagement from "./features/admin/staff/pages/StaffManagement";
+import AddStaffPage from "./features/admin/staff/pages/AddStaffPage";
+import EditStaffPage from "./features/admin/staff/pages/EditStaffPage";
 
-import AccountSettingPage from "../src/features/admin/setting/pages/AccountSettingPage";
-import SupportPage from "../src/features/admin/support/pages/Supportpage";
-import TicketViewPage from "../src/features/admin/support/pages/TicketViewPage";
+import AccountSettingPage from "./features/admin/setting/pages/AccountSettingPage";
+import SupportPage from "./features/admin/support/pages/Supportpage";
+import TicketViewPage from "./features/admin/support/pages/TicketViewPage";
 
-import AddStudent from "../src/features/admin/students/pages/AddStudent";
-import ViewStudent from "../src/features/admin/students/pages/ViewStudent";
-import EditStudent from "../src/features/admin/students/pages/EditStudent";
+import AddStudent from "./features/admin/students/pages/AddStudent";
+import ViewStudent from "./features/admin/students/pages/ViewStudent";
+import EditStudent from "./features/admin/students/pages/EditStudent";
 
-import AdminProfilePage from "../src/features/admin/profile/pages/ProfilePage";
-import AdminEditProfilePage from "../src/features/admin/profile/pages/EditProfilePage";
+import AdminProfilePage from "./features/admin/profile/pages/ProfilePage";
+import AdminEditProfilePage from "./features/admin/profile/pages/EditProfilePage";
 
-import AdminPackagePage from "../src/features/admin/packages/pages/PackagePage";
+import AdminPackagePage from "./features/admin/packages/pages/PackagePage";
 
-import AdminNoticesPage from "../src/features/admin/notices/pages/NoticesPage";
-import AdminCreateNoticePage from "../src/features/admin/notices/pages/CreateNoticePage";
-import AdminEditNoticePage from "../src/features/admin/notices/pages/EditNoticePage";
-
+import AdminNoticesPage from "./features/admin/notices/pages/NoticesPage";
+import AdminCreateNoticePage from "./features/admin/notices/pages/CreateNoticePage";
+import AdminEditNoticePage from "./features/admin/notices/pages/EditNoticePage";
+import AddNewHostel from "./features/admin/Hostel/AddNewHostel";
 import QueriesDetails from "./features/admin/Queries/QueriesDetails";
 
 // STUDENT IMPORTS
@@ -59,32 +58,32 @@ import StudentProfile from "./features/student/profile/pages/Profile";
 import StudentProfileEdit from "./features/student/profile/pages/ProfileEdit";
 
 // SUPER ADMIN
-import SuperAdminDashboard from "../src/features/super-admin/dashboard/pages/Dashboard";
+import SuperAdminDashboard from "./features/super-admin/dashboard/pages/Dashboard";
 
-import Hostel from "../src/features/super-admin/hostels/pages/HostelList";
-import HostelView from "../src/features/super-admin/hostels/pages/HostelView";
-import SuperAdminAddHostel from "../src/features/super-admin/hostels/pages/AddHostel";
-import UpdateHostel from "../src/features/super-admin/hostels/pages/UpdateHostel";
+import Hostel from "./features/super-admin/hostels/pages/HostelList";
+import HostelView from "./features/super-admin/hostels/pages/HostelView";
+import SuperAdminAddHostel from "./features/super-admin/hostels/pages/AddHostel";
+import UpdateHostel from "./features/super-admin/hostels/pages/UpdateHostel";
 
-import PackageList from "../src/features/super-admin/packages/pages/PackageList";
-import AddNewPackage from "../src/features/super-admin/packages/pages/AddnewPackage";
-import EditnewPackage from "../src/features/super-admin/packages/pages/EditnewPackage";
+import PackageList from "./features/super-admin/packages/pages/PackageList";
+import AddNewPackage from "./features/super-admin/packages/pages/AddnewPackage";
+import EditnewPackage from "./features/super-admin/packages/pages/EditnewPackage";
 
-import Report from "../src/features/super-admin/report/pages/ReportPage";
-import Notifications from "../src/features/super-admin/settings/pages/SettingsPage";
+import Report from "./features/super-admin/report/pages/ReportPage";
+import Notifications from "./features/super-admin/settings/pages/SettingsPage";
+import SuperAdminQueryDetails from "./features/super-admin/queries/pages/QueryDetails";
 
 // CHEF
-import ChefDashboard from "../src/features/chef/dashboard/pages/Dashboard";
-import InventoryDetailsPage from "../src/features/chef/inventory/pages/inventoryDetails/InventoryDetailsPage";
-import InventoryCategoryPage from "../src/features/chef/inventory/pages/inventoryCategory/InventoryCategoryPage";
-import AddStockPage from "../src/features/chef/inventory/pages/inventoryDetails/AddStockPage";
-import AddCategoryPage from "../src/features/chef/inventory/pages/inventoryCategory/AddCategoryPage";
-import CategoryDetailsPage from "../src/features/chef/inventory/pages/inventoryCategory/CategoryDetailsPage";
-import EditCategoryPage from "../src/features/chef/inventory/pages/inventoryCategory/EditCategoryPage";
-import EditCategoryItemPage from "../src/features/chef/inventory/pages/inventoryCategory/EditCategoryItemPage";
-import AddCategoryItemPage from "../src/features/chef/inventory/pages/inventoryCategory/AddCategoryItemPage";
-import FeedbackPage from "../src/features/chef/feedback/pages/FeedbackPage";
-import NoticesPage from "../src/features/chef/notices/pages/NoticesPage";
+import ChefDashboard from "./features/chef/dashboard/pages/Dashboard";
+import MenuPlanner from "./features/chef/Menu/MenuPlanner";
+import InventoryDetailsPage from "./features/chef/inventory/pages/inventoryDetails/InventoryDetailsPage";
+import InventoryCategoryPage from "./features/chef/inventory/pages/inventoryCategory/InventoryCategoryPage";
+import AddStockPage from "./features/chef/inventory/pages/inventoryDetails/AddStockPage";
+import AddCategoryPage from "./features/chef/inventory/pages/inventoryCategory/AddCategoryPage";
+import CategoryDetailsPage from "./features/chef/inventory/pages/inventoryCategory/CategoryDetailsPage";
+import EditCategoryPage from "./features/chef/inventory/pages/inventoryCategory/EditCategoryPage";
+import EditCategoryItemPage from "./features/chef/inventory/pages/inventoryCategory/EditCategoryItemPage";
+import FeedbackPage from "./features/chef/feedback/pages/FeedbackPage";
 
 export default function AppRoutes() {
   const { role } = useAuth();
@@ -152,6 +151,7 @@ export default function AppRoutes() {
               />
 
               <Route path="packages" element={<AdminPackagePage />} />
+              <Route path="hostel/add" element={<AddNewHostel />} />
             </Route>
           )}
 
@@ -170,6 +170,10 @@ export default function AppRoutes() {
               <Route path="packages/edit/:id" element={<EditnewPackage />} />
 
               <Route path="reports" element={<Report />} />
+              <Route
+                path="queries/details"
+                element={<SuperAdminQueryDetails />}
+              />
               <Route path="settings" element={<Notifications />} />
             </Route>
           )}
@@ -207,6 +211,8 @@ export default function AppRoutes() {
                 path="inventory"
                 element={<Navigate to="/chef/inventory/details" replace />}
               />
+
+              <Route path="menu" element={<MenuPlanner />} />
 
               <Route
                 path="inventory/details"

@@ -144,17 +144,17 @@ export default function Hostel() {
       {/* Header */}
       <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-foreground">Add New Hotel</h1>
+          <h1 className="text-3xl font-bold text-foreground">Hostels</h1>
           <p className="mt-2 text-base text-foreground">
-            Create a new hostel entity and assign a primary administrator.
+            Manage hostel entities and assign primary administrators.
           </p>
         </div>
 
         <Button
-          className="gap-2 bg-muted text-foreground"
+          className="gap-2"
           onClick={() => navigate("/superadmin/hostels/add")}
         >
-          <Building2 className="w-4 h-4" />
+          <Plus className="w-4 h-4" />
           Add Hostel
         </Button>
       </div>
