@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   Card,
   CardHeader,
@@ -31,10 +31,13 @@ import {
 
 export default function PaymentHistoryPage() {
   const [feeHistory, setFeeHistory] = useState([]);
+  const [method, setMethod] = useState("ALL");
   const [student, setStudent] = useState(null);
   const [balance, setBalance] = useState(null);
   const [searchParams] = useSearchParams();
   const studentId = searchParams.get("studentId");
+  const [searchTxn, setSearchTxn] = useState("");
+  const [status, setStatus] = useState("ALL");
 
   const myFeeHistory = async () => {
     try {
@@ -58,6 +61,23 @@ export default function PaymentHistoryPage() {
     }
   }, [studentId]);
 
+  const filteredHistory = useMemo(() => {
+  return feeHistory.filter((tx) => {
+    const matchesMethod =
+      method === "ALL" || tx.paymentMethod === method;
+
+    const matchesStatus =
+      status === "ALL" || tx.status === status;
+
+    const matchesTxn =
+      tx.transactionId
+        ?.toLowerCase()
+        .includes(searchTxn.toLowerCase());
+
+    return matchesMethod && matchesStatus && matchesTxn;
+  });
+}, [feeHistory, method, status, searchTxn]);
+
   return (
     <div className="max-w-7xl mx-auto space-y-6">
       <div>
@@ -72,11 +92,21 @@ export default function PaymentHistoryPage() {
           {/* StudentProfileCard */}
           <Card className="border-border shadow-sm rounded-xl bg-card h-full">
             <CardContent className="p-6 flex flex-col sm:flex-row items-center gap-6 h-full">
-              <img
-                src="https://i.pravatar.cc/150?img=11"
-                alt="Rohan Mehra"
-                className="w-24 h-24 sm:w-32 sm:h-32 rounded-2xl object-cover shrink-0"
-              />
+             <div className="w-24 h-24 sm:w-32 sm:h-32 shrink-0">
+  {student?.photo ? (
+    <img
+      src={student.photo}
+      alt={student?.studentName}
+      className="w-full h-full rounded-2xl object-cover"
+    />
+  ) : (
+    <img
+      src="https://i.pravatar.cc/150?img=11"
+      alt="Default Student"
+      className="w-full h-full rounded-2xl object-cover"
+    />
+  )}
+</div>
               <div className="flex-1 text-center sm:text-left">
                 <h2 className="text-2xl sm:text-3xl font-bold text-foreground mb-6">
                   {student?.studentName || "-"}
@@ -138,50 +168,67 @@ export default function PaymentHistoryPage() {
       </div>
 
       {/* HistoryFilters */}
-      <Card className="border-border shadow-sm rounded-xl bg-card mb-6">
-        <CardContent className="p-4 flex flex-col sm:flex-row items-center gap-4">
-          <span className="text-sm font-medium text-foreground whitespace-nowrap">
-            Filter by:
-          </span>
+      {/* HistoryFilters */}
+<Card className="border-border shadow-sm rounded-xl bg-card mb-6">
+  <CardContent className="p-4 flex flex-col sm:flex-row items-center gap-4">
+    <span className="text-sm font-medium text-foreground whitespace-nowrap">
+      Filter by:
+    </span>
 
-          <Select onValueChange={(val) => setMethod(val)}>
-            <SelectTrigger className="w-full sm:w-[200px] bg-muted/30 border-border">
-              <SelectValue placeholder="All Payment Method" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="ALL">All Payment Method</SelectItem>
-              <SelectItem value="CREDIT_CARD">Credit Card</SelectItem>
-              <SelectItem value="UPI">UPI</SelectItem>
-              <SelectItem value="CASH">Cash</SelectItem>
-              <SelectItem value="BANK_TRANSFER">Bank Transfer</SelectItem>
-            </SelectContent>
-          </Select>
+    {/* Payment Method */}
+    <Select value={method} onValueChange={setMethod}>
+      <SelectTrigger className="w-full sm:w-[200px] bg-muted/30 border-border">
+        <SelectValue placeholder="All Payment Method" />
+      </SelectTrigger>
 
-          <Select defaultValue="all-status">
-            <SelectTrigger className="w-full sm:w-[160px] bg-muted/30 border-border">
-              <SelectValue placeholder="All Status" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all-status">All Status</SelectItem>
-              <SelectItem value="success">Success</SelectItem>
-              <SelectItem value="pending">Pending</SelectItem>
-              <SelectItem value="failed">Failed</SelectItem>
-            </SelectContent>
-          </Select>
+      <SelectContent>
+        <SelectItem value="ALL">All Payment Method</SelectItem>
+        <SelectItem value="ONLINE">Online</SelectItem>
+        <SelectItem value="UPI">UPI</SelectItem>
+        <SelectItem value="CASH">Cash</SelectItem>
+        <SelectItem value="BANK_TRANSFER">Bank Transfer</SelectItem>
+      </SelectContent>
+    </Select>
 
-          <div className="relative flex-1 w-full sm:max-w-xs">
-            <Input
-              placeholder="Transaction ID"
-              className="pl-4 pr-10 bg-muted/30 border-border"
-            />
-            <Search className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-          </div>
+    {/* Status */}
+    <Select value={status} onValueChange={setStatus}>
+      <SelectTrigger className="w-full sm:w-[160px] bg-muted/30 border-border">
+        <SelectValue placeholder="All Status" />
+      </SelectTrigger>
 
-          <button className="text-sm font-medium text-foreground hover:underline sm:ml-auto mt-2 sm:mt-0">
-            Clear all filters
-          </button>
-        </CardContent>
-      </Card>
+      <SelectContent>
+        <SelectItem value="ALL">All Status</SelectItem>
+        <SelectItem value="PAID">Paid</SelectItem>
+        <SelectItem value="PENDING">Pending</SelectItem>
+        <SelectItem value="FAILED">Failed</SelectItem>
+      </SelectContent>
+    </Select>
+
+    {/* Search */}
+    <div className="relative flex-1 w-full sm:max-w-xs">
+      <Input
+        value={searchTxn}
+        onChange={(e) => setSearchTxn(e.target.value)}
+        placeholder="Transaction ID"
+        className="pl-4 pr-10 bg-muted/30 border-border"
+      />
+
+      <Search className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+    </div>
+
+    {/* Clear */}
+    <button
+      onClick={() => {
+        setMethod("ALL");
+        setStatus("ALL");
+        setSearchTxn("");
+      }}
+      className="text-sm font-medium text-foreground hover:underline sm:ml-auto mt-2 sm:mt-0"
+    >
+      Clear all filters
+    </button>
+  </CardContent>
+</Card>
 
       {/* HistoryTransactions */}
       <Card className="border border-border shadow-sm rounded-xl overflow-hidden bg-card">
@@ -218,7 +265,7 @@ export default function PaymentHistoryPage() {
               </tr>
             </thead>
             <tbody>
-              {feeHistory.map((tx, index) => {
+              {filteredHistory.map((tx, index) => {
                 const getMethodIcon = (method) => {
   switch (method) {
     case "CASH":

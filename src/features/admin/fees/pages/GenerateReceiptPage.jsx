@@ -202,12 +202,23 @@ console.log("Receipt Data =>", receiptData);
       <Card className="border-border shadow-sm rounded-xl bg-foreground text-background">
         <CardContent className="p-6">
           <div className="flex items-center gap-4 mb-6">
-            <div className="w-12 h-12 rounded-full bg-background/20 flex items-center justify-center shrink-0">
+            {/* <div className="w-12 h-12 rounded-full bg-background/20 flex items-center justify-center shrink-0">
               <User className="w-6 h-6 text-background" />
-            </div>
+            </div> */}
+            <div className="w-12 h-12 rounded-full bg-background/20 flex items-center justify-center shrink-0 overflow-hidden">
+  {receiptData?.studentPhoto ? (
+    <img
+      src={receiptData.studentPhoto}
+      alt={receiptData.studentName}
+      className="w-full h-full object-cover"
+    />
+  ) : (
+    <User className="w-6 h-6 text-background" />
+  )}
+</div>
             <div>
               <h4 className="text-base font-bold">{receiptData?.studentName}</h4>
-              <p className="text-sm text-background/70">{receiptData?.roomType}</p>
+              <p className="text-sm text-background/70">{receiptData?.studentCourse}</p>
             </div>
           </div>
           <div className="grid grid-cols-2 gap-4">

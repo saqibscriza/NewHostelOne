@@ -4,7 +4,7 @@ import { useForm } from "react-hook-form";
 import { Input } from "../../../../components/ui/input";
 import { Button } from "../../../../components/ui/button";
 import { Label } from "../../../../components/ui/label";
-// import { getHostelByIdApi, updateHostelByIdApi } from "../../../../utils/utils";
+import { getHostelByIdApi, updateHostelByIdApi } from "../../../../utils/utils";
 import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { toast } from "react-hot-toast";
@@ -36,7 +36,7 @@ export default function AccountSettingPage() {
         reset({
           hostelName: hostel.hostelName || "",
           address: hostel.address || "",
-          totalBeds: hostel.totalBeds || 0,
+          hostelType: hostel.hostelType || "",
           contactNumber: hostel.contactNumber || "",
           alternateContactNumber: hostel.alternateContactNumber || "",
           pinCode: hostel.pinCode || "",
@@ -62,7 +62,7 @@ export default function AccountSettingPage() {
       const payload = {
         hostelName: data.hostelName,
         address: data.address,
-        totalBeds: data.totalBeds,
+        hostelType: data.hostelType,
         contactNumber: data.contactNumber,
         alternateContactNumber: data.alternateContactNumber,
         pinCode: data.pinCode,
@@ -126,16 +126,20 @@ export default function AccountSettingPage() {
               />
             </div>
 
-            {/* Total Capacity - md:col-span-2 makes it full width */}
+              {/* Hostel Type - md:col-span-2 makes it full width */}
             <div className="space-y-2 md:col-span-2">
               <Label className="text-sm font-medium text-slate-700">
-                Total Capacity (Beds)
+                Hostel Type
               </Label>
-              <Input
-                {...register("totalBeds")}
-                
-                className="h-11"
-              />
+              <select
+                {...register("hostelType")}
+                className="flex h-11 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+              >
+                <option value="">Select Hostel Type</option>
+                <option value="BOYS">Boys</option>
+                <option value="GIRLS">Girls</option>
+                <option value="BOTH">Both</option>
+              </select>
             </div>
 
             {/* Contact Number - Takes 1 column (half width) */}
@@ -148,6 +152,7 @@ export default function AccountSettingPage() {
                 
                 className="h-11"
               />
+              
             </div>
 
             {/* Alternate Contact Number - Takes 1 column (half width) */}
