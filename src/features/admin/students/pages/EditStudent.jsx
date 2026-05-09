@@ -3,10 +3,11 @@ import { useParams, useNavigate } from "react-router-dom";
 import { Card, CardContent } from "../../../../components/ui/Card";
 import { Input } from "../../../../components/ui/input";
 import { Button } from "../../../../components/ui/button";
-import { getRoomAllData } from "../../../../utils/utils";
+
 import {
   updateStudentApi,
-  getAdminStudentByIdApi,
+  getStudentByIdApi,
+  getRoomAllData,
 } from "../../../../utils/utils";
 import {
   Select,
@@ -73,7 +74,7 @@ const EditStudent = () => {
   // ================= GET BY ID =================
 
   const fetchStudent = async () => {
-    const res = await getAdminStudentByIdApi(id);
+    const res = await getStudentByIdApi(id);
 
     if (res?.data?.status === "success") {
       const d = res.data.data;
@@ -119,71 +120,82 @@ const EditStudent = () => {
       return;
     }
 
-    // if (Object.keys(params).length === 0) {
-    //   alert("No changes made");
-    //   return;
-    // }
+    setLoading(true);
 
-    const formatDate = (date) => {
-      if (!date) return null;
-      if (date.includes("/")) {
-        const [d, m, y] = date.split("/");
-        return `${y}-${m}-${d}`;
+    try {
+      const formData = new FormData();
+
+      // ================= FORMAT DATE =================
+
+      const formatDate = (date) => {
+        if (!date) return "";
+
+        // already DD/MM/YYYY
+        if (date.includes("/")) {
+          return date;
+        }
+
+        const [year, month, day] = date.split("-");
+
+        return `${day}/${month}/${year}`;
+      };
+
+      // ================= APPEND DATA =================
+
+      formData.append("fullName", form.fullName || "");
+
+      formData.append("dob", formatDate(form.dob));
+
+      formData.append("gender", form.gender || "");
+
+      formData.append("bloodGroup", form.bloodGroup || "");
+
+      formData.append("dateOfJoining", formatDate(form.dateOfJoining));
+
+      formData.append("course", form.course || "");
+
+      formData.append("year", form.year || "");
+
+      formData.append("email", form.email || "");
+
+      formData.append("phone", form.phone || "");
+
+      formData.append("guardianName", form.guardianName || "");
+
+      formData.append("relation", form.relation || "");
+
+      formData.append("emergencyContact", form.emergencyContact || "");
+
+      formData.append("roomId", form.roomId || "");
+
+      // ================= DEBUG =================
+
+      console.log("UPDATE PAYLOAD 👉", Object.fromEntries(formData.entries()));
+
+      // ================= API =================
+
+      const response = await updateStudentApi(id, formData);
+
+      console.log("UPDATE RESPONSE 👉", response);
+
+      if (response?.data?.status === "success") {
+        alert(response?.data?.message || "Student Updated Successfully");
+
+        setTimeout(() => {
+          navigate("/admin/students");
+        }, 1000);
+      } else {
+        alert(response?.data?.message || "Failed to update student");
       }
-      return date;
-    };
+    } catch (error) {
+      console.log("UPDATE ERROR 👉", error);
 
-    // ONLY SEND CHANGED VALUES
-
-    const allowedFields = [
-      "fullName",
-      "dob",
-      "gender",
-      "bloodGroup",
-      "dateOfJoining",
-      "course",
-      "year",
-      "email",
-      "phone",
-      "guardianName",
-      "relation",
-      "emergencyContact",
-      "roomId",
-    ];
-
-    Object.keys(form).forEach((key) => {
-      if (!allowedFields.includes(key)) return;
-
-      if (
-        form[key] !== originalData[key] &&
-        form[key] !== "" &&
-        form[key] !== null &&
-        form[key] !== undefined
-      ) {
-        params[key] = form[key];
-      }
-    });
-
-    // ✅ FIX DATE FORMAT
-    if (params.dateOfJoining) {
-      params.dateOfJoining = params.dateOfJoining.includes("/")
-        ? params.dateOfJoining.split("/").reverse().join("-")
-        : params.dateOfJoining;
-    }
-
-    // ✅ FIX YEAR TYPE
-    if (params.year) {
-      params.year = Number(params.year);
-    }
-
-    console.log("FINAL PARAMS 👉", params);
-
-    const res = await updateStudentApi(id, params);
-
-    if (res?.data?.status === "success") {
-      navigate("/admin/students");
+      alert("Something went wrong");
+    } finally {
+      setLoading(false);
     }
   };
+
   return (
     <div className="p-6 space-y-6">
       {/* Header */}

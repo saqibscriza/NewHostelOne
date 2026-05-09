@@ -1,34 +1,7 @@
 import { Card, CardContent } from "../../../../components/ui/Card";
 import { Eye } from "lucide-react";
 
-const data = [
-  {
-    name: "Sandeep",
-    course: "Computer Science",
-    room: "Double AC",
-    status: "Pending",
-  },
-  {
-    name: "Rakesh",
-    course: "Business Management",
-    room: "Single Non-AC",
-    status: "Reviewing",
-  },
-  {
-    name: "Amit",
-    course: "Computer Science",
-    room: "Double AC",
-    status: "Pending",
-  },
-  {
-    name: "Mukesh",
-    course: "Business Management",
-    room: "Single Non-AC",
-    status: "Reviewing",
-  },
-];
-
-export default function RecentApplicationsTable() {
+export default function RecentApplicationsTable({ data = [] }) {
   return (
     <Card className="rounded-2xl border shadow-sm">
       <CardContent className="p-0">
@@ -64,20 +37,20 @@ export default function RecentApplicationsTable() {
                   className="h-full w-full object-cover"
                 />
               </div>
-              <p className="font-medium">{item.name}</p>
+              <p className="font-medium">{item.fullName}</p>
             </div>
 
             {/* COURSE */}
-            <p className="text-sm text-slate-600">{item.course}</p>
+            <p className="text-sm text-slate-600">{item.course || "N/A"}</p>
 
             {/* ROOM */}
-            <p className="text-sm text-slate-600">{item.room}</p>
+            <p className="text-sm text-slate-600">{item.roomPreference || "N/A"}</p>
 
             {/* STATUS */}
             <div>
               <span
                 className={`text-xs px-3 py-1 rounded-md font-medium ${
-                  item.status === "Pending"
+                  item.status === "PENDING"
                     ? "bg-slate-200 text-slate-700"
                     : "bg-slate-200 text-slate-700"
                 }`}

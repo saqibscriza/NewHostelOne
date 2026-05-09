@@ -5,13 +5,14 @@ import { Button } from "../../../../../components/ui/button";
 import { Card, CardContent } from "../../../../../components/ui/Card";
 import { Badge } from "../../../../../components/ui/Badge";
 import { useParams } from "react-router-dom";
-import { getRoomById } from "../../../../../utils/utils";
-
+import { getRoomById, deleteRoomApi } from "../../../../../utils/utils";
 import { DoorOpen, User, Wifi, Snowflake, Brush } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 const EditRoom = () => {
   const [roomData, setRoomData] = useState({});
   const { id } = useParams();
+  const navigate = useNavigate();
   console.log("PARAM ID -=-=-=-=", id);
   const RoomGetByIdApi = async () => {
     try {
@@ -34,6 +35,31 @@ const EditRoom = () => {
     }
   };
 
+  const handleDeleteRoom = async () => {
+    try {
+      const confirmDelete = window.confirm(
+        "Are you sure you want to delete this room?",
+      );
+
+      if (!confirmDelete) return;
+
+      const response = await deleteRoomApi(id);
+
+      console.log("DELETE RESPONSE =====>", response);
+
+      if (response?.data?.status === "success") {
+        alert("Room deleted successfully");
+
+        navigate("/room");
+      } else {
+        alert("Failed to delete room");
+      }
+    } catch (error) {
+      console.log(error);
+      alert("Something went wrong");
+    }
+  };
+
   useEffect(() => {
     RoomGetByIdApi();
   }, []);
@@ -44,7 +70,7 @@ const EditRoom = () => {
       <div className="flex justify-between items-center">
         <div>
           <h1 className="text-2xl font-semibold">
-            Room - {roomData?.roomNumber}
+            Room - {roomData?.roomNameNumber}
           </h1>
           <p className="text-muted-foreground text-sm">
             Access and update all room details easily
@@ -52,7 +78,9 @@ const EditRoom = () => {
         </div>
 
         <div className="flex gap-3">
-          <Button variant="outline">Delete Room</Button>
+          <Button variant="outline" onClick={handleDeleteRoom}>
+            Delete Room
+          </Button>{" "}
           <Button>Edit Room</Button>
         </div>
       </div>
@@ -65,16 +93,17 @@ const EditRoom = () => {
             <Badge className="bg-muted text-foreground">
               {roomData?.status}
             </Badge>
-
             <p className="text-xs text-muted-foreground mt-4">CATEGORY</p>
-            <h3 className="text-lg font-semibold">{roomData?.categoryId}</h3>
+            <h3 className="text-lg font-semibold">{roomData?.categoryName}</h3>
           </CardContent>
         </Card>
 
         <Card>
           <CardContent className="p-5 space-y-3">
             <p className="text-xs text-muted-foreground">ROOM TYPE</p>
-            <h3 className="text-lg font-semibold">{roomData?.roomType}</h3>
+            <h3 className="text-lg font-semibold">
+              {roomData?.roomNameNumber}
+            </h3>{" "}
             <p className="text-sm text-muted-foreground">
               No guest restrictions applied
             </p>
@@ -107,14 +136,18 @@ const EditRoom = () => {
         <Card>
           <CardContent className="p-5">
             <p className="text-xs text-muted-foreground">MONTHLY RENT</p>
-            <h3 className="text-xl font-semibold">₹{roomData?.rentPerBed}</h3>
+            <h3 className="text-xl font-semibold">
+              ₹{roomData?.totalRoomPrice}
+            </h3>{" "}
           </CardContent>
         </Card>
 
         <Card>
           <CardContent className="p-5">
             <p className="text-xs text-muted-foreground">BLOCK / LOCATION</p>
-            <h3 className="text-base font-semibold">{roomData?.block}</h3>
+            <h3 className="text-base font-semibold">
+              {roomData?.blockFloor}
+            </h3>{" "}
           </CardContent>
         </Card>
 

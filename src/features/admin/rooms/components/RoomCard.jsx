@@ -27,7 +27,7 @@ export const getAmenityIcon = (amenity) => {
 };
 
 // const RoomCard = ({ category }) => {
-const RoomCard = ({ category, onEdit }) => {
+const RoomCard = ({ category, onEdit, onDelete }) => {
   return (
     <div className="bg-card border border-border rounded-xl p-5 shadow-sm hover:shadow-md transition">
       {/* Top */}
@@ -82,7 +82,7 @@ const RoomCard = ({ category, onEdit }) => {
           <button onClick={onEdit} className="hover:text-primary text-sm">
             <Pencil className="w-4 h-4" />
           </button>
-          <button className="hover:text-destructive text-sm">
+          <button onClick={onDelete} className="hover:text-destructive text-sm">
             <Trash2 className="w-4 h-4" />
           </button>
         </div>

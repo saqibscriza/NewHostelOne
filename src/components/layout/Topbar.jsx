@@ -8,7 +8,7 @@ import { ThemeToggle } from "../../theme/ThemeToggle";
 import { Getadminswitchaccount, selectHostelApi } from "../../utils/utils";
 
 const Topbar = ({ onMenuClick }) => {
-  const { role, login } = useAuth(); // get role from context
+  const { role, login, name } = useAuth(); // get role from context
   const [open, setOpen] = useState(false);
   const [showModal, setShowModal] = useState(false); // modal
   const [hostels, setHostels] = useState([]);
@@ -79,7 +79,7 @@ const Topbar = ({ onMenuClick }) => {
       const newToken = response?.data?.token;
       sessionStorage.setItem("hostelSelectionToken", selectionToken);
       sessionStorage.setItem("selectedHostel", String(hostelId));
-      login(role, newToken);
+      login(role, newToken, name);
       setShowModal(false);
       navigate("/admin");
     } else {
@@ -131,10 +131,6 @@ const Topbar = ({ onMenuClick }) => {
         <div className="flex items-center gap-4">
           <ThemeToggle />
 
-          {/* <Button variant="ghost" size="icon">
-          <Bell className="w-5 h-5 text-slate-500" />
-        </Button> */}
-
           {/* Notifications */}
           <Button
             variant="ghost"
@@ -149,10 +145,10 @@ const Topbar = ({ onMenuClick }) => {
           {/* TEXT */}
           <div className="text-right min-w-[120px]">
             <p className="text-sm font-semibold text-foreground leading-tight whitespace-nowrap">
-              Rakesh Sharma
+              {name || "User"}
             </p>
             <p className="text-xs text-muted-foreground uppercase tracking-wide whitespace-nowrap">
-              {role === "admin" ? "ADMIN" : "SUPER ADMIN"}
+              {role?.replace("-", " ") || "USER"}
             </p>
           </div>
 

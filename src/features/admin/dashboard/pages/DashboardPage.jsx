@@ -20,17 +20,19 @@ import {
 export default function DashboardPage() {
   const [dashboardData, setDashboardData] = useState(null);
   const [loading, setLoading] = useState(true);
-
+  // const [barData, setBarData] = useState([]);
+  // console.log("data my bar---", barData);
   // API CALL
   const fetchDashboard = async () => {
     setLoading(true);
 
     const res = await getDashboardAdminApi();
 
-    console.log("FULL RESPONSE 👉", res);
+    // console.log("FULL RESPONSE ===========", res);
 
     if (res?.data?.status === "success") {
       setDashboardData(res?.data?.data);
+      // setBarData(res?.data?.data?.roomOccupancy);
     } else {
       console.error(res?.data?.message || "Failed to load dashboard");
     }
@@ -47,10 +49,11 @@ export default function DashboardPage() {
   }
 
   // fallback safety
+
   const stats = dashboardData || {};
   const metrics = stats.keyMetrics || {};
 
-  console.log("DASHBOARD DATA 👉", dashboardData);
+  console.log("DASHBOARD DATA =====", dashboardData);
 
   return (
     <div className="p-6 space-y-6 bg-background min-h-screen">
@@ -93,7 +96,7 @@ export default function DashboardPage() {
 
         <StatCard
           title="Maintenance"
-          value={metrics.maintenance || 0}
+          value={metrics.maintenanceTickets || 0}
           icon={<Wrench />}
         />
       </div>
@@ -101,7 +104,7 @@ export default function DashboardPage() {
       {/* Layout */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
         <div className="lg:col-span-2 space-y-4">
-          <OccupancyChart data={stats.roomOccupancy} />
+          <OccupancyChart data={stats.roomOccupancy}  />
           <RecentApplicationsTable data={stats.recentApplications} />
         </div>
 

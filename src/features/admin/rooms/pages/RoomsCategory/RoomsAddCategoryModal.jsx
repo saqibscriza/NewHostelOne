@@ -3,10 +3,12 @@ import { X, Pencil } from "lucide-react";
 import * as Icons from "lucide-react";
 import AddAmenityModal from "./AddAmenityModal";
 import UpdateAmenityModal from "./UpdateAmenityModal";
-import { getAllAmenitiesApi } from "../../../../../utils/utils";
-import { deleteAmenityById } from "../../../../../utils/utils";
-import { AddnewCategory } from "../../../../../utils/utils";
-import { getAllOccupancyApi } from "../../../../../utils/utils";
+import {
+  getAllOccupancyApi,
+  AddnewCategory,
+  deleteAmenityById,
+  getAllAmenitiesApi,
+} from "../../../../../utils/utils";
 import { toast } from "react-hot-toast";
 
 const RoomsAddCategoryModal = ({ isOpen, onClose }) => {
@@ -165,9 +167,6 @@ const RoomsAddCategoryModal = ({ isOpen, onClose }) => {
       toast.error("Create category failed");
     }
   };
-
-
-  
 
   return (
     <>
@@ -340,7 +339,7 @@ const RoomsAddCategoryModal = ({ isOpen, onClose }) => {
               onClick={onClose}
               className="bg-muted text-muted-foreground px-5 py-2 rounded-lg"
             >
-              Cance
+              Cancel
             </button>
           </div>
         </div>

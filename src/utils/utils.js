@@ -1,5 +1,8 @@
 import axios from "axios";
 const token = `Bearer ${sessionStorage.getItem("token")}`;
+const getToken = () => {
+ return `Bearer ${sessionStorage.getItem("token")}`;
+};
 // const token = sessionStorage.getItem("token");
 
 // const forgetTooken = `Bearer ${sessionStorage.getItem('ERPForgetToken')}`;
@@ -83,6 +86,7 @@ export const getAdminHostelsApi = async (userToken) => {
     return null;
   }
 };
+
 // Select Hostel
 export const selectHostelApi = async (hostelId, userToken) => {
   try {
@@ -559,19 +563,6 @@ export const getAllStudentApi = async ({ page = 0, size = 10 }) => {
   }
 };
 
-export const getStudentByIdApi = async (studentId) => {
-  try {
-    axios.defaults.headers.common["Authorization"] = token;
-
-    const res = await axios.get(`${Domain}/student/getById/${studentId}`);
-
-    return res?.data;
-  } catch (error) {
-    console.log("GET STUDENT BY ID ERROR 👉", error);
-    return null;
-  }
-};
-
 export const getFeeSummaryByIdApi = async (studentId) => {
   try {
     axios.defaults.headers.common["Authorization"] = token;
@@ -734,16 +725,28 @@ export const getStudentProfileApi = async () => {
   }
 };
 
-export const getStudentProfileByIdApi = async () => {
+// admin student get stundent by id api
+
+export const getStudentByIdApi = async (studentId) => {
   try {
-    axios.defaults.headers.common["Authorization"] = token;
-    const res = await axios.get(`${Domain}/student/getById`);
-    return res.data;
+    const token = sessionStorage.getItem("token");
+
+    axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+
+    const res = await axios.get(`${Domain}/student/getById`, {
+      params: {
+        studentId: studentId,
+      },
+    });
+
+    return res;
   } catch (error) {
-    console.log("GET STUDENT PROFILE BY ID ERROR 👉", error);
+    console.log("GET STUDENT BY ID ERROR 👉", error);
     return null;
   }
 };
+
+// api
 
 export const updateStudentProfileApi = async (data) => {
   try {
@@ -798,8 +801,8 @@ export const getAllInventoryCategoryApi = async () => {
 };
 
 // Get all inventory Items
-export const getAllInventoryItemApi = async() => {
- try {
+export const getAllInventoryItemApi = async () => {
+  try {
     axios.defaults.headers.common["Authorization"] = token;
     const res = await axios.get(`${Domain}/inventory/item/getAll`);
     return res.data;
@@ -821,8 +824,6 @@ export const getCategoryItemsByIdApi = async (id) => {
   }
 };
 
-
-
 // Delete inventory category by id
 export const deleteInventoryCategoryApi = async (id) => {
   try {
@@ -838,11 +839,14 @@ export const deleteInventoryCategoryApi = async (id) => {
 // Delete inventory item by id
 export const deleteInventoryItemApi = async (id) => {
   try {
-    axios.defaults.headers.common['Authorization'] = token;
+    axios.defaults.headers.common["Authorization"] = token;
     const res = await axios.delete(`${Domain}/inventory/item/delete/${id}`);
     return res.data;
   } catch (error) {
-    console.log('DELETE INVENTORY ITEM ERROR 👉', error?.response?.data || error);
+    console.log(
+      "DELETE INVENTORY ITEM ERROR 👉",
+      error?.response?.data || error,
+    );
     return null;
   }
 };
@@ -851,7 +855,10 @@ export const deleteInventoryItemApi = async (id) => {
 export const updateInventoryCategoryApi = async (id, data) => {
   try {
     axios.defaults.headers.common["Authorization"] = token;
-    const res = await axios.put(`${Domain}/inventory/category/update/${id}`, data);
+    const res = await axios.put(
+      `${Domain}/inventory/category/update/${id}`,
+      data,
+    );
     return res.data;
   } catch (error) {
     console.log("UPDATE INVENTORY CATEGORY ERROR 👉", error);
@@ -890,36 +897,31 @@ export const updateCategoryItemsApi = async (categoryId, data) => {
 
     const res = await axios.put(
       `${Domain}/inventory/categoryItem/update/${categoryId}`,
-      formData
+      formData,
     );
 
     return res.data;
   } catch (error) {
     console.log(
       "UPDATE CATEGORY ITEMS ERROR 👉",
-      error?.response?.data || error
+      error?.response?.data || error,
     );
     return null;
   }
 };
-
 
 // // Update inventory item Only by id
 export const updateInventoryItemOnlyApi = async (id, data) => {
   try {
     axios.defaults.headers.common["Authorization"] = token;
 
-    const res = await axios.put(
-      `${Domain}/inventory/item/update/${id}`,
-      null,
-      {
-        params: {
-          itemName: data.itemName,
-          skuId: data.skuId,
-          categoryId: data.categoryId,
-        },
-      }
-    );
+    const res = await axios.put(`${Domain}/inventory/item/update/${id}`, null, {
+      params: {
+        itemName: data.itemName,
+        skuId: data.skuId,
+        categoryId: data.categoryId,
+      },
+    });
 
     return res.data;
   } catch (error) {
@@ -931,18 +933,14 @@ export const updateInventoryItemOnlyApi = async (id, data) => {
 // Update  inventory item by id
 export const updateInventoryItemApi = async (id, data) => {
   try {
-    axios.defaults.headers.common["Authorization"] = token; 
-    const res = await axios.put(  
-      `${Domain}/inventory/item/update/${id}`,  
-      data,
-    );  
-    return res.data;        
-  } catch (error) { 
-    console.log("UPDATE INVENTORY ITEM ERROR 👉", error)        
+    axios.defaults.headers.common["Authorization"] = token;
+    const res = await axios.put(`${Domain}/inventory/item/update/${id}`, data);
+    return res.data;
+  } catch (error) {
+    console.log("UPDATE INVENTORY ITEM ERROR 👉", error);
     return null;
-  }   
+  }
 };
-
 
 // INVENTORY Stock Dashboard API
 
@@ -982,39 +980,15 @@ export const getFeedbackStatsApi = async (id) => {
 
 //FeedBack List
 export const getFeedbackListApi = async (id) => {
-  try{
+  try {
     axios.defaults.headers.common["Authorization"] = token;
     const res = await axios.get(`${Domain}/chef/feedback/list`);
     return res.data;
-  }catch (error) {
+  } catch (error) {
     console.log("GET FeedBack ERROR 👉", error);
     return null;
   }
 };
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 // ******************************************************************************************************
 // ASIM //
@@ -1102,27 +1076,31 @@ export const deletePackageApi = async (id) => {
 
 // POST amenity APi
 
-export const addAmenityApi = async (name, file) => {
+export const addAmenityApi = async (data) => {
   try {
-    axios.defaults.headers.common["Authorization"] = token;
+    const token = sessionStorage.getItem("token");
+
+    axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
 
     const formData = new FormData();
-    formData.append("file", file); // ✅ send image
 
-    const res = await axios.post(
-      `${Domain}/amenities/add?name=${name}`,
-      formData,
-      {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
+    formData.append("name", data.name);
+
+    // image optional
+    if (data.file) {
+      formData.append("file", data.file);
+    }
+
+    const res = await axios.post(`${Domain}/amenities/add`, formData, {
+      headers: {
+        "Content-Type": "multipart/form-data",
       },
-    );
+    });
 
     return res;
   } catch (error) {
     console.log("Add Amenity Error:", error);
-    return [];
+    return error?.response || [];
   }
 };
 
@@ -1148,14 +1126,20 @@ export const getAllAmenitiesApi = async () => {
 
 export const deleteAmenityById = async (id) => {
   try {
+    const token = sessionStorage.getItem("token");
+
     axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
 
-    const res2 = await axios.delete(`${Domain}/amenities/delete?id=${id}`);
+    const res = await axios.delete(`${Domain}/amenities/delete?id=${id}`);
 
-    return res2;
+    if (res) {
+      return res;
+    } else {
+      return [];
+    }
   } catch (error) {
     console.log("DELETE ERROR 👉", error);
-    return [];
+    return error?.response || [];
   }
 };
 
@@ -1327,6 +1311,28 @@ export const getRoomAllData = async (params) => {
   }
 };
 
+// admin room details delete api
+
+export const deleteRoomApi = async (roomId) => {
+  try {
+    const token = sessionStorage.getItem("token");
+
+    const res = await axios.delete(`${Domain}/room/delete`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+      params: {
+        roomId: roomId,
+      },
+    });
+
+    return res;
+  } catch (error) {
+    console.log("DELETE ROOM API ERROR 👉", error);
+    return null;
+  }
+};
+
 // get room by id
 
 export const getRoomById = async (roomId) => {
@@ -1353,37 +1359,26 @@ export const getRoomById = async (roomId) => {
 
 // POST api add student
 
-export const addStudentApi = async (formData) => {
+export const addStudentApi = async (data) => {
   try {
     const token = sessionStorage.getItem("token");
 
-    const res = await axios.post(`${Domain}/student/add`, formData, {
-      headers: {
-        Authorization: token,
-        "Content-Type": "multipart/form-data",
-      },
-    });
+    axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
 
-    return res;
+    const res = await axios.post(`${Domain}/student/add`, data);
+
+    if (res) {
+      return res;
+    } else {
+      return [];
+    }
   } catch (error) {
-    console.log(error);
-    return null;
+    console.log("ADD STUDENT ERROR 👉", error);
+    return [];
   }
 };
 
 // GET by ID api for student view
-
-// export const getStudentByIdApi = async (id) => {
-//   try {
-//     const token = sessionStorage.getItem("token");
-//     axios.defaults.headers.common["Authorization"] = token;
-
-//     const res = await axios.get(`${Domain}/student/getById/${id}`);
-//     return res || [];
-//   } catch (error) {
-//     return [];
-//   }
-// };
 
 // GET api for student
 
@@ -1421,42 +1416,27 @@ export const getAllStudentsApi = async (params) => {
 
 // Admin student  UPDATE (PUT)
 
-export const updateStudentApi = async (id, params) => {
+export const updateStudentApi = async (id, data) => {
   try {
     const token = sessionStorage.getItem("token");
 
-    // ✅ SAME STYLE AS YOUR PACKAGE API
     axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
 
-    const res = await axios.put(`${Domain}/student/update/${id}`, null, {
-      params: params,
-    });
+    const res = await axios.put(`${Domain}/student/update/${id}`, data);
 
-    return res;
+    if (res) {
+      return res;
+    } else {
+      return [];
+    }
   } catch (error) {
     console.log("UPDATE STUDENT ERROR 👉", error);
-    return null;
+
+    return [];
   }
 };
 
 // admin student get by id
-
-export const getAdminStudentByIdApi = async (id) => {
-  try {
-    const token = sessionStorage.getItem("token");
-
-    const res = await axios.get(`${Domain}/student/getById/${id}`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
-
-    return res;
-  } catch (error) {
-    console.log("GET STUDENT BY ID ERROR 👉", error);
-    return null;
-  }
-};
 
 // =================
 // =================
@@ -1962,5 +1942,48 @@ export const updateMessPlannerApi = async (data) => {
     return res;
   } catch (error) {
     return error?.response;
+  }
+};
+
+// delete category api for admin
+
+export const deleteCategoryById = async (id) => {
+  try {
+    const token = sessionStorage.getItem("token");
+
+    axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+
+    const res = await axios.delete(`${Domain}/category/delete?id=${id}`);
+
+    if (res) {
+      return res;
+    } else {
+      return [];
+    }
+  } catch (error) {
+    console.log("DELETE CATEGORY ERROR 👉", error);
+    return error?.response || [];
+  }
+};
+
+// edit category of admin room
+
+export const editCategoryById = async (id, data) => {
+  try {
+    const token = sessionStorage.getItem("token");
+
+    axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+
+    const res = await axios.put(`${Domain}/category/update?id=${id}`, data);
+
+    if (res) {
+      return res;
+    } else {
+      return [];
+    }
+  } catch (error) {
+    console.log("UPDATE CATEGORY ERROR 👉", error);
+
+    return error?.response || [];
   }
 };

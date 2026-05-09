@@ -114,7 +114,7 @@ const Sidebar = ({ menu = [], onItemClick }) => {
       </nav>
 
       {/* Register Card */}
-      <div className="px-3">
+      {/* <div className="px-3">
         <Card className="bg-black text-white rounded-3xl shadow-md">
           <CardContent className="p-5 space-y-4">
             
@@ -141,7 +141,7 @@ const Sidebar = ({ menu = [], onItemClick }) => {
 
           </CardContent>
         </Card>
-      </div>
+      </div> */}
 
       {/* Logout */}
       <div className="border-t border-border p-3">

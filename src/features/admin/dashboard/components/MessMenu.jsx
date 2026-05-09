@@ -1,7 +1,7 @@
 import { Card, CardContent } from "../../../../../src/components/ui/Card";
 import { Coffee, Sun, Moon, Utensils } from "lucide-react";
 
-export default function MessMenu() {
+export default function MessMenu({ data }) {
   return (
     <Card className="rounded-2xl border shadow-sm">
       <CardContent className="p-5 space-y-5">
@@ -22,7 +22,7 @@ export default function MessMenu() {
           {/* TEXT */}
           <div>
             <p className="font-semibold">Breakfast</p>
-            <p className="text-sm text-slate-500">Scrambled Eggs & Toast</p>
+            <p className="text-sm text-slate-500">{data?.breakfast || "No breakfast"}</p>
           </div>
         </div>
 
@@ -38,7 +38,7 @@ export default function MessMenu() {
           <div>
             <p className="font-semibold">Lunch</p>
             <p className="text-sm text-slate-500">
-              Grilled Chicken with Quinoa
+              {data?.lunch || "No lunch"}
             </p>
           </div>
         </div>
@@ -54,7 +54,7 @@ export default function MessMenu() {
 
           <div>
             <p className="font-semibold">Dinner</p>
-            <p className="text-sm text-slate-500">Vegetable Lasagna</p>
+            <p className="text-sm text-slate-500">{data?.dinner || "No dinner"}</p>
           </div>
         </div>
 

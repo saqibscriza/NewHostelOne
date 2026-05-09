@@ -115,14 +115,14 @@ function StudentTable({ students }) {
         students.map((s, i) => (
           <Row
             key={i}
-            id={s.studentId} // ✅ FIX
+            id={s.studentId || s.id}
             name={s.fullName}
-            room={s.room?.roomNameNumber || "-"} // ✅ FIX
-            block={s.room?.blockFloor || "-"} // ✅ FIX
-            phone={s.contact?.phone || "-"} // ✅ FIX
-            email={s.contact?.email || "-"} // ✅ FIX
-            payment={s.paymentStatus || "Pending"} // ✅ FIX
-            occupancy={s.occupancyStatus || "Inactive"} // ✅ FIX
+            room={s.roomNameNumber || s.roomId || "-"}
+            block={s.blockFloor || "-"}
+            phone={s.phone || "-"}
+            email={s.email || "-"}
+            payment={s.paymentStatus || "Pending"}
+            occupancy={s.occupancyStatus || "Inactive"}
           />
         ))
       )}

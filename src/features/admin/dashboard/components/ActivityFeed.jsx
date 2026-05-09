@@ -1,24 +1,8 @@
 import { Card, CardContent } from "../../../../components/ui/Card";
 
-const activities = [
-  {
-    title: "Fee Received",
-    description: "from James Wilson",
-    time: "15 minutes ago",
-  },
-  {
-    title: "Student Check-in",
-    description: "Room 402B",
-    time: "1 hour ago",
-  },
-  {
-    title: "New Complaint",
-    description: "AC not working",
-    time: "3 hours ago",
-  },
-];
 
-export default function ActivityFeed() {
+
+export default function ActivityFeed({ data = [] }) {
   return (
     <Card className="rounded-2xl border shadow-sm">
       <CardContent className="p-5 space-y-5">
@@ -27,18 +11,18 @@ export default function ActivityFeed() {
 
         {/* LIST */}
         <div className="space-y-5">
-          {activities.map((item, i) => (
+          {data.map((item, i) => (
             <div key={i} className="space-y-1">
               {/* TITLE */}
               <p className="text-sm font-semibold text-slate-800">
-                {item.title}{" "}
+                {item.activityType?.replaceAll("_", " ")}
                 <span className="font-normal text-slate-600">
                   {item.description}
                 </span>
               </p>
 
               {/* TIME */}
-              <p className="text-xs text-slate-400">{item.time}</p>
+              <p className="text-xs text-slate-400">{new Date(item.timestamp).toLocaleString()}</p>
             </div>
           ))}
         </div>

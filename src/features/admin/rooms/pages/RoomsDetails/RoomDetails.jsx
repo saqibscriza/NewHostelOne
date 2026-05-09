@@ -29,7 +29,7 @@ import {
   CheckCircle,
   Wrench,
   Eye,
-  Pencil,
+  // Pencil,
 } from "lucide-react";
 
 const RoomDetails = () => {
@@ -254,13 +254,18 @@ const RoomDetails = () => {
 
                   <TableCell>
                     <div className="flex gap-3 text-muted-foreground">
-                      <Eye className="w-4 h-4 cursor-pointer" />
-                      <Pencil
+                      <Eye
                         className="w-4 h-4 cursor-pointer"
                         onClick={() =>
                           navigate(`/admin/rooms/edit/${room?.roomId}`)
                         }
                       />
+                      {/* <Pencil
+                        className="w-4 h-4 cursor-pointer"
+                        onClick={() =>
+                          navigate(`/admin/rooms/edit/${room?.roomId}`)
+                        }
+                      /> */}
                     </div>
                   </TableCell>
                 </TableRow>

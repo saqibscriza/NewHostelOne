@@ -7,7 +7,7 @@ import { ThemeProvider } from "./theme/theme-provider";
 import { AuthProvider } from "./context/AuthContext";
 
 createRoot(document.getElementById("root")).render(
-  <StrictMode>
+  <>
     <BrowserRouter>
       <ThemeProvider>
         <AuthProvider>
@@ -15,5 +15,5 @@ createRoot(document.getElementById("root")).render(
         </AuthProvider>
       </ThemeProvider>
     </BrowserRouter>
-  </StrictMode>,
+  </>,
 );

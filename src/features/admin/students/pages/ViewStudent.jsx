@@ -4,8 +4,7 @@ import { Button } from "../../../../components/ui/button";
 import { Badge } from "../../../../components/ui/Badge";
 import { Mail, Phone, FileText, Eye } from "lucide-react";
 import { useParams } from "react-router-dom";
-import { getAdminStudentByIdApi } from "../../../../utils/utils";
-
+import { getStudentByIdApi } from "../../../../utils/utils";
 const ViewStudent = () => {
   const { id } = useParams();
 
@@ -17,7 +16,7 @@ const ViewStudent = () => {
   }, []);
 
   const fetchStudent = async () => {
-    const res = await getAdminStudentByIdApi(id);
+    const res = await getStudentByIdApi(id);
 
     if (res?.data?.status === "success") {
       const d = res.data.data;

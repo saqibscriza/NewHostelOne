@@ -42,6 +42,10 @@ const UpdateAmenityModal = ({ isOpen, onClose, amenity }) => {
 
       if (response?.data?.status === "success") {
         toast.success(response.data.message);
+        if (onCategoryUpdated) {
+          await onCategoryUpdated();
+        }
+
         onClose();
       } else {
         toast.error(response?.message || "Update failed");
