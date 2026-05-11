@@ -19,8 +19,7 @@ export default function StaffManagement() {
   const navigate = useNavigate();
 
   // ✅ Fetch Staff
-useEffect(() => {
-    const fetchStaff = async () => {
+      const fetchStaff = async () => {
       setLoading(true);
       try {
         const res = await getAllStaffApi();
@@ -44,7 +43,7 @@ useEffect(() => {
       }
       setLoading(false);
     };
-
+useEffect(() => {
     fetchStaff();
   }, []);
 

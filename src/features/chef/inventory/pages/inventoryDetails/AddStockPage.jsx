@@ -90,7 +90,7 @@ const fetchIngredients = async () => {
     if (res?.status === 'success') {
       reset();
 
-      navigate('/chef/inventory/stock');
+      navigate('/chef/inventory/details');
       return;
     }
 

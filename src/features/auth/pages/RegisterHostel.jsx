@@ -4,7 +4,7 @@ import { useForm } from "react-hook-form";
 import { Upload, X } from "lucide-react";
 
 import { Button } from "../../../components/ui/button";
-import { Card } from "../../../components/ui/card";
+import { Card } from "../../../components/ui/Card";
 import { getAllPackageApi, addHostelRegisterApi } from "../../../utils/utils";
 
 export default function RegisterHostel() {

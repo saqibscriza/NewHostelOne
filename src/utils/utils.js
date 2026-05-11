@@ -224,10 +224,17 @@ export const updateHostelApi = async (id, data) => {
 };
 
 //*********** Get Hostel By Id *************** */
-export const getHostelById = async (id) => {
+export const getHostelById = async (hostelId) => {
   try {
     axios.defaults.headers.common["Authorization"] = token;
-    var res = await axios.get(`${Domain}/hostel/getById/${id}`);
+    var res = await axios.get(
+      `${Domain}/hostel/getById`,
+      {
+        params: {
+          hostelId: hostelId,
+        },
+      }
+    );
     if (res) {
       return res;
     } else {
@@ -342,12 +349,10 @@ export const updateStaffApi = async (id, data) => {
     }
   } catch (error) {
     return [];
-
-    const res = await axios.put(`${Domain}/staff/update/${id}`, null, {
-      params: data, // 🔥 THIS is the correct way
-    });
-
-    return res;
+    // const res = await axios.put(`${Domain}/staff/update/${id}`, null, {
+    //   params: data, // 🔥 THIS is the correct way
+    // });
+    // return res;
   }
 };
 
@@ -965,6 +970,19 @@ export const addStockApi = async (data) => {
     return null;
   }
 };
+
+
+export const deleteStockApi = async (stockId) => {
+  try {
+    axios.defaults.headers.common["Authorization"] = token;
+    const res = await axios.delete(`${Domain}/inventory/stock/delete/${stockId}`);
+    return res.data;
+  } catch (error) {
+    console.log("ADD STOCK ERROR 👉", error);
+    return null;
+  }
+};
+
 
 // FeedBack Stats
 export const getFeedbackStatsApi = async (id) => {

@@ -10,7 +10,7 @@ import SelectHostelForm from "./features/auth/pages/HostelLogin";
 import RegisterHostel from "./features/auth/pages/RegisterHostel";
 
 // ADMIN
-import AdminDashboard from "./features/admin/dashboard/pages/DashboardPage";
+import AdminDashboard from "./features/admin/Dashboard/pages/DashboardPage";
 import StudentList from "./features/admin/students/pages/StudentList";
 import Rooms from "./features/admin/rooms/pages/RoomsCategory/Rooms";
 import RoomDetails from "./features/admin/rooms/pages/RoomsDetails/RoomDetails";
@@ -27,7 +27,7 @@ import AddStaffPage from "./features/admin/staff/pages/AddStaffPage";
 import EditStaffPage from "./features/admin/staff/pages/EditStaffPage";
 
 import AccountSettingPage from "./features/admin/setting/pages/AccountSettingPage";
-import SupportPage from "./features/admin/support/pages/Supportpage";
+import SupportPage from "./features/admin/support/pages/SupportPage";
 import TicketViewPage from "./features/admin/support/pages/TicketViewPage";
 
 import AddStudent from "./features/admin/students/pages/AddStudent";
@@ -46,7 +46,7 @@ import AddNewHostel from "./features/admin/Hostel/AddNewHostel";
 import QueriesDetails from "./features/admin/Queries/QueriesDetails";
 
 // STUDENT IMPORTS
-import MyDashboard from "./features/student/dashboard/My_Dashboard";
+import MyDashboard from "./features/student/Dashboard/My_Dashboard";
 import MyRoom from "./features/student/My_Room/MyRoom";
 import StudentMess from "./features/student/mess/pages/Mess";
 import StudentFees from "./features/student/fees/pages/Fees";
@@ -79,12 +79,14 @@ import MenuPlanner from "./features/chef/Menu/MenuPlanner";
 import InventoryDetailsPage from "./features/chef/inventory/pages/inventoryDetails/InventoryDetailsPage";
 import InventoryCategoryPage from "./features/chef/inventory/pages/inventoryCategory/InventoryCategoryPage";
 import AddStockPage from "./features/chef/inventory/pages/inventoryDetails/AddStockPage";
+import AddCategoryItemPage from "./features/chef/inventory/pages/inventoryCategory/AddCategoryItemPage";
 import AddCategoryPage from "./features/chef/inventory/pages/inventoryCategory/AddCategoryPage";
 import CategoryDetailsPage from "./features/chef/inventory/pages/inventoryCategory/CategoryDetailsPage";
 import EditCategoryPage from "./features/chef/inventory/pages/inventoryCategory/EditCategoryPage";
 import EditCategoryItemPage from "./features/chef/inventory/pages/inventoryCategory/EditCategoryItemPage";
 import FeedbackPage from "./features/chef/feedback/pages/FeedbackPage";
-import AddCategoryItemPage from "../src/features/chef/inventory/pages/inventoryCategory/AddCategoryItemPage";
+import NoticesPage from "./features/chef/notices/pages/NoticesPage";
+
 export default function AppRoutes() {
   const { role } = useAuth();
   const [searchParams] = useSearchParams();
@@ -161,7 +163,7 @@ export default function AppRoutes() {
               <Route index element={<SuperAdminDashboard />} />
 
               <Route path="hostels" element={<Hostel />} />
-              <Route path="hostels/:id" element={<HostelView />} />
+              <Route path="hostels/:hostelId" element={<HostelView />} />
               <Route path="hostels/add" element={<SuperAdminAddHostel />} />
               <Route path="hostels/update/:id" element={<UpdateHostel />} />
 
@@ -260,3 +262,4 @@ export default function AppRoutes() {
     </>
   );
 }
+

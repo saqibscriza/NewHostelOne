@@ -32,7 +32,7 @@ const StudentFeeDetails = async () => {
 
 
   const handleConfirm = () => {
-    alert("Payment successful!");
+    console.log("Payment Successfull");
     navigate("/student/fees");
   };
 

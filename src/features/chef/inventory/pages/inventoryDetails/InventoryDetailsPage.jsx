@@ -33,7 +33,7 @@ import {
   SelectValue,
 } from "../../../../../components/ui/select";
 import { Link } from "react-router-dom";
-import { getInventoryStockDashboardApi } from "../../../../../utils/utils";
+import { getInventoryStockDashboardApi, deleteStockApi } from "../../../../../utils/utils";
 
 export default function InventoryDetailsPage() {
   const [dashboard, setDashboard] = useState({
@@ -78,6 +78,25 @@ export default function InventoryDetailsPage() {
       maximumFractionDigits: 2,
       minimumFractionDigits: 0,
     })}`;
+
+
+  const handleDelete = async (stockId) => {
+  try {
+    const res = await deleteStockApi(stockId);
+    console.log("DELETE RESPONSE =>", res);
+    // API success check
+    if (res?.status === "success" || res?.statusCode === 200) {
+      // UI se remove instantly
+      setStocks((prev) =>
+        prev.filter((item) => item.stockId !== stockId)
+      );
+    } else {
+      console.log("Stock delete error");
+    }
+  } catch (error) {
+    console.log(error);
+  }
+};
 
   return (
     <div className="max-w-7xl mx-auto space-y-6 pb-10">
@@ -335,6 +354,7 @@ export default function InventoryDetailsPage() {
                         </button>
                         <button
                           type="button"
+                          onClick={() => handleDelete(item.stockId)}
                           className="text-muted-foreground hover:text-red-500 transition-colors"
                         >
                           <Trash2 className="w-4 h-4" />

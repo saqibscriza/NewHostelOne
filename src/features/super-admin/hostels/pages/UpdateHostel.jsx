@@ -78,7 +78,7 @@ export default function UpdateHostel() {
 
     if (response?.data?.status === "success" || response?.status === 200) {
       console.log("Success");
-      navigate("/hostels");
+      navigate("/superadmin/hostels");
       window.location.reload(); // ✅ IMPORTANT
     } else {
       console.log("Error");

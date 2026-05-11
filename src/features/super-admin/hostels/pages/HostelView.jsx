@@ -8,6 +8,7 @@ import {
   CheckCircle2,
 } from "lucide-react";
 import { Button } from "../../../../components/ui/button";
+import { useNavigate } from "react-router-dom";
 import {
   Card,
   CardContent,
@@ -21,17 +22,19 @@ import { getHostelById } from "../../../../utils/utils";
 import { useParams } from "react-router-dom";
 
 export default function HostelView() {
-  const { id } = useParams();
+  const { hostelId } = useParams();
+  const navigate = useNavigate();
   const [hostel, setHostel] = useState(null);
 
   useEffect(() => {
     const fetchHostel = async () => {
-      const res = await getHostelById(id);
+      const res = await getHostelById(hostelId);
 
       if (res?.data) {
         const data = res.data;
 
         const formatted = {
+          hostelId: data.hostelId,
           name: data.hostelName,
           address: data.address,
           status: data.status,
@@ -54,7 +57,7 @@ export default function HostelView() {
     };
 
     fetchHostel();
-  }, [id]);
+  }, [hostelId]);
   if (!hostel) return <div>Loading...</div>;
 
   return (
@@ -89,7 +92,11 @@ export default function HostelView() {
             </div>
           </div>
 
-          <Button>
+          <Button
+          onClick={() =>
+          navigate(`/superadmin/hostels/update/${hostel.hostelId}`)
+          }
+          >
             <Pencil className="mr-2 h-4 w-4" />
             Edit Profile
           </Button>

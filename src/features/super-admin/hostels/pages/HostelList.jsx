@@ -57,9 +57,7 @@ export default function Hostel() {
 
   // ******** Delete Hostel ********* //
   const handleDelete = async (hostelId) => {
-    const confirmDelete = window.confirm(
-      "Are you sure you want to delete this hostel?",
-    );
+console.log("hostel deleted")
     if (!confirmDelete) return;
     const res = await deleteHostelById(hostelId);
     if (res?.data?.status === "success") {
@@ -68,7 +66,7 @@ export default function Hostel() {
         prev.filter((item) => item.hostelId !== hostelId),
       );
     } else {
-      alert("Failed to delete hostel");
+      console.log("Error in deleteing hostel");
     }
   };
 

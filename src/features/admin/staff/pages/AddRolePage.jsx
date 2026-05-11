@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { Edit2, Trash2 } from "lucide-react";
+import toast from "react-hot-toast";
 import {
   Dialog,
   DialogContent,
@@ -83,16 +84,20 @@ const handleUpdateRole = async (id) => {
 };
 
   // ✅ DELETE ROLE
-  const handleDeleteRole = async (id) => {
-    const confirmDelete = window.confirm("Are you sure?");
-    if (!confirmDelete) return;
-
+const handleDeleteRole = async (id) => {
+  try {
     const res = await deleteRoleApi(id);
+
     if (res?.status === 200) {
-      setRoles((prev) => prev.filter((r) => r.id !== id)); // no reload
+      setRoles((prev) => prev.filter((r) => r.id !== id));
+      toast.success("Role deleted successfully");
       fetchRoles();
     }
-  };
+  } catch (error) {
+    console.log("Delete role error:", error);
+    toast.error("Failed to delete role");
+  }
+};
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -113,7 +118,11 @@ const handleUpdateRole = async (id) => {
             <div className="flex gap-4">
               <Input
                 placeholder="Enter Role Name"
-                {...register("roleName")}
+                  {...register("roleName", {
+    required: "Role name is required",
+    validate: (value) =>
+      value.trim() !== "" || "Role name cannot be empty",
+  })}
                 className="h-12 flex-1 rounded-lg border-slate-200"
               />
               <Button
@@ -123,6 +132,7 @@ const handleUpdateRole = async (id) => {
                 Add New Role
               </Button>
               <Button
+              type="button"
                 variant="secondary"
                 onClick={onClose}
                 className="h-12 px-6 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold rounded-lg"

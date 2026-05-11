@@ -113,18 +113,12 @@ export default function () {
 
       if (res?.status === "success") {
         console.log("Profile updated successfully");
-        alert("Profile saved successfully");
-        navigate("/student/profile");
+        navigate('/student/profile');
       } else {
-        console.error(
-          "Failed to update profile:",
-          res?.message || "Unknown error",
-        );
-        alert("Failed to update profile");
+        console.error("Failed to update profile:", res?.message || "Unknown error");
       }
     } catch (error) {
       console.error("Error updating profile:", error);
-      alert("An error occurred");
     } finally {
       setLoading(false);
     }

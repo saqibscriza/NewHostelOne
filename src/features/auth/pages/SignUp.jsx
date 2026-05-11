@@ -9,7 +9,7 @@ import {
   CardContent,
   CardHeader,
   CardTitle,
-} from "../../../components/ui/card";
+} from "../../../components/ui/Card";
 import { Button } from "../../../components/ui/button";
 
 

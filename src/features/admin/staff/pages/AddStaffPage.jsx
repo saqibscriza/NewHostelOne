@@ -92,13 +92,12 @@ export default function AddStaff() {
     try {
       setLoaderCheck(true); // loader start
       const res = await addStaffApi(formData);
-      if (res?.data?.status === "success") {
+      if (res?.data?.status === "success" || res?.status === 200 || res?.status === 201) {
         toast.success(res?.data?.message || "Staff added successfully");
-
         setLoaderCheck(false);
         setTimeout(() => {
-          navigate("/staff");
-        }, 2000);
+          navigate("/admin/staff");
+        }, 1500);
       } else {
         toast.error(res?.data?.message || "Something went wrong");
         setLoaderCheck(false);
@@ -482,9 +481,10 @@ export default function AddStaff() {
         {/* 8. FOOTER BUTTONS */}
         <div className="flex items-center justify-end gap-4 pt-4 pb-10">
           <Button
+          type="button"
             variant="secondary"
             className="h-11 px-8 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold"
-            onClick={() => navigate("/staff")}
+            onClick={() => navigate("/admin/staff")}
           >
             Cancel
           </Button>

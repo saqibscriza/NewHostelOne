@@ -3,7 +3,7 @@ import toast from "react-hot-toast";
 import { useForm } from 'react-hook-form';
 import { useNavigate, useParams } from "react-router-dom";
 import { updateStaffApi } from "../../../../utils/utils";
-// import { getStaffByIdApi } from "../../../../utils/utils";
+import { getStaffByIdApi } from "../../../../utils/utils";
 import { getAllRoleApi } from "../../../../utils/utils";
 
 import {
@@ -58,48 +58,9 @@ export default function UpdateStaff() {
     handleSubmit,
     reset,
     setValue,
+    watch,
     formState: { errors },
   } = useForm();
-
-
-  // // get staff by id Api
-  // const MyStaffDataById = async () => {
-  //   setLoaderCheck(true);
-  //   try {
-  //     const response = await getStaffByIdApi(id);
-  //     console.log("staff data by id", response.data);
-
-  //     if (response?.data?.status === "success") {
-  //       const staff = response?.data?.staff?.[0]; 
-
-  //       setEmployeeId(staff.staffId);
-
-  //       setLoaderCheck(false);
-  //       // ⭐ FORM FILL
-  //       reset({
-  //         fullName: staff.fullName,
-  //         dob: staff.dob?.slice(0, 10),
-  //         gender: staff.gender,
-  //         roleId: staff.roleId,
-  //         joiningDate: staff.joiningDate?.slice(0, 10),
-  //         email: staff.email,
-  //         phone: staff.phone,
-  //         currentAddress: staff.currentAddress,
-  //         permanentAddress: staff.permanentAddress,
-  //         status: staff.status === true ? "ACTIVE" : "INACTIVE",
-  //         profileImage: staff.profileImage,
-  //         idProof: staff.idProof,
-  //         policeVerification: staff.policeVerification,
-  //       });
-  //     } else {
-  //       toast.error(response?.data?.message);
-  //       setLoaderCheck(false);
-  //     }
-  //   } catch (error) {
-  //     console.log(error);
-  //     setLoaderCheck(false);
-  //   }
-  // };
 
 
 
@@ -139,13 +100,6 @@ export default function UpdateStaff() {
 };
 
 
-
-
-
-
-
-
-
   // update Api
 const MyUpdateStaffAPI = async (data) => {
   try {
@@ -169,7 +123,7 @@ const MyUpdateStaffAPI = async (data) => {
     if (response?.data?.status === "success") {
       toast.success(response?.data?.message);
       setTimeout(() => {
-        navigate("/staff");
+        navigate("/admin/staff");
       }, 2000);
     } else {
       toast.error(response?.data?.message);
@@ -460,7 +414,7 @@ useEffect(() => {
               <Label className="text-sm font-medium text-slate-700">
                 ID Proof (Aadhar/Voter ID)
               </Label>
-              <div className="border-2 border-dashed border-slate-200 rounded-xl p-8 flex flex-col items-center justify-center text-center hover:bg-slate-50 transition-colors cursor-pointer bg-slate-50/50">
+              <label className="border-2 border-dashed border-slate-200 rounded-xl p-8 flex flex-col items-center justify-center text-center hover:bg-slate-50 transition-colors cursor-pointer bg-slate-50/50">
                 <UploadCloud className="w-8 h-8 text-slate-400 mb-3" />
                 <p className="text-sm font-medium text-slate-700">
                   Click to upload or drag & drop
@@ -474,7 +428,7 @@ useEffect(() => {
                 <p className="text-xs text-slate-500 mt-1">
                   PDF, JPG, PNG up to 5MB
                 </p>
-              </div>
+              </label>
             </div>
 
             {/* Drag & Drop Zone 2 */}
@@ -482,7 +436,7 @@ useEffect(() => {
               <Label className="text-sm font-medium text-slate-700">
                 Police Verification Report
               </Label>
-              <div className="border-2 border-dashed border-slate-200 rounded-xl p-8 flex flex-col items-center justify-center text-center hover:bg-slate-50 transition-colors cursor-pointer bg-slate-50/50">
+              <label className="border-2 border-dashed border-slate-200 rounded-xl p-8 flex flex-col items-center justify-center text-center hover:bg-slate-50 transition-colors cursor-pointer bg-slate-50/50">
                 <CheckCircle2 className="w-8 h-8 text-slate-400 mb-3" />
                 <p className="text-sm font-medium text-slate-700">
                   Upload verification document
@@ -496,7 +450,7 @@ useEffect(() => {
                 <p className="text-xs text-slate-500 mt-1">
                   Mandatory for all field staff
                 </p>
-              </div>
+              </label>
             </div>
           </div>
         </Card>

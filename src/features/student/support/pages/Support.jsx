@@ -1,4 +1,5 @@
 import React from "react";
+import {useState,useEffect} from "react";
 import { Search, Ticket } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "../../../../components/ui/button";
@@ -11,39 +12,55 @@ import {
   TableHeader,
   TableRow,
 } from "../../../../components/ui/Table";
+import {getAllSupportTicketsApi} from "../../../../utils/utils"
 
 export default function Support() {
   const navigate = useNavigate();
+  const [tickets, setTickets] = useState([]);
+  const [filteredTickets, setFilteredTickets] = useState([]);
+  const [search, setSearch] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  const tickets = [
-    {
-      id: 1,
-      subject: "Issue with monthly billing automation",
-      description:
-        "Monthly billing automation is not working properly, causing...",
-      created: "2 hours ago",
-    },
-    {
-      id: 2,
-      subject: "Room cleaning",
-      description:
-        "Room cleaning service is delayed and not meeting hygiene...",
-      created: "Yesterday",
-    },
-    {
-      id: 3,
-      subject: "Wrong room assignment log",
-      description: "Incorrect room assignment recorded in system, causing...",
-      created: "2 days ago",
-    },
-    {
-      id: 4,
-      subject: "Food Related",
-      description:
-        "Food quality, taste, or hygiene issues reported; requires...",
-      created: "4 hoursago",
-    },
-  ];
+    // GET ALL TICKETS
+  const fetchAllTickets = async () => {
+    try {
+      setLoading(true);
+
+      const res = await getAllSupportTicketsApi();
+
+      console.log("Support Tickets =>", res);
+
+      // adjust according to your API response
+      const data = res?.SupportTickets || [];
+
+      setTickets(data);
+      setFilteredTickets(data);
+    } catch (error) {
+      console.log("FETCH TICKETS ERROR =>", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchAllTickets();
+  }, []);
+
+
+    // SEARCH FILTER
+  useEffect(() => {
+    if (!search) {
+      setFilteredTickets(tickets);
+    } else {
+      const filtered = tickets.filter((ticket) =>
+        ticket?.subject
+          ?.toLowerCase()
+          .includes(search.toLowerCase())
+      );
+
+      setFilteredTickets(filtered);
+    }
+  }, [search, tickets]);
 
   return (
     <div className="max-w-6xl mx-auto space-y-6 pb-10">
@@ -60,7 +77,9 @@ export default function Support() {
         <div className="relative flex-1 w-full">
           <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
           <Input
-            placeholder="Search documentation, guides, and more..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder="Search tickets..."
             className="pl-12 h-12 rounded-xl border-border bg-card text-foreground focus-visible:ring-1 focus-visible:ring-ring text-[15px]"
           />
         </div>
@@ -90,12 +109,15 @@ export default function Support() {
                   DESCRIPTION
                 </TableHead>
                 <TableHead className="text-xs font-bold text-muted-foreground uppercase tracking-widest px-6 py-4">
+                  Status
+                </TableHead>
+                <TableHead className="text-xs font-bold text-muted-foreground uppercase tracking-widest px-6 py-4">
                   CREATED
                 </TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
-              {tickets.map((ticket) => (
+              {filteredTickets.map((ticket) => (
                 <TableRow
                   key={ticket.id}
                   className="border-border hover:bg-muted/50 cursor-pointer transition-colors group"
@@ -109,8 +131,12 @@ export default function Support() {
                       Read more
                     </span>
                   </TableCell>
+                        <TableCell className="px-6 py-5 text-muted-foreground">
+        {ticket.status}
+      </TableCell>
                   <TableCell className="px-6 py-5 text-muted-foreground whitespace-nowrap">
-                    {ticket.created}
+                    {new Date(ticket.createdAt).toLocaleDateString()}
+
                   </TableCell>
                 </TableRow>
               ))}
