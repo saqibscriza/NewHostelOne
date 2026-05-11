@@ -1,7 +1,7 @@
 import axios from "axios";
 const token = `Bearer ${sessionStorage.getItem("token")}`;
 const getToken = () => {
- return `Bearer ${sessionStorage.getItem("token")}`;
+  return `Bearer ${sessionStorage.getItem("token")}`;
 };
 // const token = sessionStorage.getItem("token");
 
@@ -227,14 +227,7 @@ export const updateHostelApi = async (id, data) => {
 export const getHostelById = async (hostelId) => {
   try {
     axios.defaults.headers.common["Authorization"] = token;
-    var res = await axios.get(
-      `${Domain}/hostel/getById`,
-      {
-        params: {
-          hostelId: hostelId,
-        },
-      }
-    );
+    var res = await axios.get(`${Domain}/hostel/getById?hostelId=${id}`);
     if (res) {
       return res;
     } else {
@@ -1853,7 +1846,7 @@ export const getStudentMyRoomApi = async () => {
   try {
     axios.defaults.headers.common["Authorization"] = token;
 
-    var res = await axios.get(`${Domain}student/my-room`);
+    var res = await axios.get(`${Domain}/student/my-room`);
 
     if (res) {
       return res;
@@ -1871,13 +1864,17 @@ export const getStudentDashboardApi = async () => {
   try {
     axios.defaults.headers.common["Authorization"] = token;
 
-    const res = await axios.get(`${Domain}student/dashboard`);
+    const res = await axios.get(`${Domain}/student/dashboard`);
 
-    return res;
+    if (res) {
+      return res;
+    } else {
+      return [];
+    }
   } catch (error) {
     console.log(error);
 
-    return null;
+    return [];
   }
 };
 
@@ -1919,6 +1916,50 @@ export const getMessMenuFullWeekApi = async () => {
   } catch (error) {
     console.log("GET MESS MENU FULL WEEK ERROR 👉", error);
     return error?.response || null;
+  }
+};
+
+// ================= STUDENT MESS MENU APIS =================
+
+// GET TODAY / TOMORROW MENU
+export const getTodayMessMenuApi = async (dayName) => {
+  try {
+    axios.defaults.headers.common["Authorization"] = token;
+
+    const res = await axios.get(`${Domain}/messMenu/getByDay`, {
+      params: {
+        dayName,
+      },
+    });
+
+    if (res) {
+      return res;
+    } else {
+      return [];
+    }
+  } catch (error) {
+    console.log("GET TODAY MESS MENU ERROR 👉", error);
+
+    return [];
+  }
+};
+
+// GET FULL WEEK MENU
+export const getFullWeekMessMenuApi = async () => {
+  try {
+    axios.defaults.headers.common["Authorization"] = token;
+
+    const res = await axios.get(`${Domain}/messMenu/getFullWeek`);
+
+    if (res) {
+      return res;
+    } else {
+      return [];
+    }
+  } catch (error) {
+    console.log("GET FULL WEEK MENU ERROR 👉", error);
+
+    return [];
   }
 };
 
@@ -2003,5 +2044,23 @@ export const editCategoryById = async (id, data) => {
     console.log("UPDATE CATEGORY ERROR 👉", error);
 
     return error?.response || [];
+  }
+};
+
+// super admin dashboard api
+
+export const getDashboardStatsApi = async () => {
+  try {
+    axios.defaults.headers.common["Authorization"] = token;
+
+    var res = await axios.get(`${Domain}/hostel/dashboard-stats`);
+
+    if (res) {
+      return res;
+    } else {
+      return [];
+    }
+  } catch (error) {
+    return [];
   }
 };

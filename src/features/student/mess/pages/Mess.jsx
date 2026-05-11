@@ -1,6 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { Star, ShieldCheck, Truck, Headphones, X } from "lucide-react";
-
+import {
+  getTodayMessMenuApi,
+  getFullWeekMessMenuApi,
+} from "../../../../utils/utils";
 export default function Mess() {
   const [openModal, setOpenModal] = useState(false);
 
@@ -11,30 +14,36 @@ export default function Mess() {
   });
   const [activeTab, setActiveTab] = useState("today");
   const [meals, setMeals] = useState([]);
+  const [rating, setRating] = useState(0);
+
+  const [hoverRating, setHoverRating] = useState(0);
+
+  const [comment, setComment] = useState("");
 
   const getTodayMenuApi = async () => {
     try {
-      axios.defaults.headers.common["Authorization"] = token;
+      const dayName = new Date().toLocaleDateString("en-US", {
+        weekday: "long",
+      });
 
-      const response = await axios.get(
-        `${Domain}messMenu/getByDay?dayName=${new Date().toLocaleDateString(
-          "en-US",
-          { weekday: "long" },
-        )}`,
-      );
+      const response = await getTodayMessMenuApi(dayName);
+
+      console.log("TODAY MENU RESPONSE 👉", response);
 
       if (response?.data?.status === "success") {
         setMeals(response?.data?.data || []);
+      } else {
+        setMeals([]);
       }
     } catch (error) {
       console.log(error);
+
+      setMeals([]);
     }
   };
 
   const getTomorrowMenuApi = async () => {
     try {
-      axios.defaults.headers.common["Authorization"] = token;
-
       const tomorrow = new Date();
 
       tomorrow.setDate(tomorrow.getDate() + 1);
@@ -43,9 +52,7 @@ export default function Mess() {
         weekday: "long",
       });
 
-      const response = await axios.get(
-        `${Domain}messMenu/getByDay?dayName=${dayName}`,
-      );
+      const response = await getTodayMessMenuApi(dayName);
 
       if (response?.data?.status === "success") {
         setMeals(response?.data?.data || []);
@@ -56,27 +63,72 @@ export default function Mess() {
   };
 
   const getFullWeekMenuApi = async () => {
-    try {
-      axios.defaults.headers.common["Authorization"] = token;
+  try {
+    const response =
+      await getFullWeekMessMenuApi();
 
-      const response = await axios.get(`${Domain}messMenu/getFullWeek`);
+    console.log(
+      "FULL WEEK RESPONSE 👉",
+      response
+    );
 
-      if (response?.data?.status === "success") {
-        setMeals(response?.data?.data || []);
-      }
-    } catch (error) {
-      console.log(error);
+    if (
+      response?.data?.status ===
+      "success"
+    ) {
+      setMeals(
+        response?.data?.data || []
+      );
+    } else {
+      setMeals([]);
     }
-  };
+  } catch (error) {
+    console.log(error);
 
+    setMeals([]);
+  }
+};
   useEffect(() => {
     getTodayMenuApi();
   }, []);
 
   const handleOpenModal = (meal) => {
     setSelectedMeal(meal);
+
+    setRating(0);
+
+    setHoverRating(0);
+
+    setComment("");
+
     setOpenModal(true);
   };
+
+  const handleSubmitRating = async () => {
+    if (rating === 0) {
+      alert("Please select rating");
+
+      return;
+    }
+
+    const payload = {
+      meal: selectedMeal?.meal,
+
+      category: selectedMeal?.category,
+
+      rating,
+
+      comment,
+    };
+
+    console.log("RATING PAYLOAD 👉", payload);
+
+    // CALL YOUR API HERE
+
+    setOpenModal(false);
+  };
+
+  console.log("MEALS DATA 👉", meals);
 
   return (
     <>
@@ -148,6 +200,8 @@ export default function Mess() {
                 </label>
 
                 <textarea
+                  value={comment}
+                  onChange={(e) => setComment(e.target.value)}
                   placeholder="Enter comment"
                   className="w-full h-24 rounded-xl border border-border bg-background px-4 py-3 text-sm text-foreground outline-none resize-none"
                 />
@@ -160,10 +214,17 @@ export default function Mess() {
                 </label>
 
                 <div className="flex gap-2">
-                  {[1, 2, 3, 4, 5].map((i) => (
+                  {[1, 2, 3, 4, 5].map((star) => (
                     <Star
-                      key={i}
-                      className="w-7 h-7 text-muted-foreground cursor-pointer hover:text-primary hover:fill-primary transition-all"
+                      key={star}
+                      onClick={() => setRating(star)}
+                      onMouseEnter={() => setHoverRating(star)}
+                      onMouseLeave={() => setHoverRating(0)}
+                      className={`w-8 h-8 cursor-pointer transition-all ${
+                        star <= (hoverRating || rating)
+                          ? "fill-yellow-400 text-yellow-400"
+                          : "text-muted-foreground"
+                      }`}
                     />
                   ))}
                 </div>
@@ -171,7 +232,10 @@ export default function Mess() {
 
               {/* Footer */}
               <div className="flex items-center gap-3 pt-5 border-t border-border">
-                <button className="px-6 h-11 rounded-xl bg-black text-white text-sm font-semibold hover:opacity-90">
+                <button
+                  onClick={handleSubmitRating}
+                  className="px-6 h-11 rounded-xl bg-black text-white text-sm font-semibold hover:opacity-90"
+                >
                   Rate Meal
                 </button>
 
@@ -258,8 +322,9 @@ export default function Mess() {
           </div>
 
           {/* Meals */}
-          <div className="space-y-4">
-            {meals?.map((item, index) => (
+         <div className="space-y-4">
+  {meals?.length > 0 ? (
+    meals.map((item, index) => (
               <div
                 key={index}
                 className="flex flex-col sm:flex-row gap-4 sm:gap-12"
@@ -285,9 +350,17 @@ export default function Mess() {
                   </button>
                 </div>
               </div>
-            ))}
+             ))
+              ) : (
+                <div className="bg-muted rounded-xl p-10 text-center">
+                  <p className="text-muted-foreground">
+                    No menu available for this day
+                  </p>
+                </div>
+              )}
+            </div>
           </div>
-        </div>
+      
 
         {/* FILTER BAR */}
         <div className="bg-card border border-border rounded-2xl p-5 flex flex-col md:flex-row md:items-center justify-between gap-4">

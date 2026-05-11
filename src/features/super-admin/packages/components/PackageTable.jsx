@@ -7,29 +7,41 @@ import { deletePackageApi } from "../../../../utils/utils";
 export default function PackageTable({ data, loading, error, setData }) {
   // Delete api
 
+  // const MyPackageDeleteApi = async (id) => {
+  //   // setLoader(true);
+  //   try {
+  //     const response = await deletePackageApi(id);
+  //     if (response?.status === 200) {
+  //       if (response?.data?.status === "success") {
+  //         // toast.success(response?.data?.message);
+  //         // setForDelete(false);
+  //         // ClassRoomGetAllApi();
+  //         // setLoader(false);
+  //         // closeCanvas(offcanvasRef33);
+  //       }
+  //     } else {
+  //       // toast.error(response?.data?.message);
+  //       // setLoader(false);
+  //     }
+  //   } catch (error) {
+  //     // setloaderState(false);
+  //     // setLoader(false);
+  //     console.log(error);
+  //   }
+  // };
+
   const MyPackageDeleteApi = async (id) => {
-    // setLoader(true);
     try {
       const response = await deletePackageApi(id);
-      if (response?.status === 200) {
-        if (response?.data?.status === "success") {
-          // toast.success(response?.data?.message);
-          // setForDelete(false);
-          // ClassRoomGetAllApi();
-          // setLoader(false);
-          // closeCanvas(offcanvasRef33);
-        }
-      } else {
-        // toast.error(response?.data?.message);
-        // setLoader(false);
+
+      if (response?.status === 200 && response?.data?.status === "success") {
+        // remove deleted item instantly from UI
+        setData((prev) => prev.filter((item) => item.packageId !== id));
       }
     } catch (error) {
-      // setloaderState(false);
-      // setLoader(false);
       console.log(error);
     }
   };
-
   return (
     <div className="bg-card rounded-xl border border-border">
       <div className="p-4 border-b border-border">
@@ -102,7 +114,15 @@ export default function PackageTable({ data, loading, error, setData }) {
                     </Link>
 
                     <Trash2
-                      onClick={() => MyPackageDeleteApi(pkg.packageId)}
+                      onClick={() => {
+                        const confirmDelete = window.confirm(
+                          "Are you sure you want to delete this package?",
+                        );
+
+                        if (confirmDelete) {
+                          MyPackageDeleteApi(pkg.packageId);
+                        }
+                      }}
                       className="w-4 h-4 text-destructive cursor-pointer"
                     />
                   </td>

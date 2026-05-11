@@ -67,66 +67,119 @@ export default function MyRoom() {
         </Button>
       </div>
 
+
+{/* TOP GRID */}
+<div className="grid lg:grid-cols-3 gap-6">
+  {/* ROOM DETAILS CARD */}
+  <Card className="lg:col-span-2 overflow-hidden">
+    <img
+      src="https://images.unsplash.com/photo-1560448204-e02f11c3d0e2"
+      className="h-52 w-full object-cover"
+    />
+
+    <CardContent className="p-5 space-y-4">
+      <div className="flex justify-between items-start">
+        <div>
+          <h2 className="text-xl font-bold">
+            Room{" "}
+            {roomData?.roomDetails?.roomNumber ||
+              "N/A"}
+          </h2>
+
+          <p className="text-sm text-muted-foreground">
+            Block / Floor:{" "}
+            {roomData?.roomDetails?.blockFloor ||
+              "N/A"}
+          </p>
+        </div>
+
+        <div className="bg-primary/10 text-primary px-3 py-1 rounded-full text-xs font-medium">
+          {roomData?.roomDetails?.status ||
+            "N/A"}
+        </div>
+      </div>
+
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+        <Info
+          label="Category"
+          value={
+            roomData?.roomDetails?.category ||
+            "N/A"
+          }
+        />
+
+        <Info
+          label="Available Beds"
+          value={
+            roomData?.roomDetails
+              ?.availableBeds || 0
+          }
+        />
+
+        <Info
+          label="Total Beds"
+          value={
+            roomData?.roomDetails?.totalBeds ||
+            0
+          }
+        />
+
+        <Info
+          label="Room ID"
+          value={
+            roomData?.roomDetails?.roomId ||
+            "N/A"
+          }
+        />
+      </div>
+    </CardContent>
+  </Card>
+
+  {/* STUDENT CARD */}
+  <Card>
+    <CardContent className="p-5 flex flex-col items-center text-center gap-3">
+      <img
+        src={
+          roomData?.student?.photo ||
+          "https://randomuser.me/api/portraits/men/32.jpg"
+        }
+        className="w-20 h-20 rounded-full"
+      />
+
+      <h3 className="font-semibold">
+        {roomData?.student?.studentName ||
+          "N/A"}
+      </h3>
+
+      <p className="text-sm text-muted-foreground">
+        {roomData?.student?.course || "N/A"}
+      </p>
+
+      <p className="text-sm text-muted-foreground">
+        Year:{" "}
+        {roomData?.student?.year || "N/A"}
+      </p>
+
+      <p className="text-sm text-muted-foreground">
+        Phone:{" "}
+        {roomData?.student?.phone || "N/A"}
+      </p>
+
+      <p className="text-xs text-muted-foreground">
+        ID:{" "}
+        {roomData?.student?.studentId ||
+          "N/A"}
+      </p>
+    </CardContent>
+  </Card>
+</div>
+
+
       {/* TOP GRID */}
       <div className="grid lg:grid-cols-3 gap-6">
-        {/* ROOM CARD */}
-        <Card className="lg:col-span-2 overflow-hidden">
-          <img
-            src={
-              roomData?.roomImage ||
-              "https://images.unsplash.com/photo-1560448204-e02f11c3d0e2"
-            }
-            className="h-52 w-full object-cover"
-          />
-
-          <CardContent className="p-5 space-y-4">
-            <h2 className="text-xl font-bold">
-              {roomData?.roomNumber || "Room 402-B"}
-            </h2>
-
-            <p className="text-sm text-muted-foreground">
-              {roomData?.blockName || "Deluxe Wing, North Block"}
-            </p>
-
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
-              <Info label="Floor" value={roomData?.floor || "4th Floor"} />
-
-              <Info label="Type" value={roomData?.roomType || "Twin Sharing"} />
-
-              <Info
-                label="Check-in"
-                value={roomData?.checkInDate || "Aug 12, 2023"}
-              />
-
-              <Info label="Status" value={roomData?.status || "Occupied"} />
-            </div>
-          </CardContent>
-        </Card>
+      
 
         {/* ROOMMATE */}
-        <Card>
-          <CardContent className="p-5 flex flex-col items-center text-center gap-3">
-            <img
-              src={
-                roomData?.roommateImage ||
-                "https://randomuser.me/api/portraits/men/32.jpg"
-              }
-              className="w-20 h-20 rounded-full"
-            />
-
-            <h3 className="font-semibold">
-              {roomData?.roommateName || "Sandeep Kumar"}
-            </h3>
-
-            <p className="text-sm text-muted-foreground">
-              {roomData?.roommateCourse || "B.Tech CSE, 3rd Year"}
-            </p>
-
-            <Button variant="secondary" className="w-full">
-              View Profile
-            </Button>
-          </CardContent>
-        </Card>
       </div>
 
       {/* AMENITIES */}
@@ -134,15 +187,13 @@ export default function MyRoom() {
         <h2 className="font-semibold mb-3">Room Amenities</h2>
 
         <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
-          <Amenity icon={Wifi} text="High-speed WiFi" />
-
-          <Amenity icon={Snowflake} text="Central AC" />
-
-          <Amenity icon={Bath} text="Attached Washroom" />
-
-          <Amenity icon={WashingMachine} text="Laundry Service" />
-
-          <Amenity icon={BookOpen} text="Study Desk" />
+          {roomData?.amenities?.length > 0 ? (
+            roomData.amenities.map((item, index) => (
+              <Amenity key={index} icon={Wifi} text={item} />
+            ))
+          ) : (
+            <p className="text-muted-foreground">No amenities available</p>
+          )}
         </div>
       </div>
 
@@ -153,11 +204,19 @@ export default function MyRoom() {
           <CardContent className="p-5 space-y-4">
             <h3 className="font-semibold">Maintenance History</h3>
 
-            <Row title="AC Repair" status="Completed" />
-
-            <Row title="Lightbulb Change" status="Pending" />
-
-            <Row title="Drainage Cleaning" status="Completed" />
+            {roomData?.maintenanceHistory?.length > 0 ? (
+              roomData.maintenanceHistory.map((item, index) => (
+                <Row
+                  key={index}
+                  title={item?.title || "Issue"}
+                  status={item?.status || "Pending"}
+                />
+              ))
+            ) : (
+              <p className="text-muted-foreground">
+                No maintenance history available
+              </p>
+            )}
           </CardContent>
         </Card>
 
@@ -166,11 +225,13 @@ export default function MyRoom() {
           <CardContent className="p-5 space-y-4">
             <h3 className="font-semibold">Room Rules & Guidelines</h3>
 
-            <Rule text="Visitors allowed between 10 AM - 8 PM" />
-
-            <Rule text="No smoking inside rooms" />
-
-            <Rule text="Maintain silence after 11 PM" />
+            {roomData?.roomRules?.length > 0 ? (
+              roomData.roomRules.map((rule, index) => (
+                <Rule key={index} text={rule} />
+              ))
+            ) : (
+              <p className="text-muted-foreground">No rules available</p>
+            )}
           </CardContent>
         </Card>
       </div>

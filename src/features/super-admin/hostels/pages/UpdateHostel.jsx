@@ -193,7 +193,7 @@ export default function UpdateHostel() {
           <Button
             variant="outline"
             type="button"
-            onClick={() => navigate("/hostels")}
+            onClick={() => navigate("/superadmin/hostels")}
           >
             Cancel
           </Button>

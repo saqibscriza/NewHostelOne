@@ -36,6 +36,10 @@ const RoomDetails = () => {
   const [roomData, setRoomData] = useState([]);
   const [loaderCheck, setLoaderCheck] = useState(false);
   const [getAllData, setGetAllData] = useState([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
+  const [totalPages, setTotalPages] = useState(1);
+  const [totalElements, setTotalElements] = useState(0);
 
   const navigate = useNavigate();
 
@@ -44,8 +48,8 @@ const RoomDetails = () => {
 
     try {
       const params = {
-        page: 1,
-        size: 10,
+        page: currentPage,
+        size: pageSize,
       };
 
       const response = await getRoomAllData(params);
@@ -54,10 +58,17 @@ const RoomDetails = () => {
       console.log("ROOM response ", response);
 
       // ✅ FIX: handle both success + failure safely
-      const list = response?.data?.data?.content || [];
+      const list =
+        response?.data?.data?.content &&
+        Array.isArray(response?.data?.data?.content)
+          ? response.data.data.content
+          : [];
 
       if (Array.isArray(list)) {
         setRoomData(list);
+        setTotalPages(response?.data?.data?.totalPages || 1);
+
+        setTotalElements(response?.data?.data?.totalElements || 0);
       } else {
         setRoomData([]);
       }
@@ -76,7 +87,7 @@ const RoomDetails = () => {
 
   useEffect(() => {
     RoomGetAllApi();
-  }, []);
+  }, [currentPage, pageSize]);
 
   return (
     <div className="space-y-6 p-6">
@@ -106,7 +117,7 @@ const RoomDetails = () => {
             <BedDouble className="w-6 h-6 text-muted-foreground" />
             <div>
               <p className="text-xs text-muted-foreground">TOTAL ROOMS</p>
-              <h3 className="text-xl font-semibold">{roomData.length}</h3>
+              <h3 className="text-xl font-semibold">{totalElements}</h3>
             </div>
           </CardContent>
         </Card>
@@ -274,14 +285,40 @@ const RoomDetails = () => {
           </Table>
 
           <div className="flex justify-between items-center p-4 text-sm text-muted-foreground">
-            <span>Showing rooms</span>
+            <span>
+              Showing page {currentPage} of {totalPages}
+            </span>
 
             <div className="flex gap-2 items-center">
-              <button className="px-2">‹</button>
-              <button className="px-3 py-1 bg-primary text-white rounded">
-                1
+              <button
+                className="px-2 disabled:opacity-50"
+                disabled={currentPage === 1}
+                onClick={() => setCurrentPage((prev) => prev - 1)}
+              >
+                ‹
               </button>
-              <button className="px-2">›</button>
+
+              {Array.from({ length: Math.max(totalPages, 5) }, (_, index) => (
+                <button
+                  key={index}
+                  onClick={() => setCurrentPage(index + 1)}
+                  className={`px-3 py-1 rounded ${
+                    currentPage === index + 1
+                      ? "bg-primary text-white"
+                      : "bg-muted"
+                  }`}
+                >
+                  {index + 1}
+                </button>
+              ))}
+
+              <button
+                className="px-2 disabled:opacity-50"
+                disabled={currentPage === totalPages}
+                onClick={() => setCurrentPage((prev) => prev + 1)}
+              >
+                ›
+              </button>
             </div>
           </div>
         </CardContent>

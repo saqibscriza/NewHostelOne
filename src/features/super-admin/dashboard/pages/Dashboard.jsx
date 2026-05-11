@@ -7,6 +7,9 @@ import {
 import { Badge } from "../../../../components/ui/Badge";
 import { Button } from "../../../../components/ui/button";
 import { useNavigate } from "react-router-dom";
+import { getDashboardStatsApi } from "../../../../utils/utils";
+import { useEffect, useState } from "react";
+import { toast } from "react-toastify";
 import {
   Building2,
   Users,
@@ -25,92 +28,90 @@ import {
   ResponsiveContainer,
 } from "recharts";
 
-const statsCards = [
-  { label: "TOTAL HOSTELS", value: "128", change: "+5.4%", icon: Building2 },
-  { label: "TOTAL ADMINS", value: "42", change: "+2.1%", icon: Users },
-  {
-    label: "TOTAL STUDENTS",
-    value: "3,450",
-    change: "+12.8%",
-    icon: GraduationCap,
-  },
-  {
-    label: "TOTAL REVENUE",
-    value: "₹ 1,20,000",
-    change: "+8.2%",
-    icon: DollarSign,
-  },
-];
-
-const chartData = [
-  { month: "Jan", current: 30, previous: 20 },
-  { month: "Feb", current: 60, previous: 35 },
-  { month: "Mar", current: 45, previous: 50 },
-  { month: "Apr", current: 70, previous: 40 },
-  { month: "May", current: 55, previous: 60 },
-  { month: "Jun", current: 80, previous: 45 },
-];
-
-const recentAdditions = [
-  {
-    name: "Green Valley",
-    location: "Noida (UP)",
-    status: "ACTIVE",
-    img: "https://images.unsplash.com/photo-1555854877-bab0e564b8d5?w=40&h=40&fit=crop",
-  },
-  {
-    name: "Urban Living",
-    location: "Ghaziabad (UP)",
-    status: "ACTIVE",
-    img: "https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=40&h=40&fit=crop",
-  },
-  {
-    name: "Nordic Heights",
-    location: "New Delhi (Delhi)",
-    status: "PENDING",
-    img: "https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?w=40&h=40&fit=crop",
-  },
-  {
-    name: "Alpine Lodge",
-    location: "Mumbai (MH)",
-    status: "ACTIVE",
-    img: "https://images.unsplash.com/photo-1564501049412-61c2a3083791?w=40&h=40&fit=crop",
-  },
-];
-
-const regions = [
-  {
-    name: "North India",
-    hostels: 54,
-    occupancy: 92,
-    revenue: "₹5,80,200",
-    growth: "+12.4%",
-  },
-  {
-    name: "South India",
-    hostels: 32,
-    occupancy: 88,
-    revenue: "₹3,40,500",
-    growth: "+8.1%",
-  },
-  {
-    name: "East India",
-    hostels: 28,
-    occupancy: 76,
-    revenue: "₹2,10,000",
-    growth: "+4.2%",
-  },
-  {
-    name: "Central India",
-    hostels: 14,
-    occupancy: 94,
-    revenue: "₹1,20,400",
-    growth: "+15.7%",
-  },
-];
-
 export default function Dashboard() {
+  const [loaderCheck, setLoaderCheck] = useState(false);
+  const [dashboardStats, setDashboardStats] = useState(null);
+
   const navigate = useNavigate();
+
+  const statsCards = [
+    {
+      label: "TOTAL HOSTELS",
+      value: dashboardStats?.totalHostels || 0,
+      change: `${dashboardStats?.totalHostelsVsLastMonth || 0}%`,
+      icon: Building2,
+    },
+
+    {
+      label: "TOTAL ADMINS",
+      value: dashboardStats?.totalAdmins || 0,
+      change: "+0%",
+      icon: Users,
+    },
+
+    {
+      label: "TOTAL STUDENTS",
+      value: dashboardStats?.totalStudents || 0,
+      change: `${dashboardStats?.activeStudentsVsLastMonth || 0}%`,
+      icon: GraduationCap,
+    },
+
+    {
+      label: "TOTAL REVENUE",
+      value: `₹ ${dashboardStats?.totalRevenue || 0}`,
+      change: `${dashboardStats?.averageOccupancyVsLastMonth || 0}%`,
+      icon: DollarSign,
+    },
+  ];
+
+  const chartData = [
+    {
+      month: "Occupancy",
+      current: dashboardStats?.averageOccupancy || 0,
+      previous: dashboardStats?.averageOccupancyVsLastMonth || 0,
+    },
+
+    {
+      month: "Students",
+      current: dashboardStats?.totalStudents || 0,
+      previous: dashboardStats?.activeStudentsVsLastMonth || 0,
+    },
+
+    {
+      month: "Issues",
+      current: dashboardStats?.pendingIssues || 0,
+      previous: dashboardStats?.pendingIssuesVsLastMonth || 0,
+    },
+  ];
+
+  const recentAdditions = dashboardStats?.recentAdditions || [];
+  const regions = dashboardStats?.topPerformingRegions || [];
+
+  const DashboardStatsApi = async () => {
+    setLoaderCheck(true);
+
+    try {
+      const response = await getDashboardStatsApi();
+
+      console.log("DASHBOARD STATS 👉", response);
+
+      if (response?.data?.status === "success") {
+        setDashboardStats(response?.data);
+
+        setLoaderCheck(false);
+      } else {
+        toast.error("Failed to fetch dashboard data");
+
+        setLoaderCheck(false);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  useEffect(() => {
+    DashboardStatsApi();
+  }, []);
 
   return (
     <div className="p-4 sm:p-6 space-y-6 bg-background text-foreground min-h-screen">
@@ -170,6 +171,25 @@ export default function Dashboard() {
         })}
       </div>
 
+      <Card>
+        <CardContent className="pt-5">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm text-muted-foreground">Network Capacity</p>
+
+              <h2 className="text-2xl font-bold">
+                {dashboardStats?.networkCapacity?.utilizedPercentage}%
+              </h2>
+
+              <p className="text-sm text-muted-foreground">
+                Total Beds: {dashboardStats?.networkCapacity?.totalBeds}
+              </p>
+            </div>
+
+            <Building2 className="w-8 h-8 text-muted-foreground" />
+          </div>
+        </CardContent>
+      </Card>
       {/* Chart + Recent */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
         {/* Chart */}
@@ -212,28 +232,26 @@ export default function Dashboard() {
           </CardHeader>
 
           <CardContent className="space-y-4">
-            {recentAdditions.map((item) => (
-              <div
-                key={item.name}
-                className="flex justify-between items-center"
-              >
+            {recentAdditions.map((item, index) => (
+              <div key={index} className="flex justify-between items-center">
                 <div className="flex gap-3 items-center">
-                  <img
-                    src={item.img}
-                    className="w-10 h-10 rounded-lg object-cover"
-                  />
+                  <div className="w-10 h-10 rounded-lg bg-muted flex items-center justify-center">
+                    <Building2 className="w-5 h-5 text-muted-foreground" />
+                  </div>
+
                   <div>
-                    <p className="text-sm font-medium">{item.name}</p>
+                    <p className="text-sm font-medium">{item?.hostelName}</p>
+
                     <p className="text-xs text-muted-foreground">
-                      {item.location}
+                      {item?.address}
                     </p>
                   </div>
                 </div>
 
                 <Badge
-                  variant={item.status === "ACTIVE" ? "default" : "outline"}
+                  variant={item?.status === "ACTIVE" ? "default" : "outline"}
                 >
-                  {item.status}
+                  {item?.status}
                 </Badge>
               </div>
             ))}
@@ -280,15 +298,14 @@ export default function Dashboard() {
 
               <tbody>
                 {regions.map((region) => (
-                  <tr key={region.name} className="border-t border-border">
-                    <td className="py-3 text-sm">{region.name}</td>
+                  <tr key={region.region} className="border-t border-border">
+                    <td className="py-3 text-sm">{region.region}</td>
                     <td className="py-3 text-sm">{region.hostels}</td>
                     <td className="py-3 text-sm">{region.occupancy}%</td>
-                    <td className="py-3 text-sm">{region.revenue}</td>
-
+                    <td className="py-3 text-sm">₹ {region.revenue}</td>
                     {/* ✅ FIX: growth color */}
                     <td className="py-3 text-primary text-sm">
-                      {region.growth}
+                      {region.growth}%{" "}
                     </td>
                   </tr>
                 ))}

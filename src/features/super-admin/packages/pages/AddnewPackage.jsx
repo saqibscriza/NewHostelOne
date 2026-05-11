@@ -280,7 +280,7 @@ export default function AddNewPackage() {
 
         <Button
           // onClick={handleSubmit(onSubmit)}
-          onClick={() => navigate("/packages")}
+          onClick={() => navigate("/superadmin/packages ")}
           disabled={loading}
           type="submit"
           className="flex items-center gap-2"

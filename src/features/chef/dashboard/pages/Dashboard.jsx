@@ -12,7 +12,7 @@ import {
   ChevronRight,
   Check,
 } from "lucide-react";
-
+import { useNavigate } from "react-router-dom";
 import { Card, CardContent } from "../../../../components/ui/Card";
 import { Button } from "../../../../components/ui/button";
 import { Badge } from "../../../../components/ui/Badge";
@@ -92,6 +92,7 @@ const inventoryData = [
 ];
 
 export default function Dashboard() {
+  const navigate = useNavigate();
   const [dashboardData, setDashboardData] = useState(null);
   const [loading, setLoading] = useState(false);
 
@@ -100,7 +101,7 @@ export default function Dashboard() {
       setLoading(true);
       try {
         const response = await getChefDashboardApi();
-        setDashboardData(response?.data?.data || response?.data || null);
+        setDashboardData(response?.data?.dashboard || null);
       } catch (error) {
         console.log(error);
       } finally {
@@ -115,7 +116,7 @@ export default function Dashboard() {
     {
       ...stats[0],
       value:
-        dashboardData?.todayMeals ||
+        dashboardData?.todayStudent ||
         dashboardData?.totalMeals ||
         dashboardData?.mealCount ||
         stats[0].value,
@@ -147,11 +148,27 @@ export default function Dashboard() {
         stats[3].value,
     },
   ];
+  const todayMenuData = dashboardData?.todayMenu;
 
-  const todayMenuSource =
-    dashboardData?.todayMenu || dashboardData?.menus || dashboardData?.menu;
-  const todayMenu = Array.isArray(todayMenuSource) ? todayMenuSource : menuData;
-
+  const todayMenu = todayMenuData
+    ? [
+        {
+          meal: "Breakfast",
+          time: todayMenuData?.breakfastTime,
+          menu: todayMenuData?.breakfast,
+        },
+        {
+          meal: "Lunch",
+          time: todayMenuData?.lunchTime,
+          menu: todayMenuData?.lunch,
+        },
+        {
+          meal: "Dinner",
+          time: todayMenuData?.dinnerTime,
+          menu: todayMenuData?.dinner,
+        },
+      ]
+    : menuData;
   const inventoryAlertsSource =
     dashboardData?.inventoryAlerts ||
     dashboardData?.lowStockList ||
@@ -251,7 +268,10 @@ export default function Dashboard() {
                   </p>
                 </div>
 
-                <Button className="h-11 rounded-xl px-5 text-sm font-semibold shadow-sm">
+                <Button
+                  onClick={() => navigate("/chef/menu")}
+                  className="h-11 rounded-xl px-5 text-sm font-semibold shadow-sm"
+                >
                   <Pencil className="mr-2 h-4 w-4" />
                   Update Menu
                 </Button>
@@ -306,16 +326,14 @@ export default function Dashboard() {
                 </Badge>
               </div>
 
-              <div className="space-y-3">
+              <div className="space-y-3 max-h-[500px] overflow-y-auto pr-2 custom-scrollbar">
                 {inventoryAlerts.map((item, index) => {
                   const Icon =
                     typeof item.icon === "function" ? item.icon : TriangleAlert;
                   const itemName = item.name || item.itemName || item.title;
-                  const quantity =
-                    item.quantity ||
-                    item.availableQuantity ||
-                    item.stock ||
-                    item.description;
+                  const quantity = item.quantity
+                    ? `${item.quantity} ${item.unit || ""} (${item.status || "Normal"})`
+                    : item.availableQuantity || item.stock || item.description;
 
                   return (
                     <div
@@ -346,7 +364,10 @@ export default function Dashboard() {
                 })}
               </div>
 
-              <Button className="mt-6 h-11 w-full rounded-xl text-sm font-semibold shadow-sm">
+              <Button
+                onClick={() => navigate(" /chef/inventory/category")}
+                className="mt-6 h-11 w-full rounded-xl text-sm font-semibold shadow-sm"
+              >
                 Add Inventory
               </Button>
             </CardContent>

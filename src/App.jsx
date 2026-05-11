@@ -85,7 +85,9 @@ import CategoryDetailsPage from "./features/chef/inventory/pages/inventoryCatego
 import EditCategoryPage from "./features/chef/inventory/pages/inventoryCategory/EditCategoryPage";
 import EditCategoryItemPage from "./features/chef/inventory/pages/inventoryCategory/EditCategoryItemPage";
 import FeedbackPage from "./features/chef/feedback/pages/FeedbackPage";
-import NoticesPage from "./features/chef/notices/pages/NoticesPage";
+import AddCategoryItemPage from "../src/features/chef/inventory/pages/inventoryCategory/AddCategoryItemPage";
+import NoticesPage from "../src/features/chef/notices/pages/NoticesPage";
+
 
 export default function AppRoutes() {
   const { role } = useAuth();

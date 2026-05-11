@@ -66,11 +66,11 @@ export default function DashboardPage() {
           </p>
         </div>
 
-        <button className="flex items-center gap-2 border border-border px-4 py-2 rounded-md text-sm bg-card text-foreground hover:bg-accent transition">
+        {/* <button className="flex items-center gap-2 border border-border px-4 py-2 rounded-md text-sm bg-card text-foreground hover:bg-accent transition">
           <CalendarDays className="w-4 h-4 text-muted-foreground" />
           Last 30 Days
           <ChevronDown className="w-4 h-4 text-muted-foreground" />
-        </button>
+        </button> */}
       </div>
 
       {/* Stats */}

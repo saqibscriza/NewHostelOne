@@ -1,7 +1,10 @@
 import { Card, CardContent } from "../../../../components/ui/Card";
 import { Eye } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 export default function RecentApplicationsTable({ data = [] }) {
+  const navigate = useNavigate();
+
   return (
     <Card className="rounded-2xl border shadow-sm">
       <CardContent className="p-0">
@@ -44,7 +47,9 @@ export default function RecentApplicationsTable({ data = [] }) {
             <p className="text-sm text-slate-600">{item.course || "N/A"}</p>
 
             {/* ROOM */}
-            <p className="text-sm text-slate-600">{item.roomPreference || "N/A"}</p>
+            <p className="text-sm text-slate-600">
+              {item.roomPreference || "N/A"}
+            </p>
 
             {/* STATUS */}
             <div>
@@ -61,7 +66,12 @@ export default function RecentApplicationsTable({ data = [] }) {
 
             {/* ACTION */}
             <div className="flex justify-end">
-              <Eye className="w-5 h-5 text-slate-500 cursor-pointer" />
+              <Eye
+                onClick={() =>
+                  navigate(`/admin/students/view/${item.studentId || item.id}`)
+                }
+                className="w-5 h-5 text-slate-500 cursor-pointer"
+              />
             </div>
           </div>
         ))}

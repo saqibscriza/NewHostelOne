@@ -1,20 +1,55 @@
+import { useNavigate } from "react-router-dom";
 import { Card, CardContent } from "../../../../components/ui/Card";
+import { Button } from "../../../../components/ui/button";
+import { UserPlus, Receipt, Wrench } from "lucide-react";
 
 export default function QuickActions() {
+  const navigate = useNavigate();
+
   return (
-    <Card className="rounded-xl">
-      <CardContent className="p-4 space-y-3">
-        <h2 className="font-semibold">Quick Actions</h2>
+    <Card className="rounded-2xl border border-border shadow-sm bg-card">
+      <CardContent className="p-5 space-y-4">
+        <div>
+          <h2 className="text-lg font-semibold text-card-foreground">
+            Quick Actions
+          </h2>
 
-        <button className="w-full bg-slate-900 text-white py-2 rounded-md">
-          Add Student
-        </button>
+          <p className="text-sm text-muted-foreground mt-1">
+            Frequently used admin operations
+          </p>
+        </div>
 
-        <button className="w-full border py-2 rounded-md">Collect Fee</button>
+        <div className="space-y-3">
+          {/* ADD STUDENT */}
+          <Button
+            variant="outline"
+            onClick={() => navigate("/admin/students/add")}
+            className="w-full h-11 justify-start gap-2 rounded-xl"
+          >
+            <UserPlus className="w-4 h-4" />
+            Add Student
+          </Button>
 
-        <button className="w-full border py-2 rounded-md">
-          Maintenance Ticket
-        </button>
+          {/* COLLECT FEE */}
+          <Button
+            variant="outline"
+            onClick={() => navigate("/admin/fees/collect")}
+            className="w-full h-11 justify-start gap-2 rounded-xl"
+          >
+            <Receipt className="w-4 h-4" />
+            Collect Fee
+          </Button>
+
+          {/* MAINTENANCE */}
+          <Button
+            variant="outline"
+            onClick={() => navigate("/admin/support")}
+            className="w-full h-11 justify-start gap-2 rounded-xl"
+          >
+            <Wrench className="w-4 h-4" />
+            Maintenance Ticket
+          </Button>
+        </div>
       </CardContent>
     </Card>
   );

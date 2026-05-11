@@ -9,32 +9,51 @@ export default function StudentList() {
   const [students, setStudents] = useState([]);
   const [search, setSearch] = useState("");
   const [loaderCheck, setLoaderCheck] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
+  const [totalPages, setTotalPages] = useState(1);
+  const [totalElements, setTotalElements] = useState(0);
+  const [searchQuery, setSearchQuery] = useState("");
 
   // ================= API =================
-  useEffect(() => {
-    fetchStudents();
-  }, []);
 
-  const fetchStudents = async (params = {}) => {
+  const fetchStudents = async (params = {}, page = currentPage) => {
     setLoaderCheck(true);
 
     try {
-      const response = await getAllStudentsApi(params);
+      const finalParams = {
+        page,
+        size: pageSize,
+        ...params,
+      };
+
+      const response = await getAllStudentsApi(finalParams);
 
       console.log("API RESPONSE 👉", response?.data);
 
       if (response?.data?.status === "success") {
-        setStudents(response?.data?.data?.content || []);
+        const data = response?.data?.data;
+
+        setStudents(data?.content || []);
+
+        setTotalPages(data?.totalPages || 1);
+
+        setTotalElements(data?.totalElements || 0);
       } else {
         setStudents([]);
       }
     } catch (err) {
       console.log(err);
+
       setStudents([]);
     } finally {
       setLoaderCheck(false);
     }
   };
+
+  useEffect(() => {
+    fetchStudents(searchQuery ? { searchKey: searchQuery } : {}, currentPage);
+  }, [currentPage, pageSize]);
 
   return (
     <div className="p-6 space-y-6 bg-background min-h-screen">
@@ -45,7 +64,7 @@ export default function StudentList() {
             Student Details
           </h1>
           <p className="text-sm text-muted-foreground mt-1">
-            Total {students.length} residents
+            Total {totalElements} residents{" "}
           </p>
         </div>
 
@@ -67,9 +86,12 @@ export default function StudentList() {
           <input
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            onKeyDown={(e) =>
-              e.key === "Enter" && fetchStudents({ searchKey: search })
-            }
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                setCurrentPage(1);
+                setSearchQuery(search);
+              }
+            }}
             placeholder="Search"
             className="h-9 w-64 pl-3 pr-9 rounded-md border border-border bg-background text-sm outline-none"
           />
@@ -79,7 +101,9 @@ export default function StudentList() {
         <button
           onClick={() => {
             setSearch("");
-            fetchStudents();
+            setSearch("");
+            setSearchQuery("");
+            setCurrentPage(1);
           }}
           className="ml-auto text-sm text-muted-foreground hover:text-foreground"
         >
@@ -89,6 +113,41 @@ export default function StudentList() {
 
       {/* TABLE */}
       <StudentTable students={students} />
+      <div className="flex justify-between items-center px-2">
+        <span className="text-sm text-muted-foreground">
+          Showing page {currentPage} of {totalPages}
+        </span>
+
+        <div className="flex gap-2 items-center">
+          <button
+            className="px-2 disabled:opacity-50"
+            disabled={currentPage === 1}
+            onClick={() => setCurrentPage((prev) => prev - 1)}
+          >
+            ‹
+          </button>
+
+          {Array.from({ length: Math.max(totalPages, 5) }, (_, index) => (
+            <button
+              key={index}
+              onClick={() => setCurrentPage(index + 1)}
+              className={`px-3 py-1 rounded ${
+                currentPage === index + 1 ? "bg-primary text-white" : "bg-muted"
+              }`}
+            >
+              {index + 1}
+            </button>
+          ))}
+
+          <button
+            className="px-2 disabled:opacity-50"
+            disabled={currentPage === totalPages}
+            onClick={() => setCurrentPage((prev) => prev + 1)}
+          >
+            ›
+          </button>
+        </div>
+      </div>
     </div>
   );
 }
@@ -117,12 +176,12 @@ function StudentTable({ students }) {
             key={i}
             id={s.studentId || s.id}
             name={s.fullName}
-            room={s.roomNameNumber || s.roomId || "-"}
-            block={s.blockFloor || "-"}
-            phone={s.phone || "-"}
-            email={s.email || "-"}
-            payment={s.paymentStatus || "Pending"}
-            occupancy={s.occupancyStatus || "Inactive"}
+            room={s?.room?.roomNameNumber || "-"}
+            block={s?.room?.blockFloor || "-"}
+            phone={s?.contact?.phone || "-"}
+            email={s?.contact?.email || "-"}
+            payment={s?.paymentStatus || "Pending"}
+            occupancy={s?.occupancyStatus || "Inactive"}
           />
         ))
       )}
