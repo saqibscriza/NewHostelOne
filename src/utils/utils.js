@@ -975,18 +975,18 @@ export const addStockApi = async (data) => {
   }
 };
 
-
 export const deleteStockApi = async (stockId) => {
   try {
     axios.defaults.headers.common["Authorization"] = token;
-    const res = await axios.delete(`${Domain}/inventory/stock/delete/${stockId}`);
+    const res = await axios.delete(
+      `${Domain}/inventory/stock/delete/${stockId}`,
+    );
     return res.data;
   } catch (error) {
     console.log("ADD STOCK ERROR 👉", error);
     return null;
   }
 };
-
 
 // FeedBack Stats
 export const getFeedbackStatsApi = async (id) => {
@@ -1736,7 +1736,7 @@ export const getAllPackageData = async () => {
   try {
     axios.defaults.headers.common["Authorization"] = token;
 
-    const res = await axios.get(`${Domain}package/all`);
+    const res = await axios.get(`${Domain}/package/all`);
 
     if (res) {
       return res;
@@ -1877,15 +1877,20 @@ export const getStudentDashboardApi = async () => {
 
     const res = await axios.get(`${Domain}/student/dashboard`);
 
-    if (res) {
-      return res;
-    } else {
-      return [];
-    }
-  } catch (error) {
-    console.log(error);
+    console.log("STUDENT DASHBOARD API 👉", res);
 
-    return [];
+    return res;
+  } catch (error) {
+    console.log("STUDENT DASHBOARD ERROR 👉", error);
+
+    return (
+      error?.response || {
+        data: {
+          status: "failure",
+          message: "Something went wrong",
+        },
+      }
+    );
   }
 };
 
@@ -2002,7 +2007,7 @@ export const updateMessPlannerApi = async (data) => {
   try {
     const token = sessionStorage.getItem("token");
     const res = await axios.put(
-      `${Domain}/messMenu/updatePlanner`,
+      `${Domain}/messMenu/planner/update`,
       {},
       {
         headers: { Authorization: `Bearer ${token}` },
@@ -2071,6 +2076,20 @@ export const getDashboardStatsApi = async () => {
     } else {
       return [];
     }
+  } catch (error) {
+    return [];
+  }
+};
+
+// Student panel Mess rating api
+
+export const getAllMessFeedbackApi = async () => {
+  try {
+    axios.defaults.headers.common["Authorization"] = token;
+
+    const res = await axios.get(`${Domain}/messDetails/getAllFeedback`);
+
+    return res;
   } catch (error) {
     return [];
   }

@@ -21,6 +21,7 @@ const Rooms = () => {
   const [loading, setLoading] = useState(true);
 
   // ================= FETCH CATEGORY =================
+
   const fetchCategories = async () => {
     setLoading(true);
     try {
@@ -87,6 +88,7 @@ const Rooms = () => {
 
   useEffect(() => {
     fetchCategories();
+    
   },[]);
 
   return (

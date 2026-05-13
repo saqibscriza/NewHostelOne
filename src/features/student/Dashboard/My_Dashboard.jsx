@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { getStudentDashboardApi } from "../../../utils/utils";
 import {
   Card,
@@ -21,7 +22,7 @@ import { toast } from "react-toastify";
 
 export default function My_Dashboard() {
   const [loaderCheck, setLoaderCheck] = useState(false);
-
+  const navigate = useNavigate();
   const [dashboardData, setDashboardData] = useState(null);
 
   // ================= API =================
@@ -35,21 +36,18 @@ export default function My_Dashboard() {
       console.log("student dashboard", response);
 
       if (response?.data?.status === "success") {
-        setDashboardData(response?.data);
-
-        setLoaderCheck(false);
+        setDashboardData(response?.data?.data);
       } else {
-        toast.error("Failed to fetch dashboard");
-
-        setLoaderCheck(false);
+        toast.error(response?.data?.message || "Failed to fetch dashboard");
       }
     } catch (error) {
       console.log(error);
 
+      toast.error("Something went wrong");
+    } finally {
       setLoaderCheck(false);
     }
   };
-
   useEffect(() => {
     StudentDashboardApi();
   }, []);
@@ -71,19 +69,18 @@ export default function My_Dashboard() {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <StatCard
           title="Monthly Fee"
-          value={dashboardData?.monthlyFee?.status ?? "PAID"}
+          value={dashboardData?.monthlyFee?.status || "N/A"}
           icon={CheckCircle}
         />
-
         <StatCard
           title="Room Occupancy"
-          value={dashboardData?.roomOccupancy?.display ?? "1/2"}
+          value={dashboardData?.roomOccupancy?.display || "N/A"}
           icon={Users}
         />
 
         <StatCard
           title="Attendance"
-          value={dashboardData?.attendance ?? "N/A"}
+          value={dashboardData?.attendance || "N/A"}
           icon={Calendar}
         />
       </div>
@@ -103,28 +100,28 @@ export default function My_Dashboard() {
                 </p>
               </div>
 
-              <Button className="bg-primary text-primary-foreground">
+              {/* <Button className="bg-primary text-primary-foreground">
                 View Weekly Menu
-              </Button>
+              </Button> */}
             </CardHeader>
 
             <CardContent className="space-y-4">
               <MenuItem
                 label="Breakfast"
-                time="Morning"
-                text={dashboardData?.todaysMenu?.breakfast || "N/A"}
+                time={dashboardData?.todaysMenu?.date || ""}
+                text={dashboardData?.todaysMenu?.breakfast || "Not available"}
               />
 
               <MenuItem
                 label="Lunch"
-                time="Afternoon"
-                text={dashboardData?.todaysMenu?.lunch || "N/A"}
+                time={dashboardData?.todaysMenu?.date || ""}
+                text={dashboardData?.todaysMenu?.lunch || "Not available"}
               />
 
               <MenuItem
                 label="Dinner"
-                time="Night"
-                text={dashboardData?.todaysMenu?.dinner || "N/A"}
+                time={dashboardData?.todaysMenu?.date || ""}
+                text={dashboardData?.todaysMenu?.dinner || "Not available"}
               />
             </CardContent>
           </Card>
@@ -137,8 +134,7 @@ export default function My_Dashboard() {
                 <h3 className="font-semibold">Next Payment Due</h3>
 
                 <p className="text-muted-foreground text-sm">
-                  {dashboardData?.nextPayment?.message ||
-                    "Maintain your residency status."}
+                  {dashboardData?.nextPayment?.message || "No payment message"}
                 </p>
 
                 <h2 className="text-2xl font-bold">
@@ -149,7 +145,9 @@ export default function My_Dashboard() {
                   Due: {dashboardData?.nextPayment?.dueDate || "N/A"}
                 </p>
 
-                <Button>Pay Now</Button>
+                <Button onClick={() => navigate("/student/fees/pay")}>
+                  Pay Now
+                </Button>
               </CardContent>
             </Card>
 
@@ -157,19 +155,25 @@ export default function My_Dashboard() {
             <Card>
               <CardContent className="p-5 space-y-3">
                 <h3 className="font-semibold">
-                  {dashboardData?.roomDetails?.roomNumber || "Room"}
+                  Room {dashboardData?.roomDetails?.roomNumber || "N/A"}
                 </h3>
 
-                <div className="flex items-center gap-2 text-sm">
-                  <Wifi size={16} /> High-speed WiFi
-                </div>
+                <div className="flex flex-col gap-2 text-sm">
+                  {dashboardData?.roomDetails?.amenities?.map((item, index) => (
+                    <div key={index} className="flex items-center gap-2">
+                      <Wifi size={16} />
 
-                <div className="flex items-center gap-2 text-sm">
-                  <Snowflake size={16} /> Central AC
+                      <span>{item}</span>
+                    </div>
+                  ))}
                 </div>
 
                 <p className="text-sm text-muted-foreground">
-                  Roommate: {dashboardData?.roomDetails?.roommate || "Vacant"}
+                  Roommate: {dashboardData?.roomDetails?.roommate || "N/A"}
+                </p>
+
+                <p className="text-sm text-muted-foreground">
+                  Wing: {dashboardData?.roomDetails?.wing || "N/A"}
                 </p>
               </CardContent>
             </Card>
@@ -226,11 +230,23 @@ export default function My_Dashboard() {
             </CardHeader>
 
             <CardContent className="space-y-3">
-              <ActionBtn icon={Wrench} text="Request Maintenance" />
+              <ActionBtn
+                onClick={() => navigate("/student/support/add")}
+                icon={Wrench}
+                text="Request Maintenance"
+              />
 
-              <ActionBtn icon={CreditCard} text="Pay Fees" />
+              <ActionBtn
+                onClick={() => navigate("/student/fees")}
+                icon={CreditCard}
+                text="Pay Fees"
+              />
 
-              <ActionBtn icon={MessageSquare} text="Give Feedback" />
+              <ActionBtn
+                onClick={() => navigate("/student/mess")}
+                icon={MessageSquare}
+                text="Give Feedback"
+              />
             </CardContent>
           </Card>
         </div>
@@ -280,8 +296,11 @@ const MenuItem = ({ label, time, text }) => (
   </div>
 );
 
-const ActionBtn = ({ icon: Icon, text }) => (
-  <div className="flex items-center gap-3 p-3 bg-muted rounded-lg cursor-pointer hover:bg-accent transition">
+const ActionBtn = ({ icon: Icon, text, onClick }) => (
+  <div
+    onClick={onClick}
+    className="flex items-center gap-3 p-3 bg-muted rounded-lg cursor-pointer hover:bg-accent transition"
+  >
     <Icon className="w-5 h-5" />
 
     <span>{text}</span>

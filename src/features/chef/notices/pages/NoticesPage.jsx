@@ -1,7 +1,7 @@
 import { CalendarDays, ChevronDown, Pencil, Trash2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Card, CardContent } from "../../../../components/ui/Card";
-import { Button } from "../../../../components/ui/button";
+// import { Button } from "../../../../components/ui/button";
 import React, { useEffect, useMemo, useState } from "react";
 import { toast } from "react-toastify";
 import { getAllNoticesApi, deleteNoticeApi } from "../../../../utils/utils";
@@ -156,7 +156,7 @@ export default function NoticesPage() {
 </div>
               </div>
 
-              {/* <div className="flex items-center gap-4 border-t border-border px-5 py-4 text-muted-foreground">
+                 {/* <div className="flex items-center gap-4 border-t border-border px-5 py-4 text-muted-foreground">
                 <button
                   type="button"
                   onClick={() =>
@@ -173,6 +173,7 @@ export default function NoticesPage() {
                 >
                   <Trash2 className="h-4 w-4" />
                 </button>
+              </div> */}
               </div> */}
             </CardContent>
           </Card>

@@ -111,14 +111,14 @@ export default function NoticesPage() {
           })}
         </div>
 
-        <button
+        {/* <button
           type="button"
           className="flex items-center gap-2 self-start text-sm text-muted-foreground"
         >
           <span>Sort by:</span>
           <span className="font-semibold text-foreground">Newest First</span>
           <ChevronDown className="h-4 w-4" />
-        </button>
+        </button> */}
       </div>
 
       <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">

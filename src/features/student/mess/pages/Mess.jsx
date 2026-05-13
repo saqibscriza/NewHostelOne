@@ -3,6 +3,7 @@ import { Star, ShieldCheck, Truck, Headphones, X } from "lucide-react";
 import {
   getTodayMessMenuApi,
   getFullWeekMessMenuApi,
+  getAllMessFeedbackApi,
 } from "../../../../utils/utils";
 export default function Mess() {
   const [openModal, setOpenModal] = useState(false);
@@ -15,10 +16,38 @@ export default function Mess() {
   const [activeTab, setActiveTab] = useState("today");
   const [meals, setMeals] = useState([]);
   const [rating, setRating] = useState(0);
-
   const [hoverRating, setHoverRating] = useState(0);
-
   const [comment, setComment] = useState("");
+  const [ratingFilter, setRatingFilter] = useState("all");
+  const [feedbacks, setFeedbacks] = useState([]);
+  const [filteredFeedbacks, setFilteredFeedbacks] = useState([]);
+
+  const getAllFeedbackApiData = async () => {
+    try {
+      const response = await getAllMessFeedbackApi();
+
+      console.log("FEEDBACK RESPONSE 👉", response);
+
+      if (response?.data?.status === "success") {
+        setFeedbacks(response?.data?.data || []);
+
+        setFilteredFeedbacks(response?.data?.data || []);
+      } else {
+        setFeedbacks([]);
+        setFilteredFeedbacks([]);
+      }
+    } catch (error) {
+      console.log(error);
+
+      setFeedbacks([]);
+      setFilteredFeedbacks([]);
+    }
+  };
+
+  useEffect(() => {
+    getTodayMenuApi();
+    getAllFeedbackApiData();
+  }, []);
 
   const getTodayMenuApi = async () => {
     try {
@@ -63,34 +92,38 @@ export default function Mess() {
   };
 
   const getFullWeekMenuApi = async () => {
-  try {
-    const response =
-      await getFullWeekMessMenuApi();
+    try {
+      const response = await getFullWeekMessMenuApi();
 
-    console.log(
-      "FULL WEEK RESPONSE 👉",
-      response
-    );
+      console.log("FULL WEEK RESPONSE 👉", response);
 
-    if (
-      response?.data?.status ===
-      "success"
-    ) {
-      setMeals(
-        response?.data?.data || []
-      );
-    } else {
+      if (response?.data?.status === "success") {
+        setMeals(response?.data?.data || []);
+      } else {
+        setMeals([]);
+      }
+    } catch (error) {
+      console.log(error);
+
       setMeals([]);
     }
-  } catch (error) {
-    console.log(error);
-
-    setMeals([]);
-  }
-};
+  };
   useEffect(() => {
     getTodayMenuApi();
   }, []);
+
+  useEffect(() => {
+    let updatedFeedbacks = [...feedbacks];
+
+    // Rating filter
+    if (ratingFilter !== "all") {
+      updatedFeedbacks = updatedFeedbacks.filter(
+        (item) => Number(item?.rating) === Number(ratingFilter),
+      );
+    }
+
+    setFilteredFeedbacks(updatedFeedbacks);
+  }, [feedbacks, ratingFilter]);
 
   const handleOpenModal = (meal) => {
     setSelectedMeal(meal);
@@ -322,45 +355,44 @@ export default function Mess() {
           </div>
 
           {/* Meals */}
-         <div className="space-y-4">
-  {meals?.length > 0 ? (
-    meals.map((item, index) => (
-              <div
-                key={index}
-                className="flex flex-col sm:flex-row gap-4 sm:gap-12"
-              >
-                <div className="w-24 shrink-0">
-                  <h3 className="font-bold text-foreground text-sm tracking-wider">
-                    {item.category}
-                  </h3>
+          <div className="space-y-4">
+            {meals?.length > 0 ? (
+              meals.map((item, index) => (
+                <div
+                  key={index}
+                  className="flex flex-col sm:flex-row gap-4 sm:gap-12"
+                >
+                  <div className="w-24 shrink-0">
+                    <h3 className="font-bold text-foreground text-sm tracking-wider">
+                      {item.category}
+                    </h3>
 
-                  <p className="text-muted-foreground text-xs mt-1">
-                    {item.time}
-                  </p>
+                    <p className="text-muted-foreground text-xs mt-1">
+                      {item.time}
+                    </p>
+                  </div>
+
+                  <div className="bg-muted p-4 rounded-xl flex-1 flex items-center justify-between gap-4">
+                    <p className="text-foreground text-[15px]">{item.meal}</p>
+
+                    <button
+                      onClick={() => handleOpenModal(item)}
+                      className="px-5 py-2 bg-primary hover:opacity-90 text-primary-foreground text-xs font-bold rounded-xl shadow-sm shrink-0 uppercase tracking-wide"
+                    >
+                      Rate Meal
+                    </button>
+                  </div>
                 </div>
-
-                <div className="bg-muted p-4 rounded-xl flex-1 flex items-center justify-between gap-4">
-                  <p className="text-foreground text-[15px]">{item.meal}</p>
-
-                  <button
-                    onClick={() => handleOpenModal(item)}
-                    className="px-5 py-2 bg-primary hover:opacity-90 text-primary-foreground text-xs font-bold rounded-xl shadow-sm shrink-0 uppercase tracking-wide"
-                  >
-                    Rate Meal
-                  </button>
-                </div>
+              ))
+            ) : (
+              <div className="bg-muted rounded-xl p-10 text-center">
+                <p className="text-muted-foreground">
+                  No menu available for this day
+                </p>
               </div>
-             ))
-              ) : (
-                <div className="bg-muted rounded-xl p-10 text-center">
-                  <p className="text-muted-foreground">
-                    No menu available for this day
-                  </p>
-                </div>
-              )}
-            </div>
+            )}
           </div>
-      
+        </div>
 
         {/* FILTER BAR */}
         <div className="bg-card border border-border rounded-2xl p-5 flex flex-col md:flex-row md:items-center justify-between gap-4">
@@ -369,21 +401,35 @@ export default function Mess() {
               Filter by:
             </p>
 
-            <select className="h-10 rounded-xl border border-border bg-background px-4 text-sm text-foreground outline-none">
-              <option>All Rating</option>
-              <option>5 Star</option>
-              <option>4 Star</option>
-              <option>3 Star</option>
+            <select
+              value={ratingFilter}
+              onChange={(e) => setRatingFilter(e.target.value)}
+              className="h-10 rounded-xl border border-border bg-background px-4 text-sm text-foreground outline-none"
+            >
+              <option value="all">All Rating</option>
+              <option value="5">5 Star</option>
+              <option value="4">4 Star</option>
+              <option value="3">3 Star</option>
+              <option value="2">2 Star</option>
+              <option value="1">1 Star</option>
             </select>
 
-            <select className="h-10 rounded-xl border border-border bg-background px-4 text-sm text-foreground outline-none">
-              <option>Last 7 Days</option>
-              <option>Last 30 Days</option>
-              <option>This Month</option>
-            </select>
+            {/* <select
+              value={dateFilter}
+              onChange={(e) => setDateFilter(e.target.value)}
+              className="h-10 rounded-xl border border-border bg-background px-4 text-sm text-foreground outline-none"
+            >
+              <option value="7">Last 7 Days</option>
+              <option value="30">Last 30 Days</option>
+              <option value="all">All Time</option>
+            </select> */}
           </div>
-
-          <button className="text-sm font-medium text-foreground hover:text-primary">
+          <button
+            onClick={() => {
+              setRatingFilter("all");
+            }}
+            className="text-sm font-medium text-foreground hover:text-primary"
+          >
             Clear all filters
           </button>
         </div>
@@ -423,95 +469,52 @@ export default function Mess() {
                   </th>
                 </tr>
               </thead>
-
               <tbody>
-                {/* Row 1 */}
-                <tr className="border-t border-border">
-                  <td className="px-6 py-6 text-foreground text-sm">
-                    12 June 2026
-                  </td>
+                {filteredFeedbacks?.length > 0 ? (
+                  filteredFeedbacks.map((item, index) => (
+                    <tr key={index} className="border-t border-border">
+                      <td className="px-6 py-6 text-foreground text-sm">
+                        {item?.date || "No Date"}
+                      </td>
 
-                  <td className="px-6 py-6">
-                    <div>
-                      <p className="text-sm text-foreground font-medium">
-                        Grilled Salmon
-                      </p>
-                    </div>
-                  </td>
+                      <td className="px-6 py-6">
+                        <p className="text-sm text-foreground font-medium">
+                          {item?.meal || "No Meal"}
+                        </p>
+                      </td>
 
-                  <td className="px-6 py-6 text-sm text-foreground">Lunch</td>
+                      <td className="px-6 py-6 text-sm text-foreground">
+                        {item?.category || "No Category"}
+                      </td>
 
-                  <td className="px-6 py-6">
-                    <div className="flex flex-col gap-2">
-                      <div className="flex gap-1">
-                        {[1, 2, 3, 4].map((i) => (
-                          <Star
-                            key={i}
-                            className="w-4 h-4 fill-primary text-primary"
-                          />
-                        ))}
+                      <td className="px-6 py-6">
+                        <div className="flex gap-1">
+                          {[...Array(item?.rating || 0)].map((_, i) => (
+                            <Star
+                              key={i}
+                              className="w-4 h-4 fill-primary text-primary"
+                            />
+                          ))}
+                        </div>
+                      </td>
 
-                        <Star className="w-4 h-4 text-muted-foreground" />
-                      </div>
-
-                      <span className="w-fit px-3 py-1 rounded-full bg-muted text-xs font-semibold text-foreground">
-                        POSITIVE
-                      </span>
-                    </div>
-                  </td>
-
-                  <td className="px-6 py-6">
-                    <p className="text-sm text-muted-foreground leading-7">
-                      The salmon was perfectly cooked and season...
-                      <button className="ml-1 text-primary hover:underline">
-                        Read More
-                      </button>
-                    </p>
-                  </td>
-                </tr>
-
-                {/* Row 2 */}
-                <tr className="border-t border-border">
-                  <td className="px-6 py-6 text-foreground text-sm">
-                    12 June 2026
-                  </td>
-
-                  <td className="px-6 py-6">
-                    <div>
-                      <p className="text-sm text-foreground font-medium">
-                        Grilled Salmon
-                      </p>
-                    </div>
-                  </td>
-
-                  <td className="px-6 py-6 text-sm text-foreground">Dinner</td>
-
-                  <td className="px-6 py-6">
-                    <div className="flex flex-col gap-2">
-                      <div className="flex gap-1">
-                        {[1, 2, 3, 4, 5].map((i) => (
-                          <Star
-                            key={i}
-                            className="w-4 h-4 fill-primary text-primary"
-                          />
-                        ))}
-                      </div>
-
-                      <span className="w-fit px-3 py-1 rounded-full bg-muted text-xs font-semibold text-foreground">
-                        POSITIVE
-                      </span>
-                    </div>
-                  </td>
-
-                  <td className="px-6 py-6">
-                    <p className="text-sm text-muted-foreground leading-7">
-                      The salmon was perfectly cooked and season...
-                      <button className="ml-1 text-primary hover:underline">
-                        Read More
-                      </button>
-                    </p>
-                  </td>
-                </tr>
+                      <td className="px-6 py-6">
+                        <p className="text-sm text-muted-foreground">
+                          {item?.comment || "No Comment"}
+                        </p>
+                      </td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td
+                      colSpan={5}
+                      className="text-center py-10 text-muted-foreground"
+                    >
+                      No feedback found
+                    </td>
+                  </tr>
+                )}
               </tbody>
             </table>
           </div>

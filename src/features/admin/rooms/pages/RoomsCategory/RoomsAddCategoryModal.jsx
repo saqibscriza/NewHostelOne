@@ -25,7 +25,12 @@ const RoomsAddCategoryModal = ({ isOpen, onClose }) => {
   const [categoryImage, setCategoryImage] = useState(null);
   const [occupancyList, setOccupancyList] = useState([]);
   const [categories, setCategories] = useState([]);
-
+  const [errors, setErrors] = useState({
+    categoryName: "",
+    occupancyId: "",
+    monthlyRent: "",
+    description: "",
+  });
   // ================= OCCUPANCY =================
   const fetchOccupancy = async () => {
     try {
@@ -133,7 +138,40 @@ const RoomsAddCategoryModal = ({ isOpen, onClose }) => {
     );
   };
 
+  const validateForm = () => {
+    let newErrors = {};
+
+    // Category Name
+    if (!categoryName.trim()) {
+      newErrors.categoryName = "Category name is required";
+    }
+
+    // Occupancy
+    if (!occupancyId) {
+      newErrors.occupancyId = "Please select occupancy";
+    }
+
+    // Monthly Rent
+    if (!monthlyRent) {
+      newErrors.monthlyRent = "Monthly rent is required";
+    } else if (!/^\d+$/.test(monthlyRent)) {
+      newErrors.monthlyRent = "Only numbers are allowed";
+    }
+
+    // Description
+    if (!description.trim()) {
+      newErrors.description = "Description is required";
+    }
+
+    setErrors(newErrors);
+
+    return Object.keys(newErrors).length === 0;
+  };
+
   const handleCreateCategory = async () => {
+    if (!validateForm()) {
+      return;
+    }
     const payload = {
       categoryName: categoryName,
       occupancyId: Number(occupancyId),
@@ -190,14 +228,37 @@ const RoomsAddCategoryModal = ({ isOpen, onClose }) => {
           <div className="grid grid-cols-2 gap-4 mt-6">
             <div>
               <label className="text-sm text-muted-foreground">
-                Category Name
+                Occupancy Type
               </label>
-              <input
-                value={categoryName}
-                onChange={(e) => setCategoryName(e.target.value)}
-                className="mt-1 w-full border border-border bg-background rounded-md px-3 py-2"
-                placeholder="e.g., Premium Single AC"
-              />
+
+              {errors.occupancyId && (
+                <p className="text-red-500 text-xs mb-1">
+                  {errors.occupancyId}
+                </p>
+              )}
+
+              <select
+                value={occupancyId}
+                onChange={(e) => {
+                  setOccupancyId(e.target.value);
+
+                  setErrors((prev) => ({
+                    ...prev,
+                    occupancyId: "",
+                  }));
+                }}
+                className={`mt-1 w-full rounded-md px-3 py-2 border ${
+                  errors.occupancyId ? "border-red-500" : "border-border"
+                } bg-background`}
+              >
+                <option value="">Select</option>
+
+                {occupancyList?.map((item) => (
+                  <option key={item.id} value={item.id}>
+                    {item.occupancyName}
+                  </option>
+                ))}
+              </select>
             </div>
 
             <div>
@@ -219,19 +280,42 @@ const RoomsAddCategoryModal = ({ isOpen, onClose }) => {
                 ))}
               </select>
             </div>
-
             <div>
               <label className="text-sm text-muted-foreground">
                 Monthly Rent per Bed (₹)
               </label>
+
+              {errors.monthlyRent && (
+                <p className="text-red-500 text-xs mb-1">
+                  {errors.monthlyRent}
+                </p>
+              )}
+
               <input
                 value={monthlyRent}
-                onChange={(e) => setMonthlyRent(e.target.value)}
-                className="mt-1 w-full border border-border bg-background rounded-md px-3 py-2"
+                onChange={(e) => {
+                  const value = e.target.value;
+
+                  setMonthlyRent(value);
+
+                  if (/^\d*$/.test(value)) {
+                    setErrors((prev) => ({
+                      ...prev,
+                      monthlyRent: "",
+                    }));
+                  } else {
+                    setErrors((prev) => ({
+                      ...prev,
+                      monthlyRent: "Only numbers are allowed",
+                    }));
+                  }
+                }}
+                className={`mt-1 w-full rounded-md px-3 py-2 border ${
+                  errors.monthlyRent ? "border-red-500" : "border-border"
+                } bg-background`}
                 placeholder="₹ 0.00"
               />
             </div>
-
             <div className="flex items-center gap-3 mt-6">
               <span className="text-sm text-muted-foreground">
                 Active Status
@@ -319,14 +403,27 @@ const RoomsAddCategoryModal = ({ isOpen, onClose }) => {
 
           <div className="mt-6">
             <label className="text-sm text-muted-foreground">Description</label>
+
+            {errors.description && (
+              <p className="text-red-500 text-xs mb-1">{errors.description}</p>
+            )}
+
             <textarea
               value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              className="mt-1 w-full border border-border bg-background rounded-md px-3 py-2"
+              onChange={(e) => {
+                setDescription(e.target.value);
+
+                setErrors((prev) => ({
+                  ...prev,
+                  description: "",
+                }));
+              }}
+              className={`mt-1 w-full rounded-md px-3 py-2 border ${
+                errors.description ? "border-red-500" : "border-border"
+              } bg-background`}
               placeholder="Describe the room details..."
             />
           </div>
-
           <div className="flex gap-3 mt-6">
             <button
               onClick={handleCreateCategory}

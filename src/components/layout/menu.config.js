@@ -12,7 +12,7 @@ import {
   Settings,
   HelpCircle,
   User,
-  MessageSquare
+  MessageSquare,
 } from "lucide-react";
 
 export const menuConfig = {
@@ -56,16 +56,15 @@ export const menuConfig = {
     { name: "Support", path: "/support", icon: HelpCircle },
     { name: "Profile", path: "/profile", icon: User },
   ],
-
-    student: [
+  student: [
     { name: "Dashboard", path: "/", icon: LayoutDashboard },
     { name: "My Room", path: "/room", icon: BedDouble },
     { name: "Mess", path: "/mess", icon: Utensils },
     { name: "Fees", path: "/fees", icon: IndianRupee },
+    { name: "Notices", path: "/notices", icon: Bell },
     { name: "Support", path: "/support", icon: HelpCircle },
     { name: "Profile", path: "/profile", icon: User },
   ],
-
   chef: [
     { name: "Dashboard", path: "/", icon: LayoutDashboard },
     { name: "Menu Planner", path: "/menu", icon: Utensils },
@@ -76,10 +75,9 @@ export const menuConfig = {
       children: [
         { name: "Inventory Details", path: "/inventory/details" },
         { name: "Inventory Category", path: "/inventory/category" },
-      ]
+      ],
     },
     { name: "Feedback", path: "/feedback", icon: MessageSquare },
     { name: "Notices", path: "/notices", icon: Bell },
   ],
 };
-

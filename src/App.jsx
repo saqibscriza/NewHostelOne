@@ -56,7 +56,7 @@ import StudentSupportAddRequest from "./features/student/support/pages/AddReques
 import StudentSupportChat from "./features/student/support/pages/TicketChat";
 import StudentProfile from "./features/student/profile/pages/Profile";
 import StudentProfileEdit from "./features/student/profile/pages/ProfileEdit";
-
+import StudentNotice from "./features/student/StudentNotice";
 // SUPER ADMIN
 import SuperAdminDashboard from "./features/super-admin/dashboard/pages/Dashboard";
 
@@ -79,6 +79,7 @@ import MenuPlanner from "./features/chef/Menu/MenuPlanner";
 import InventoryDetailsPage from "./features/chef/inventory/pages/inventoryDetails/InventoryDetailsPage";
 import InventoryCategoryPage from "./features/chef/inventory/pages/inventoryCategory/InventoryCategoryPage";
 import AddStockPage from "./features/chef/inventory/pages/inventoryDetails/AddStockPage";
+import AddCategoryItemPage from "./features/chef/inventory/pages/inventoryCategory/AddCategoryItemPage";
 import AddCategoryPage from "./features/chef/inventory/pages/inventoryCategory/AddCategoryPage";
 import CategoryDetailsPage from "./features/chef/inventory/pages/inventoryCategory/CategoryDetailsPage";
 import EditCategoryPage from "./features/chef/inventory/pages/inventoryCategory/EditCategoryPage";
@@ -86,7 +87,6 @@ import EditCategoryItemPage from "./features/chef/inventory/pages/inventoryCateg
 import FeedbackPage from "./features/chef/feedback/pages/FeedbackPage";
 import AddCategoryItemPage from "../src/features/chef/inventory/pages/inventoryCategory/AddCategoryItemPage";
 import NoticesPage from "../src/features/chef/notices/pages/NoticesPage";
-
 
 export default function AppRoutes() {
   const { role } = useAuth();
@@ -185,23 +185,19 @@ export default function AppRoutes() {
           {role === "student" && (
             <Route path="/student" element={<MainLayout />}>
               <Route index element={<MyDashboard />} />
-
               <Route path="room" element={<MyRoom />} />
-
               <Route path="mess" element={<StudentMess />} />
-
               <Route path="fees" element={<StudentFees />} />
               <Route path="fees/pay" element={<StudentPayment />} />
-
               <Route path="support" element={<StudentSupport />} />
               <Route
                 path="support/add"
                 element={<StudentSupportAddRequest />}
               />
               <Route path="support/:id" element={<StudentSupportChat />} />
-
               <Route path="profile" element={<StudentProfile />} />
               <Route path="profile/edit" element={<StudentProfileEdit />} />
+              <Route path="notices" element={<StudentNotice />} />{" "}
             </Route>
           )}
 
@@ -234,7 +230,10 @@ export default function AppRoutes() {
                 element={<AddCategoryPage />}
               />
 
-              <Route path="inventory/category/:categoryId/item/add" element={<AddCategoryItemPage />} />
+              <Route
+                path="inventory/category/:categoryId/item/add"
+                element={<AddCategoryItemPage />}
+              />
 
               <Route
                 path="inventory/category/:id"
@@ -263,4 +262,3 @@ export default function AppRoutes() {
     </>
   );
 }
-
