@@ -744,6 +744,17 @@ export const getStudentByIdApi = async (studentId) => {
   }
 };
 
+export const getStudentProfileByIdApi = async () => {
+  try {
+    axios.defaults.headers.common["Authorization"] = token;
+    const res = await axios.get(`${Domain}/student/getById`);
+    return res.data;
+  } catch (error) {
+    console.log("GET STUDENT PROFILE BY ID ERROR 👉", error);
+    return null;
+  }
+};
+
 // api
 
 export const updateStudentProfileApi = async (data) => {

@@ -45,7 +45,7 @@ export default function CollectFeePage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedStudent, setSelectedStudent] = useState(null);
   const [paymentMethod, setPaymentMethod] = useState("ONLINE");
-  const [amountPaid, setAmountPaid] = useState("0");
+  const [amountPaid, setAmountPaid] = useState("");
   const [paymentDate, setPaymentDate] = useState(
     new Date().toISOString().split("T")[0]
   );
@@ -73,8 +73,8 @@ export default function CollectFeePage() {
 
         setSelectedStudent((prev) => {
           if (!content.length) return null;
-          if (!prev) return content[0];
-          return content.find((student) => student.id === prev.id) || content[0];
+          if (!prev) return null;
+          return content.find((student) => student.id === prev.id) || null;
         });
       } else {
         setErrorMessage(response?.message || "Failed to fetch students.");
@@ -102,17 +102,17 @@ export default function CollectFeePage() {
 
       setFeeSummary(summary);
       setTotalAmount(summary?.feeBreakdown?.totalPayable || 0);
-      setAmountPaid(String(summary?.feeBreakdown?.totalPayable || 0));
+      setAmountPaid(String(summary?.feeBreakdown?.totalPayable || ""));
     } else {
       setFeeSummary(null);
       setTotalAmount(0);
-      setAmountPaid("0");
+      setAmountPaid("");
     }
   } catch (error) {
     console.log(error);
     setFeeSummary(null);
     setTotalAmount(0);
-    setAmountPaid("0");
+    setAmountPaid("");
   } finally {
     setFeeLoader(false);
   }
@@ -201,11 +201,6 @@ export default function CollectFeePage() {
               <CardTitle className="text-sm font-bold text-slate-900 tracking-wide uppercase">
                 1. Select Student
               </CardTitle>
-              <p className="text-xs text-slate-500 mt-2">
-                {loaderCheck
-                  ? "Loading students..."
-                  : `Page ${currentPage} of ${totalPages} • ${filteredStudents.length} student${filteredStudents.length === 1 ? "" : "s"}`}
-              </p>
             </CardHeader>
 
             <CardContent className="p-6 pt-0 space-y-4">
@@ -221,63 +216,89 @@ export default function CollectFeePage() {
               </div>
 
               {errorMessage && (
-                <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+                <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700 mt-4">
                   {errorMessage}
                 </div>
               )}
 
               {loaderCheck ? (
-                <div className="rounded-xl border border-slate-200 bg-slate-50 px-4 py-6 text-sm text-slate-500">
+                <div className="rounded-xl border border-slate-200 bg-slate-50 px-4 py-6 text-sm text-slate-500 mt-4 text-center">
                   Fetching students...
                 </div>
-              ) : filteredStudents.length ? (
-                <div className="space-y-3">
-                  {filteredStudents.map((student) => {
-                    const isSelected = selectedStudent?.id === student.id;
-
-                    return (
-                      <button
-                        type="button"
-                        key={student.id}
-                        onClick={() => setSelectedStudent(student)}
-                        className={`w-full rounded-xl p-4 flex items-center justify-between gap-4 text-left border transition-colors ${
-                          isSelected
-                            ? "bg-slate-100 border-slate-900"
-                            : "bg-white border-slate-200 hover:bg-slate-50"
-                        }`}
-                      >
-                        <div className="flex items-center gap-4 min-w-0">
-                          <div className="w-10 h-10 rounded-full bg-white flex items-center justify-center shrink-0 shadow-sm">
-                            <User className="w-5 h-5 text-slate-600" />
-                          </div>
-
-                          <div className="min-w-0">
-                            <h4 className="text-base font-bold text-slate-900 truncate">
-                              {student.fullName || "Unnamed Student"}
-                            </h4>
-                            <p className="text-xs text-slate-500 mt-0.5 truncate">
-                              ID: {student.studentId || "N/A"} • Room: {student.roomId || "Not assigned"}
-                            </p>
-                          </div>
-                        </div>
-
-                        <div
-                          className={`px-3 py-1 text-[10px] font-bold rounded-full tracking-wider shrink-0 ${
-                            isSelected
-                              ? "bg-slate-900 text-white"
-                              : "bg-slate-100 text-slate-700"
-                          }`}
-                        >
-                          {isSelected ? "SELECTED" : "SELECT"}
-                        </div>
-                      </button>
-                    );
-                  })}
-                </div>
               ) : (
-                <div className="rounded-xl border border-slate-200 bg-slate-50 px-4 py-6 text-sm text-slate-500">
-                  No students found for this search.
-                </div>
+                <>
+                  {!searchTerm && !selectedStudent && (
+                    <div className="bg-slate-100/70 border border-slate-200 rounded-lg p-5 text-center mt-4 text-sm text-slate-500 font-medium">
+                      Note : Search above and select student
+                    </div>
+                  )}
+
+                  {searchTerm && filteredStudents.length > 0 && (
+                    <div className="space-y-2 max-h-60 overflow-y-auto mt-4 pr-1">
+                      {filteredStudents.map((student, index) => {
+                        const isSelected = selectedStudent?.id === student.id;
+
+                        return (
+                          <button
+                            type="button"
+                            key={student.id || student.studentId || `student-${index}`}
+                            onClick={() => {
+                              setSelectedStudent(student);
+                              setSearchTerm("");
+                            }}
+                            className={`w-full rounded-xl p-4 flex items-center justify-between gap-4 text-left border transition-colors ${
+                              isSelected
+                                ? "bg-slate-100 border-slate-900"
+                                : "bg-white border-slate-200 hover:bg-slate-50"
+                            }`}
+                          >
+                            <div className="flex items-center gap-4 min-w-0">
+                              <div className="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center shrink-0 border border-slate-200">
+                                <User className="w-5 h-5 text-slate-600" />
+                              </div>
+
+                              <div className="min-w-0">
+                                <h4 className="text-base font-bold text-slate-900 truncate">
+                                  {student.fullName || "Unnamed Student"}
+                                </h4>
+                                <p className="text-xs text-slate-500 mt-0.5 truncate">
+                                  ID: {student.studentId || "N/A"} • Room: {student.roomId || "Not assigned"}
+                                </p>
+                              </div>
+                            </div>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  )}
+
+                  {searchTerm && filteredStudents.length === 0 && !loaderCheck && (
+                    <div className="rounded-xl border border-slate-200 bg-slate-50 px-4 py-6 text-sm justify-center items-center flex text-slate-500 mt-4">
+                      No students found for this search.
+                    </div>
+                  )}
+
+                  {!searchTerm && selectedStudent && (
+                    <div className="rounded-xl bg-slate-100 border border-slate-200 p-5 mt-4 flex items-center justify-between">
+                      <div className="flex items-center gap-4 min-w-0">
+                        <div className="w-10 h-10 rounded-full bg-white flex items-center justify-center shrink-0 border border-slate-200 shadow-sm">
+                          <User className="w-5 h-5 text-slate-600" />
+                        </div>
+                        <div className="min-w-0">
+                          <h4 className="text-base font-bold text-slate-900 truncate">
+                            {selectedStudent.fullName || "Unnamed Student"}
+                          </h4>
+                          <p className="text-sm text-slate-500 mt-0.5 truncate">
+                            ID: {selectedStudent.studentId || "N/A"} • Room: {selectedStudent.roomId || "Not assigned"}
+                          </p>
+                        </div>
+                      </div>
+                      <div className="px-3 py-1 bg-[#0f172a] text-white text-[10px] font-bold rounded-full tracking-wider shrink-0 uppercase">
+                        ACTIVE
+                      </div>
+                    </div>
+                  )}
+                </>
               )}
             </CardContent>
           </Card>
@@ -297,53 +318,49 @@ export default function CollectFeePage() {
   <CardContent className="p-6 pt-0">
     {feeLoader ? (
       <div className="text-sm text-slate-500">Loading fee summary...</div>
-    ) : feeSummary?.feeBreakdown ? (
+    ) : (
       <div className="space-y-4">
         <div className="flex justify-between items-center pb-4 border-b border-slate-100">
-          <span className="text-sm text-slate-600">Room Rent</span>
+          <span className="text-sm text-slate-600">Room Rent (Monthly)</span>
           <span className="text-sm font-bold text-slate-900">
-            {formatCurrency(feeSummary.feeBreakdown.roomRent)}
+            {formatCurrency(feeSummary?.feeBreakdown?.roomRent || 0)}
           </span>
         </div>
 
         <div className="flex justify-between items-center pb-4 border-b border-slate-100">
           <span className="text-sm text-slate-600">Mess Charges</span>
           <span className="text-sm font-bold text-slate-900">
-            {formatCurrency(feeSummary.feeBreakdown.messCharges)}
+            {formatCurrency(feeSummary?.feeBreakdown?.messCharges || 0)}
           </span>
         </div>
 
         <div className="flex justify-between items-center pb-4 border-b border-slate-100">
-          <span className="text-sm text-slate-600">Electricity Charges</span>
+          <span className="text-sm text-slate-600">Electricity & Utility</span>
           <span className="text-sm font-bold text-slate-900">
-            {formatCurrency(feeSummary.feeBreakdown.electricityCharges)}
+            {formatCurrency(feeSummary?.feeBreakdown?.electricityCharges || 0)}
           </span>
         </div>
 
         <div className="flex justify-between items-center pb-4 border-b border-slate-100">
           <div className="flex items-center gap-2">
-            <span className="text-sm text-slate-600">Late Fee</span>
-            {Number(feeSummary.feeBreakdown.lateFee) > 0 && (
+            <span className="text-sm text-slate-600">Late Fee penalty</span>
+            {Number(feeSummary?.feeBreakdown?.lateFee || 0) > 0 && (
               <span className="px-2 py-0.5 bg-slate-200 text-slate-700 text-[10px] font-bold rounded-md tracking-wider">
                 OVERDUE
               </span>
             )}
           </div>
           <span className="text-sm font-bold text-slate-900">
-            {formatCurrency(feeSummary.feeBreakdown.lateFee)}
+            {formatCurrency(feeSummary?.feeBreakdown?.lateFee || 0)}
           </span>
         </div>
 
         <div className="pt-4 mt-2 flex justify-between items-center">
           <span className="text-lg font-bold text-slate-900">Total Payable</span>
           <span className="text-2xl font-bold text-slate-900">
-            {formatCurrency(feeSummary.feeBreakdown.totalPayable)}
+            {formatCurrency(feeSummary?.feeBreakdown?.totalPayable || 0)}
           </span>
         </div>
-      </div>
-    ) : (
-      <div className="text-sm text-slate-500">
-        Select a student to view fee summary.
       </div>
     )}
   </CardContent>
@@ -360,20 +377,6 @@ export default function CollectFeePage() {
             </CardHeader>
 
             <CardContent className="p-6 pt-0 space-y-6">
-              {selectedStudent && (
-                <div className="rounded-xl bg-slate-50 border border-slate-100 p-4">
-                  <p className="text-xs uppercase tracking-wide text-slate-500">
-                    Selected Student
-                  </p>
-                  <p className="text-base font-bold text-slate-900 mt-1">
-                    {selectedStudent.fullName || "Unnamed Student"}
-                  </p>
-                  <p className="text-xs text-slate-500 mt-1">
-                    {selectedStudent.studentId || "N/A"} • {selectedStudent.phone || "No phone number"}
-                  </p>
-                </div>
-              )}
-
               <div className="space-y-2">
                 <label className="text-sm font-medium text-slate-700">Amount Paid (₹)</label>
                 <input
@@ -417,19 +420,17 @@ export default function CollectFeePage() {
                 </div>
               </div>
 
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-slate-700">Internal Notes</label>
+                <textarea
+                  placeholder="Add any specific details about this transaction..."
+                  className="w-full p-3 h-24 resize-none rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-slate-900 focus:border-transparent text-sm text-slate-900"
+                ></textarea>
+              </div>
+
               <div className="space-y-3 pt-2">
-                {/* <Button
-                  onClick={() =>
-  navigate(`/admin/fees/receipt?transactionId=${selectedStudent?.transactionId}`)
-}
-                  disabled={!selectedStudent}
-                  className="w-full bg-[#0f172a] hover:bg-[#1e293b] text-white h-12 rounded-xl flex items-center justify-center gap-2 text-sm font-bold disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  <Receipt className="w-4 h-4" />
-                  Generate Receipt
-                </Button> */}
                 <Button className="w-full bg-[#0f172a] hover:bg-[#1e293b] text-white h-12 rounded-xl flex items-center justify-center gap-2 text-sm font-bold disabled:opacity-50 disabled:cursor-not-allowed"
-                
+                disabled={!selectedStudent}
 onClick={async () => {
   const res = await postCollectFeeApi({
     studentId: selectedStudent.studentId,
@@ -450,8 +451,17 @@ onClick={async () => {
   }
 }}
 >
+                  <Receipt className="w-4 h-4" />
   Generate Receipt
 </Button>
+                <Button variant="outline" className="w-full h-12 rounded-xl flex items-center justify-center font-bold text-slate-700 bg-slate-50 hover:bg-slate-100 border-none" onClick={() => {
+                  setSelectedStudent(null);
+                  setSearchTerm("");
+                  setAmountPaid("");
+                  setFeeSummary(null);
+                }}>
+                  Cancel
+                </Button>
               </div>
             </CardContent>
           </Card>

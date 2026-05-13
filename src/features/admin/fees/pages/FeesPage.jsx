@@ -226,7 +226,7 @@ const methods = [
           <CardHeader className="flex flex-row items-center justify-between p-6 border-b border-slate-100">
             <CardTitle className="text-lg font-bold text-slate-900">Recent Transactions</CardTitle>
             <div className="flex gap-2">
-              <Button variant="outline" className="text-sm border-slate-200 text-slate-600">Filter</Button>
+              {/* <Button variant="outline" className="text-sm border-slate-200 text-slate-600">Filter</Button> */}
               <Button variant="outline" className="text-sm border-slate-200 text-slate-600">Export CSV</Button>
             </div>
           </CardHeader>
@@ -299,24 +299,23 @@ const methods = [
         </Card>
 
       
-      {/* Urgent Reminders and Payment Methods */}
+       {/* Urgent Reminders and Payment Methods */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-
-<Card className="border border-slate-100 shadow-sm rounded-xl h-full">
+{/* <Card className="border border-slate-100 shadow-sm rounded-xl h-full">
   <CardHeader className="p-6 pb-4">
     <CardTitle className="text-lg font-bold text-slate-900">
       Urgent Fee Reminders
     </CardTitle>
-  </CardHeader>
+  </CardHeader> 
 
   <CardContent className="p-6 pt-0 space-y-4">
 
-    {/* Empty State */}
+    
     {!dashboardData?.urgentReminders?.length && (
       <p className="text-sm text-slate-500">No urgent reminders</p>
     )}
 
-    {/* Dynamic Data */}
+  
     {dashboardData?.urgentReminders?.map((item, index) => {
       const Icon =
         item.type === "OVERDUE" ? AlertCircle : Mail;
@@ -348,10 +347,10 @@ const methods = [
       );
     })}
   </CardContent>
-</Card>
+</Card>  */}
 
-        {/* Payment Methods */}
-         <Card className="border border-slate-100 shadow-sm rounded-xl h-full">
+        {/* Payment Methods  */}
+         {/* <Card className="border border-slate-100 shadow-sm rounded-xl h-full">
                <CardHeader className="p-6 pb-4">
                  <CardTitle className="text-lg font-bold text-slate-900">Payment Methods</CardTitle>
                </CardHeader>
@@ -371,8 +370,7 @@ const methods = [
                    </div>
                  ))}
                </CardContent>
-             </Card>
-         
+             </Card> */}
       </div>
     </div>
   );

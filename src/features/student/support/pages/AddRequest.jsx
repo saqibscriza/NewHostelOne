@@ -15,7 +15,7 @@ const createSupportTicket = async (data) => {
     subject: data.subject,
     // priority: "MEDIUM", // ya dropdown bana sakte ho
     RoomNo: data.room,
-    message: data.description,
+    description: data.description,
   };
 
   const res = await createSupportTicketApi(payload);

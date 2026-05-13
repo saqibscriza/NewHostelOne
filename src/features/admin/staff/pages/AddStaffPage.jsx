@@ -16,6 +16,7 @@ import {
   UploadCloud,
   CheckCircle2,
   Mail,
+  CalendarDays,
   Smartphone,
 } from "lucide-react";
 import { Card } from "../../../../components/ui/Card";
@@ -183,16 +184,29 @@ export default function AddStaff() {
             </div>
 
             {/* Date of Birth Field */}
+
             <div className="space-y-2">
               <Label className="text-sm font-medium text-slate-700">
                 Date of Birth
               </Label>
-              <Input
-                type="date"
-                name="dob"
-                {...register("dob")}
-                className="h-11 text-slate-500"
-              />
+              <div className="relative">
+                <CalendarDays className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-500 pointer-events-none z-10" />
+                <Input
+                  type="date"
+                  max={new Date().toISOString().split("T")[0]}
+                  {...register("dob", {
+                    validate: (value) =>
+                      new Date(value) <= new Date() ||
+                      "Future date not allowed",
+                  })}
+                  className="h-11 w-full pl-10 text-slate-500 [&::-webkit-calendar-picker-indicator]:opacity-0 [&::-webkit-calendar-picker-indicator]:absolute [&::-webkit-calendar-picker-indicator]:left-0 [&::-webkit-calendar-picker-indicator]:w-full [&::-webkit-calendar-picker-indicator]:h-full [&::-webkit-calendar-picker-indicator]:cursor-pointer"
+                />
+              </div>
+              {errors?.dob && (
+                <p className="text-sm text-red-500">
+                  {errors.dob.message}
+                </p>
+              )}
             </div>
 
             {/* Gender Field */}

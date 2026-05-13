@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { AlertCircle, CreditCard, Download } from "lucide-react";
+import { AlertCircle, CreditCard, Download, WalletCards } from "lucide-react";
 import {
   getFeeStudentDetails,
   getStudentTransectionsApi,
@@ -138,14 +138,14 @@ export default function Fees() {
             <div className="text-4xl sm:text-5xl font-extrabold text-gray-900 tracking-tight">
               ₹{totalOutstandingBalance}
             </div>
-            <div className="mt-8 flex gap-4">
+            <div className="mt-8 flex flex-col items-start gap-3">
               <button
                 onClick={() => navigate("/student/fees/pay")}
-                className="bg-[#0f172a] hover:bg-[#1e293b] text-white px-6 py-2.5 rounded-lg font-medium flex-1 flex items-center justify-center gap-2"
+                className="w-44 bg-[#0f172a] hover:bg-[#1e293b] text-white py-3 rounded-[10px] font-bold text-sm flex items-center justify-center gap-2 transition-colors"
               >
-                <CreditCard className="w-4 h-4" /> Pay Now
+                <WalletCards className="w-4 h-4" /> Pay Now
               </button>
-              <button className="bg-white border border-gray-200 hover:bg-gray-50 text-gray-700 px-6 py-2.5 rounded-lg font-medium flex-1">
+              <button className="w-44 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 py-3 rounded-[10px] font-bold text-sm transition-colors">
                 View Full Invoice
               </button>
             </div>

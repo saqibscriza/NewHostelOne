@@ -125,12 +125,23 @@ export default function Support() {
                   <TableCell className="px-6 py-5 font-medium text-foreground whitespace-nowrap">
                     {ticket.subject}
                   </TableCell>
-                  <TableCell className="px-6 py-5 text-muted-foreground">
-                    {ticket.description}{" "}
-                    <span className="text-blue-500 font-medium group-hover:underline ml-1">
-                      Read more
-                    </span>
-                  </TableCell>
+<TableCell className="px-6 py-5 text-muted-foreground">
+  {ticket.description ? (
+    <>
+      {ticket.description.length > 60
+        ? `${ticket.description.slice(0, 60)}...`
+        : ticket.description}
+
+      {ticket.description.length > 60 && (
+        <span className="text-blue-500 font-medium group-hover:underline ml-1 cursor-pointer">
+          Read more
+        </span>
+      )}
+    </>
+  ) : (
+    "N/A"
+  )}
+</TableCell>
                         <TableCell className="px-6 py-5 text-muted-foreground">
         {ticket.status}
       </TableCell>

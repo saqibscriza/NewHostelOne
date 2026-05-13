@@ -75,15 +75,19 @@ export default function Profile() {
           <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-8 flex flex-col items-center text-center">
             <div className="relative mb-6">
               <div className="w-32 h-32 rounded-full overflow-hidden border-4 border-white shadow-lg">
-                <img
-                  src="https://api.dicebear.com/7.x/notionists/svg?seed=Sandeep&backgroundColor=0f172a"
-                  alt="Profile"
-                  className="w-full h-full object-cover"
-                />
+<img
+  src={
+    profile?.photo ||
+    profile?.profileImage ||
+    `https://api.dicebear.com/7.x/notionists/svg?seed=${profile?.name || "Student"}&backgroundColor=0f172a`
+  }
+  alt="Profile"
+  className="w-full h-full object-cover"
+/>
               </div>
-              <div className="absolute bottom-0 right-1 bg-slate-900 p-2 rounded-full border-2 border-white shadow-sm text-white">
+              {/* <div className="absolute bottom-0 right-1 bg-slate-900 p-2 rounded-full border-2 border-white shadow-sm text-white">
                 <Camera className="w-3.5 h-3.5" />
-              </div>
+              </div> */}
             </div>
             <h2 className="text-2xl font-bold text-gray-900">
               {profile?.name}

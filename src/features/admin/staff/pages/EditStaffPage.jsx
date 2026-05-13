@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import toast from "react-hot-toast";
-import { useForm } from 'react-hook-form';
+import { useForm } from "react-hook-form";
 import { useNavigate, useParams } from "react-router-dom";
 import { updateStaffApi } from "../../../../utils/utils";
 import { getStaffByIdApi } from "../../../../utils/utils";
@@ -17,6 +17,7 @@ import {
   UploadCloud,
   CheckCircle2,
   Mail,
+  CalendarDays,
   Smartphone,
 } from "lucide-react";
 import { Card } from "../../../../components/ui/Card";
@@ -30,28 +31,23 @@ export default function UpdateStaff() {
   const [roles, setRoles] = useState([]);
   const [employeeId, setEmployeeId] = useState("");
   const [sameAddress, setSameAddress] = useState(false);
-  const [profileImage, setProfileImage] = useState([]);
   const [loaderCheck, setLoaderCheck] = useState(false);
   const [loading, setLoading] = useState(false);
 
-
-
-
   useEffect(() => {
-      const fetchRoles = async () => {
-        try {
-          const res = await getAllRoleApi();
-          if (res?.data?.roles) {
-            setRoles(res.data.roles);
-          }
-        } catch (error) {
-          console.log("Role fetch error:", error);
+    const fetchRoles = async () => {
+      try {
+        const res = await getAllRoleApi();
+        if (res?.data?.roles) {
+          setRoles(res.data.roles);
         }
-      };
-  
-      fetchRoles();
-  
-    }, []);
+      } catch (error) {
+        console.log("Role fetch error:", error);
+      }
+    };
+
+    fetchRoles();
+  }, []);
 
   const {
     register,
@@ -62,85 +58,83 @@ export default function UpdateStaff() {
     formState: { errors },
   } = useForm();
 
-
+  const profileImage = watch("profileImage") || [];
+  const idProof = watch("idProof") || [];
+  const policeVerification = watch("policeVerification") || [];
 
   const MyStaffDataById = async () => {
-  setLoaderCheck(true);
-  try {
-    const response = await getStaffByIdApi(id);
+    setLoaderCheck(true);
+    try {
+      const response = await getStaffByIdApi(id);
 
-    console.log("API RESPONSE:", response.data);
+      console.log("API RESPONSE:", response.data);
 
-    const staff = response.data; // ✅ FIX
+      const staff = response.data; // ✅ FIX
 
-    if (staff) {
-      setEmployeeId(staff.staffId);
+      if (staff) {
+        setEmployeeId(staff.staffId);
 
-      reset({
-        fullName: staff.fullName || "",
-        dob: staff.dob?.slice(0, 10) || "",
-        gender: staff.gender || "",
-        roleId: staff.roleId || "",
-        joiningDate: staff.joiningDate?.slice(0, 10) || "",
-        email: staff.email || "",
-        phone: staff.phone || "",
-        currentAddress: staff.currentAddress || "",
-        permanentAddress: staff.permanentAddress || "",
-        status: staff.status ? "ACTIVE" : "INACTIVE",
-      });
-    } else {
-      toast.error("Staff not found");
+        reset({
+          fullName: staff.fullName || "",
+          dob: staff.dob?.slice(0, 10) || "",
+          gender: staff.gender || "",
+          roleId: staff.roleId || "",
+          joiningDate: staff.joiningDate?.slice(0, 10) || "",
+          email: staff.email || "",
+          phone: staff.phone || "",
+          currentAddress: staff.currentAddress || "",
+          permanentAddress: staff.permanentAddress || "",
+          status: staff.status ? "ACTIVE" : "INACTIVE",
+        });
+      } else {
+        toast.error("Staff not found");
+      }
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setLoaderCheck(false);
     }
-
-  } catch (error) {
-    console.log(error);
-  } finally {
-    setLoaderCheck(false);
-  }
-};
-
+  };
 
   // update Api
-const MyUpdateStaffAPI = async (data) => {
-  try {
-    setLoading(true);
+  const MyUpdateStaffAPI = async (data) => {
+    try {
+      setLoading(true);
 
-    const payload = {
-      fullName: data.fullName,
-      dob: data.dob,
-      gender: data.gender,
-      roleId: data.roleId,
-      joiningDate: data.joiningDate,
-      email: data.email,
-      phone: data.phone,
-      currentAddress: data.currentAddress,
-      permanentAddress: data.permanentAddress,
-      // ⚠️ status mismatch — backend uses attendanceStatus (check this!)
-    };
+      const payload = {
+        fullName: data.fullName,
+        dob: data.dob,
+        gender: data.gender,
+        roleId: data.roleId,
+        joiningDate: data.joiningDate,
+        email: data.email,
+        phone: data.phone,
+        currentAddress: data.currentAddress,
+        permanentAddress: data.permanentAddress,
+        // ⚠️ status mismatch — backend uses attendanceStatus (check this!)
+      };
 
-    const response = await updateStaffApi(id, payload);
+      const response = await updateStaffApi(id, payload);
 
-    if (response?.data?.status === "success") {
-      toast.success(response?.data?.message);
-      setTimeout(() => {
-        navigate("/admin/staff");
-      }, 2000);
-    } else {
-      toast.error(response?.data?.message);
+      if (response?.data?.status === "success") {
+        toast.success(response?.data?.message);
+        setTimeout(() => {
+          navigate("/admin/staff");
+        }, 2000);
+      } else {
+        toast.error(response?.data?.message);
+      }
+    } catch (error) {
+      console.log(error);
+      toast.error("Update failed");
+    } finally {
+      setLoading(false);
     }
+  };
 
-  } catch (error) {
-    console.log(error);
-    toast.error("Update failed");
-  } finally {
-    setLoading(false);
-  }
-};
-
-useEffect(() => {
-  MyStaffDataById();
-}, [id]);
-
+  useEffect(() => {
+    MyStaffDataById();
+  }, [id]);
 
   return (
     <form onSubmit={handleSubmit(MyUpdateStaffAPI)}>
@@ -178,8 +172,7 @@ useEffect(() => {
                 placeholder="Enter Full Name"
                 className="h-11"
               />
-               <small className="text-danger">{errors.fullName?.message}</small>
-
+              <small className="text-danger">{errors.fullName?.message}</small>
             </div>
 
             {/* Profile Picture Field */}
@@ -218,16 +211,30 @@ useEffect(() => {
               </div>
             </div>
 
+
             {/* Date of Birth Field */}
             <div className="space-y-2">
               <Label className="text-sm font-medium text-slate-700">
                 Date of Birth
               </Label>
-              <Input
-                type="date"
-                {...register("dob")}
-                className="h-11 text-slate-500"
-              />
+              <div className="relative">
+                <CalendarDays className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-500 pointer-events-none z-10" />
+                <Input
+                  type="date"
+                  max={new Date().toISOString().split("T")[0]}
+                  {...register("dob", {
+                    validate: (value) =>
+                      new Date(value) <= new Date() ||
+                      "Future date not allowed",
+                  })}
+                  className="h-11 w-full pl-10 text-slate-500 [&::-webkit-calendar-picker-indicator]:opacity-0 [&::-webkit-calendar-picker-indicator]:absolute [&::-webkit-calendar-picker-indicator]:left-0 [&::-webkit-calendar-picker-indicator]:w-full [&::-webkit-calendar-picker-indicator]:h-full [&::-webkit-calendar-picker-indicator]:cursor-pointer"
+                />
+              </div>
+              {errors?.dob && (
+                <p className="text-sm text-red-500">
+                  {errors.dob.message}
+                </p>
+              )}
             </div>
 
             {/* Gender Field */}
@@ -415,16 +422,26 @@ useEffect(() => {
                 ID Proof (Aadhar/Voter ID)
               </Label>
               <label className="border-2 border-dashed border-slate-200 rounded-xl p-8 flex flex-col items-center justify-center text-center hover:bg-slate-50 transition-colors cursor-pointer bg-slate-50/50">
-                <UploadCloud className="w-8 h-8 text-slate-400 mb-3" />
-                <p className="text-sm font-medium text-slate-700">
-                  Click to upload or drag & drop
-                </p>
                 <input
                   type="file"
                   accept=".pdf,.jpg,.png"
                   className="hidden"
                   {...register("idProof")}
                 />
+                {/* preview or icon */}
+                {idProof && idProof.length > 0 ? (
+                  <img
+                    src={URL.createObjectURL(idProof[0])}
+                    alt="preview"
+                    className="w-20 h-20 object-cover rounded mb-2"
+                  />
+                ) : (
+                  <UploadCloud className="w-8 h-8 text-slate-400 mb-3" />
+                )}
+                <p className="text-sm font-medium text-slate-700">
+                  Click to upload or drag & drop
+                </p>
+
                 <p className="text-xs text-slate-500 mt-1">
                   PDF, JPG, PNG up to 5MB
                 </p>
@@ -437,16 +454,28 @@ useEffect(() => {
                 Police Verification Report
               </Label>
               <label className="border-2 border-dashed border-slate-200 rounded-xl p-8 flex flex-col items-center justify-center text-center hover:bg-slate-50 transition-colors cursor-pointer bg-slate-50/50">
-                <CheckCircle2 className="w-8 h-8 text-slate-400 mb-3" />
-                <p className="text-sm font-medium text-slate-700">
-                  Upload verification document
-                </p>
                 <input
                   type="file"
                   accept=".pdf,.jpg,.png"
                   className="hidden"
                   {...register("policeVerification")}
                 />
+
+                {/* preview or icon */}
+                {policeVerification && policeVerification.length > 0 ? (
+                  <img
+                    src={URL.createObjectURL(policeVerification[0])}
+                    alt="preview"
+                    className="w-20 h-20 object-cover rounded mb-2"
+                  />
+                ) : (
+                  <CheckCircle2 className="w-8 h-8 text-slate-400 mb-3" />
+                )}
+
+                {/* text */}
+                <p className="text-sm font-medium text-slate-700">
+                  Upload verification document
+                </p>
                 <p className="text-xs text-slate-500 mt-1">
                   Mandatory for all field staff
                 </p>
@@ -480,7 +509,7 @@ useEffect(() => {
         <div className="flex items-center justify-end gap-4 pt-4 pb-10">
           <Button
             type="button"
-            onClick={() => navigate("/staff")}
+            onClick={() => navigate("/admin/staff")}
             variant="secondary"
             className="h-11 px-8 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold"
           >
