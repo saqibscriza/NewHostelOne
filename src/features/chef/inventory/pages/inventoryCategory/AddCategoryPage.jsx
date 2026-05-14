@@ -36,27 +36,32 @@ export default function AddCategoryPage() {
     const formData = new FormData();
     formData.append('categoryName', data.categoryName);
 
-      data.items.forEach((item) => {
-        formData.append("itemName", item.name);
-        formData.append("skuId", item.sku);
-      });
+  data.items.forEach((item) => {
+    formData.append("itemName", item.name);
+    formData.append("skuId", item.sku);
+  });
 
-      if (data.icon && data.icon[0]) {
-        formData.append("icon", data.icon[0]);
-      }
+  if (data.icon?.[0]) {
+    formData.append("icon", data.icon[0]);
+  }
 
-    try{
-      const response = await addInventoryCategoryApi(formData);
-      if(response?.status === "success"){
-        navigate("/chef/inventory/category");
-        console.log("Category added successfully");
-      } else {
-        console.error("Failed to add category");
-      }
-     }  catch(error){
-      console.error("Error adding category:", error);     
+  for (let pair of formData.entries()) {
+    console.log(pair[0], pair[1]);
+  }
+
+  try {
+    const response = await addInventoryCategoryApi(formData);
+
+    if (response?.status === "success") {
+      navigate("/chef/inventory/category");
+      console.log("Category added successfully");
+    } else {
+      console.error("Failed to add category");
     }
-  };
+  } catch (error) {
+    console.error("Error adding category:", error);
+  }
+};
     
 
   return (
@@ -105,20 +110,19 @@ export default function AddCategoryPage() {
                     value={iconFileName}
                     readOnly
                   />
-                  <input
-                  type="file"
-                  id="icon-upload"
-                  className="hidden"
-                  accept="image/*"
-                  {...register("icon", {
-                    // required: "Icon is required",
-                  })}
-                  onChange={(e) => {
-                    setIconFileName(
-                      e.target.files?.[0]?.name || ""
-                    );
-                  }}
-                />
+<input
+  type="file"
+  id="icon-upload"
+  className="hidden"
+  accept="image/*"
+  {...register("icon", {
+    onChange: (e) => {
+      setIconFileName(
+        e.target.files?.[0]?.name || ""
+      );
+    },
+  })}
+/>
                 {/* {errors.icon && (
   <p className="text-red-500 text-xs">
     {errors.icon.message}

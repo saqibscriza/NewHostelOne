@@ -55,9 +55,9 @@ export default function ProfileEdit() {
         setValue("year", data.academicAndContactDetails?.year || "");
         setValue("course", data.academicAndContactDetails?.course || "");
 
-        if (data.personalInformation?.profileImage) {
-          setImagePreview(data.personalInformation?.profileImage);
-        }
+if (data.documentUploads?.photo) {
+  setImagePreview(data.documentUploads.photo);
+}
       } else {
         console.error("Failed to fetch profile:", res?.message);
       }
@@ -313,7 +313,7 @@ const onSubmit = async (data) => {
             </div>
             
             {/* Display these fields using getValues from react-hook-form if needed, but since they are set via setValue, we can make them controlled via watch or register. Let's use register and disabled inputs or just watch */}
-            <div className="space-y-6">
+             <div className="space-y-6">
               <Input type="hidden" {...register("studentId")} />
               <Input type="hidden" {...register("course")} />
               <Input type="hidden" {...register("year")} />
@@ -321,19 +321,19 @@ const onSubmit = async (data) => {
               
               <div>
                 <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Student ID</p>
-                <Input disabled {...register("studentId")} className="font-bold text-lg mt-1 bg-transparent border-none text-white h-auto p-0" />
+                <div className="font-bold text-lg mt-1 text-white">{watch("studentId") || "N/A"}</div>
               </div>
               <div>
                 <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Course</p>
-                <Input disabled {...register("course")} className="font-medium text-slate-200 mt-1 bg-transparent border-none p-0 h-auto" />
+                <div className="font-medium text-slate-200 mt-1">{watch("course") || "N/A"}</div>
               </div>
               <div>
                 <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Year / Semester</p>
-                <Input disabled {...register("year")} className="font-medium text-slate-200 mt-1 bg-transparent border-none p-0 h-auto" />
+                <div className="font-medium text-slate-200 mt-1">{watch("year") || "N/A"}</div>
               </div>
               <div>
                 <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Enrollment Date</p>
-                <Input disabled {...register("dateOfJoining")} className="font-medium text-slate-200 mt-1 bg-transparent border-none p-0 h-auto" />
+                <div className="font-medium text-slate-200 mt-1">{watch("dateOfJoining") || "N/A"}</div>
               </div>
             </div>
           </div>

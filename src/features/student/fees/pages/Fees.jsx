@@ -4,6 +4,7 @@ import { AlertCircle, CreditCard, Download, WalletCards } from "lucide-react";
 import {
   getFeeStudentDetails,
   getStudentTransectionsApi,
+  getCSV_Api,
 } from "../../../../utils/utils";
 
 export default function Fees() {
@@ -95,6 +96,15 @@ export default function Fees() {
       year: "numeric",
     });
   };
+
+  const getExportCSV = async() => {
+    try{
+      const res = getCSV_Api();
+    }
+    catch{
+      
+    }
+  }
 
   const totalOutstandingBalance =
     feeData?.totalOutstandingBalance ?? feeData?.currentDues?.grandTotal ?? 0;

@@ -240,18 +240,18 @@ export default function InventoryDetailsPage() {
             Inventory Details
           </CardTitle>
           <div className="flex gap-3 w-full sm:w-auto mt-4 sm:mt-0">
-            <Button
+            {/* <Button
               variant="outline"
               className="text-sm flex-1 sm:flex-none border-border rounded-xl text-foreground font-medium h-10"
             >
               Filter
-            </Button>
-            <Button
+            </Button> */}
+            {/* <Button
               variant="outline"
               className="text-sm flex-1 sm:flex-none border-border rounded-xl text-foreground font-medium h-10"
             >
               Export CSV
-            </Button>
+            </Button> */}
           </div>
         </CardHeader>
 

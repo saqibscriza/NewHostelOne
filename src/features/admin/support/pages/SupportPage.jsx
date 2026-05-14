@@ -6,6 +6,15 @@ import { Input } from "../../../../components/ui/input";
 import { Button } from "../../../../components/ui/button";
 import { Label } from "../../../../components/ui/label";
 import {
+  Pagination,
+  PaginationContent,
+  PaginationEllipsis,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from "../../../../components/ui/pagination";             // first step import karo
+import {
   getAllSupportTicketsApi,
   updateSupportTicketApi,
 } from "../../../../utils/utils"; 
@@ -15,6 +24,25 @@ export default function SupportPage() {
   const [tickets, setTickets] = useState([]);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [selectedTicket, setSelectedTicket] = useState(null);
+
+  // Pagination states
+  // // Second Step states add karo to panage
+  // Uss component state mein current page aur per page records list ko track karne ka logic lagayein:
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 8;        // Aapko 8 dikhane hain ya 10? 
+
+// 3 
+// Step pagination ka
+const indexOfLastItem = currentPage * itemsPerPage;
+const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+// Ye filtered records hain! Ise render karna hota map function mein.
+const currentTickets = tickets.slice(indexOfFirstItem, indexOfLastItem);
+const totalPages = Math.ceil(tickets.length / itemsPerPage);
+
+//Step 4. 
+//Apne Map Function Ko Update Karein
+//HTML table mein apne mapping ko update kijiye.
+//myOriginalDataArray.map(...) ki jagah ab naye cut/sliced items array set karein: -> currentItemsList.map(...)
 
 
 const fetchSupportTickets = async () => {
@@ -98,14 +126,14 @@ const fetchSupportTickets = async () => {
                 <th className="px-6 py-4 whitespace-nowrap">Student Name</th>
                 <th className="px-6 py-4 whitespace-nowrap">Room No.</th>
                 <th className="px-6 py-4 whitespace-nowrap">Subject</th>
-                <th className="px-6 py-4 whitespace-nowrap">Priority</th>
-                <th className="px-6 py-4 whitespace-nowrap">Status</th>
+                <th className="px-6 py-4 whitespace-nowrap">Description</th>
+                {/* <th className="px-6 py-4 whitespace-nowrap">Status</th> */}
                 <th className="px-6 py-4 whitespace-nowrap">Created</th>
-                <th className="px-6 py-4 whitespace-nowrap text-right">Actions</th>
+                {/* <th className="px-6 py-4 whitespace-nowrap text-right">Actions</th> */}
               </tr>
             </thead>
             <tbody className="divide-y divide-border">
-  {tickets.map((ticket) => (
+  {currentTickets.map((ticket) => (
     <tr
       key={ticket.id || ticket._id}
       className="hover:bg-muted/30 transition-colors"
@@ -113,7 +141,7 @@ const fetchSupportTickets = async () => {
       <td className="px-6 py-4 whitespace-nowrap">
         <div className="flex items-center gap-3">
           <img
-            src={ticket.avatar}
+            src={ticket.imagePath}
             alt={ticket.studentName || ticket.userName}
             className="w-8 h-8 rounded-full border border-border object-cover"
           />
@@ -133,21 +161,21 @@ const fetchSupportTickets = async () => {
 
       <td className="px-6 py-4 whitespace-nowrap">
         <span className="px-3 py-1 bg-muted text-foreground text-xs font-medium rounded-full">
-          {ticket.priority}
+          {ticket.description}
         </span>
       </td>
 
-      <td className="px-6 py-4 whitespace-nowrap">
+      {/* <td className="px-6 py-4 whitespace-nowrap">
         <span className="px-3 py-1 bg-muted text-foreground text-xs font-medium rounded-full">
           {ticket.status}
         </span>
-      </td>
+      </td> */}
 
-      <td className="px-6 py-4 text-muted-foreground whitespace-nowrap">
-        {ticket.createdAt || ticket.created}
-      </td>
+<td className="px-6 py-4 text-muted-foreground whitespace-nowrap">
+  {ticket.createdAt?.split("T")[0]}
+</td>
 
-      <td className="px-6 py-4 whitespace-nowrap">
+      {/* <td className="px-6 py-4 whitespace-nowrap">
         <div className="flex items-center justify-end gap-4">
           <button
             onClick={() => handleEditClick(ticket)}
@@ -165,7 +193,7 @@ const fetchSupportTickets = async () => {
             <Eye className="w-4 h-4" />
           </button>
         </div>
-      </td>
+      </td> */}
     </tr>
   ))}
 </tbody>
@@ -174,8 +202,44 @@ const fetchSupportTickets = async () => {
         </div>
       </div>
 
+
+      {/* // Step 5 */}
+
+      {/* Pagination UI */}
+      {totalPages > 1 && (
+        <Pagination className="mt-4 flex justify-end">
+          <PaginationContent>
+            <PaginationItem>
+              <PaginationPrevious 
+                onClick={() => setCurrentPage(p => Math.max(1, p - 1))} 
+                className={currentPage === 1 ? "pointer-events-none opacity-50" : "cursor-pointer"}
+              />
+            </PaginationItem>
+            
+            {[...Array(totalPages)].map((_, i) => (
+              <PaginationItem key={i}>
+                <PaginationLink 
+                  isActive={currentPage === i + 1}
+                  onClick={() => setCurrentPage(i + 1)}
+                  className="cursor-pointer"
+                >
+                  {i + 1}
+                </PaginationLink>
+              </PaginationItem>
+            ))}
+
+            <PaginationItem>
+              <PaginationNext 
+                onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))} 
+                className={currentPage === totalPages ? "pointer-events-none opacity-50" : "cursor-pointer"}
+              />
+            </PaginationItem>
+          </PaginationContent>
+        </Pagination>
+      )}
+
       {/* Edit Ticket Modal */}
-      <Dialog open={isEditModalOpen} onOpenChange={setIsEditModalOpen}>
+      {/* <Dialog open={isEditModalOpen} onOpenChange={setIsEditModalOpen}>
         <DialogContent className="sm:max-w-[500px] border-border bg-card text-card-foreground">
           <DialogHeader className="border-b border-border pb-4">
             <DialogTitle className="text-2xl font-semibold">Edit Support Ticket</DialogTitle>
@@ -241,7 +305,7 @@ const fetchSupportTickets = async () => {
             </div>
           )}
         </DialogContent>
-      </Dialog>
+      </Dialog> */}
     </div>
   );
 }

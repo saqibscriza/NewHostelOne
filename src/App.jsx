@@ -10,7 +10,7 @@ import SelectHostelForm from "./features/auth/pages/HostelLogin";
 import RegisterHostel from "./features/auth/pages/RegisterHostel";
 
 // ADMIN
-import AdminDashboard from "./features/admin/Dashboard/pages/DashboardPage";
+import AdminDashboard from "./features/admin/dashboard/pages/DashboardPage";
 import StudentList from "./features/admin/students/pages/StudentList";
 import Rooms from "./features/admin/rooms/pages/RoomsCategory/Rooms";
 import RoomDetails from "./features/admin/rooms/pages/RoomsDetails/RoomDetails";

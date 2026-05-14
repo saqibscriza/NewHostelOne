@@ -1012,6 +1012,19 @@ export const getFeedbackListApi = async (id) => {
   }
 };
 
+export const getCSV_Api =async()=>{
+  try {
+    axios.defaults.headers.common["Authorization"] = token;
+    const res = await axios.get(`${Domain}/fee/export-csv`);
+    return res.data;
+  } catch (error) {
+    console.log("GET FeedBack ERROR 👉", error);
+    return null;
+  }
+};
+
+
+
 // ******************************************************************************************************
 // ASIM //
 // ******************************************************************************************************

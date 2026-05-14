@@ -75,24 +75,23 @@ const deleteCategory = async (id) => {
             const category = catObj.category;
             const items = catObj.items;
 
-              const iconMap = {
-    spices: Flame,
-    grain: Wheat,
-    seeds: Apple,
-    dairy: Egg,
-    beverages: Coffee,
-    bakery: Croissant,
-  };
-
-  const IconComponent =
-    iconMap[category.categoryName?.toLowerCase()] || Egg;
           return (
             <Card key={category.id} className="border-none shadow-sm rounded-2xl bg-card ring-1 ring-border/50 hover:shadow-md transition-all">
               <CardContent className="p-6 flex flex-col items-start relative">
                 <div className="flex items-center justify-between w-full mb-5">
-                  <div className="w-12 h-12 rounded-xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-700 dark:text-slate-300">
-                    <IconComponent className="w-6 h-6 stroke-[1.5]" />
-                  </div>
+<div className="w-12 h-12 rounded-xl overflow-hidden bg-slate-100 dark:bg-slate-800 flex items-center justify-center">
+  {category.iconPath ? (
+    <img
+      src={category.iconPath}
+      alt={category.categoryName}
+      className="w-full h-full object-cover"
+    />
+  ) : (
+    <div className="text-xs text-muted-foreground">
+      No Image
+    </div>
+  )}
+</div>
                   <div className="flex items-center gap-3">
                     <button 
                       className="text-slate-400 hover:text-red-500 transition-colors p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800"
