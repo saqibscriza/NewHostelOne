@@ -5,10 +5,26 @@ import { Button } from "../ui/button";
 import { useAuth } from "../../context/AuthContext";
 import { useLocation, useNavigate } from "react-router-dom";
 import { ThemeToggle } from "../../theme/ThemeToggle";
-import { Getadminswitchaccount, selectHostelApi } from "../../utils/utils";
+import {
+  Getadminswitchaccount,
+  getAdminProfileApi,
+  getStaffByIdApi,
+  getStudentDashboardApi,
+  selectHostelApi,
+} from "../../utils/utils";
+
+const getFirstValue = (source, keys) => {
+  for (const key of keys) {
+    const value = key.split(".").reduce((acc, part) => acc?.[part], source);
+    if (value !== undefined && value !== null && String(value).trim()) {
+      return String(value).trim();
+    }
+  }
+  return "";
+};
 
 const Topbar = ({ onMenuClick }) => {
-  const { role, login, name } = useAuth(); // get role from context
+  const { role, login, userName, updateUserName } = useAuth(); // get role from context
   const [open, setOpen] = useState(false);
   const [showModal, setShowModal] = useState(false); // modal
   const [hostels, setHostels] = useState([]);
@@ -31,6 +47,63 @@ const Topbar = ({ onMenuClick }) => {
     document.addEventListener("click", handleClick);
     return () => document.removeEventListener("click", handleClick);
   }, []);
+
+  useEffect(() => {
+    const fetchProfileName = async () => {
+      if (!role || !sessionStorage.getItem("token")) return;
+
+      let displayName = "";
+
+      if (role === "admin") {
+        const response = await getAdminProfileApi();
+        displayName = getFirstValue(response?.data, [
+          "profile.name",
+          "profile.fullName",
+          "profile.adminName",
+          "data.name",
+          "data.fullName",
+          "data.adminName",
+          "name",
+          "fullName",
+          "adminName",
+        ]);
+      }
+
+      if (role === "student") {
+        const response = await getStudentDashboardApi();
+        displayName = getFirstValue(response?.data, [
+          "data.studentName",
+          "data.fullName",
+          "studentName",
+          "fullName",
+          "name",
+        ]);
+      }
+
+      if (role === "chef") {
+        const staffId =
+          sessionStorage.getItem("staffId") ||
+          sessionStorage.getItem("chefId") ||
+          sessionStorage.getItem("userId");
+
+        if (staffId) {
+          const response = await getStaffByIdApi(staffId);
+          displayName = getFirstValue(response?.data, [
+            "staff.fullName",
+            "staff.name",
+            "data.fullName",
+            "data.name",
+            "fullName",
+            "name",
+          ]);
+        }
+      }
+
+      if (displayName) updateUserName(displayName);
+    };
+
+    fetchProfileName();
+  }, [role, updateUserName]);
 
   const fetchHostelsForSwitch = async () => {
     if (!sessionStorage.getItem("token")) {
@@ -79,7 +152,7 @@ const Topbar = ({ onMenuClick }) => {
       const newToken = response?.data?.token;
       sessionStorage.setItem("hostelSelectionToken", selectionToken);
       sessionStorage.setItem("selectedHostel", String(hostelId));
-      login(role, newToken, name);
+      login(role, newToken, userName);
       setShowModal(false);
       navigate("/admin");
     } else {
@@ -145,7 +218,7 @@ const Topbar = ({ onMenuClick }) => {
           {/* TEXT */}
           <div className="text-right min-w-[120px]">
             <p className="text-sm font-semibold text-foreground leading-tight whitespace-nowrap">
-              {name || "User"}
+              {userName || "User"}
             </p>
             <p className="text-xs text-muted-foreground uppercase tracking-wide whitespace-nowrap">
               {role?.replace("-", " ") || "USER"}

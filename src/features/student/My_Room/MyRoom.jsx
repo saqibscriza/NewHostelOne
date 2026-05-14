@@ -3,7 +3,7 @@ import React, { useEffect, useState } from "react";
 import { Card, CardContent } from "../../../components/ui/Card";
 import { Button } from "../../../components/ui/button";
 
-import { Wifi, Snowflake, Bath, WashingMachine, BookOpen } from "lucide-react";
+import { Wifi, MapPin, Circle } from "lucide-react";
 
 import { getStudentMyRoomApi } from "../../../utils/utils";
 
@@ -38,6 +38,18 @@ export default function MyRoom() {
 
   useEffect(() => {
     StudentMyRoomApi();
+
+    const handleRefresh = () => {
+      if (!document.hidden) StudentMyRoomApi();
+    };
+
+    window.addEventListener("focus", handleRefresh);
+    window.addEventListener("storage", handleRefresh);
+
+    return () => {
+      window.removeEventListener("focus", handleRefresh);
+      window.removeEventListener("storage", handleRefresh);
+    };
   }, []);
 
   // ================= LOADER =================
@@ -51,11 +63,11 @@ export default function MyRoom() {
   }
 
   return (
-    <div className="p-6 space-y-6">
+    <div className="p-6 space-y-6 bg-background text-foreground">
       {/* HEADER */}
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-2xl font-semibold">My Room</h1>
+          <h1 className="text-3xl font-bold tracking-tight">My Room</h1>
 
           <p className="text-muted-foreground text-sm">
             Manage your living space and roommate details
@@ -67,119 +79,105 @@ export default function MyRoom() {
         </Button>
       </div>
 
-
-{/* TOP GRID */}
-<div className="grid lg:grid-cols-3 gap-6">
-  {/* ROOM DETAILS CARD */}
-  <Card className="lg:col-span-2 overflow-hidden">
-    <img
-      src="https://images.unsplash.com/photo-1560448204-e02f11c3d0e2"
-      className="h-52 w-full object-cover"
-    />
-
-    <CardContent className="p-5 space-y-4">
-      <div className="flex justify-between items-start">
-        <div>
-          <h2 className="text-xl font-bold">
-            Room{" "}
-            {roomData?.roomDetails?.roomNumber ||
-              "N/A"}
-          </h2>
-
-          <p className="text-sm text-muted-foreground">
-            Block / Floor:{" "}
-            {roomData?.roomDetails?.blockFloor ||
-              "N/A"}
-          </p>
-        </div>
-
-        <div className="bg-primary/10 text-primary px-3 py-1 rounded-full text-xs font-medium">
-          {roomData?.roomDetails?.status ||
-            "N/A"}
-        </div>
-      </div>
-
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
-        <Info
-          label="Category"
-          value={
-            roomData?.roomDetails?.category ||
-            "N/A"
-          }
-        />
-
-        <Info
-          label="Available Beds"
-          value={
-            roomData?.roomDetails
-              ?.availableBeds || 0
-          }
-        />
-
-        <Info
-          label="Total Beds"
-          value={
-            roomData?.roomDetails?.totalBeds ||
-            0
-          }
-        />
-
-        <Info
-          label="Room ID"
-          value={
-            roomData?.roomDetails?.roomId ||
-            "N/A"
-          }
-        />
-      </div>
-    </CardContent>
-  </Card>
-
-  {/* STUDENT CARD */}
-  <Card>
-    <CardContent className="p-5 flex flex-col items-center text-center gap-3">
-      <img
-        src={
-          roomData?.student?.photo ||
-          "https://randomuser.me/api/portraits/men/32.jpg"
-        }
-        className="w-20 h-20 rounded-full"
-      />
-
-      <h3 className="font-semibold">
-        {roomData?.student?.studentName ||
-          "N/A"}
-      </h3>
-
-      <p className="text-sm text-muted-foreground">
-        {roomData?.student?.course || "N/A"}
-      </p>
-
-      <p className="text-sm text-muted-foreground">
-        Year:{" "}
-        {roomData?.student?.year || "N/A"}
-      </p>
-
-      <p className="text-sm text-muted-foreground">
-        Phone:{" "}
-        {roomData?.student?.phone || "N/A"}
-      </p>
-
-      <p className="text-xs text-muted-foreground">
-        ID:{" "}
-        {roomData?.student?.studentId ||
-          "N/A"}
-      </p>
-    </CardContent>
-  </Card>
-</div>
-
-
-      {/* TOP GRID */}
       <div className="grid lg:grid-cols-3 gap-6">
-      
+        {/* ROOM DETAILS CARD */}
+        <Card className="lg:col-span-2 overflow-hidden rounded-xl border-border shadow-sm">
+          <div className="relative h-80 overflow-hidden">
+            <img
+              src="https://images.unsplash.com/photo-1595526114035-0d45ed16cfbf?auto=format&fit=crop&w=1200&q=80"
+              alt="Hostel room"
+              className="h-full w-full object-cover"
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent" />
+            <div className="absolute left-6 top-5 rounded-full bg-slate-950 px-4 py-1.5 text-xs font-bold uppercase tracking-wide text-white">
+              Active Stay
+            </div>
+            <div className="absolute bottom-6 left-6 text-white">
+              <h2 className="text-4xl font-bold tracking-tight">
+                {roomData?.roomDetails?.roomNumber || "Room N/A"}
+              </h2>
+              <p className="mt-2 flex items-center gap-1 text-sm font-medium text-white/90">
+                <MapPin className="h-4 w-4" />
+                {roomData?.roomDetails?.category || "Category N/A"}
+                {roomData?.roomDetails?.blockFloor
+                  ? `, ${roomData.roomDetails.blockFloor}`
+                  : ""}
+              </p>
+            </div>
+          </div>
 
-        {/* ROOMMATE */}
+          <CardContent className="grid grid-cols-2 gap-6 p-6 md:grid-cols-4">
+            <Info
+              label="Floor"
+              value={roomData?.roomDetails?.blockFloor || "N/A"}
+            />
+            <Info
+              label="Type"
+              value={roomData?.roomDetails?.category || "N/A"}
+            />
+            <Info
+              label="Check-in"
+              value={formatDate(
+                roomData?.student?.joiningDate ||
+                  roomData?.student?.dateOfJoining ||
+                  roomData?.joiningDate ||
+                  roomData?.dateOfJoining,
+              )}
+            />
+            <Info
+              label="Status"
+              value={
+                <span className="inline-flex items-center gap-2">
+                  <Circle className="h-2.5 w-2.5 fill-slate-950 text-slate-950" />
+                  {formatStatus(roomData?.roomDetails?.status)}
+                </span>
+              }
+            />
+          </CardContent>
+        </Card>
+
+        {/* STUDENT CARD */}
+        <Card className="rounded-xl border-border shadow-sm">
+          <CardContent className="p-6 flex flex-col items-center text-center gap-3">
+            <img
+              src={
+                roomData?.student?.photo ||
+                "https://randomuser.me/api/portraits/men/32.jpg"
+              }
+              alt={roomData?.student?.studentName || "Student"}
+              className="w-24 h-24 rounded-full object-cover border border-border"
+            />
+
+            <h3 className="font-semibold text-lg">
+              {roomData?.student?.studentName || "N/A"}
+            </h3>
+
+            <p className="text-sm text-muted-foreground">
+              {roomData?.student?.course || "N/A"}
+            </p>
+
+            <div className="grid w-full grid-cols-2 gap-3 pt-3 text-left">
+              <Info
+                label="Student ID"
+                value={roomData?.student?.studentId || "N/A"}
+              />
+              <Info label="Year" value={roomData?.student?.year || "N/A"} />
+              <Info label="Phone" value={roomData?.student?.phone || "N/A"} />
+              <Info
+                label="Room ID"
+                value={roomData?.roomDetails?.roomId || "N/A"}
+              />
+              <Info
+                label="Total Beds"
+                value={roomData?.roomDetails?.totalBeds ?? 0}
+              />
+              <Info
+                label="Available Beds"
+                value={roomData?.roomDetails?.availableBeds ?? 0}
+              />
+            </div>
+          </CardContent>
+        </Card>
       </div>
 
       {/* AMENITIES */}
@@ -243,11 +241,32 @@ export default function MyRoom() {
 
 const Info = ({ label, value }) => (
   <div>
-    <p className="text-muted-foreground text-xs">{label}</p>
+    <p className="text-muted-foreground text-xs font-bold uppercase tracking-[0.16em]">
+      {label}
+    </p>
 
-    <p className="font-medium">{value}</p>
+    <p className="mt-2 font-semibold text-foreground">{value}</p>
   </div>
 );
+
+const formatStatus = (status) => {
+  if (!status) return "N/A";
+  return String(status)
+    .replaceAll("_", " ")
+    .toLowerCase()
+    .replace(/\b\w/g, (c) => c.toUpperCase());
+};
+
+const formatDate = (date) => {
+  if (!date) return "N/A";
+  const parsed = new Date(date);
+  if (Number.isNaN(parsed.getTime())) return date;
+  return parsed.toLocaleDateString("en-US", {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+  });
+};
 
 const Amenity = ({ icon: Icon, text }) => (
   <div className="bg-muted p-4 rounded-lg flex flex-col items-center text-center gap-2">

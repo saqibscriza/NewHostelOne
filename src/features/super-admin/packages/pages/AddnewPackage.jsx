@@ -9,6 +9,7 @@ import { Loader2 } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { AddPackage } from "../../../../utils/utils";
 import { ArrowLeft } from "lucide-react";
+import { toast } from "react-hot-toast";
 
 export default function AddNewPackage() {
   const navigate = useNavigate();
@@ -55,7 +56,8 @@ export default function AddNewPackage() {
       console.log("my post response is here...", response);
 
       if (response?.data?.status === "success") {
-        // toast.success(response?.data?.message);
+        toast.success(response?.data?.message || "Package created successfully");
+        navigate("/superadmin/packages");
         // setLoaderCheck(false);
         // setTimeout(() => {
         //   navigate("/vendormanagement");
@@ -89,6 +91,7 @@ export default function AddNewPackage() {
           </p>
         </div>
         <Button
+          type="button"
           onClick={() => navigate("/superadmin/packages")}
           className="bg-primary text-primary-foreground hover:opacity-90"
         >
@@ -134,12 +137,21 @@ export default function AddNewPackage() {
               <label className="text-xs text-muted-foreground">
                 Monthly Price (₹)
               </label>
-              <Input
-                type="number"
-                {...register("monthlyPrice", {
-                  required: "Monthly price required",
-                })}
-              />
+            <Input
+              inputMode="numeric"
+              {...register("monthlyPrice", {
+                required: "Monthly price required",
+                pattern: {
+                  value: /^\d+$/,
+                  message: "Only numbers are allowed",
+                },
+                min: {
+                  value: 0,
+                  message: "Monthly price cannot be negative",
+                },
+              })}
+              className={errors.monthlyPrice ? "border-destructive" : ""}
+            />
               {errors.monthlyPrice && (
                 <p className="text-xs text-destructive">
                   {errors.monthlyPrice.message}
@@ -151,11 +163,20 @@ export default function AddNewPackage() {
               <label className="text-xs text-muted-foreground">
                 Annual Price (₹)
               </label>
-              <Input
-                type="number"
+            <Input
+                inputMode="numeric"
                 {...register("annualPrice", {
                   required: "Annual price required",
+                  pattern: {
+                    value: /^\d+$/,
+                    message: "Only numbers are allowed",
+                  },
+                  min: {
+                    value: 0,
+                    message: "Annual price cannot be negative",
+                  },
                 })}
+                className={errors.annualPrice ? "border-destructive" : ""}
               />
               {errors.annualPrice && (
                 <p className="text-xs text-destructive">
@@ -178,21 +199,49 @@ export default function AddNewPackage() {
             <div>
               <label className="text-xs text-muted-foreground">Max Beds</label>
               <Input
-                type="number"
+                inputMode="numeric"
                 {...register("maxBeds", {
                   required: "Max beds required",
+                  pattern: {
+                    value: /^\d+$/,
+                    message: "Only numbers are allowed",
+                  },
+                  min: {
+                    value: 1,
+                    message: "Max beds must be at least 1",
+                  },
                 })}
+                className={errors.maxBeds ? "border-destructive" : ""}
               />
+              {errors.maxBeds && (
+                <p className="mt-1 text-xs text-destructive">
+                  {errors.maxBeds.message}
+                </p>
+              )}
             </div>
 
             <div>
               <label className="text-xs text-muted-foreground">Max Staff</label>
               <Input
-                type="number"
+                inputMode="numeric"
                 {...register("maxStaff", {
                   required: "Max staff required",
+                  pattern: {
+                    value: /^\d+$/,
+                    message: "Only numbers are allowed",
+                  },
+                  min: {
+                    value: 1,
+                    message: "Max staff must be at least 1",
+                  },
                 })}
+                className={errors.maxStaff ? "border-destructive" : ""}
               />
+              {errors.maxStaff && (
+                <p className="mt-1 text-xs text-destructive">
+                  {errors.maxStaff.message}
+                </p>
+              )}
             </div>
           </div>
         </CardContent>
@@ -207,8 +256,8 @@ export default function AddNewPackage() {
 
           <div className="grid grid-cols-2 gap-3">
             {[
-              { key: "INVENTORY_MANAGEMENT", label: "MESS" },
-              { key: "INVENTORY_MANAGEMENT", label: "CANTEEN" },
+              { key: "MESS", label: "MESS" },
+              { key: "CANTEEN", label: "CANTEEN" },
             ].map((feature) => (
               <label key={feature.key} className="flex items-center gap-2">
                 <Checkbox
@@ -235,6 +284,7 @@ export default function AddNewPackage() {
               {["NONE", "MOST POPULAR", "NEW"].map((b) => (
                 <button
                   key={b}
+                  type="button"
                   onClick={() => setBadge(b)}
                   className={`px-3 py-1 text-xs border rounded-full ${
                     badge === b
@@ -257,6 +307,7 @@ export default function AddNewPackage() {
             </h2>
 
             <button
+              type="button"
               onClick={() => setStatus(!status)}
               className={`w-12 h-6 rounded-full ${
                 status ? "bg-primary" : "bg-muted"
@@ -279,8 +330,6 @@ export default function AddNewPackage() {
         </Button> */}
 
         <Button
-          // onClick={handleSubmit(onSubmit)}
-          onClick={() => navigate("/superadmin/packages ")}
           disabled={loading}
           type="submit"
           className="flex items-center gap-2"

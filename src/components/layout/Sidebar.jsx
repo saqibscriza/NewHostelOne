@@ -12,13 +12,13 @@ const Sidebar = ({ menu = [], onItemClick }) => {
   const location = useLocation();
   const { logout, role } = useAuth();
 
-    const [openMenu, setOpenMenu] = useState(() => {
+  const [openMenu, setOpenMenu] = useState(() => {
     const activeItem = menu.find(
       (item) =>
         item.children &&
         item.children.some(
-           (child) => location.pathname === `/${role}${child.path}` || location.pathname.startsWith(`/${role}${child.path}/`)
-        )
+          (child) => location.pathname === `/${role}${child.path}`,
+        ),
     );
     return activeItem ? activeItem.name : null;
   });
@@ -29,13 +29,12 @@ const Sidebar = ({ menu = [], onItemClick }) => {
 
   return (
     <div className="flex h-full w-64 flex-col border-r border-border bg-background">
-      
       {/* Logo */}
       <div className="flex h-16 items-center border-b border-border px-4">
         <img src={Logo} alt="Logo" className="w-44 mt-3 object-contain" />
       </div>
 
-        {/* Menu */}
+      {/* Menu */}
       <nav className="flex-1 p-3 space-y-1">
         {menu.map((item) => {
           const Icon = item.icon;
@@ -44,22 +43,23 @@ const Sidebar = ({ menu = [], onItemClick }) => {
             item.path === "/" ? `/${role}` : `/${role}${item.path}`;
           const hasChildren = item.children;
           const isActive =
-           location.pathname === fullPath ||
-            (fullPath !== `/${role}` && location.pathname.startsWith(fullPath + '/')) ||
+            location.pathname === fullPath ||
+            (fullPath !== `/${role}` &&
+              location.pathname.startsWith(fullPath + "/")) ||
             (hasChildren &&
               item.children.some(
-                 (child) => location.pathname === `/${role}${child.path}` || location.pathname.startsWith(`/${role}${child.path}/`)
+                (child) => location.pathname === `/${role}${child.path}`,
               ));
 
           return (
             <div key={item.name}>
-              
               {/* Parent Item */}
               <div
                 onClick={() => {
                   if (hasChildren) {
                     toggleMenu(item.name);
                   }
+                  onItemClick?.();
                   navigate(fullPath);
                 }}
                 className={`flex items-center justify-between gap-3 rounded-lg px-3 py-2.5 text-sm font-medium cursor-pointer transition
@@ -88,13 +88,13 @@ const Sidebar = ({ menu = [], onItemClick }) => {
                 <div className="ml-8 mt-1 space-y-1">
                   {item.children.map((child) => {
                     const childPath = `/${role}${child.path}`;
-                    const isChildActive = location.pathname === childPath || location.pathname.startsWith(childPath + '/');
-
+                    const isChildActive = location.pathname === childPath;
 
                     return (
                       <NavLink
                         key={child.name}
                         to={childPath}
+                        onClick={onItemClick}
                         className={`block text-sm px-3 py-2 rounded-md transition
                           ${
                             isChildActive

@@ -24,6 +24,7 @@ export default function AddStudent() {
   const [form, setForm] = useState({});
   const [files, setFiles] = useState({});
   const [loading, setLoading] = useState(false);
+  const [errors, setErrors] = useState({});
 
   // ✅ added
   const [roomOptions, setRoomOptions] = useState([]);
@@ -58,6 +59,7 @@ export default function AddStudent() {
 
   const handleChange = (key, value) => {
     setForm((prev) => ({ ...prev, [key]: value }));
+    setErrors((prev) => ({ ...prev, [key]: "" }));
   };
 
   const handleFile = (key, file) => {
@@ -104,6 +106,30 @@ export default function AddStudent() {
   };
 
   const handleSubmit = async () => {
+    const nextErrors = {};
+    if (!form.fullName?.trim()) nextErrors.fullName = "Full name is required";
+    if (!form.dob) nextErrors.dob = "Date of birth is required";
+    if (!form.gender) nextErrors.gender = "Please select gender";
+    if (!form.course?.trim()) nextErrors.course = "Course is required";
+    if (!form.year) nextErrors.year = "Year is required";
+    if (!form.email?.trim()) nextErrors.email = "Email is required";
+    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) {
+      nextErrors.email = "Enter a valid email address";
+    }
+    if (!/^\d{10}$/.test(form.phone || "")) {
+      nextErrors.phone = "Enter a valid 10 digit phone number";
+    }
+    if (!form.guardianName?.trim()) {
+      nextErrors.guardianName = "Guardian name is required";
+    }
+    if (!/^\d{10}$/.test(form.emergencyContact || "")) {
+      nextErrors.emergencyContact = "Enter a valid 10 digit contact number";
+    }
+    if (!form.roomId) nextErrors.roomId = "Please select room";
+
+    setErrors(nextErrors);
+    if (Object.keys(nextErrors).length > 0) return;
+
     setLoading(true);
 
     const formData = new FormData();
@@ -199,15 +225,24 @@ export default function AddStudent() {
 
                   handleChange("fullName", value);
                 }}
+                className={errors.fullName ? "border-destructive" : ""}
               />
+              {errors.fullName && (
+                <p className="text-xs text-destructive">{errors.fullName}</p>
+              )}
             </Field>
 
             <div className="grid grid-cols-2 gap-4">
               <Field label="Date of Birth">
                 <Input
                   type="date"
+                  value={form.dob || ""}
                   onChange={(e) => handleChange("dob", e.target.value)}
+                  className={errors.dob ? "border-destructive" : ""}
                 />
+                {errors.dob && (
+                  <p className="text-xs text-destructive">{errors.dob}</p>
+                )}
               </Field>
 
               <Field label="Gender">
@@ -243,6 +278,9 @@ export default function AddStudent() {
         <div className="grid grid-cols-2 gap-4">
           <Field label="Course">
             <Input onChange={(e) => handleChange("course", e.target.value)} />
+            {errors.course && (
+              <p className="text-xs text-destructive">{errors.course}</p>
+            )}
           </Field>
 
           <Field label="Year">
@@ -265,7 +303,11 @@ export default function AddStudent() {
 
                 handleChange("year", value);
               }}
+              className={errors.year ? "border-destructive" : ""}
             />
+            {errors.year && (
+              <p className="text-xs text-destructive">{errors.year}</p>
+            )}
           </Field>
 
           <Field label="Email">
@@ -274,7 +316,11 @@ export default function AddStudent() {
               placeholder="Enter Email"
               value={form.email || ""}
               onChange={(e) => handleChange("email", e.target.value.trim())}
+              className={errors.email ? "border-destructive" : ""}
             />
+            {errors.email && (
+              <p className="text-xs text-destructive">{errors.email}</p>
+            )}
           </Field>
 
           <Field label="Phone">
@@ -296,7 +342,11 @@ export default function AddStudent() {
 
                 handleChange("phone", value);
               }}
+              className={errors.phone ? "border-destructive" : ""}
             />
+            {errors.phone && (
+              <p className="text-xs text-destructive">{errors.phone}</p>
+            )}
           </Field>
         </div>
       </Section>
@@ -315,7 +365,11 @@ export default function AddStudent() {
 
                 handleChange("guardianName", value);
               }}
+              className={errors.guardianName ? "border-destructive" : ""}
             />
+            {errors.guardianName && (
+              <p className="text-xs text-destructive">{errors.guardianName}</p>
+            )}
           </Field>
 
           <Field label="Relationship">
@@ -341,7 +395,13 @@ export default function AddStudent() {
 
                 handleChange("emergencyContact", value);
               }}
+              className={errors.emergencyContact ? "border-destructive" : ""}
             />
+            {errors.emergencyContact && (
+              <p className="text-xs text-destructive">
+                {errors.emergencyContact}
+              </p>
+            )}
           </Field>
         </div>
       </Section>
@@ -390,6 +450,9 @@ export default function AddStudent() {
                 ))}
               </SelectContent>
             </Select>
+            {errors.roomId && (
+              <p className="text-xs text-destructive">{errors.roomId}</p>
+            )}
           </Field>
         </div>
       </Section>

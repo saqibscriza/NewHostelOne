@@ -167,7 +167,7 @@ export default function MenuPlanner() {
   const [loadingWeek, setLoadingWeek] = useState(false);
   const [loadingDay, setLoadingDay] = useState(false);
 
-  const fetchFullWeek = async () => {
+  const fetchFullWeek = async (preferredDate = "") => {
     setLoadingWeek(true);
     try {
       const response = await getMessMenuFullWeekApi();
@@ -212,8 +212,15 @@ export default function MenuPlanner() {
 
       // Auto-select today if in the week, else select first day
       const todayLocal = toLocalDateString(new Date());
+      const preferredInWeek = finalWeek.find((d) => d.localDate === preferredDate);
       const todayInWeek = finalWeek.find((d) => d.localDate === todayLocal);
-      setSelectedDate(todayInWeek ? todayLocal : finalWeek[0]?.localDate || "");
+      setSelectedDate(
+        preferredInWeek
+          ? preferredDate
+          : todayInWeek
+            ? todayLocal
+            : finalWeek[0]?.localDate || "",
+      );
     } catch (error) {
       console.log("fetchFullWeek error 👉", error);
       toast.error("Failed to load weekly menu");
@@ -254,9 +261,10 @@ export default function MenuPlanner() {
     return (
       <AddMenuPlanner
         onCancel={() => setView("planner")}
-        onSuccess={() => {
+        onSuccess={(createdDate) => {
           setView("planner");
-          fetchFullWeek();
+          fetchFullWeek(createdDate);
+          fetchDayMenu(createdDate);
         }}
       />
     );
@@ -398,6 +406,7 @@ function AddMenuPlanner({ onCancel, onSuccess }) {
       const response = await addMessPlannerApi({
         mainCourse: data.mainCourse,
         date: data.date,
+        dayName: getDayNameFromDate(data.date)?.toUpperCase(),
         mealType: data.mealType,
       });
       if (response?.data?.status === "success") {
@@ -405,7 +414,7 @@ function AddMenuPlanner({ onCancel, onSuccess }) {
         reset();
         setTimeout(() => {
           setLoaderCheck(false);
-          onSuccess?.();
+          onSuccess?.(data.date);
         }, 1500);
       } else {
         toast.error(response?.data?.message || "Failed to create menu");

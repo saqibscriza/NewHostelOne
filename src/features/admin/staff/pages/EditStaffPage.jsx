@@ -5,7 +5,6 @@ import { useNavigate, useParams } from "react-router-dom";
 import { updateStaffApi } from "../../../../utils/utils";
 import { getStaffByIdApi } from "../../../../utils/utils";
 import { getAllRoleApi } from "../../../../utils/utils";
-
 import {
   User,
   Briefcase,
@@ -211,7 +210,6 @@ export default function UpdateStaff() {
               </div>
             </div>
 
-
             {/* Date of Birth Field */}
             <div className="space-y-2">
               <Label className="text-sm font-medium text-slate-700">
@@ -231,9 +229,7 @@ export default function UpdateStaff() {
                 />
               </div>
               {errors?.dob && (
-                <p className="text-sm text-red-500">
-                  {errors.dob.message}
-                </p>
+                <p className="text-sm text-red-500">{errors.dob.message}</p>
               )}
             </div>
 

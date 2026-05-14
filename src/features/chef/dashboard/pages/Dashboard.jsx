@@ -365,7 +365,7 @@ export default function Dashboard() {
               </div>
 
               <Button
-                onClick={() => navigate(" /chef/inventory/category")}
+                onClick={() => navigate("/chef/inventory/details/add")}
                 className="mt-6 h-11 w-full rounded-xl text-sm font-semibold shadow-sm"
               >
                 Add Inventory

@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from "react";
 import { X, Pencil } from "lucide-react";
-import * as Icons from "lucide-react";
 import AddAmenityModal from "./AddAmenityModal";
 import UpdateAmenityModal from "./UpdateAmenityModal";
 import {
@@ -22,9 +21,7 @@ const RoomsAddCategoryModal = ({ isOpen, onClose }) => {
   const [occupancyId, setOccupancyId] = useState("");
   const [monthlyRent, setMonthlyRent] = useState("");
   const [description, setDescription] = useState("");
-  const [categoryImage, setCategoryImage] = useState(null);
   const [occupancyList, setOccupancyList] = useState([]);
-  const [categories, setCategories] = useState([]);
   const [errors, setErrors] = useState({
     categoryName: "",
     occupancyId: "",
@@ -228,6 +225,33 @@ const RoomsAddCategoryModal = ({ isOpen, onClose }) => {
           <div className="grid grid-cols-2 gap-4 mt-6">
             <div>
               <label className="text-sm text-muted-foreground">
+                Category Name
+              </label>
+
+              {errors.categoryName && (
+                <p className="text-red-500 text-xs mb-1">
+                  {errors.categoryName}
+                </p>
+              )}
+
+              <input
+                value={categoryName}
+                onChange={(e) => {
+                  setCategoryName(e.target.value);
+                  setErrors((prev) => ({
+                    ...prev,
+                    categoryName: "",
+                  }));
+                }}
+                className={`mt-1 w-full rounded-md px-3 py-2 border ${
+                  errors.categoryName ? "border-red-500" : "border-border"
+                } bg-background`}
+                placeholder="e.g. Deluxe Room"
+              />
+            </div>
+
+            <div>
+              <label className="text-sm text-muted-foreground">
                 Occupancy Type
               </label>
 
@@ -261,25 +285,6 @@ const RoomsAddCategoryModal = ({ isOpen, onClose }) => {
               </select>
             </div>
 
-            <div>
-              <label className="text-sm text-muted-foreground">
-                Occupancy Type
-              </label>
-
-              <select
-                value={occupancyId}
-                onChange={(e) => setOccupancyId(e.target.value)}
-                className="mt-1 w-full border border-border bg-background rounded-md px-3 py-2"
-              >
-                <option value="">Select</option>
-
-                {occupancyList?.map((item) => (
-                  <option key={item.id} value={item.id}>
-                    {item.occupancyName}
-                  </option>
-                ))}
-              </select>
-            </div>
             <div>
               <label className="text-sm text-muted-foreground">
                 Monthly Rent per Bed (₹)
@@ -353,8 +358,8 @@ const RoomsAddCategoryModal = ({ isOpen, onClose }) => {
                     className={`cursor-pointer flex flex-col items-center justify-center w-28 h-20 rounded-xl transition relative
                       ${
                         isSelected
-                          ? "bg-muted border-2 border-black"
-                          : "bg-background border border-transparent hover:bg-muted"
+                          ? "border border-primary bg-primary/10 text-primary"
+                          : "border border-border bg-background text-muted-foreground hover:bg-muted"
                       }`}
                   >
                     <button
@@ -392,7 +397,7 @@ const RoomsAddCategoryModal = ({ isOpen, onClose }) => {
                       />
                     </div>
 
-                    <span className="text-xs mt-1 text-muted-foreground">
+                    <span className="text-xs mt-1">
                       {item.name}
                     </span>
                   </div>

@@ -49,7 +49,8 @@ export default function Login() {
           super_admin: "superadmin",
           admin: "admin",
           user: "user",
-          student:"student"
+          student: "student",
+          chef: "chef",
         };
 
         userRole =
@@ -72,11 +73,22 @@ export default function Login() {
 
     // 🔥 THEN HANDLE SUCCESS
     if (status === "success") {
+      const staffId =
+        response.data.staffId ||
+        response.data.chefId ||
+        response.data.userId ||
+        response.data.id;
+
+      if (userRole === "chef" && staffId) {
+        sessionStorage.setItem("staffId", staffId);
+      }
+
       login(userRole, token, name);
 
       if (userRole === "superadmin") navigate("/superadmin");
       else if (userRole === "admin") navigate("/admin");
       else if (userRole === "student") navigate("/student");
+      else if (userRole === "chef") navigate("/chef");
       else navigate("/user");
 
       return;

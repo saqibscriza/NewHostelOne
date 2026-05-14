@@ -13,12 +13,7 @@ const AddOccupancyModal = ({ isOpen, onClose }) => {
   const [occupancies, setOccupancies] = useState([]); // always array
   const [editIndex, setEditIndex] = useState(null);
   const [editValue, setEditValue] = useState("");
-
-  useEffect(() => {
-    if (isOpen) {
-      fetchOccupancy();
-    }
-  }, [isOpen]);
+  const [error, setError] = useState("");
 
   const fetchOccupancy = async () => {
     try {
@@ -34,8 +29,21 @@ const AddOccupancyModal = ({ isOpen, onClose }) => {
     }
   };
 
+  useEffect(() => {
+    if (isOpen) {
+      fetchOccupancy();
+    }
+  }, [isOpen]);
+
   const handleAdd = async () => {
-    if (!occupancyName.trim()) return;
+    if (!occupancyName.trim()) {
+      setError("Occupancy name is required");
+      return;
+    }
+    if (!/^[a-zA-Z0-9\s-]+$/.test(occupancyName)) {
+      setError("Use only letters, numbers, spaces, and hyphens");
+      return;
+    }
 
     const formData = new FormData();
     formData.append("occupancyName", occupancyName);
@@ -122,9 +130,14 @@ const AddOccupancyModal = ({ isOpen, onClose }) => {
         <div className="flex gap-3 mt-6">
           <input
             value={occupancyName}
-            onChange={(e) => setOccupancyName(e.target.value)}
+            onChange={(e) => {
+              setOccupancyName(e.target.value);
+              setError("");
+            }}
             placeholder="Enter Occupancy Name"
-            className="flex-1 border border-border bg-background rounded-md px-3 py-2"
+            className={`flex-1 rounded-md border bg-background px-3 py-2 ${
+              error ? "border-destructive" : "border-border"
+            }`}
           />
 
           <button
@@ -141,6 +154,7 @@ const AddOccupancyModal = ({ isOpen, onClose }) => {
             Cancel
           </button>
         </div>
+        {error && <p className="mt-2 text-xs text-destructive">{error}</p>}
 
         <div className="mt-6 border border-border rounded-xl overflow-hidden">
           <div className="grid grid-cols-2 bg-muted px-4 py-2 text-xs font-semibold text-muted-foreground">

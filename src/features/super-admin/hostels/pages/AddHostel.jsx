@@ -268,6 +268,10 @@ export default function AddHostel() {
                   placeholder="e.g. Green Valley Residency"
                   {...register("hostelName", {
                     required: "Hostel name is required",
+                    minLength: {
+                      value: 3,
+                      message: "Hostel name must be at least 3 characters",
+                    },
                   })}
                 />
                 {errors.hostelName && (
@@ -325,9 +329,13 @@ export default function AddHostel() {
                   <Input
                     className="h-11"
                     placeholder="Enter Contact Number"
-                    {...register("contactNumber", {
-                      required: "Contact number is required",
-                    })}
+                  {...register("contactNumber", {
+                    required: "Contact number is required",
+                    pattern: {
+                      value: /^\d{10}$/,
+                      message: "Enter a valid 10 digit contact number",
+                    },
+                  })}
                   />
                   {errors.contactNumber && (
                     <p className="text-xs text-red-500">
@@ -341,9 +349,13 @@ export default function AddHostel() {
                   <Input
                     className="h-11"
                     placeholder="Enter Alternate Contact Number"
-                    {...register("alternateContactNumber", {
-                      required: "Alternate contact number is required",
-                    })}
+                  {...register("alternateContactNumber", {
+                    required: "Alternate contact number is required",
+                    pattern: {
+                      value: /^\d{10}$/,
+                      message: "Enter a valid 10 digit contact number",
+                    },
+                  })}
                   />
                   {errors.alternateContactNumber && (
                     <p className="text-xs text-red-500">
@@ -378,9 +390,13 @@ export default function AddHostel() {
                   <Input
                     className="h-11"
                     placeholder="Enter Pin Code"
-                    {...register("pinCode", {
-                      required: "Pin code is required",
-                    })}
+                  {...register("pinCode", {
+                    required: "Pin code is required",
+                    pattern: {
+                      value: /^\d{6}$/,
+                      message: "Enter a valid 6 digit pin code",
+                    },
+                  })}
                   />
                   {errors.pinCode && (
                     <p className="text-xs text-red-500">
@@ -506,6 +522,10 @@ export default function AddHostel() {
                   {...register("adminName", {
                     required:
                       activeTab === "new" ? "Admin name is required" : false,
+                    pattern: {
+                      value: /^[a-zA-Z\s]+$/,
+                      message: "Admin name should contain only letters",
+                    },
                   })}
                 />
                 {errors.adminName && (
@@ -524,6 +544,10 @@ export default function AddHostel() {
                     {...register("adminEmail", {
                       required:
                         activeTab === "new" ? "Admin email is required" : false,
+                      pattern: {
+                        value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+                        message: "Enter a valid email address",
+                      },
                     })}
                   />
                   {errors.adminEmail && (
@@ -541,6 +565,10 @@ export default function AddHostel() {
                     {...register("adminPhone", {
                       required:
                         activeTab === "new" ? "Admin phone is required" : false,
+                      pattern: {
+                        value: /^\d{10}$/,
+                        message: "Enter a valid 10 digit phone number",
+                      },
                     })}
                   />
                   {errors.adminPhone && (
@@ -581,6 +609,10 @@ export default function AddHostel() {
                         activeTab === "new"
                           ? "Admin pin code is required"
                           : false,
+                      pattern: {
+                        value: /^\d{6}$/,
+                        message: "Enter a valid 6 digit pin code",
+                      },
                     })}
                   />
                   {errors.adminPinCode && (
@@ -739,7 +771,7 @@ export default function AddHostel() {
           <Button
             type="submit"
             disabled={loaderCheck}
-            className="bg-black text-white hover:opacity-90"
+            className="bg-primary text-primary-foreground hover:bg-primary/90"
           >
             {loaderCheck ? "Creating..." : "Complete Registration"}
           </Button>

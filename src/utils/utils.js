@@ -365,7 +365,7 @@ export const deleteStaffApi = async (id) => {
 
 export const getStaffByIdApi = async (id) => {
   try {
-    axios.defaults.headers.common["Authorization"] = token;
+    axios.defaults.headers.common["Authorization"] = getToken();
     var res = await axios.get(`${Domain}/staff/getById/${id}`);
     if (res) {
       return res;
@@ -1698,7 +1698,7 @@ export const getDashboardAdminApi = async () => {
 
 export const getAdminProfileApi = async () => {
   try {
-    axios.defaults.headers.common["Authorization"] = token;
+    axios.defaults.headers.common["Authorization"] = getToken();
 
     const res = await axios.get(`${Domain}/admin/profile`);
 
@@ -1886,7 +1886,7 @@ export const getStudentMyRoomApi = async () => {
 
 export const getStudentDashboardApi = async () => {
   try {
-    axios.defaults.headers.common["Authorization"] = token;
+    axios.defaults.headers.common["Authorization"] = getToken();
 
     const res = await axios.get(`${Domain}/student/dashboard`);
 
@@ -1910,34 +1910,38 @@ export const getStudentDashboardApi = async () => {
 // Chef Add menu planner POST api
 
 export const addMessPlannerApi = async (data) => {
-  try {
-    axios.defaults.headers.common["Authorization"] = token;
+  const endpoints = ["/messMenu/addPlanner", "/messMenu/planner/add"];
 
-    var res = await axios.post(
-      `${Domain}/messMenu/addPlanner`,
-      {},
-      {
-        params: data,
-      },
-    );
+  let lastResponse = null;
 
-    if (res) {
-      return res;
-    } else {
-      return [];
+  for (const endpoint of endpoints) {
+    try {
+      const res = await axios.post(
+        `${Domain}${endpoint}`,
+        {},
+        {
+          headers: { Authorization: getToken() },
+          params: data,
+        },
+      );
+
+      return res || [];
+    } catch (error) {
+      lastResponse = error?.response;
+      if (error?.response?.status !== 404) {
+        return error?.response;
+      }
     }
-  } catch (error) {
-    return error?.response;
   }
+
+  return lastResponse || [];
 };
 
 export const getMessMenuFullWeekApi = async () => {
   try {
-    const token = sessionStorage.getItem("token");
-
     const res = await axios.get(`${Domain}/messMenu/getFullWeek`, {
       headers: {
-        Authorization: `Bearer ${token}`,
+        Authorization: getToken(),
       },
     });
 
@@ -1953,7 +1957,7 @@ export const getMessMenuFullWeekApi = async () => {
 // GET TODAY / TOMORROW MENU
 export const getTodayMessMenuApi = async (dayName) => {
   try {
-    axios.defaults.headers.common["Authorization"] = token;
+    axios.defaults.headers.common["Authorization"] = getToken();
 
     const res = await axios.get(`${Domain}/messMenu/getByDay`, {
       params: {
@@ -1976,7 +1980,7 @@ export const getTodayMessMenuApi = async (dayName) => {
 // GET FULL WEEK MENU
 export const getFullWeekMessMenuApi = async () => {
   try {
-    axios.defaults.headers.common["Authorization"] = token;
+    axios.defaults.headers.common["Authorization"] = getToken();
 
     const res = await axios.get(`${Domain}/messMenu/getFullWeek`);
 
@@ -1996,11 +2000,9 @@ export const getFullWeekMessMenuApi = async () => {
 
 export const getMessMenuByDateApi = async (date) => {
   try {
-    const token = sessionStorage.getItem("token");
-
     const res = await axios.get(`${Domain}/messMenu/planner/getByDate`, {
       headers: {
-        Authorization: `Bearer ${token}`,
+        Authorization: getToken(),
       },
       params: {
         date,
@@ -2018,12 +2020,11 @@ export const getMessMenuByDateApi = async (date) => {
 
 export const updateMessPlannerApi = async (data) => {
   try {
-    const token = sessionStorage.getItem("token");
     const res = await axios.put(
       `${Domain}/messMenu/planner/update`,
       {},
       {
-        headers: { Authorization: `Bearer ${token}` },
+        headers: { Authorization: getToken() },
         params: data,
       },
     );
@@ -2098,7 +2099,7 @@ export const getDashboardStatsApi = async () => {
 
 export const getAllMessFeedbackApi = async () => {
   try {
-    axios.defaults.headers.common["Authorization"] = token;
+    axios.defaults.headers.common["Authorization"] = getToken();
 
     const res = await axios.get(`${Domain}/messDetails/getAllFeedback`);
 
@@ -2106,4 +2107,39 @@ export const getAllMessFeedbackApi = async () => {
   } catch (error) {
     return [];
   }
+};
+
+export const addMessFeedbackApi = async (data) => {
+  const endpoints = [
+    "/messDetails/addFeedback",
+    "/messDetails/add",
+    "/messDetails/feedback/add",
+    "/messDetails/createFeedback",
+    "/messDetails/rateMeal",
+    "/messDetails/addRating",
+    "/messFeedback/addFeedback",
+    "/messFeedback/add",
+  ];
+
+  let lastError = null;
+
+  for (const endpoint of endpoints) {
+    try {
+      const res = await axios.post(`${Domain}${endpoint}`, null, {
+        headers: { Authorization: getToken() },
+        params: data,
+      });
+
+      return res;
+    } catch (error) {
+      lastError = error;
+      if (error?.response?.status !== 404) {
+        console.log("ADD MESS FEEDBACK ERROR 👉", error);
+        return error?.response || [];
+      }
+    }
+  }
+
+  console.log("ADD MESS FEEDBACK ERROR 👉", lastError);
+  return lastError?.response || [];
 };

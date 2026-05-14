@@ -144,16 +144,12 @@ export default function NoticesPage() {
                   </p>
                 </div>
 
-<div className="flex items-center gap-2 text-sm text-muted-foreground">
-  <CalendarDays className="h-4 w-4" />
-  <span>
-    {new Date(notice.createdAt).toLocaleDateString("en-IN")} •{" "}
-    {new Date(notice.createdAt).toLocaleTimeString("en-IN", {
-      hour: "2-digit",
-      minute: "2-digit",
-    })}
-  </span>
-</div>
+                <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                  <CalendarDays className="h-4 w-4" />
+                  <span>
+                    {notice.date} • {notice.time}
+                  </span>
+                </div>
               </div>
 
                  {/* <div className="flex items-center gap-4 border-t border-border px-5 py-4 text-muted-foreground">
@@ -173,7 +169,6 @@ export default function NoticesPage() {
                 >
                   <Trash2 className="h-4 w-4" />
                 </button>
-              </div> */}
               </div> */}
             </CardContent>
           </Card>

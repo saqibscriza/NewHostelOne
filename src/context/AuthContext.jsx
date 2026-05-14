@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useEffect } from "react";
+import { createContext, useCallback, useContext, useState, useEffect } from "react";
 
 const AuthContext = createContext();
 
@@ -56,6 +56,12 @@ export const AuthProvider = ({ children }) => {
     setIsAuthenticated(true);
   };
 
+  const updateUserName = useCallback((name) => {
+    if (!name) return;
+    sessionStorage.setItem("userName", name);
+    setUserName(name);
+  }, []);
+
   // LOGOUT
   const logout = () => {
     sessionStorage.removeItem("role");
@@ -78,6 +84,7 @@ export const AuthProvider = ({ children }) => {
         isReady,
         login,
         logout,
+        updateUserName,
       }}
     >
       {children}

@@ -8,9 +8,9 @@ import { toast } from "react-hot-toast";
 import { createNoticeApi } from "../../../../utils/utils";
 
 const categoryOptions = [
-  { label: "GENERAL", icon: BellRing },
-  { label: "HOSTEL", icon: BadgeAlert },
-  { label: "URGENT", icon: AlertCircle },
+  { label: "GENERAL", icon: <BellRing className="h-5 w-5" /> },
+  { label: "HOSTEL", icon: <BadgeAlert className="h-5 w-5" /> },
+  { label: "URGENT", icon: <AlertCircle className="h-5 w-5" /> },
 ];
 
 const Label = ({ children }) => (
@@ -31,12 +31,23 @@ export default function CreateNoticePage() {
     scheduleDate: "",
     scheduleTime: "",
   });
+  const [errors, setErrors] = useState({});
 
   const handleChange = (key, value) => {
     setForm((prev) => ({ ...prev, [key]: value }));
+    setErrors((prev) => ({ ...prev, [key]: "" }));
   };
 
   const CreateNoticeApi = async () => {
+    const nextErrors = {};
+    if (!form.title.trim()) nextErrors.title = "Notice title is required";
+    if (!form.description.trim()) {
+      nextErrors.description = "Notice description is required";
+    }
+
+    setErrors(nextErrors);
+    if (Object.keys(nextErrors).length > 0) return;
+
     setLoaderCheck(true);
 
     try {
@@ -81,15 +92,18 @@ export default function CreateNoticePage() {
             <Input
               value={form.title}
               placeholder="e.g. Annual Maintenance Scheduled"
-              className="h-12"
+              className={`h-12 ${errors.title ? "border-destructive" : ""}`}
               onChange={(e) => handleChange("title", e.target.value)}
             />
+            {errors.title && (
+              <p className="text-xs text-destructive">{errors.title}</p>
+            )}
           </div>
 
           <div className="space-y-3">
             <Label>Category</Label>
             <div className="flex flex-wrap gap-3">
-              {categoryOptions.map(({ label, icon: Icon }) => {
+              {categoryOptions.map(({ label, icon }) => {
                 const active = form.category === label;
 
                 return (
@@ -103,7 +117,7 @@ export default function CreateNoticePage() {
                         : "border-border bg-background text-muted-foreground hover:bg-muted/40"
                     }`}
                   >
-                    <Icon className="h-5 w-5" />
+                    {icon}
                     <span className="mt-2 text-sm font-medium">{label}</span>
                   </button>
                 );
@@ -117,8 +131,13 @@ export default function CreateNoticePage() {
               value={form.description}
               placeholder="Write the details of the notice here..."
               onChange={(e) => handleChange("description", e.target.value)}
-              className="min-h-[180px] w-full rounded-xl border border-input bg-background px-4 py-3 text-sm text-foreground outline-none transition placeholder:text-muted-foreground focus:ring-2 focus:ring-ring"
+              className={`min-h-[180px] w-full rounded-xl border bg-background px-4 py-3 text-sm text-foreground outline-none transition placeholder:text-muted-foreground focus:ring-2 focus:ring-ring ${
+                errors.description ? "border-destructive" : "border-input"
+              }`}
             />
+            {errors.description && (
+              <p className="text-xs text-destructive">{errors.description}</p>
+            )}
           </div>
 
           {/*  Schedule card  */}

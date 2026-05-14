@@ -108,19 +108,16 @@ export default function My_Dashboard() {
             <CardContent className="space-y-4">
               <MenuItem
                 label="Breakfast"
-                time={dashboardData?.todaysMenu?.date || ""}
                 text={dashboardData?.todaysMenu?.breakfast || "Not available"}
               />
 
               <MenuItem
                 label="Lunch"
-                time={dashboardData?.todaysMenu?.date || ""}
                 text={dashboardData?.todaysMenu?.lunch || "Not available"}
               />
 
               <MenuItem
                 label="Dinner"
-                time={dashboardData?.todaysMenu?.date || ""}
                 text={dashboardData?.todaysMenu?.dinner || "Not available"}
               />
             </CardContent>
@@ -289,7 +286,7 @@ const MenuItem = ({ label, time, text }) => (
     <div className="w-24 text-sm text-muted-foreground">
       <p className="font-medium">{label}</p>
 
-      <p>{time}</p>
+      {time ? <p>{time}</p> : null}
     </div>
 
     <div className="flex-1 bg-muted p-3 rounded-md text-sm">{text}</div>
