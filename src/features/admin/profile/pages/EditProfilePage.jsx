@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import {
   CalendarDays,
   Fingerprint,
@@ -19,7 +19,10 @@ import {
   SelectValue,
 } from "../../../../components/ui/select";
 import { toast } from "react-hot-toast";
-import { updateAdminPersonalDetailsApi } from "../../../../utils/utils";
+import {
+  updateAdminPersonalDetailsApi,
+  getAdminByIdApi,
+} from "../../../../utils/utils";
 
 const InfoBlock = ({ icon: Icon, label, value, helper, tone = "default" }) => (
   <div className="flex items-start gap-4">
@@ -53,6 +56,34 @@ const Label = ({ children }) => (
 );
 
 const EditProfilePage = () => {
+  const [selectedImage, setSelectedImage] = useState(null);
+  const [previewImage, setPreviewImage] = useState("");
+  const fileInputRef = useRef(null);
+
+  const handleImageUpload = (e) => {
+    const file = e.target.files[0];
+
+    if (!file) return;
+
+    setSelectedImage(file);
+
+    const imageUrl = URL.createObjectURL(file);
+
+    setPreviewImage(imageUrl);
+  };
+
+  const handleRemoveImage = () => {
+    setSelectedImage(null);
+
+    setPreviewImage("");
+
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
+
+    toast.success("Profile image removed");
+  };
+
   const navigate = useNavigate();
   const [form, setForm] = useState({
     fullName: "Rakesh Sharma",
@@ -72,9 +103,60 @@ const EditProfilePage = () => {
     }));
   };
 
+  const AdminDataById = async () => {
+    try {
+      const response = await getAdminByIdApi();
+
+      console.log("ADMIN DATA BY ID =>", response);
+
+      if (response?.status === 200) {
+        const profile = response?.data?.profile;
+        const personal = response?.data?.personalDetails;
+
+        setForm({
+          fullName: profile?.name || "",
+          email: personal?.email || "",
+          phone: personal?.phone || "",
+          address: personal?.address || "",
+          pinCode: personal?.pinCode || "",
+          country: personal?.country || "",
+          state: personal?.state || "",
+          city: personal?.city || "",
+          dateOfJoining: personal?.dateOfJoining || "",
+          adminId: personal?.adminId || "",
+        });
+
+        if (profile?.photo) {
+          setPreviewImage(profile.photo);
+        }
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  useEffect(() => {
+    AdminDataById();
+  }, []);
+
   const UpdateAdminProfileApi = async () => {
     try {
-      const response = await updateAdminPersonalDetailsApi(form);
+      const formData = new FormData();
+
+      formData.append("fullName", form.fullName);
+      formData.append("email", form.email);
+      formData.append("phone", form.phone);
+      formData.append("address", form.address);
+      formData.append("pinCode", form.pinCode);
+      formData.append("country", form.country);
+      formData.append("state", form.state);
+      formData.append("city", form.city);
+
+      if (selectedImage) {
+        formData.append("profileImage", selectedImage);
+      }
+
+      const response = await updateAdminPersonalDetailsApi(formData);
 
       console.log("UPDATE PROFILE =>", response);
 
@@ -109,12 +191,20 @@ const EditProfilePage = () => {
         <Card className="border-border bg-card shadow-sm">
           <CardContent className="flex flex-col gap-6 p-6 sm:flex-row sm:items-center">
             <div className="relative h-24 w-24 overflow-hidden rounded-2xl border border-border bg-muted">
-              <div className="flex h-full w-full items-center justify-center text-muted-foreground">
-                <User className="h-10 w-10" />
-              </div>
-              <button className="absolute bottom-2 right-2 rounded-full bg-foreground p-1.5 text-background">
+              {previewImage ? (
+                <img
+                  src={previewImage}
+                  alt="profile"
+                  className="h-full w-full object-cover"
+                />
+              ) : (
+                <div className="flex h-full w-full items-center justify-center text-muted-foreground">
+                  <User className="h-10 w-10" />
+                </div>
+              )}
+              {/* <button className="absolute bottom-2 right-2 rounded-full bg-foreground p-1.5 text-background">
                 <Pencil className="h-3.5 w-3.5" />
-              </button>
+              </button> */}
             </div>
 
             <div className="flex-1">
@@ -125,12 +215,25 @@ const EditProfilePage = () => {
                 Update your profile image. Supported formats: JPG, PNG, GIF.
               </p>
               <div className="mt-5 flex flex-wrap gap-3">
-                <Button className="gap-2">
+                <Button
+                  className="gap-2"
+                  onClick={() => fileInputRef.current?.click()}
+                >
                   <Upload className="h-4 w-4" />
                   Upload New Photo
                 </Button>
-                <Button variant="outline">Remove</Button>
+                <Button variant="outline" onClick={handleRemoveImage}>
+                  Remove
+                </Button>{" "}
               </div>
+              <input
+                type="file"
+                accept="image/*"
+                id="profile-upload"
+                className="hidden"
+                ref={fileInputRef}
+                onChange={handleImageUpload}
+              />
             </div>
           </CardContent>
         </Card>
@@ -252,13 +355,13 @@ const EditProfilePage = () => {
               <InfoBlock
                 icon={CalendarDays}
                 label="Date Of Joining"
-                value="March 14, 2021"
+                value={form.dateOfJoining || "Not Available"}
                 helper="Non-editable field"
               />
               <InfoBlock
                 icon={Fingerprint}
                 label="Admin ID"
-                value="SHS-7729-ADM"
+                value={form.adminId || "Not Available"}
                 helper="System generated"
               />
               <InfoBlock

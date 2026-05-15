@@ -69,9 +69,7 @@ export const signUpApi = async (data) => {
 // ******************************************** Password API ******************************************** */
 export const getOtpApi = async (email) => {
   try {
-  var res = await axios.post(
-      `${Domain}/login/getOtp?email=${email}`
-    );
+    var res = await axios.post(`${Domain}/login/getOtp?email=${email}`);
     return res;
   } catch (error) {
     throw error;
@@ -80,30 +78,22 @@ export const getOtpApi = async (email) => {
 
 export const verifyOtpApi = async (data) => {
   try {
-    const res = await axios.post(
-      `${Domain}/login/verify-otp`,
-      null,
-      {
-        params: {
-          OTP: data.OTP,
-          newPassword: data.newPassword,
-          confirmPassword: data.confirmPassword,
-        },
-        headers: {
-          Authorization: `Bearer ${data.token}`,
-        },
-      }
-    );
+    const res = await axios.post(`${Domain}/login/verify-otp`, null, {
+      params: {
+        OTP: data.OTP,
+        newPassword: data.newPassword,
+        confirmPassword: data.confirmPassword,
+      },
+      headers: {
+        Authorization: `Bearer ${data.token}`,
+      },
+    });
 
     return res;
   } catch (error) {
     throw error;
   }
 };
-
-
-
-
 
 //************************ Chef APIs ************************ */
 
@@ -1050,7 +1040,7 @@ export const getFeedbackListApi = async (id) => {
   }
 };
 
-export const getCSV_Api =async()=>{
+export const getCSV_Api = async () => {
   try {
     axios.defaults.headers.common["Authorization"] = token;
     const res = await axios.get(`${Domain}/fee/export-csv`);
@@ -1060,8 +1050,6 @@ export const getCSV_Api =async()=>{
     return null;
   }
 };
-
-
 
 // ******************************************************************************************************
 // ASIM //
@@ -1752,7 +1740,6 @@ export const getAdminProfileApi = async () => {
 };
 
 // Admin profilt PUT api
-
 export const updateAdminPersonalDetailsApi = async (data) => {
   try {
     axios.defaults.headers.common["Authorization"] = token;
@@ -1781,6 +1768,34 @@ export const updateAdminPersonalDetailsApi = async (data) => {
   }
 };
 
+// export const updateAdminPersonalDetailsApi = async (data) => {
+//   try {
+//     axios.defaults.headers.common["Authorization"] = token;
+
+//     const res = await axios.put(`${Domain}/admin/updatePersonalDetails`, null, {
+//       params: {
+//         fullName: data.fullName,
+//         email: data.email,
+//         phone: data.phone,
+//         address: data.address,
+//         pinCode: data.pinCode,
+//         country: data.country,
+//         state: data.state,
+//         city: data.city,
+//       },
+//     });
+
+//     if (res) {
+//       return res;
+//     } else {
+//       return [];
+//     }
+//   } catch (error) {
+//     console.log("UPDATE ADMIN PROFILE ERROR 👉", error);
+//     return [];
+//   }
+// };
+
 // Admin Package GET api
 
 export const getAllPackageData = async () => {
@@ -1795,6 +1810,27 @@ export const getAllPackageData = async () => {
       return [];
     }
   } catch (error) {
+    return [];
+  }
+};
+
+// admin profile get by id api
+
+export const getAdminByIdApi = async () => {
+  try {
+    const token = sessionStorage.getItem("token");
+
+    axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+
+    const res = await axios.get(`${Domain}/admin/getAdminById`);
+
+    if (res) {
+      return res;
+    } else {
+      return [];
+    }
+  } catch (error) {
+    console.log("GET ADMIN BY ID ERROR 👉", error);
     return [];
   }
 };
