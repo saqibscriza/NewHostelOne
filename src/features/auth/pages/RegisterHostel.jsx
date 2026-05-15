@@ -1,348 +1,321 @@
-import React, { useEffect ,useState } from "react";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import React, { useEffect, useState } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
 import { useForm } from "react-hook-form";
-import { Upload, X } from "lucide-react";
+import { ArrowLeft, ArrowRight, Camera } from "lucide-react";
+import toast from "react-hot-toast";
 
 import { Button } from "../../../components/ui/button";
-import { Card } from "../../../components/ui/Card";
-import { getAllPackageApi, addHostelRegisterApi } from "../../../utils/utils";
+import {signUpApi} from "../../../utils/utils";
+// import { getAllPackageApi} from "../../../utils/utils";
+import AuthLayout from "../../auth/component/AuthLayout";
 
 export default function RegisterHostel() {
   const navigate = useNavigate();
+  const location = useLocation();
+  const adminInfo = location.state?.adminInfo;
+  const savedHostelDetails = location.state?.hostelDetails;
+
   const [packages, setPackages] = useState([]);
-  const [searchParams, setSearchParams] = useSearchParams();
   const [loaderCheck, setLoaderCheck] = useState(false);
 
   const {
     register,
     handleSubmit,
+    watch,
+    getValues,
     formState: { errors },
-  } = useForm();
+  } = useForm({
+    defaultValues: savedHostelDetails || { package: "FREE_TIER" }
+  });
 
-  const handleClose = () => {
-    const newParams = new URLSearchParams(searchParams);
-    newParams.delete("register");
-    setSearchParams(newParams);
+  const propertyLogo = watch("propertyLogo");
+
+  useEffect(() => {
+    // If no admin info is present, optionally redirect back to step 1
+    if (!adminInfo) {
+      navigate("/signup");
+    }
+  }, [adminInfo, navigate]);
+
+  // useEffect(() => {
+  //   const fetchPackages = async () => {
+  //     try {
+  //       const res = await getAllPackageApi();
+  //       if (res?.data) {
+  //         setPackages(res.data);
+  //       }
+  //     } catch (error) {
+  //       console.log(error);
+  //     }
+  //   };
+  //   fetchPackages();
+  // }, []);
+
+  const MySignUp = async (data) => {
+    const formData = new FormData();
+
+    // Step 1 mapping (Admin Info) - map to what signUpApi expects
+    if (adminInfo) {
+      formData.append("fullName", adminInfo.fullName);
+      formData.append("email", adminInfo.email);
+      formData.append("phone", adminInfo.phone);
+      formData.append("address", adminInfo.address);
+      formData.append("pinCode", adminInfo.pinCode);
+      formData.append("country", adminInfo.country);
+      formData.append("state", adminInfo.state);
+      formData.append("city", adminInfo.city);
+      if (adminInfo.profilePhoto && adminInfo.profilePhoto[0]) {
+        formData.append("profilePhoto", adminInfo.profilePhoto[0]);
+      }
+    }
+
+    // Step 2 mapping (Hostel Details) - using standard names, check if backend accepts them via signupApi
+    // Wait, earlier addHostelRegisterApi had: hostelName, hostelType, address, contactNumber, alternateContactNumber, package, pinCode, country, state, city, profilePhoto (as logo)
+    // Here we'll append what we have. It's up to the backend to process these.
+    formData.append("hostelName", data.hostelName);
+    formData.append("hostelType", data.hostelType);
+    formData.append("package", data.package);
+    formData.append("hostelPinCode", data.hostelPinCode);
+    formData.append("hostelAddress", data.hostelAddress);
+    formData.append("hostelCountry", data.hostelCountry);
+    formData.append("hostelState", data.hostelState);
+    formData.append("hostelCity", data.hostelCity);
+
+    if (data.propertyLogo && data.propertyLogo[0]) {
+      formData.append("hostelLogo", data.propertyLogo[0]);
+    }
+
+    try {
+      setLoaderCheck(true);
+      const res = await signUpApi(formData);
+      if (res?.data?.status === "success") {
+        toast.success(res?.data?.message || "Signup successful");
+        setTimeout(() => {
+          navigate("/login");
+        }, 1500);
+      } else {
+              toast.error(
+        res?.data?.message || "Signup failed. Please try again."
+      );
+      }
+    } catch (error) {
+          console.log(error);
+
+    toast.error(
+      error?.response?.data?.message ||
+        "Something went wrong. Please try again."
+    );
+    } finally {
+      setLoaderCheck(false);
+    }
   };
 
-  // For Fetch packages for dropdown
-  useEffect(() => {
-    const fetchPackages = async () => {
-      try {
-        const res = await getAllPackageApi();
-        console.log("API Response:", res);
-
-        if (res?.data) {
-          setPackages(res.data); // 👈 store packages
-        }
-      } catch (error) {
-        console.log(error);
-      }
-    };
-
-    fetchPackages();
-  }, []);
-
-
-  const MyAddRegisterHostelApi = async (data) => {
-  console.log("FORM DATA:", data);
-
-  const formData = new FormData();
-  formData.append("hostelName", data.hostelName);
-  formData.append("hostelType", data.hostelType);
-  formData.append("address", data.address);
-  formData.append("contactNumber", data.contactNumber);
-  formData.append("alternateContactNumber", data.alternateContactNumber);
-  formData.append("package", data.package);
-  formData.append("pinCode", data.pinCode);
-  formData.append("country", data.country);
-  formData.append("state", data.state);
-  formData.append("city", data.city);
-
-  if (data.hostelLogo && data.hostelLogo[0]) {
-    formData.append("profilePhoto", data.hostelLogo[0]);
-  }
-
-  try {
-    console.log("API CALLING...");
-    setLoaderCheck(true);
-
-    const res = await addHostelRegisterApi(formData);
-
-    console.log("API RESPONSE:", res);
-
-    if (res?.data?.status === "success") {
-      handleClose();
-      navigate("/login");
-    } else {
-      console.log("API ERROR RESPONSE");
-    }
-  } catch (error) {
-    console.log("API ERROR:", error);
-  } finally {
-    setLoaderCheck(false);
-  }
-};
-
   return (
-    <div className="fixed inset-0 z-[100] bg-black/40 flex items-center justify-center p-4">
-      <div className="bg-white w-full max-w-4xl max-h-[95vh] rounded-2xl shadow-xl flex flex-col relative">
-        {/* Close Button */}
-        <button
-          onClick={handleClose}
-          className="absolute top-5 right-5 p-2 text-gray-600 hover:text-black transition-colors z-50"
-        >
-          <X className="w-6 h-6" />
-        </button>
-
-        <div className="flex flex-col items-center py-8 flex-1 overflow-hidden">
-          {/* Form Area */}
-          <div className="flex justify-center w-full flex-1 min-h-0">
-            <Card className="w-full max-w-[500px] border border-gray-200 rounded-[1.25rem] shadow-sm p-7 flex flex-col">
-              <div className="mb-6 shrink-0">
-                <h2 className="text-[32px] font-extrabold tracking-tight text-black leading-none">
-                  Sign Up
-                </h2>
-                <p className="text-gray-500 text-[15px] mt-1.5">
-                  Create your account to get started quickly and securely
-                </p>
-              </div>
-
-              <div className="flex-1 overflow-y-auto no-scrollbar">
-                {/* Hostel Details */}
-                <form onSubmit={handleSubmit(MyAddRegisterHostelApi)} className="space-y-4">
-                  <div className="grid grid-cols-2 gap-4">
-                      <div className="space-y-1.5">
-                        <label className="text-sm font-medium text-black">
-                          Hostel Name
-                        </label>
-                        <input
-                          type="text"
-                          placeholder="Enter Hostel Name"
-                          {...register("hostelName", { required: "Hostel Name is required" })}
-                          className={`w-full h-10 px-3 text-[14px] rounded-lg border ${errors.hostelName ? "border-red-500" : "border-gray-200"} bg-white text-black focus:outline-none focus:ring-1 focus:ring-gray-300 appearance-none text-gray-500`}
-                        />
-                        {errors.hostelName && <span className="text-red-500 text-xs">{errors.hostelName.message}</span>}
-                      </div>
-                      <div className="space-y-1.5">
-                        <label className="text-sm font-medium text-black">
-                          Hostel Type
-                        </label>
-                        <div className="relative">
-                          <select
-                            {...register("hostelType", { required: "Hostel Type is required" })}
-                            className={`w-full h-10 px-3 py-0 text-[14px] rounded-lg border ${errors.hostelType ? "border-red-500" : "border-gray-200"} bg-white text-black focus:outline-none focus:ring-1 focus:ring-gray-300 appearance-none text-gray-500`}
-                            style={{
-                              backgroundImage: "url(\"data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e\")",
-                              backgroundRepeat: "no-repeat",
-                              backgroundPosition: "right 0.75rem center",
-                              backgroundSize: "1em"
-                            }}
-                          >
-                            <option value="">Select Hostel Type</option>
-                            <option value="BOYS">BOYS</option>
-                            <option value="GIRLS">GIRLS</option>
-                            <option value="BOTH">BOTH</option>
-                          </select>
-                        </div>
-                        {errors.hostelType && <span className="text-red-500 text-xs">{errors.hostelType.message}</span>}
-                      </div>
-                    </div>
-
-                    <div className="space-y-1.5">
-                      <label className="text-sm font-medium text-black">
-                        Package
-                      </label>
-                      <select
-                        className={`w-full h-10 px-3 py-0 text-[14px] rounded-lg border ${errors.package ? "border-red-500" : "border-gray-200"} bg-white text-black focus:outline-none focus:ring-1 focus:ring-gray-300 appearance-none text-gray-500`}
-                        {...register("package", { required: "Package is required" })}
-                        style={{
-                          backgroundImage: "url(\"data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e\")",
-                          backgroundRepeat: "no-repeat",
-                          backgroundPosition: "right 0.75rem center",
-                          backgroundSize: "1em"
-                        }}
-                      >
-                        <option value="">Select Package</option>
-                        {packages.map((pkg) => (
-                          <option key={pkg.id} value={pkg.packageId}>
-                            {pkg.packageName}
-                          </option>
-                        ))}
-                      </select>
-                      {errors.package && <span className="text-red-500 text-xs">{errors.package.message}</span>}
-                    </div>
-
-                    <div className="grid grid-cols-2 gap-4">
-                      <div className="space-y-1.5">
-                        <label className="text-sm font-medium text-black">
-                          Contact Number
-                        </label>
-                        <input
-                          type="text"
-                          placeholder="Enter Contact Number"
-                          {...register("contactNumber", { 
-                            required: "Contact Number is required",
-                            pattern: {
-                              value: /^[0-9]{10}$/,
-                              message: "Invalid phone number, must be 10 digits"
-                            }
-                          })}
-                          className={`w-full h-10 px-3 text-[14px] rounded-lg border ${errors.contactNumber ? "border-red-500" : "border-gray-200"} bg-white text-black focus:outline-none focus:ring-1 focus:ring-gray-300 appearance-none text-gray-500`}
-                        />
-                        {errors.contactNumber && <span className="text-red-500 text-xs">{errors.contactNumber.message}</span>}
-                      </div>
-                      <div className="space-y-1.5">
-                        <label className="text-sm font-medium text-black">
-                          Alternate Contact Number
-                        </label>
-                        <input
-                          type="text"
-                          placeholder="Enter Alternate Number"
-                          {...register("alternateContactNumber", {
-                            pattern: {
-                              value: /^[0-9]{10}$/,
-                              message: "Invalid phone number, must be 10 digits"
-                            }
-                          })}
-                          className={`w-full h-10 px-3 text-[14px] rounded-lg border ${errors.alternateContactNumber ? "border-red-500" : "border-gray-200"} bg-white text-black focus:outline-none focus:ring-1 focus:ring-gray-300 appearance-none text-gray-500`}
-                        />
-                        {errors.alternateContactNumber && <span className="text-red-500 text-xs">{errors.alternateContactNumber.message}</span>}
-                      </div>
-                    </div>
-
-                    <div className="space-y-1.5">
-                      <label className="text-sm font-medium text-black">
-                        Address
-                      </label>
-                      <div className="relative">
-                       
-                        <input
-                          type="text"
-                          placeholder="Enter Full Address"
-                          {...register("address", { required: "Address is required" })}
-                          className={`w-full h-10 px-3 py-0 text-[14px] rounded-lg border ${errors.address ? "border-red-500" : "border-gray-200"} bg-white text-black focus:outline-none focus:ring-1 focus:ring-gray-300 appearance-none text-gray-500`}
-                        />
-                      </div>
-                      {errors.address && <span className="text-red-500 text-xs">{errors.address.message}</span>}
-                    </div>
-
-                    <div className="grid grid-cols-2 gap-4">
-                      <div className="space-y-1.5">
-                        <label className="text-sm font-medium text-black">
-                          Pin code
-                        </label>
-                        <input
-                          type="text"
-                          placeholder="Enter Code"
-                          {...register("hostelPincode", { required: "Pin code is required" })}
-                          className={`w-full h-10 px-3 text-[14px] rounded-lg border ${errors.hostelPincode ? "border-red-500" : "border-gray-200"} bg-white text-black focus:outline-none focus:ring-1 focus:ring-gray-300 appearance-none text-gray-500`}
-                        />
-                        {errors.hostelPincode && <span className="text-red-500 text-xs">{errors.hostelPincode.message}</span>}
-                      </div>
-                      <div className="space-y-1.5">
-                        <label className="text-sm font-medium text-black">
-                          Country
-                        </label>
-                        <div className="relative">
-                          <select
-                            {...register("country", { required: "Country is required" })}
-                            className={`w-full h-10 px-3 py-0 text-[14px] rounded-lg border ${errors.country ? "border-red-500" : "border-gray-200"} bg-white text-black focus:outline-none focus:ring-1 focus:ring-gray-300 appearance-none text-gray-500`}
-                            style={{
-                              backgroundImage: "url(\"data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e\")",
-                              backgroundRepeat: "no-repeat",
-                              backgroundPosition: "right 0.75rem center",
-                              backgroundSize: "1em"
-                            }}
-                          >
-                            <option value="">Select country</option>
-                            <option value="India">India</option>
-                            <option value="USA">USA</option>
-                          </select>
-                        </div>
-                        {errors.country && <span className="text-red-500 text-xs">{errors.country.message}</span>}
-                      </div>
-                    </div>
-
-                    <div className="grid grid-cols-2 gap-4">
-                      <div className="space-y-1.5">
-                        <label className="text-sm font-medium text-black">
-                          State
-                        </label>
-                        <div className="relative">
-                          <select
-                            {...register("state", { required: "State is required" })}
-                            className={`w-full h-10 px-3 py-0 text-[14px] rounded-lg border ${errors.state ? "border-red-500" : "border-gray-200"} bg-white text-black focus:outline-none focus:ring-1 focus:ring-gray-300 appearance-none text-gray-500`}
-                            style={{
-                              backgroundImage: "url(\"data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e\")",
-                              backgroundRepeat: "no-repeat",
-                              backgroundPosition: "right 0.75rem center",
-                              backgroundSize: "1em"
-                            }}
-                          >
-                            <option value="">Select State</option>
-                            <option value="Rajasthan">Rajasthan</option>
-                            <option value="Maharashtra">Maharashtra</option>
-                            <option value="Gujarat">Gujarat</option>
-                            <option value="Delhi">Delhi</option>
-                          </select>
-                        </div>
-                        {errors.state && <span className="text-red-500 text-xs">{errors.state.message}</span>}
-                      </div>
-                      <div className="space-y-1.5">
-                        <label className="text-sm font-medium text-black">
-                          City
-                        </label>
-                        <div className="relative">
-                          <select
-                            {...register("city", { required: "City is required" })}
-                            className={`w-full h-10 px-3 py-0 text-[14px] rounded-lg border ${errors.city ? "border-red-500" : "border-gray-200"} bg-white text-black focus:outline-none focus:ring-1 focus:ring-gray-300 appearance-none text-gray-500`}
-                            style={{
-                              backgroundImage: "url(\"data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e\")",
-                              backgroundRepeat: "no-repeat",
-                              backgroundPosition: "right 0.75rem center",
-                              backgroundSize: "1em"
-                            }}
-                          >
-                            <option value="">Select City</option>
-                            <option value="Jaipur">Jaipur</option>
-                            <option value="Mumbai">Mumbai</option>
-                            <option value="Ahmedabad">Ahmedabad</option>
-                            <option value="Delhi">Delhi</option>
-                          </select>
-                        </div>
-                        {errors.city && <span className="text-red-500 text-xs">{errors.city.message}</span>}
-                      </div>
-                    </div>
-
-                    <div className="space-y-1.5">
-                      <label className="text-sm font-medium text-black">
-                        Logo
-                      </label>
-                      <label className="flex items-center justify-between w-full h-10 px-3 rounded-lg border border-gray-200 bg-white cursor-pointer hover:bg-gray-50 text-gray-400 text-[14px]">
-                        <span>Upload Logo</span>
-                        <Upload className="w-5 h-5 text-gray-400" />
-                        <input
-                          type="file"
-                          className="hidden"
-                          {...register("hostelLogo")}
-                        />
-                      </label>
-                    </div>
-
-                    <Button
-                      type="submit"
-                      disabled={loaderCheck}
-                      className="w-full h-11 mt-4 bg-[#0b132b] hover:bg-[#1e293b] text-white rounded-lg text-[15px] font-medium transition-colors"
-                    >
-                      {loaderCheck ? "Submitting..." : "Sign Up"}
-                    </Button>
-                  </form>
-              </div>
-            </Card>
+    <AuthLayout
+      title={<>Start Your Hostel<br />Journey Today</>}
+      subtitle="Empowering property managers with high-stakes precision and total control. Join the industry standard for hostel management."
+    >
+      <div className="flex flex-col space-y-8 pb-12">
+        {/* Stepper */}
+        <div className="flex items-center justify-center gap-4 mb-4">
+          <div className="flex flex-col items-center gap-2">
+            <div className="w-8 h-8 rounded-full bg-[#0F172A] text-white flex items-center justify-center text-sm font-semibold">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+            </div>
+            <span className="text-xs font-semibold text-[#111827]">Admin Info</span>
+          </div>
+          <div className="w-16 h-[2px] bg-[#0F172A] -mt-6"></div>
+          <div className="flex flex-col items-center gap-2">
+            <div className="w-8 h-8 rounded-full bg-[#0F172A] text-white flex items-center justify-center text-sm font-semibold">2</div>
+            <span className="text-xs font-semibold text-[#111827]">Hostel Details</span>
           </div>
         </div>
+
+        <div>
+          <h2 className="text-3xl font-bold text-[#111827] tracking-tight">Hostel Details</h2>
+          <p className="text-[#6B7280] text-sm mt-1">
+            Tell us about your property to complete the setup.
+          </p>
+        </div>
+
+        <form onSubmit={handleSubmit(MySignUp)} className="space-y-6">
+          {/* Property Logo */}
+          <div className="flex items-center gap-4">
+            <div className="relative w-20 h-20 rounded-full border border-dashed border-gray-300 bg-gray-50 flex items-center justify-center shrink-0 overflow-hidden">
+               {propertyLogo && propertyLogo.length > 0 ? (
+                 <img src={URL.createObjectURL(propertyLogo[0])} alt="Property" className="w-full h-full object-cover" />
+               ) : (
+                 <Camera className="w-6 h-6 text-gray-400" />
+               )}
+            </div>
+            <div>
+              <p className="text-sm font-semibold text-[#111827]">Upload your Property Logo</p>
+              <p className="text-xs text-gray-500 mt-1 mb-2">JPG, PNG or GIF. Max size 2MB</p>
+              <div className="relative">
+                <input
+                  type="file"
+                  id="propertyLogo"
+                  className="hidden"
+                  accept="image/*"
+                  {...register("propertyLogo")}
+                />
+                <label
+                  htmlFor="propertyLogo"
+                  className="text-sm text-blue-600 font-medium cursor-pointer hover:underline"
+                >
+                  Upload Photo
+                </label>
+              </div>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <label className="text-sm font-semibold text-[#111827]">
+                Hostel Name<span className="text-red-500">*</span>
+              </label>
+              <input
+                type="text"
+                placeholder="Enter Hostel Name"
+                {...register("hostelName", { required: "Name is required" })}
+                className={`w-full p-3 rounded-xl border bg-white focus:outline-none focus:ring-1 focus:ring-gray-300 text-sm ${errors.hostelName ? "border-red-500" : "border-gray-200"}`}
+              />
+              {errors.hostelName && <span className="text-red-500 text-xs">{errors.hostelName.message}</span>}
+            </div>
+
+            <div className="space-y-2">
+              <label className="text-sm font-semibold text-[#111827]">
+                Hostel Type<span className="text-red-500">*</span>
+              </label>
+              <select
+                {...register("hostelType", { required: "Required" })}
+                className={`w-full px-3 h-[46px] rounded-xl border bg-white text-sm focus:outline-none focus:ring-1 focus:ring-gray-300 ${errors.hostelType ? "border-red-500" : "border-gray-200"}`}
+                defaultValue=""
+              >
+                <option value="" disabled hidden>Select Hostel Type</option>
+                <option value="BOYS">BOYS</option>
+                <option value="GIRLS">GIRLS</option>
+                <option value="BOTH">BOTH</option>
+              </select>
+              {errors.hostelType && <span className="text-red-500 text-xs">{errors.hostelType.message}</span>}
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+<div className="space-y-2">
+  <label className="text-sm font-semibold text-[#111827]">
+    Package<span className="text-red-500">*</span>
+  </label>
+
+  <select
+    {...register("package")}
+    disabled
+    defaultValue="FREE_TIER"
+    className="w-full px-3 h-[46px] rounded-xl border border-gray-200 bg-gray-100 text-gray-400 text-sm cursor-not-allowed focus:outline-none"
+  >
+    <option value="FREE_TIER">
+      Free Tier
+    </option>
+  </select>
+</div>
+
+            <div className="space-y-2">
+              <label className="text-sm font-semibold text-[#111827]">
+                PIN Code<span className="text-red-500">*</span>
+              </label>
+              <input
+                type="text"
+                placeholder="6-digit code"
+                {...register("hostelPinCode", { 
+                  required: "Pin code is required",
+                  pattern: { value: /^\d{6}$/, message: "Must be exactly 6 digits" }
+                })}
+                onInput={(e) => {
+                  e.target.value = e.target.value.replace(/\D/g, '').slice(0, 6);
+                }}
+                className={`w-full p-3 rounded-xl border bg-white focus:outline-none focus:ring-1 focus:ring-gray-300 text-sm ${errors.hostelPinCode ? "border-red-500" : "border-gray-200"}`}
+              />
+              {errors.hostelPinCode && <span className="text-red-500 text-xs">{errors.hostelPinCode.message}</span>}
+            </div>
+          </div>
+
+          <div className="space-y-2">
+            <label className="text-sm font-semibold text-[#111827]">
+              Address<span className="text-red-500">*</span>
+            </label>
+            <textarea
+              rows={2}
+              placeholder="Street address, building, floor..."
+              {...register("hostelAddress", { required: "Address is required" })}
+              className={`w-full p-3 rounded-xl border bg-white focus:outline-none focus:ring-1 focus:ring-gray-300 text-sm resize-none ${errors.hostelAddress ? "border-red-500" : "border-gray-200"}`}
+            />
+            {errors.hostelAddress && <span className="text-red-500 text-xs">{errors.hostelAddress.message}</span>}
+          </div>
+
+          <div className="grid grid-cols-3 gap-4">
+            <div className="space-y-2">
+              <label className="text-sm font-semibold text-[#111827]">Country<span className="text-red-500">*</span></label>
+              <select
+                {...register("hostelCountry", { required: "Required" })}
+                className={`w-full px-3 h-[46px] rounded-xl border bg-white text-sm focus:outline-none focus:ring-1 focus:ring-gray-300 ${errors.hostelCountry ? "border-red-500" : "border-gray-200"}`}
+                defaultValue=""
+              >
+                <option value="" disabled hidden>Select Country</option>
+                <option value="India">India</option>
+                <option value="USA">USA</option>
+              </select>
+            </div>
+
+            <div className="space-y-2">
+              <label className="text-sm font-semibold text-[#111827]">State<span className="text-red-500">*</span></label>
+              <select
+                {...register("hostelState", { required: "Required" })}
+                className={`w-full px-3 h-[46px] rounded-xl border bg-white text-sm focus:outline-none focus:ring-1 focus:ring-gray-300 ${errors.hostelState ? "border-red-500" : "border-gray-200"}`}
+                defaultValue=""
+              >
+                <option value="" disabled hidden>State/Province</option>
+                <option value="Rajasthan">Rajasthan</option>
+                <option value="Maharashtra">Maharashtra</option>
+                <option value="UP">UP</option>
+              </select>
+            </div>
+
+            <div className="space-y-2">
+              <label className="text-sm font-semibold text-[#111827]">City<span className="text-red-500">*</span></label>
+              <select
+                {...register("hostelCity", { required: "Required" })}
+                className={`w-full px-3 h-[46px] rounded-xl border bg-white text-sm focus:outline-none focus:ring-1 focus:ring-gray-300 ${errors.hostelCity ? "border-red-500" : "border-gray-200"}`}
+                defaultValue=""
+              >
+                <option value="" disabled hidden>City</option>
+                <option value="Jaipur">Jaipur</option>
+                <option value="Mumbai">Mumbai</option>
+                <option value="Pune">Pune</option>
+                <option value="Udaipur">Udaipur</option>
+                <option value="Noida">Noida</option>
+                
+              </select>
+            </div>
+          </div>
+
+          <div className="flex items-center justify-between pt-6">
+            <button
+              type="button"
+              onClick={() => navigate("/signup", { state: { adminInfo: adminInfo, hostelDetails: getValues() } })}
+              className="flex items-center gap-2 text-sm font-medium text-[#6B7280] hover:text-[#111827]"
+            >
+              <ArrowLeft className="w-4 h-4" /> Back to Admin Info
+            </button>
+            <Button
+              type="submit"
+              disabled={loaderCheck}
+              className="h-11 px-8 rounded-full bg-[#0F172A] hover:bg-[#1E293B] text-white font-medium text-sm flex items-center gap-2"
+            >
+              {loaderCheck ? "Submitting..." : "Sign Up"} <ArrowRight className="w-4 h-4" />
+            </Button>
+          </div>
+        </form>
       </div>
-    </div>
+    </AuthLayout>
   );
 }

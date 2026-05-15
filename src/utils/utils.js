@@ -52,6 +52,59 @@ export const logoutApi = async () => {
   }
 };
 
+// ******************************************** SignUp API ******************************************** */
+export const signUpApi = async (data) => {
+  try {
+    var res = await axios.post(`${Domain}/login/signup`, data);
+    if (res) {
+      return res;
+    } else {
+      return [];
+    }
+  } catch (error) {
+    return [];
+  }
+};
+
+// ******************************************** Password API ******************************************** */
+export const getOtpApi = async (email) => {
+  try {
+  var res = await axios.post(
+      `${Domain}/login/getOtp?email=${email}`
+    );
+    return res;
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const verifyOtpApi = async (data) => {
+  try {
+    const res = await axios.post(
+      `${Domain}/login/verify-otp`,
+      null,
+      {
+        params: {
+          OTP: data.OTP,
+          newPassword: data.newPassword,
+          confirmPassword: data.confirmPassword,
+        },
+        headers: {
+          Authorization: `Bearer ${data.token}`,
+        },
+      }
+    );
+
+    return res;
+  } catch (error) {
+    throw error;
+  }
+};
+
+
+
+
+
 //************************ Chef APIs ************************ */
 
 export const getChefDashboardApi = async () => {
@@ -484,21 +537,6 @@ export const getHostelByIdApi = async () => {
   try {
     axios.defaults.headers.common["Authorization"] = token;
     var res = await axios.get(`${Domain}/hostel/getById`);
-    if (res) {
-      return res;
-    } else {
-      return [];
-    }
-  } catch (error) {
-    return [];
-  }
-};
-
-// ******************************************** SignUp API ******************************************** */
-
-export const signUpApi = async (data) => {
-  try {
-    var res = await axios.post(`${Domain}/login/signup`, data);
     if (res) {
       return res;
     } else {

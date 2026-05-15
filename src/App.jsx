@@ -2,14 +2,18 @@ import { Routes, Route, Navigate, BrowserRouter } from "react-router-dom";
 import { useAuth } from "./context/AuthContext";
 import MainLayout from "./components/layout/MainLayout";
 import { Toaster } from "react-hot-toast";
-import { useSearchParams } from "react-router-dom";
+// import { useSearchParams } from "react-router-dom";
 // AUTH
 import Login from "./features/auth/pages/Login";
 import SignUp from "./features/auth/pages/SignUp";
 import SelectHostelForm from "./features/auth/pages/HostelLogin";
 import RegisterHostel from "./features/auth/pages/RegisterHostel";
+import ForgotPassword from "./features/auth/pages/ForgotPassword";
+import VerifyOTP from "./features/auth/pages/VerifyOTP";
+import ResetPassword from "./features/auth/pages/ResetPassword";
+import PasswordUpdated from "./features/auth/pages/PasswordUpdated";
 
-// ADMIN
+// ADMIN 
 import AdminDashboard from "./features/admin/dashboard/pages/DashboardPage";
 import StudentList from "./features/admin/students/pages/StudentList";
 import Rooms from "./features/admin/rooms/pages/RoomsCategory/Rooms";
@@ -84,27 +88,31 @@ import CategoryDetailsPage from "./features/chef/inventory/pages/inventoryCatego
 import EditCategoryPage from "./features/chef/inventory/pages/inventoryCategory/EditCategoryPage";
 import EditCategoryItemPage from "./features/chef/inventory/pages/inventoryCategory/EditCategoryItemPage";
 import FeedbackPage from "./features/chef/feedback/pages/FeedbackPage";
-import AddCategoryItemPage from "../src/features/chef/inventory/pages/inventoryCategory/AddCategoryItemPage";
 import NoticesPage from "../src/features/chef/notices/pages/NoticesPage";
 
 export default function AppRoutes() {
-  const { role } = useAuth();
-  const [searchParams] = useSearchParams();
 
-  const showRegisterHostel = searchParams.get("register") === "true";
+  const { role } = useAuth();
+  // const [searchParams] = useSearchParams();
+  // const showRegisterHostel = searchParams.get("register") === "true";
 
   return (
     <>
-      {showRegisterHostel && <RegisterHostel />}
+      {/* {showRegisterHostel && <RegisterHostel />} */}
 
       <Toaster position="top-right" />
 
       {!role ? (
         <Routes>
           <Route path="/select-hostel" element={<SelectHostelForm />} />
-          <Route path="*" element={<Login />} />
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<SignUp />} />
+          <Route path="/register-hostel" element={<RegisterHostel />} />
+           <Route path="/forgot-password" element={<ForgotPassword />} />
+          <Route path="/verify-otp" element={<VerifyOTP />} />
+          <Route path="/reset-password" element={<ResetPassword />} />
+          <Route path="/password-updated" element={<PasswordUpdated />} />
+          <Route path="*" element={<Login />} />
         </Routes>
       ) : (
         <Routes>

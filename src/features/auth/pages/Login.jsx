@@ -2,16 +2,11 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../../context/AuthContext";
 import { useForm } from "react-hook-form";
+import { ArrowRight } from "lucide-react";
 import { Rings } from "react-loader-spinner";
-
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "../../../components/ui/Card";
 import { Button } from "../../../components/ui/button";
 import { loginApi } from "../../../utils/utils";
+import AuthLayout from "../../auth/component/AuthLayout";
 
 export default function Login() {
   const navigate = useNavigate();
@@ -107,93 +102,92 @@ export default function Login() {
 };
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-background p-4">
-      {/* LOADER */}
+    <AuthLayout
+      title={<>Access Your Hostel<br />Management Dashboard</>}
+      subtitle="Manage your hostel operations seamlessly with secure access to your dashboard. Monitor bookings, residents, inventory, staff, and daily activities all in one centralized platform."
+    >
       {loading && (
         <div className="fixed inset-0 flex items-center justify-center bg-black/40 z-50">
           <Rings height="100" width="100" color="#888" />
         </div>
       )}
 
-      <Card className="w-full max-w-[450px] rounded-2xl border border-border shadow-sm">
-        <CardHeader className="space-y-1 pb-6">
-          <CardTitle className="text-3xl font-bold">Login</CardTitle>
-          <p className="text-muted-foreground">
-            Access your dashboard securely
-          </p>
-        </CardHeader>
+      <div className="space-y-2 mb-8">
+        <h2 className="text-3xl font-bold text-[#111827] tracking-tight">Welcome Back</h2>
+        <p className="text-[#6B7280] text-base">
+          Login to manage your hostel with precision and control.
+        </p>
+      </div>
 
-        <CardContent>
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
-            {/* EMAIL */}
-            <div className="space-y-2">
-              <label className="text-sm font-medium text-foreground">
-                Email ID / User ID
-              </label>
+      <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+        <div className="space-y-2">
+          <label className="text-sm font-semibold text-[#111827]">
+            Email Address<span className="text-red-500">*</span>
+          </label>
+          <input
+            type="text"
+            placeholder="Enter your email Address"
+            {...register("email", {
+              required: "Email is required",
+            })}
+            className={`w-full p-3.5 rounded-xl border bg-white focus:outline-none focus:ring-1 focus:ring-gray-300 text-sm ${
+              errors.email ? "border-red-500" : "border-gray-200"
+            }`}
+          />
+          {errors.email && (
+            <p className="text-red-500 text-xs mt-1">{errors.email.message}</p>
+          )}
+        </div>
 
-              <input
-                type="text"
-                placeholder="Enter Email / User ID"
-                {...register("email", {
-                  required: "Email or Phone is required",
-                })}
-                className={`w-full p-3 rounded-lg border bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-ring ${
-                  errors.email ? "border-red-500" : "border-border"
-                }`}
-              />
+        <div className="space-y-2">
+          <div className="flex justify-between items-center">
+            <label className="text-sm font-semibold text-[#111827]">
+              Password<span className="text-red-500">*</span>
+            </label>
+            <span 
+              onClick={() => navigate("/forgot-password")}
+              className="text-xs text-[#6B7280] hover:text-[#111827] cursor-pointer"
+            >
+              Forgot Password?
+            </span>
+          </div>
+          <input
+            type="password"
+            placeholder="Enter your password"
+            {...register("password", {
+              required: "Password is required",
+            })}
+            className={`w-full p-3.5 rounded-xl border bg-white focus:outline-none focus:ring-1 focus:ring-gray-300 text-sm ${
+              errors.password ? "border-red-500" : "border-gray-200"
+            }`}
+          />
+          {errors.password && (
+            <p className="text-red-500 text-xs mt-1">
+              {errors.password.message}
+            </p>
+          )}
+        </div>
 
-              {errors.email && (
-                <p className="text-red-500 text-sm">{errors.email.message}</p>
-              )}
-            </div>
+        {apiError && (
+          <p className="text-red-500 text-sm font-medium">{apiError}</p>
+        )}
 
-            {/* PASSWORD */}
-            <div className="space-y-2">
-              <label className="text-sm font-medium text-foreground">
-                Password
-              </label>
+        <div className="flex justify-end pt-2">
+          <Button type="submit" className="h-12 px-8 rounded-full bg-[#0F172A] hover:bg-[#1E293B] text-white font-medium text-[15px] flex items-center gap-2">
+            Continue <ArrowRight className="w-4 h-4" />
+          </Button>
+        </div>
+      </form>
 
-              <input
-                type="password"
-                placeholder="Enter Password"
-                {...register("password", {
-                  required: "Password is required",
-                })}
-                className={`w-full p-3 rounded-lg border bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-ring ${
-                  errors.password ? "border-red-500" : "border-border"
-                }`}
-              />
-
-              {errors.password && (
-                <p className="text-red-500 text-sm">
-                  {errors.password.message}
-                </p>
-              )}
-            </div>
-
-            {/* ERROR */}
-            {apiError && (
-              <p className="text-red-500 text-sm text-center">{apiError}</p>
-            )}
-
-            {/* BUTTON */}
-            <Button type="submit" className="w-full h-12">
-              Login
-            </Button>
-          </form>
-        </CardContent>
-      </Card>
-
-      {/* SIGNUP */}
-      <div className="mt-6 text-center text-sm text-muted-foreground">
-        Don’t have an account?{" "}
+      <div className="mt-12 pt-8 border-t border-gray-100 text-center text-sm text-[#6B7280]">
+        Don't have an account?{" "}
         <span
           onClick={() => navigate("/signup")}
-          className="font-medium cursor-pointer hover:underline text-foreground"
+          className="font-semibold text-[#111827] cursor-pointer hover:underline"
         >
-          Sign Up
+          Sign up
         </span>
       </div>
-    </div>
+    </AuthLayout>
   );
 }

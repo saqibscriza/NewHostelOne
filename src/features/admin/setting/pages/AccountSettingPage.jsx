@@ -34,15 +34,15 @@ export default function AccountSettingPage() {
       if (hostel) {
         setHostelId(hostel.hostelId);
         reset({
-          hostelName: hostel.hostelName || "",
-          address: hostel.address || "",
-          hostelType: hostel.hostelType || "",
-          contactNumber: hostel.contactNumber || "",
-          alternateContactNumber: hostel.alternateContactNumber || "",
-          pinCode: hostel.pinCode || "",
-          country: hostel.country || "",
-          state: hostel.state || "",
-          city: hostel.city || "",
+  hostelName: hostel.hostelName ?? "N/A",
+  address: hostel.address ?? "N/A",
+  hostelType: hostel.hostelType ?? "N/A",
+  contactNumber: hostel.contactNumber ?? "N/A",
+  alternateContactNumber: hostel.alternateContactNumber ?? "N/A",
+  pinCode: hostel.pinCode ?? "N/A",
+  country: hostel.country ?? "N/A",
+  state: hostel.state ?? "N/A",
+  city: hostel.city ?? "N/A",
         });
       } else {
         toast.error("Hostel not found");
@@ -202,6 +202,8 @@ export default function AccountSettingPage() {
               >
                 <option value="">Select Country</option>
                 <option value="India">India</option>
+                <option value="USA">USA</option>
+
               </select>
             </div>
 
@@ -216,7 +218,9 @@ export default function AccountSettingPage() {
               >
                 <option value="">Select State</option>
                 <option value="Uttar Pradesh">Uttar Pradesh</option>
-                <option value="Delhi">Delhi</option>
+                <option value="Maharastra">Maharashtra</option>
+                <option value="Rajasthan">Rajasthan</option>
+
               </select>
             </div>
 
@@ -229,8 +233,12 @@ export default function AccountSettingPage() {
                 className="flex h-11 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
               >
                 <option value="">Select City</option>
+                <option value="Jaipur">Jaipur</option>
+                <option value="Mumbai">Mumbai</option>
+                <option value="Pune">Pune</option>
+                <option value="Udaipur">Udaipur</option>
                 <option value="Noida">Noida</option>
-                <option value="Delhi">Delhi</option>
+
               </select>
             </div>
           </div>

@@ -1,268 +1,248 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate,useLocation } from "react-router-dom";
 import { useForm } from "react-hook-form";
-import { ArrowLeft, Upload } from "lucide-react";
-import { signUpApi } from "../../../utils/utils";
-
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "../../../components/ui/Card";
+import { ArrowLeft, ArrowRight, Camera } from "lucide-react";
 import { Button } from "../../../components/ui/button";
+import AuthLayout from "../../auth/component/AuthLayout";
 
 
 export default function SignUp() {
+
   const navigate = useNavigate();
-  const [loaderCheck, setLoaderCheck] = useState(false);
+  const location = useLocation();
+  const savedAdminInfo = location.state?.adminInfo;
+  const savedHostelDetails = location.state?.hostelDetails;
+
   const {
     register,
     handleSubmit,
+    watch,
     formState: { errors },
-  } = useForm();
+  } = useForm({
+    defaultValues: savedAdminInfo || {}
+  });
 
-  const [loading, setLoading] = useState(false);
+  // We can watch the photo to show a preview if desired, otherwise standard UI
+  const profilePhoto = watch("profilePhoto");
 
-  const MySignUp = async (data) => {
-    const formData = new FormData();
-    formData.append("fullName", data.fullName);
-    formData.append("email", data.email);
-    formData.append("phone", data.phone);
-    formData.append("address", data.address);
-    formData.append("pinCode", data.pinCode);
-    formData.append("country", data.country);
-    formData.append("state", data.state);
-    formData.append("city", data.city);
-    formData.append("profilePhoto", data.profilePhoto[0]);
-    try {
-      setLoaderCheck(true); // loader start
-      const res = await signUpApi(formData);
-          if (res?.data?.status === "success") {
-        console.log("Success");
-        // toast.success(response?.data?.message);
-        setLoaderCheck(false);
-        setTimeout(() => {
-          navigate("/login");
-        }, 2000);
-      } else {
-        console.log("Error");
-        // toast.error(response?.data?.message);
-        // setShow(true)
-        setLoaderCheck(false);
-      }
-    } catch (error) {
-      console.log(error);
-      setLoaderCheck(false);
+  const onNextStep = (data) => {
+    if (!data.profilePhoto || data.profilePhoto.length === 0) {
+      data.profilePhoto = savedAdminInfo?.profilePhoto;
     }
+    // Instead of API call, navigate to next step with the form data
+    navigate("/register-hostel", { state: { adminInfo: data, hostelDetails: savedHostelDetails } });
   };
 
   return (
-    <div className="min-h-screen bg-[#fafafa] flex flex-col justify-center items-center p-4 font-sans">
-      <Card className="w-full max-w-[550px] rounded-2xl shadow-sm border border-gray-200">
-        <CardHeader className="space-y-1 pb-6">
-          <CardTitle className="text-3xl font-extrabold tracking-tight">Sign Up</CardTitle>
-          <p className="text-gray-500 text-base">
-            Create your account to get started quickly and securely
+    <AuthLayout
+      title={<>Start Your Hostel<br />Journey Today</>}
+      subtitle="Empowering property managers with high-stakes precision and total control. Join the industry standard for hostel management."
+    >
+      <div className="flex flex-col space-y-8">
+        
+        {/* Stepper */}
+        <div className="flex items-center justify-center gap-4 mb-4">
+          <div className="flex flex-col items-center gap-2">
+            <div className="w-8 h-8 rounded-full bg-[#0F172A] text-white flex items-center justify-center text-sm font-semibold">1</div>
+            <span className="text-xs font-semibold text-[#111827]">Admin Info</span>
+          </div>
+          <div className="w-16 h-[2px] bg-gray-200 -mt-6"></div>
+          <div className="flex flex-col items-center gap-2">
+            <div className="w-8 h-8 rounded-full bg-gray-100 text-gray-400 flex items-center justify-center text-sm font-semibold">2</div>
+            <span className="text-xs font-medium text-gray-500">Hostel Details</span>
+          </div>
+        </div>
+
+        <div>
+          <h2 className="text-3xl font-bold text-[#111827] tracking-tight">Admin Personal Info</h2>
+          <p className="text-[#6B7280] text-sm mt-1">
+            Tell us a bit about yourself to get started with Focus.
           </p>
-        </CardHeader>
+        </div>
 
-        <CardContent>
-          <form onSubmit={handleSubmit(MySignUp)} className="space-y-4">
-            {/* Row 1: Full Name & Email */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="space-y-1.5">
-                <label className="text-sm font-medium text-gray-900">
-                  Full Name
-                </label>
+        <form onSubmit={handleSubmit(onNextStep)} className="space-y-6">
+          
+          {/* Profile Photo */}
+          <div className="flex items-center gap-4">
+            <div className="relative w-20 h-20 rounded-full border border-dashed border-gray-300 bg-gray-50 flex items-center justify-center shrink-0 overflow-hidden">
+               {profilePhoto && profilePhoto.length > 0 ? (
+                 <img src={URL.createObjectURL(profilePhoto[0])} alt="Profile" className="w-full h-full object-cover" />
+               ) : savedAdminInfo?.profilePhoto && savedAdminInfo.profilePhoto.length > 0 ? (
+                 <img src={URL.createObjectURL(savedAdminInfo.profilePhoto[0])} alt="Profile" className="w-full h-full object-cover" />
+               ) : (
+                 <Camera className="w-6 h-6 text-gray-400" />
+               )}
+            </div>
+            <div>
+              <p className="text-sm font-semibold text-[#111827]">Profile Photo</p>
+              <p className="text-xs text-gray-500 mt-1 mb-2">JPG, PNG or GIF. Max size 2MB</p>
+              <div className="relative">
                 <input
-                  type="text"
-                  placeholder="Enter Full Name"
-                  {...register("fullName", { required: "Name is required" })}
-                  className={`w-full h-10 px-3 rounded-lg border ${errors.fullName ? "border-red-500" : "border-gray-200"} bg-white placeholder:text-gray-400 focus:outline-none focus:ring-1 focus:ring-gray-300`}
+                  type="file"
+                  id="profilePhoto"
+                  className="hidden"
+                  accept="image/*"
+                  {...register("profilePhoto", { required: savedAdminInfo?.profilePhoto ? false : "Profile photo is required" })}
                 />
-                {errors.fullName && <span className="text-red-500 text-xs">{errors.fullName.message}</span>}
+                <label
+                  htmlFor="profilePhoto"
+                  className="text-sm text-blue-600 font-medium cursor-pointer hover:underline"
+                >
+                  Upload Photo
+                </label>
               </div>
+              {errors.profilePhoto && <span className="text-red-500 text-xs mt-1 block">{errors.profilePhoto.message}</span>}
+            </div>
+          </div>
 
-              <div className="space-y-1.5">
-                <label className="text-sm font-medium text-gray-900">
-                  Email
-                </label>
-                <input
-                  type="email"
-                  placeholder="Enter Email Address"
-                  {...register("email", { 
-                    required: "Email is required",
-                    pattern: {
-                      value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
-                      message: "invalid email address"
-                    }
-                  })}
-                  className={`w-full h-10 px-3 rounded-lg border ${errors.email ? "border-red-500" : "border-gray-200"} bg-white placeholder:text-gray-400 focus:outline-none focus:ring-1 focus:ring-gray-300`}
-                />
-                {errors.email && <span className="text-red-500 text-xs">{errors.email.message}</span>}
-              </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <label className="text-sm font-semibold text-[#111827]">
+                Admin Full Name<span className="text-red-500">*</span>
+              </label>
+              <input
+                type="text"
+                placeholder="Enter Admin Full Name"
+                {...register("fullName", { required: "Name is required" })}
+                className={`w-full p-3 rounded-xl border bg-white focus:outline-none focus:ring-1 focus:ring-gray-300 text-sm ${errors.fullName ? "border-red-500" : "border-gray-200"}`}
+              />
+              {errors.fullName && <span className="text-red-500 text-xs">{errors.fullName.message}</span>}
             </div>
 
-            {/* Row 2: Phone Number */}
-            <div className="space-y-1.5">
-              <label className="text-sm font-medium text-gray-900">
-                Phone Number
+            <div className="space-y-2">
+              <label className="text-sm font-semibold text-[#111827]">
+                Admin Email Address<span className="text-red-500">*</span>
+              </label>
+              <input
+                type="email"
+                placeholder="Enter Email Address"
+                {...register("email", { 
+                  required: "Email is required",
+                  pattern: { value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i, message: "invalid email address" }
+                })}
+                className={`w-full p-3 rounded-xl border bg-white focus:outline-none focus:ring-1 focus:ring-gray-300 text-sm ${errors.email ? "border-red-500" : "border-gray-200"}`}
+              />
+              {errors.email && <span className="text-red-500 text-xs">{errors.email.message}</span>}
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <label className="text-sm font-semibold text-[#111827]">
+                Admin Phone Number<span className="text-red-500">*</span>
               </label>
               <input
                 type="tel"
                 placeholder="Enter Phone Number"
                 {...register("phone", { 
                   required: "Phone is required",
-                  pattern: {
-                    value: /^[0-9]{10}$/,
-                    message: "Invalid phone number, must be 10 digits"
-                  }
+                  pattern: { value: /^[0-9]{10}$/, message: "Invalid phone number, must be 10 digits" }
                 })}
-                className={`w-full h-10 px-3 rounded-lg border ${errors.phone ? "border-red-500" : "border-gray-200"} bg-white placeholder:text-gray-400 focus:outline-none focus:ring-1 focus:ring-gray-300`}
+                onInput={(e) => {
+                  e.target.value = e.target.value.replace(/\D/g, '').slice(0, 10);
+                }}
+                className={`w-full p-3 rounded-xl border bg-white focus:outline-none focus:ring-1 focus:ring-gray-300 text-sm ${errors.phone ? "border-red-500" : "border-gray-200"}`}
               />
               {errors.phone && <span className="text-red-500 text-xs">{errors.phone.message}</span>}
             </div>
 
-            {/* Row 3: Address */}
-            <div className="space-y-1.5">
-              <label className="text-sm font-medium text-gray-900">
-                Address
+            <div className="space-y-2">
+              <label className="text-sm font-semibold text-[#111827]">
+                PIN Code<span className="text-red-500">*</span>
               </label>
               <input
                 type="text"
-                placeholder="Enter Full Address"
-                {...register("address", { required: "Address is required" })}
-                className={`w-full h-10 px-3 rounded-lg border ${errors.address ? "border-red-500" : "border-gray-200"} bg-white placeholder:text-gray-400 focus:outline-none focus:ring-1 focus:ring-gray-300`}
+                placeholder="6-digit code"
+                {...register("pinCode", { 
+                  required: "Pin code is required",
+                  pattern: { value: /^\d{6}$/, message: "Must be exactly 6 digits" }
+                })}
+                onInput={(e) => {
+                  e.target.value = e.target.value.replace(/\D/g, '').slice(0, 6);
+                }}
+                className={`w-full p-3 rounded-xl border bg-white focus:outline-none focus:ring-1 focus:ring-gray-300 text-sm ${errors.pinCode ? "border-red-500" : "border-gray-200"}`}
               />
-              {errors.address && <span className="text-red-500 text-xs">{errors.address.message}</span>}
+              {errors.pinCode && <span className="text-red-500 text-xs">{errors.pinCode.message}</span>}
+            </div>
+          </div>
+
+          <div className="space-y-2">
+            <label className="text-sm font-semibold text-[#111827]">
+              Address<span className="text-red-500">*</span>
+            </label>
+            <textarea
+              rows={2}
+              placeholder="Street address, building, floor..."
+              {...register("address", { required: "Address is required" })}
+              className={`w-full p-3 rounded-xl border bg-white focus:outline-none focus:ring-1 focus:ring-gray-300 text-sm resize-none ${errors.address ? "border-red-500" : "border-gray-200"}`}
+            />
+            {errors.address && <span className="text-red-500 text-xs">{errors.address.message}</span>}
+          </div>
+
+          <div className="grid grid-cols-3 gap-4">
+            <div className="space-y-2">
+              <label className="text-sm font-semibold text-[#111827]">Country<span className="text-red-500">*</span></label>
+              <select
+                {...register("country", { required: "Required" })}
+                className={`w-full px-3 h-[46px] rounded-xl border bg-white text-sm focus:outline-none focus:ring-1 focus:ring-gray-300 ${errors.country ? "border-red-500" : "border-gray-200"}`}
+                defaultValue=""
+              >
+                <option value="" disabled hidden>Select Country</option>
+                <option value="India">India</option>
+                <option value="USA">USA</option>
+              </select>
             </div>
 
-            {/* Row 4: Pin code & Country */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="space-y-1.5">
-                <label className="text-sm font-medium text-gray-900">
-                  Pin code
-                </label>
-                <input
-                  type="text"
-                  placeholder="Enter Code"
-                  {...register("pinCode", { required: "Pin code is required" })}
-                  className={`w-full h-10 px-3 rounded-lg border ${errors.pinCode ? "border-red-500" : "border-gray-200"} bg-white placeholder:text-gray-400 focus:outline-none focus:ring-1 focus:ring-gray-300`}
-                />
-                {errors.pinCode && <span className="text-red-500 text-xs">{errors.pinCode.message}</span>}
-              </div>
+            <div className="space-y-2">
+              <label className="text-sm font-semibold text-[#111827]">State<span className="text-red-500">*</span></label>
+              <select
+                {...register("state", { required: "Required" })}
+                className={`w-full px-3 h-[46px] rounded-xl border bg-white text-sm focus:outline-none focus:ring-1 focus:ring-gray-300 ${errors.state ? "border-red-500" : "border-gray-200"}`}
+                defaultValue=""
+              >
+                <option value="" disabled hidden>State/Province</option>
+                <option value="Rajasthan">Rajasthan</option>
+                <option value="Maharashtra">Maharashtra</option>
+                <option value="UP">UP</option>
 
-              <div className="space-y-1.5">
-                <label className="text-sm font-medium text-gray-900">
-                  Country
-                </label>
-                <select
-                  {...register("country", { required: "Country is required" })}
-                  className={`w-full h-10 px-3 py-0 rounded-lg border ${errors.country ? "border-red-500" : "border-gray-200"} bg-white text-gray-600 focus:outline-none focus:ring-1 focus:ring-gray-300 appearance-none`}
-                  style={{
-                    backgroundImage: "url(\"data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e\")",
-                    backgroundRepeat: "no-repeat",
-                    backgroundPosition: "right 1rem center",
-                    backgroundSize: "1em"
-                  }}
-                  defaultValue=""
-                >
-                  <option value="" disabled hidden>Select country</option>
-                  <option value="India">India</option>
-                  <option value="USA">USA</option>
-                </select>
-                {errors.country && <span className="text-red-500 text-xs">{errors.country.message}</span>}
-              </div>
+              </select>
             </div>
 
-            {/* Row 5: State & City */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="space-y-1.5">
-                <label className="text-sm font-medium text-gray-900">
-                  State
-                </label>
-                <select
-                  {...register("state", { required: "State is required" })}
-                  className={`w-full h-10 px-3 py-0 rounded-lg border ${errors.state ? "border-red-500" : "border-gray-200"} bg-white text-gray-600 focus:outline-none focus:ring-1 focus:ring-gray-300 appearance-none`}
-                  style={{
-                    backgroundImage: "url(\"data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e\")",
-                    backgroundRepeat: "no-repeat",
-                    backgroundPosition: "right 1rem center",
-                    backgroundSize: "1em"
-                  }}
-                  defaultValue=""
-                >
-                  <option value="" disabled hidden>Select State</option>
-                  <option value="Rajasthan">Rajasthan</option>
-                  <option value="Maharashtra">Maharashtra</option>
-                </select>
-                {errors.state && <span className="text-red-500 text-xs">{errors.state.message}</span>}
-              </div>
-
-              <div className="space-y-1.5">
-                <label className="text-sm font-medium text-gray-900">
-                  City
-                </label>
-                <select
-                  {...register("city", { required: "City is required" })}
-                  className={`w-full h-10 px-3 py-0 rounded-lg border ${errors.city ? "border-red-500" : "border-gray-200"} bg-white text-gray-600 focus:outline-none focus:ring-1 focus:ring-gray-300 appearance-none`}
-                  style={{
-                    backgroundImage: "url(\"data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e\")",
-                    backgroundRepeat: "no-repeat",
-                    backgroundPosition: "right 1rem center",
-                    backgroundSize: "1em"
-                  }}
-                  defaultValue=""
-                >
-                  <option value="" disabled hidden>Select City</option>
-                  <option value="Jaipur">Jaipur</option>
-                  <option value="Mumbai">Mumbai</option>
-                </select>
-                {errors.city && <span className="text-red-500 text-xs">{errors.city.message}</span>}
-              </div>
+            <div className="space-y-2">
+              <label className="text-sm font-semibold text-[#111827]">City<span className="text-red-500">*</span></label>
+              <select
+                {...register("city", { required: "Required" })}
+                className={`w-full px-3 h-[46px] rounded-xl border bg-white text-sm focus:outline-none focus:ring-1 focus:ring-gray-300 ${errors.city ? "border-red-500" : "border-gray-200"}`}
+                defaultValue=""
+              >
+                <option value="" disabled hidden>City</option>
+                <option value="Jaipur">Jaipur</option>
+                <option value="Mumbai">Mumbai</option>
+                <option value="Pune">Pune</option>
+                <option value="Udaipur">Udaipur</option>
+                <option value="Noida">Noida</option>
+                
+              </select>
             </div>
+          </div>
 
-            {/* Row 6: Profile Photo */}
-            <div className="space-y-1.5">
-              <label className="text-sm font-medium text-gray-900">
-                Profile Photo
-              </label>
-              <div className="relative">
-                <input
-                  type="file"
-                  id="profilePhoto"
-                  className="hidden"
-                  {...register("profilePhoto", { required: "Profile photo is required" })}
-                />
-                <label
-                  htmlFor="profilePhoto"
-                  className={`flex items-center justify-between w-full h-10 px-3 rounded-lg border ${errors.profilePhoto ? "border-red-500" : "border-gray-200"} bg-white cursor-pointer hover:bg-gray-50 text-gray-400`}
-                >
-                  <span className="text-[14px]">Upload Photo</span>
-                  <Upload className="w-5 h-5 text-gray-400" />
-                </label>
-                {errors.profilePhoto && <span className="text-red-500 text-xs">{errors.profilePhoto.message}</span>}
-              </div>
-            </div>
-
-            {/* Submit Button */}
-            <Button
-              disabled={loaderCheck}
-              type="submit"
-              className="w-full h-11 mt-4 bg-[#0f172a] hover:bg-[#1e293b] text-white rounded-lg font-medium"
+          <div className="flex items-center justify-between pt-6">
+            <button
+              type="button"
+              onClick={() => navigate("/login")}
+              className="flex items-center gap-2 text-sm font-medium text-[#6B7280] hover:text-[#111827]"
             >
-              {loaderCheck ? "Submitting..." : "Sign Up"}
+              <ArrowLeft className="w-4 h-4" /> Back to Login
+            </button>
+            <Button
+              type="submit"
+              className="h-11 px-8 rounded-full bg-[#0F172A] hover:bg-[#1E293B] text-white font-medium text-sm flex items-center gap-2"
+            >
+              Next Step <ArrowRight className="w-4 h-4" />
             </Button>
-          </form>
-        </CardContent>
-      </Card>
-
-      <div className="mt-6 flex items-center gap-2 cursor-pointer text-gray-900 hover:underline" onClick={() => navigate("/login")}>
-        <ArrowLeft className="w-5 h-5" />
-        <span className="text-[16px]">Back to <span className="font-bold">Login</span></span>
+          </div>
+        </form>
       </div>
-    </div>
+    </AuthLayout>
   );
 }
-

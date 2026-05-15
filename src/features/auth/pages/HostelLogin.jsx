@@ -2,16 +2,8 @@ import * as React from "react"
 import { useState, useEffect } from "react"
 import { useNavigate, useLocation } from "react-router-dom"
 import { useAuth } from "../../../../src/context/AuthContext"
+import { ArrowRight } from "lucide-react"
 import { Button } from "../../../../src/components/ui/button"
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "../../../../src/components/ui/Card"
-import { Label } from "../../../../src/components/ui/label"
 import {
   Select,
   SelectContent,
@@ -20,6 +12,7 @@ import {
   SelectValue,
 } from "../../../../src/components/ui/select"
 import { selectHostelApi } from "../../../../src/utils/utils"
+import AuthLayout from "../../auth/component/AuthLayout"
 
 export default function SelectHostelForm() {
   const navigate = useNavigate();
@@ -67,54 +60,59 @@ export default function SelectHostelForm() {
   if (!hostels) return null;
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gray-50/50 p-4">
-      {/* The max-width and padding mirror the proportions of the provided image.
-        Using a standard rounded-xl or rounded-2xl to match the soft corners.
-      */}
-      <Card className="w-full max-w-lg rounded-2xl border-gray-200 shadow-sm">
-        <CardHeader className="space-y-1.5 pb-6 pt-8 px-8">
-          <CardTitle className="text-[2.5rem] font-extrabold leading-tight tracking-tight text-black">
-            Select Hostel
-          </CardTitle>
-          <CardDescription className="text-xl text-gray-500 pt-1">
-            Select a hostel to view and control
-          </CardDescription>
-        </CardHeader>
-        
-        <CardContent className="px-8 pb-6">
-          <div className="space-y-3">
-            <Label htmlFor="hostel" className="text-[1.1rem] font-semibold text-black">
-              Hostel Name
-            </Label>
-            <Select onValueChange={setSelectedHostel} value={selectedHostel}>
-              <SelectTrigger 
-                id="hostel" 
-                className={`h-14 w-full rounded-xl border-gray-200 bg-white text-base text-gray-500 focus:ring-1 focus:ring-gray-300 ${error ? "border-red-500" : ""}`}
-              >
-                <SelectValue placeholder="Select Hostel" />
-              </SelectTrigger>
-              <SelectContent>
-                {hostels.map((hostel) => (
-                  <SelectItem key={hostel.hostelId} value={hostel.hostelId}>
-                    {hostel.hostelName || hostel.name || `Hostel ${hostel.hostelId}`}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            {error && <p className="text-red-500 text-sm mt-1">{error}</p>}
-          </div>
-        </CardContent>
+    <AuthLayout
+      title={<>Access Your Hostel<br />Management Dashboard</>}
+      subtitle="Manage your hostel operations seamlessly with secure access to your dashboard. Monitor bookings, residents, inventory, staff, and daily activities all in one centralized platform."
+    >
+      <div className="space-y-2 mb-8">
+        <h2 className="text-3xl font-bold text-[#111827] tracking-tight">Select Hostel</h2>
+        <p className="text-[#6B7280] text-base">
+          Select a hostel to view and control
+        </p>
+      </div>
+      
+      <div className="space-y-6">
+        <div className="space-y-2">
+          <label className="text-sm font-semibold text-[#111827]">
+            Hostel Name<span className="text-red-500">*</span>
+          </label>
+          <Select onValueChange={setSelectedHostel} value={selectedHostel}>
+            <SelectTrigger 
+              className={`w-full p-3.5 h-[52px] rounded-xl border bg-white focus:outline-none focus:ring-1 focus:ring-gray-300 text-sm ${error ? "border-red-500" : "border-gray-200"}`}
+            >
+              <SelectValue placeholder="Select Hostel" />
+            </SelectTrigger>
+            <SelectContent>
+              {hostels.map((hostel) => (
+                <SelectItem key={hostel.hostelId} value={hostel.hostelId}>
+                  {hostel.hostelName || hostel.name || `Hostel ${hostel.hostelId}`}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          {error && <p className="text-red-500 text-xs mt-1">{error}</p>}
+        </div>
 
-        <CardFooter className="px-8 pb-8">
+        <div className="flex justify-end pt-2">
           <Button 
             onClick={handleLogin}
             disabled={loading}
-            className="h-14 w-full rounded-xl bg-[#0f172a] text-[1.1rem] font-medium text-white hover:bg-[#1e293b]"
+            className="h-12 px-8 rounded-full bg-[#0F172A] hover:bg-[#1E293B] text-white font-medium text-[15px] flex items-center gap-2"
           >
-            {loading ? "Logging in..." : "Login"}
+            {loading ? "Logging in..." : "Login"} <ArrowRight className="w-4 h-4" />
           </Button>
-        </CardFooter>
-      </Card>
-    </div>
+        </div>
+      </div>
+
+      <div className="mt-12 pt-8 border-t border-gray-100 text-center text-sm text-[#6B7280]">
+        Don't have an account?{" "}
+        <span
+          onClick={() => navigate("/signup")}
+          className="font-semibold text-[#111827] cursor-pointer hover:underline"
+        >
+          Sign up
+        </span>
+      </div>
+    </AuthLayout>
   )
 }
