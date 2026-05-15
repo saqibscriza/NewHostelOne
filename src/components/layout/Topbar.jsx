@@ -11,6 +11,7 @@ import {
   getStaffByIdApi,
   getStudentDashboardApi,
   selectHostelApi,
+  getChefDashboardApi,
 } from "../../utils/utils";
 
 const getFirstValue = (source, keys) => {
@@ -81,24 +82,15 @@ const Topbar = ({ onMenuClick }) => {
       }
 
       if (role === "chef") {
-        const staffId =
-          sessionStorage.getItem("staffId") ||
-          sessionStorage.getItem("chefId") ||
-          sessionStorage.getItem("userId");
+        const response = await getChefDashboardApi();
 
-        if (staffId) {
-          const response = await getStaffByIdApi(staffId);
-          displayName = getFirstValue(response?.data, [
-            "staff.fullName",
-            "staff.name",
-            "data.fullName",
-            "data.name",
-            "fullName",
-            "name",
-          ]);
-        }
+        displayName = getFirstValue(response?.data, [
+          "dashboard.chefName",
+          "chefName",
+          "data.chefName",
+        ]);
       }
-
+      
       if (displayName) updateUserName(displayName);
     };
 
