@@ -84,6 +84,7 @@ import InventoryDetailsPage from "./features/chef/inventory/pages/inventoryDetai
 import InventoryCategoryPage from "./features/chef/inventory/pages/inventoryCategory/InventoryCategoryPage";
 import AddStockPage from "./features/chef/inventory/pages/inventoryDetails/AddStockPage";
 import AddCategoryPage from "./features/chef/inventory/pages/inventoryCategory/AddCategoryPage";
+import AddCategoryItemPage from "./features/chef/inventory/pages/inventoryCategory/AddCategoryItemPage";
 import CategoryDetailsPage from "./features/chef/inventory/pages/inventoryCategory/CategoryDetailsPage";
 import EditCategoryPage from "./features/chef/inventory/pages/inventoryCategory/EditCategoryPage";
 import EditCategoryItemPage from "./features/chef/inventory/pages/inventoryCategory/EditCategoryItemPage";

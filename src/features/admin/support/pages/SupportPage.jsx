@@ -24,6 +24,14 @@ export default function SupportPage() {
   const [tickets, setTickets] = useState([]);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [selectedTicket, setSelectedTicket] = useState(null);
+  const [searchTerm, setSearchTerm] = useState("");
+
+const filteredTickets = tickets.filter((ticket) => {
+  const name = ticket.studentName || ticket.userName || "";
+
+  return name.toLowerCase().includes(searchTerm.toLowerCase());
+});
+
 
   // Pagination states
   // // Second Step states add karo to panage
@@ -36,8 +44,11 @@ export default function SupportPage() {
 const indexOfLastItem = currentPage * itemsPerPage;
 const indexOfFirstItem = indexOfLastItem - itemsPerPage;
 // Ye filtered records hain! Ise render karna hota map function mein.
-const currentTickets = tickets.slice(indexOfFirstItem, indexOfLastItem);
-const totalPages = Math.ceil(tickets.length / itemsPerPage);
+const currentTickets = filteredTickets.slice(
+  indexOfFirstItem,
+  indexOfLastItem
+);
+const totalPages = Math.ceil(filteredTickets.length / itemsPerPage);
 
 //Step 4. 
 //Apne Map Function Ko Update Karein
@@ -84,6 +95,7 @@ const fetchSupportTickets = async () => {
     }
   };
 
+
   return (
     <div className="p-4 md:p-8 max-w-7xl mx-auto space-y-8 bg-background min-h-screen text-foreground">
       {/* Header Section */}
@@ -98,11 +110,16 @@ const fetchSupportTickets = async () => {
         {/* Search Bar */}
         <div className="relative max-w-3xl">
           <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
-          <input
-            type="text"
-            placeholder="Search documentation, guides, and more..."
-            className="w-full h-14 pl-12 pr-4 rounded-xl border border-input bg-card text-card-foreground shadow-sm focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent transition-all placeholder:text-muted-foreground"
-          />
+<input
+  type="text"
+  placeholder="Search by student name..."
+  value={searchTerm}
+  onChange={(e) => {
+    setSearchTerm(e.target.value);
+    setCurrentPage(1);
+  }}
+  className="w-full h-14 pl-12 pr-4 rounded-xl border border-input bg-card text-card-foreground shadow-sm focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent transition-all placeholder:text-muted-foreground"
+/>
         </div>
       </div>
 
@@ -140,11 +157,21 @@ const fetchSupportTickets = async () => {
     >
       <td className="px-6 py-4 whitespace-nowrap">
         <div className="flex items-center gap-3">
-          <img
-            src={ticket.imagePath}
-            alt={ticket.studentName || ticket.userName}
-            className="w-8 h-8 rounded-full border border-border object-cover"
-          />
+{ticket.imagePath ? (
+  <img
+    src={ticket.imagePath}
+    alt={ticket.studentName || ticket.userName}
+    className="w-8 h-8 rounded-full border border-border object-cover"
+  />
+) : (
+  <div className="w-8 h-8 rounded-full border border-border bg-slate-200 flex items-center justify-center text-xs font-semibold text-slate-700 uppercase">
+    {(ticket.studentName || ticket.userName || "N")
+      .split(" ")
+      .map((word) => word.charAt(0))
+      .join("")
+      .slice(0, 2)}
+  </div>
+)}
           <span className="font-medium text-foreground">
             {ticket.studentName || ticket.userName}
           </span>
