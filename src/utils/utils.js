@@ -8,7 +8,7 @@ const getToken = () => {
 // const forgetTooken = `Bearer ${sessionStorage.getItem('ERPForgetToken')}`;
 // console.log("token in utils:", token);
 
-// const Domain = 'http://192.168.21.232:5000';
+// const Domain = 'http://192.168.21.232:5000';   
 // const Domain = 'http://192.168.20.109:5000';
 // const Domain = 'https://auth.edu2all.in/sch';
 // const Domain = "https://test.edu2all.in/hostel";
@@ -40,7 +40,7 @@ export const loginApi = async (data) => {
 // Logout //
 export const logoutApi = async () => {
   try {
-    axios.defaults.headers.common["Authorization"] = token;
+    axios.defaults.headers.common["Authorization"] = getToken();
     var res = await axios.delete(`${Domain}/login/logout`);
     if (res) {
       return res;
@@ -138,7 +138,7 @@ export const getChefDashboardApi = async () => {
 
     const res = await axios.get(`${Domain}/chef/dashboard`, {
       headers: {
-        Authorization: `Bearer ${token}`,
+        Authorization: `Bearer ${getToken()}`,  
       },
     });
 
@@ -190,7 +190,7 @@ export const selectHostelApi = async (hostelId, userToken) => {
 
 export const addHostelApi = async (data) => {
   try {
-    axios.defaults.headers.common["Authorization"] = token;
+    axios.defaults.headers.common["Authorization"] = getToken();
 
     var res = await axios.post(`${Domain}/hostel/create`, data);
 
@@ -253,7 +253,7 @@ const toHostelCreateParams = (data) => {
 
 // export const addHostelApi = async (data) => {
 //   try {
-//     axios.defaults.headers.common["Authorization"] = token;
+//     axios.defaults.headers.common["Authorization"] = getToken();
 //     const params = toHostelCreateParams(data);
 
 //     var res = await axios.post(
@@ -277,7 +277,7 @@ const toHostelCreateParams = (data) => {
 //********* Update Hostel********* */
 export const updateHostelApi = async (id, data) => {
   try {
-    axios.defaults.headers.common["Authorization"] = token;
+    axios.defaults.headers.common["Authorization"] = getToken();
     var res = await axios.put(
       `${Domain}/hostel/update/${id}`,
       {
@@ -304,7 +304,7 @@ export const updateHostelApi = async (id, data) => {
 //*********** Get Hostel By Id *************** */
 export const getHostelById = async (hostelId) => {
   try {
-    axios.defaults.headers.common["Authorization"] = token;
+    axios.defaults.headers.common["Authorization"] = getToken();
     var res = await axios.get(`${Domain}/hostel/getById?hostelId=${id}`);
     if (res) {
       return res;
@@ -319,7 +319,7 @@ export const getHostelById = async (hostelId) => {
 //********* Get All Hostel Details********* */
 export const getAllHostelDetailsApi = async () => {
   try {
-    axios.defaults.headers.common["Authorization"] = token;
+    axios.defaults.headers.common["Authorization"] = getToken();
     var res = await axios.get(`${Domain}/hostel/getAll`);
     if (res) {
       return res;
@@ -334,7 +334,7 @@ export const getAllHostelDetailsApi = async () => {
 //********* Delete Hostel Details By Id********* */
 export const deleteHostelById = async (id) => {
   try {
-    axios.defaults.headers.common["Authorization"] = token;
+    axios.defaults.headers.common["Authorization"] = getToken();
     var res = await axios.delete(`${Domain}/hostel/delete/${id}`);
     if (res) {
       return res;
@@ -350,7 +350,7 @@ export const deleteHostelById = async (id) => {
 //********* Get All Package Details********* */
 export const getAllPackageApi = async () => {
   try {
-    axios.defaults.headers.common["Authorization"] = token;
+    axios.defaults.headers.common["Authorization"] = getToken();
     var res = await axios.get(`${Domain}/package/all`);
     if (res) {
       return res;
@@ -365,7 +365,7 @@ export const getAllPackageApi = async () => {
 //************************** GET ALL Admin ***************************/
 export const getAllAdminApi = async () => {
   try {
-    axios.defaults.headers.common["Authorization"] = token;
+    axios.defaults.headers.common["Authorization"] = getToken();
     var res = await axios.get(`${Domain}/admin/getAllAdmin`);
     if (res) {
       return res;
@@ -383,7 +383,7 @@ export const getAllAdminApi = async () => {
 
 export const getAllStaffApi = async () => {
   try {
-    axios.defaults.headers.common["Authorization"] = token;
+    axios.defaults.headers.common["Authorization"] = getToken();
     var res = await axios.get(`${Domain}/staff/all`);
     if (res) {
       return res;
@@ -397,7 +397,7 @@ export const getAllStaffApi = async () => {
 
 export const addStaffApi = async (data) => {
   try {
-    axios.defaults.headers.common["Authorization"] = token;
+    axios.defaults.headers.common["Authorization"] = getToken();
     var res = await axios.post(`${Domain}/staff/add`, data);
     if (res) {
       return res;
@@ -411,7 +411,7 @@ export const addStaffApi = async (data) => {
 
 export const updateStaffApi = async (id, data) => {
   try {
-    axios.defaults.headers.common["Authorization"] = token;
+    axios.defaults.headers.common["Authorization"] = getToken();
     var res = await axios.put(`${Domain}/staff/update/${id}`, data);
     if (res) {
       return res;
@@ -429,7 +429,7 @@ export const updateStaffApi = async (id, data) => {
 
 export const deleteStaffApi = async (id) => {
   try {
-    axios.defaults.headers.common["Authorization"] = token;
+    axios.defaults.headers.common["Authorization"] = getToken();
     var res = await axios.delete(`${Domain}/staff/delete/${id}`);
     if (res) {
       return res;
@@ -459,7 +459,7 @@ export const getStaffByIdApi = async (id) => {
 
 export const getAllRoleApi = async () => {
   try {
-    axios.defaults.headers.common["Authorization"] = token;
+    axios.defaults.headers.common["Authorization"] = getToken();
     var res = await axios.get(`${Domain}/roles/all`);
     if (res) {
       return res;
@@ -473,7 +473,7 @@ export const getAllRoleApi = async () => {
 
 export const addRoleApi = async (data) => {
   try {
-    axios.defaults.headers.common["Authorization"] = token;
+    axios.defaults.headers.common["Authorization"] = getToken();
     var res = await axios.post(
       `${Domain}/roles/add?identityName=${data.identityName}&roleName=${data.roleName}`,
       data,
@@ -490,7 +490,7 @@ export const addRoleApi = async (data) => {
 
 export const deleteRoleApi = async (roleId) => {
   try {
-    axios.defaults.headers.common["Authorization"] = token;
+    axios.defaults.headers.common["Authorization"] = getToken();
     var res = await axios.delete(`${Domain}/roles/delete/${roleId}`);
     if (res) {
       return res;
@@ -504,7 +504,7 @@ export const deleteRoleApi = async (roleId) => {
 
 export const updateRoleApi = async (roleId, data) => {
   try {
-    axios.defaults.headers.common["Authorization"] = token;
+    axios.defaults.headers.common["Authorization"] = getToken();
 
     const res = await axios.put(
       `${Domain}/roles/update/${roleId}`,
@@ -526,7 +526,7 @@ export const updateRoleApi = async (roleId, data) => {
 //********* Get AllStaffEmployee By Id ********* */
 export const getAllStaffEmployeeIdApi = async () => {
   try {
-    axios.defaults.headers.common["Authorization"] = token;
+    axios.defaults.headers.common["Authorization"] = getToken();
     var res = await axios.get(`${Domain}/staff/next-employee-id`);
     if (res) {
       return res;
@@ -542,7 +542,7 @@ export const getAllStaffEmployeeIdApi = async () => {
 
 export const updateHostelByIdApi = async (id, data) => {
   try {
-    axios.defaults.headers.common["Authorization"] = token;
+    axios.defaults.headers.common["Authorization"] = getToken();
 
     const res = await axios.put(
       `${Domain}/hostel/update/${id}`,
@@ -560,7 +560,7 @@ export const updateHostelByIdApi = async (id, data) => {
 
 export const getHostelByIdApi = async () => {
   try {
-    axios.defaults.headers.common["Authorization"] = token;
+    axios.defaults.headers.common["Authorization"] = getToken();
     var res = await axios.get(`${Domain}/hostel/getById`);
     if (res) {
       return res;
@@ -576,7 +576,7 @@ export const getHostelByIdApi = async () => {
 
 export const registerHostelApi = async (data) => {
   try {
-    axios.defaults.headers.common["Authorization"] = token;
+    axios.defaults.headers.common["Authorization"] = getToken();
     var res = await axios.post(`${Domain}/hostel/register`, data);
     if (res) {
       return res;
@@ -590,7 +590,7 @@ export const registerHostelApi = async (data) => {
 
 export const addHostelRegisterApi = async (data) => {
   try {
-    axios.defaults.headers.common["Authorization"] = token;
+    axios.defaults.headers.common["Authorization"] = getToken();
     var res = await axios.post(`${Domain}/hostel/user-create`, data, {
       params: data, // ✅ send data as query params
     });
@@ -608,7 +608,7 @@ export const addHostelRegisterApi = async (data) => {
 
 export const getAllStudentApi = async ({ page = 0, size = 10 }) => {
   try {
-    axios.defaults.headers.common["Authorization"] = token;
+    axios.defaults.headers.common["Authorization"] = getToken();
 
     const res = await axios.get(`${Domain}/student/all`, {
       params: {
@@ -627,7 +627,7 @@ export const getAllStudentApi = async ({ page = 0, size = 10 }) => {
 
 export const getFeeCSV = async (data) => {
   try {
-    axios.defaults.headers.common["Authorization"] = token;
+    axios.defaults.headers.common["Authorization"] = getToken();
     const res = await axios.get(`${Domain}/fee/export-csv`);
     return res?.data;
   } catch (error) {
@@ -639,7 +639,7 @@ export const getFeeCSV = async (data) => {
 
 export const getFeeSummaryByIdApi = async (studentId) => {
   try {
-    axios.defaults.headers.common["Authorization"] = token;
+    axios.defaults.headers.common["Authorization"] = getToken();
 
     const res = await axios.get(`${Domain}/fee/student-fee-summary`, {
       params: { studentId },
@@ -653,7 +653,7 @@ export const getFeeSummaryByIdApi = async (studentId) => {
 
 export const getFeeDashboard = async (data) => {
   try {
-    axios.defaults.headers.common["Authorization"] = token;
+    axios.defaults.headers.common["Authorization"] = getToken();
 
     const res = await axios.get(`${Domain}/fee/dashboard`);
     return res?.data;
@@ -666,7 +666,7 @@ export const getFeeDashboard = async (data) => {
 // get FeeReceipt data by id
 export const getFeeReceipt = async (id) => {
   try {
-    axios.defaults.headers.common["Authorization"] = token;
+    axios.defaults.headers.common["Authorization"] = getToken();
     const res = await axios.get(`${Domain}/fee/receipt`, {
       params: { transactionId: id },
     });
@@ -679,7 +679,7 @@ export const getFeeReceipt = async (id) => {
 
 export const getFeePaymentHistory = async (studentId, page = 1) => {
   try {
-    axios.defaults.headers.common["Authorization"] = token;
+    axios.defaults.headers.common["Authorization"] = getToken();
     const res = await axios.get(`${Domain}/fee/student/payment-history`, {
       params: {
         studentId,
@@ -696,7 +696,7 @@ export const getFeePaymentHistory = async (studentId, page = 1) => {
 
 export const postCollectFeeApi = async (data) => {
   try {
-    axios.defaults.headers.common["Authorization"] = token;
+    axios.defaults.headers.common["Authorization"] = getToken();
     const res = await axios.post(`${Domain}/fee/collect`, null, {
       params: data, // ✅ send data as query params
     });
@@ -713,7 +713,7 @@ export const getAllSupportTicketsApi = async () => {
   try {
     console.log("getAllSupportTicketsApi started");
 
-    axios.defaults.headers.common["Authorization"] = token;
+    axios.defaults.headers.common["Authorization"] = getToken();
 
     const res = await axios.get(`${Domain}/support/getAlltickets`);
 
@@ -727,7 +727,7 @@ export const getAllSupportTicketsApi = async () => {
 
 export const updateSupportTicketApi = async (id, payload) => {
   try {
-    axios.defaults.headers.common["Authorization"] = token;
+    axios.defaults.headers.common["Authorization"] = getToken();
 
     const res = await axios.patch(`${Domain}/support/tickets/${id}`, null, {
       params: {
@@ -747,7 +747,7 @@ export const updateSupportTicketApi = async (id, payload) => {
 
 export const getSupportTicketByIdApi = async (id) => {
   try {
-    axios.defaults.headers.common["Authorization"] = token;
+    axios.defaults.headers.common["Authorization"] = getToken();
 
     const res = await axios.get(`${Domain}/support/tickets/${id}`);
 
@@ -763,7 +763,7 @@ export const getSupportTicketByIdApi = async (id) => {
 
 export const getFeeStudentDetails = async () => {
   try {
-    axios.defaults.headers.common["Authorization"] = token;
+    axios.defaults.headers.common["Authorization"] = getToken();
     const res = await axios.get(`${Domain}/fee/student/my-fee-details`);
     return res.data;
   } catch (error) {
@@ -774,7 +774,7 @@ export const getFeeStudentDetails = async () => {
 
 export const getStudentTransectionsApi = async (page = 1) => {
   try {
-    axios.defaults.headers.common["Authorization"] = token;
+    axios.defaults.headers.common["Authorization"] = getToken();
     const res = await axios.get(`${Domain}/fee/student/my-transactions`, {
       params: {
         page: page,
@@ -790,7 +790,7 @@ export const getStudentTransectionsApi = async (page = 1) => {
 // Student Profile
 export const getStudentProfileApi = async () => {
   try {
-    axios.defaults.headers.common["Authorization"] = token;
+    axios.defaults.headers.common["Authorization"] = getToken();
     const res = await axios.get(`${Domain}/student/profile`);
     return res.data;
   } catch (error) {
@@ -805,7 +805,7 @@ export const getStudentByIdApi = async (studentId) => {
   try {
     const token = sessionStorage.getItem("token");
 
-    axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+    axios.defaults.headers.common["Authorization"] = `Bearer ${getToken()}`;
 
     const res = await axios.get(`${Domain}/student/getById`, {
       params: {
@@ -822,7 +822,7 @@ export const getStudentByIdApi = async (studentId) => {
 
 export const getStudentProfileByIdApi = async () => {
   try {
-    axios.defaults.headers.common["Authorization"] = token;
+    axios.defaults.headers.common["Authorization"] = getToken();
     const res = await axios.get(`${Domain}/student/getById`);
     return res.data;
   } catch (error) {
@@ -835,7 +835,7 @@ export const getStudentProfileByIdApi = async () => {
 
 export const updateStudentProfileApi = async (data) => {
   try {
-    axios.defaults.headers.common["Authorization"] = token;
+    axios.defaults.headers.common["Authorization"] = getToken();
     const res = await axios.put(`${Domain}/student/edit-profile`, data);
     return res.data;
   } catch (error) {
@@ -848,7 +848,7 @@ export const updateStudentProfileApi = async (data) => {
 
 export const createSupportTicketApi = async (data) => {
   try {
-    axios.defaults.headers.common["Authorization"] = token;
+    axios.defaults.headers.common["Authorization"] = getToken();
     const res = await axios.post(`${Domain}/support/createTicket`, null, {
       params: data,
     });
@@ -864,7 +864,7 @@ export const createSupportTicketApi = async (data) => {
 /******Inventory********/
 export const addInventoryCategoryApi = async (data) => {
   try {
-    axios.defaults.headers.common["Authorization"] = token;
+    axios.defaults.headers.common["Authorization"] = getToken();
     const res = await axios.post(`${Domain}/inventory/category/add`, data);
     return res.data;
   } catch (error) {
@@ -876,7 +876,7 @@ export const addInventoryCategoryApi = async (data) => {
 // Get all inventory categories
 export const getAllInventoryCategoryApi = async () => {
   try {
-    axios.defaults.headers.common["Authorization"] = token;
+    axios.defaults.headers.common["Authorization"] = getToken();
     const res = await axios.get(`${Domain}/inventory/category/getAll`);
     return res.data;
   } catch (error) {
@@ -888,7 +888,7 @@ export const getAllInventoryCategoryApi = async () => {
 // Get all inventory Items
 export const getAllInventoryItemApi = async () => {
   try {
-    axios.defaults.headers.common["Authorization"] = token;
+    axios.defaults.headers.common["Authorization"] = getToken();
     const res = await axios.get(`${Domain}/inventory/item/getAll`);
     return res.data;
   } catch (error) {
@@ -900,7 +900,7 @@ export const getAllInventoryItemApi = async () => {
 // Get category details by category id
 export const getCategoryItemsByIdApi = async (id) => {
   try {
-    axios.defaults.headers.common["Authorization"] = token;
+    axios.defaults.headers.common["Authorization"] = getToken();
     const res = await axios.get(`${Domain}/inventory/category/${id}`);
     return res.data;
   } catch (error) {
@@ -912,7 +912,7 @@ export const getCategoryItemsByIdApi = async (id) => {
 // Delete inventory category by id
 export const deleteInventoryCategoryApi = async (id) => {
   try {
-    axios.defaults.headers.common["Authorization"] = token;
+    axios.defaults.headers.common["Authorization"] = getToken();
     const res = await axios.delete(`${Domain}/inventory/category/delete/${id}`);
     return res.data;
   } catch (error) {
@@ -924,7 +924,7 @@ export const deleteInventoryCategoryApi = async (id) => {
 // Delete inventory item by id
 export const deleteInventoryItemApi = async (id) => {
   try {
-    axios.defaults.headers.common["Authorization"] = token;
+    axios.defaults.headers.common["Authorization"] = getToken();
     const res = await axios.delete(`${Domain}/inventory/item/delete/${id}`);
     return res.data;
   } catch (error) {
@@ -939,7 +939,7 @@ export const deleteInventoryItemApi = async (id) => {
 // Update inventory category by id
 export const updateInventoryCategoryApi = async (id, data) => {
   try {
-    axios.defaults.headers.common["Authorization"] = token;
+    axios.defaults.headers.common["Authorization"] = getToken();
     const res = await axios.put(
       `${Domain}/inventory/category/update/${id}`,
       data,
@@ -954,7 +954,7 @@ export const updateInventoryCategoryApi = async (id, data) => {
 // // Update inventory category item by id
 // export const updateInventoryCategoryItemApi = async (id, data) => {
 //   try {
-//     axios.defaults.headers.common["Authorization"] = token;
+//     axios.defaults.headers.common["Authorization"] = getToken();
 //     const res = await axios.put(
 //       `${Domain}/inventory/categoryItem/update/${id}`,
 //       data,
@@ -968,7 +968,7 @@ export const updateInventoryCategoryApi = async (id, data) => {
 
 export const updateCategoryItemsApi = async (categoryId, data) => {
   try {
-    axios.defaults.headers.common["Authorization"] = token;
+    axios.defaults.headers.common["Authorization"] = getToken();
 
     const formData = new FormData();
 
@@ -998,7 +998,7 @@ export const updateCategoryItemsApi = async (categoryId, data) => {
 // // Update inventory item Only by id
 export const updateInventoryItemOnlyApi = async (id, data) => {
   try {
-    axios.defaults.headers.common["Authorization"] = token;
+    axios.defaults.headers.common["Authorization"] = getToken();
 
     const res = await axios.put(`${Domain}/inventory/item/update/${id}`, null, {
       params: {
@@ -1018,7 +1018,7 @@ export const updateInventoryItemOnlyApi = async (id, data) => {
 // Update  inventory item by id
 export const updateInventoryItemApi = async (id, data) => {
   try {
-    axios.defaults.headers.common["Authorization"] = token;
+    axios.defaults.headers.common["Authorization"] = getToken();
     const res = await axios.put(`${Domain}/inventory/item/update/${id}`, data);
     return res.data;
   } catch (error) {
@@ -1031,7 +1031,7 @@ export const updateInventoryItemApi = async (id, data) => {
 
 export const getInventoryStockDashboardApi = async () => {
   try {
-    axios.defaults.headers.common["Authorization"] = token;
+    axios.defaults.headers.common["Authorization"] = getToken();
     const res = await axios.get(`${Domain}/inventory/stock/dashboard`);
     return res.data;
   } catch (error) {
@@ -1042,7 +1042,7 @@ export const getInventoryStockDashboardApi = async () => {
 
 export const addStockApi = async (data) => {
   try {
-    axios.defaults.headers.common["Authorization"] = token;
+    axios.defaults.headers.common["Authorization"] = getToken();
     const res = await axios.post(`${Domain}/inventory/stock/add`, data);
     return res.data;
   } catch (error) {
@@ -1053,7 +1053,7 @@ export const addStockApi = async (data) => {
 
 export const deleteStockApi = async (stockId) => {
   try {
-    axios.defaults.headers.common["Authorization"] = token;
+    axios.defaults.headers.common["Authorization"] = getToken();
     const res = await axios.delete(
       `${Domain}/inventory/stock/delete/${stockId}`,
     );
@@ -1067,7 +1067,7 @@ export const deleteStockApi = async (stockId) => {
 // FeedBack Stats
 export const getFeedbackStatsApi = async (id) => {
   try {
-    axios.defaults.headers.common["Authorization"] = token;
+    axios.defaults.headers.common["Authorization"] = getToken();
     const res = await axios.get(`${Domain}/chef/feedback/stats`);
     return res.data;
   } catch (error) {
@@ -1079,7 +1079,7 @@ export const getFeedbackStatsApi = async (id) => {
 //FeedBack List
 export const getFeedbackListApi = async (id) => {
   try {
-    axios.defaults.headers.common["Authorization"] = token;
+    axios.defaults.headers.common["Authorization"] = getToken();
     const res = await axios.get(`${Domain}/chef/feedback/list`);
     return res.data;
   } catch (error) {
@@ -1090,7 +1090,7 @@ export const getFeedbackListApi = async (id) => {
 
 export const getCSV_Api = async () => {
   try {
-    axios.defaults.headers.common["Authorization"] = token;
+    axios.defaults.headers.common["Authorization"] = getToken();
     const res = await axios.get(`${Domain}/fee/export-csv`);
     return res.data;
   } catch (error) {
@@ -1109,7 +1109,7 @@ export const getCSV_Api = async () => {
 
 export const AddPackage = async (data) => {
   try {
-    axios.defaults.headers.common["Authorization"] = token;
+    axios.defaults.headers.common["Authorization"] = getToken();
     var res = await axios.post(`${Domain}/package/create`, data);
     if (res) {
       return res;
@@ -1125,7 +1125,7 @@ export const AddPackage = async (data) => {
 
 export const getPackages = async () => {
   try {
-    axios.defaults.headers.common["Authorization"] = token;
+    axios.defaults.headers.common["Authorization"] = getToken();
 
     const response = await axios.get(`${Domain}/package/all`);
     return response.data;
@@ -1139,7 +1139,7 @@ export const getPackages = async () => {
 
 export const getPackageById = async (id) => {
   try {
-    axios.defaults.headers.common["Authorization"] = token;
+    axios.defaults.headers.common["Authorization"] = getToken();
 
     const response = await axios.get(`${Domain}/package/getById/${id}`);
 
@@ -1154,7 +1154,7 @@ export const getPackageById = async (id) => {
 
 export const updatePackageApi = async (id, data) => {
   try {
-    axios.defaults.headers.common["Authorization"] = token;
+    axios.defaults.headers.common["Authorization"] = getToken();
 
     const response = await axios.put(`${Domain}/package/update/${id}`, data);
 
@@ -1169,7 +1169,7 @@ export const updatePackageApi = async (id, data) => {
 
 export const deletePackageApi = async (id) => {
   try {
-    axios.defaults.headers.common["Authorization"] = token;
+    axios.defaults.headers.common["Authorization"] = getToken();
     const res2 = await axios.delete(`${Domain}/package/delete/${id}`);
     if (res2) {
       return res2;
@@ -1189,7 +1189,7 @@ export const addAmenityApi = async (data) => {
   try {
     const token = sessionStorage.getItem("token");
 
-    axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+    axios.defaults.headers.common["Authorization"] = `Bearer ${getToken()}`;
 
     const formData = new FormData();
 
@@ -1217,7 +1217,7 @@ export const addAmenityApi = async (data) => {
 
 export const getAllAmenitiesApi = async () => {
   try {
-    axios.defaults.headers.common["Authorization"] = token;
+    axios.defaults.headers.common["Authorization"] = getToken();
 
     const res2 = await axios.get(`${Domain}/amenities/all`);
 
@@ -1237,7 +1237,7 @@ export const deleteAmenityById = async (id) => {
   try {
     const token = sessionStorage.getItem("token");
 
-    axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+    axios.defaults.headers.common["Authorization"] = `Bearer ${getToken()}`;
 
     const res = await axios.delete(`${Domain}/amenities/delete?id=${id}`);
 
@@ -1258,7 +1258,7 @@ export const editAmenityById = async (id, name) => {
   try {
     const token = sessionStorage.getItem("token");
 
-    axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+    axios.defaults.headers.common["Authorization"] = `Bearer ${getToken()}`;
 
     // ✅ IMPORTANT: encode name (handles spaces)
     const res = await axios.put(
@@ -1277,7 +1277,7 @@ export const editAmenityById = async (id, name) => {
 
 export const AddnewCategory = async (data) => {
   try {
-    axios.defaults.headers.common["Authorization"] = token;
+    axios.defaults.headers.common["Authorization"] = getToken();
 
     const res = await axios.post(`${Domain}/category/add`, data);
 
@@ -1294,7 +1294,7 @@ export const AddnewCategory = async (data) => {
 
 export const AddOccupancyApi = async (formData) => {
   try {
-    axios.defaults.headers.common["Authorization"] = token;
+    axios.defaults.headers.common["Authorization"] = getToken();
 
     const res = await axios.post(`${Domain}/occupancy/add`, formData);
 
@@ -1313,7 +1313,7 @@ export const AddOccupancyApi = async (formData) => {
 
 export const getAllOccupancyApi = async () => {
   try {
-    axios.defaults.headers.common["Authorization"] = token;
+    axios.defaults.headers.common["Authorization"] = getToken();
 
     const res = await axios.get(`${Domain}/occupancy/all`);
 
@@ -1332,7 +1332,7 @@ export const getAllOccupancyApi = async () => {
 
 export const updateOccupancyById = async (id, data) => {
   try {
-    axios.defaults.headers.common["Authorization"] = token;
+    axios.defaults.headers.common["Authorization"] = getToken();
 
     const res = await axios.put(
       `${Domain}/occupancy/update?id=${id}&occupancyName=${data.get("occupancyName")}`,
@@ -1349,7 +1349,7 @@ export const updateOccupancyById = async (id, data) => {
 
 export const deleteOccupancyById = async (id) => {
   try {
-    axios.defaults.headers.common["Authorization"] = token;
+    axios.defaults.headers.common["Authorization"] = getToken();
 
     const res = await axios.delete(`${Domain}/occupancy/delete?id=${id}`);
 
@@ -1364,7 +1364,7 @@ export const deleteOccupancyById = async (id) => {
 
 export const getAllCategoryApi = async () => {
   try {
-    axios.defaults.headers.common["Authorization"] = token;
+    axios.defaults.headers.common["Authorization"] = getToken();
 
     const res = await axios.get(`${Domain}/category/all`);
 
@@ -1383,7 +1383,7 @@ export const getAllCategoryApi = async () => {
 
 export const addRoomApi = async (data) => {
   try {
-    axios.defaults.headers.common["Authorization"] = token;
+    axios.defaults.headers.common["Authorization"] = getToken();
 
     const res = await axios.post(
       `${Domain}/room/add?roomNameNumber=${data.roomNameNumber}&blockFloor=${data.blockFloor}&categoryId=${data.categoryId}&availableBeds=${data.availableBeds}&totalBeds=${data.totalBeds}&totalRoomPrice=${data.totalRoomPrice}&securityDeposit=${data.securityDeposit}`,
@@ -1406,7 +1406,7 @@ export const getRoomAllData = async (params) => {
 
     const res = await axios.get(`${Domain}/room/getall`, {
       headers: {
-        Authorization: `Bearer ${token}`,
+        Authorization: `Bearer ${getToken()}`,
       },
       params,
     });
@@ -1428,7 +1428,7 @@ export const deleteRoomApi = async (roomId) => {
 
     const res = await axios.delete(`${Domain}/room/delete`, {
       headers: {
-        Authorization: `Bearer ${token}`,
+        Authorization: `Bearer ${getToken()}`,
       },
       params: {
         roomId: roomId,
@@ -1450,7 +1450,7 @@ export const getRoomById = async (roomId) => {
 
     const res = await axios.get(`${Domain}/room/getById`, {
       headers: {
-        Authorization: `Bearer ${token}`,
+        Authorization: `Bearer ${getToken()}`,
       },
       params: {
         roomId: roomId, // 👈 matches swagger
@@ -1472,7 +1472,7 @@ export const addStudentApi = async (data) => {
   try {
     const token = sessionStorage.getItem("token");
 
-    axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+    axios.defaults.headers.common["Authorization"] = `Bearer ${getToken()}`;
 
     const res = await axios.post(`${Domain}/student/add`, data);
 
@@ -1498,7 +1498,7 @@ export const getAllStudentsApi = async (params) => {
     const res = await axios.get(`${Domain}/student/all`, {
       timeout: 10000,
       headers: {
-        Authorization: `Bearer ${token}`,
+        Authorization: `Bearer ${getToken()}`,
       },
       params: {
         searchKey: params?.searchKey || "",
@@ -1551,7 +1551,7 @@ export const updateStudentApi = async (id, data) => {
 
     const res = await axios.put(`${Domain}/student/update/${id}`, data, {
       headers: {
-        Authorization: `Bearer ${token}`,
+        Authorization: `Bearer ${getToken()}`,
         "Content-Type": "multipart/form-data",
       },
     });
@@ -1583,7 +1583,7 @@ export const getAllQueriesApi = async (params = {}) => {
   try {
     const token = sessionStorage.getItem("token");
 
-    axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+    axios.defaults.headers.common["Authorization"] = `Bearer ${getToken()}`;
 
     const res = await axios.get(`${Domain}/enrollment/admin/all-requests`, {
       params: {
@@ -1606,7 +1606,7 @@ export const approveRequestApi = async (requestId) => {
   try {
     const token = sessionStorage.getItem("token");
 
-    axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+    axios.defaults.headers.common["Authorization"] = `Bearer ${getToken()}`;
 
     const res = await axios.put(`${Domain}/enrollment/approve/${requestId}`);
 
@@ -1647,7 +1647,7 @@ export const getAllSuperAdminQueriesApi = async (params = {}) => {
   try {
     const token = sessionStorage.getItem("token");
 
-    axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+    axios.defaults.headers.common["Authorization"] = `Bearer ${getToken()}`;
 
     const res = await axios.get(`${Domain}/admin/getAllQuery`, {
       params: {
@@ -1670,7 +1670,7 @@ export const getSuperAdminQueryByIdApi = async (params = {}) => {
   try {
     const token = sessionStorage.getItem("token");
 
-    axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+    axios.defaults.headers.common["Authorization"] = `Bearer ${getToken()}`;
 
     const res = await axios.get(`${Domain}/admin/getQueryById`, {
       params: {
@@ -1690,7 +1690,7 @@ export const updateSuperAdminQueryStatusApi = async (id, params = {}) => {
   try {
     const token = sessionStorage.getItem("token");
 
-    axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+    axios.defaults.headers.common["Authorization"] = `Bearer ${getToken()}`;
     const requestParams = toCleanParams({
       type: params.type,
       status: params.status,
@@ -1731,7 +1731,7 @@ export const updateSuperAdminQueryStatusApi = async (id, params = {}) => {
 
 export const getHostelAllData = async () => {
   try {
-    axios.defaults.headers.common["Authorization"] = token;
+    axios.defaults.headers.common["Authorization"] = getToken();
 
     var res = await axios.get(`${Domain}/hostel/public/getAll`);
 
@@ -1745,7 +1745,7 @@ export const getHostelAllData = async () => {
 
 export const getHostelDataById = async (id) => {
   try {
-    axios.defaults.headers.common["Authorization"] = token;
+    axios.defaults.headers.common["Authorization"] = getToken();
 
     var res = await axios.get(`${Domain}/hostel/getById/${id}`);
 
@@ -1763,7 +1763,7 @@ export const getHostelDataById = async (id) => {
 
 export const createEnrollmentRequest = async (data) => {
   try {
-    axios.defaults.headers.common["Authorization"] = token;
+    axios.defaults.headers.common["Authorization"] = getToken();
 
     const res = await axios.post(`${Domain}/hostel/enrollment/request`, null, {
       params: data,
@@ -1779,7 +1779,7 @@ export const createEnrollmentRequest = async (data) => {
 
 export const getDashboardAdminApi = async () => {
   try {
-    axios.defaults.headers.common["Authorization"] = token;
+    axios.defaults.headers.common["Authorization"] = getToken();
 
     var res = await axios.get(`${Domain}/dashboard/admin`);
 
@@ -1816,7 +1816,7 @@ export const getAdminProfileApi = async () => {
 // Admin profilt PUT api
 export const updateAdminPersonalDetailsApi = async (data) => {
   try {
-    axios.defaults.headers.common["Authorization"] = token;
+    axios.defaults.headers.common["Authorization"] = getToken();
 
     const res = await axios.put(`${Domain}/admin/updatePersonalDetails`, null, {
       params: {
@@ -1844,7 +1844,7 @@ export const updateAdminPersonalDetailsApi = async (data) => {
 
 // export const updateAdminPersonalDetailsApi = async (data) => {
 //   try {
-//     axios.defaults.headers.common["Authorization"] = token;
+//     axios.defaults.headers.common["Authorization"] = getToken();
 
 //     const res = await axios.put(`${Domain}/admin/updatePersonalDetails`, null, {
 //       params: {
@@ -1874,7 +1874,7 @@ export const updateAdminPersonalDetailsApi = async (data) => {
 
 export const getAllPackageData = async () => {
   try {
-    axios.defaults.headers.common["Authorization"] = token;
+    axios.defaults.headers.common["Authorization"] = getToken();
 
     const res = await axios.get(`${Domain}/package/all`);
 
@@ -1894,7 +1894,7 @@ export const getAdminByIdApi = async () => {
   try {
     const token = sessionStorage.getItem("token");
 
-    axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+    axios.defaults.headers.common["Authorization"] = `Bearer ${getToken()}`;
 
     const res = await axios.get(`${Domain}/admin/getAdminById`);
 
@@ -1913,7 +1913,7 @@ export const getAdminByIdApi = async () => {
 
 export const deleteNoticeApi = async (noticeId) => {
   try {
-    axios.defaults.headers.common["Authorization"] = token;
+    axios.defaults.headers.common["Authorization"] = getToken();
 
     const res = await axios.delete(`${Domain}/notice/delete/${noticeId}`);
 
@@ -1928,7 +1928,7 @@ export const deleteNoticeApi = async (noticeId) => {
 
 export const getAllNoticesApi = async () => {
   try {
-    axios.defaults.headers.common["Authorization"] = token;
+    axios.defaults.headers.common["Authorization"] = getToken();
 
     const res = await axios.get(`${Domain}/notice/all`);
 
@@ -1946,7 +1946,7 @@ export const getAllNoticesApi = async () => {
 
 export const createNoticeApi = async (data) => {
   try {
-    axios.defaults.headers.common["Authorization"] = token;
+    axios.defaults.headers.common["Authorization"] = getToken();
 
     const res = await axios.post(`${Domain}/notice/create`, null, {
       params: {
@@ -1972,7 +1972,7 @@ export const createNoticeApi = async (data) => {
 
 export const updateNoticeApi = async (noticeId, data) => {
   try {
-    axios.defaults.headers.common["Authorization"] = token;
+    axios.defaults.headers.common["Authorization"] = getToken();
 
     const res = await axios.put(`${Domain}/notice/update/${noticeId}`, null, {
       params: {
@@ -1998,7 +1998,7 @@ export const Getadminswitchaccount = async (params = {}) => {
     const token = sessionStorage.getItem("token");
     var res = await axios.get(`${Domain}/login/my-hostels`, {
       headers: {
-        Authorization: `Bearer ${token}`,
+        Authorization: `Bearer ${getToken()}`,
       },
       params,
     });
@@ -2016,7 +2016,7 @@ export const Getadminswitchaccount = async (params = {}) => {
 
 export const getStudentMyRoomApi = async () => {
   try {
-    axios.defaults.headers.common["Authorization"] = token;
+    axios.defaults.headers.common["Authorization"] = getToken();
 
     var res = await axios.get(`${Domain}/student/my-room`);
 
@@ -2188,7 +2188,7 @@ export const deleteCategoryById = async (id) => {
   try {
     const token = sessionStorage.getItem("token");
 
-    axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+    axios.defaults.headers.common["Authorization"] = `Bearer ${getToken()}`;
 
     const res = await axios.delete(`${Domain}/category/delete?id=${id}`);
 
@@ -2209,7 +2209,7 @@ export const editCategoryById = async (id, data) => {
   try {
     const token = sessionStorage.getItem("token");
 
-    axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+    axios.defaults.headers.common["Authorization"] = `Bearer ${getToken()}`;
 
     const res = await axios.put(`${Domain}/category/update?id=${id}`, data);
 
@@ -2229,7 +2229,7 @@ export const editCategoryById = async (id, data) => {
 
 export const getDashboardStatsApi = async () => {
   try {
-    axios.defaults.headers.common["Authorization"] = token;
+    axios.defaults.headers.common["Authorization"] = getToken();
 
     var res = await axios.get(`${Domain}/hostel/dashboard-stats`);
 
