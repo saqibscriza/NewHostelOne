@@ -110,31 +110,29 @@ const EditProfilePage = () => {
       console.log("ADMIN DATA BY ID =>", response);
 
       if (response?.status === 200) {
-        const profile = response?.data?.profile;
-        const personal = response?.data?.personalDetails;
+        const admin = response?.data;
 
         setForm({
-          fullName: profile?.name || "",
-          email: personal?.email || "",
-          phone: personal?.phone || "",
-          address: personal?.address || "",
-          pinCode: personal?.pinCode || "",
-          country: personal?.country || "",
-          state: personal?.state || "",
-          city: personal?.city || "",
-          dateOfJoining: personal?.dateOfJoining || "",
-          adminId: personal?.adminId || "",
+          fullName: admin?.name || "",
+          email: admin?.email || "",
+          phone: admin?.phone || "",
+          address: admin?.address || "",
+          pinCode: "",
+          country: "",
+          state: "",
+          city: "",
+          dateOfJoining: admin?.dateOfBirth || "",
+          adminId: admin?.id || "",
         });
 
-        if (profile?.photo) {
-          setPreviewImage(profile.photo);
+        if (admin?.image) {
+          setPreviewImage(admin.image);
         }
       }
     } catch (error) {
       console.log(error);
     }
   };
-
   useEffect(() => {
     AdminDataById();
   }, []);

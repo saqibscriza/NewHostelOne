@@ -15,25 +15,14 @@ import { useNavigate } from "react-router-dom";
 import { Card, CardContent } from "../../../../components/ui/Card";
 import { Button } from "../../../../components/ui/button";
 import { Switch } from "../../../../components/ui/switch";
+import { Input } from "../../../../components/ui/input";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "../../../../components/ui/dialog";
 import { getAdminProfileApi } from "../../../../utils/utils";
-
-const timelineItems = [
-  {
-    title: "Approved 5 new room bookings",
-    time: "2 hours ago",
-    tone: "bg-foreground",
-  },
-  {
-    title: "Updated fee structure for E3",
-    time: "Yesterday, 4:15 PM",
-    tone: "bg-amber-500",
-  },
-  {
-    title: "System backup successful",
-    time: "Oct 12, 10:00 AM",
-    tone: "bg-muted-foreground/40",
-  },
-];
 
 const DetailItem = ({ icon: Icon, label, value }) => (
   <div className="space-y-2">
@@ -53,6 +42,12 @@ const ProfilePage = () => {
 
   const navigate = useNavigate();
   const [emailNotifications, setEmailNotifications] = useState(true);
+  const [openPasswordModal, setOpenPasswordModal] = useState(false);
+  const [passwordData, setPasswordData] = useState({
+    currentPassword: "",
+    newPassword: "",
+    confirmPassword: "",
+  });
 
   const AdminProfileApi = async () => {
     setLoader(true);
@@ -151,20 +146,18 @@ const ProfilePage = () => {
                 </p>
 
                 <div className="mt-6 space-y-6">
-                  {timelineItems.map((item) => (
-                    <div key={item.title} className="flex gap-4">
+                  {profileData?.activityTimeline?.map((item, index) => (
+                    <div key={index} className="flex gap-4">
                       <div className="flex flex-col items-center">
-                        <span
-                          className={`mt-1 h-2.5 w-2.5 rounded-full ${item.tone}`}
-                        />
+                        <span className="mt-1 h-2.5 w-2.5 rounded-full bg-foreground" />
                         <span className="mt-2 h-full w-px bg-border" />
                       </div>
                       <div className="pb-2">
                         <p className="text-sm font-medium leading-6 text-foreground">
-                          {item.title}
+                          {item.description}
                         </p>
                         <p className="mt-1 text-xs text-muted-foreground">
-                          {item.time}
+                          {item.timeAgo}
                         </p>
                       </div>
                     </div>
@@ -207,12 +200,17 @@ const ProfilePage = () => {
                   <DetailItem
                     icon={CalendarDays}
                     label="Date Of Joining"
-                    value={"Not Available"}
+                    value={
+                      profileData?.personalDetails?.dateOfJoining ||
+                      "Not Available"
+                    }
                   />
                   <DetailItem
                     icon={Building2}
                     label="Admin ID"
-                    value={"Not Available"}
+                    value={
+                      profileData?.personalDetails?.adminId || "Not Available"
+                    }
                   />
                 </div>
               </CardContent>
@@ -276,14 +274,94 @@ const ProfilePage = () => {
                       </p>
                     </div>
                   </div>
-
-                  <Button variant="outline">Change Password</Button>
+                  <Button
+                    variant="outline"
+                    onClick={() => setOpenPasswordModal(true)}
+                  >
+                    Change Password
+                  </Button>{" "}
                 </div>
               </CardContent>
             </Card>
           </div>
         </div>
       </div>
+      <Dialog open={openPasswordModal} onOpenChange={setOpenPasswordModal}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="text-2xl font-semibold">
+              Change Password
+            </DialogTitle>
+          </DialogHeader>
+
+          <div className="space-y-5 pt-4">
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Current Password</label>
+
+              <Input
+                type="password"
+                placeholder="Enter current password"
+                value={passwordData.currentPassword}
+                onChange={(e) =>
+                  setPasswordData((prev) => ({
+                    ...prev,
+                    currentPassword: e.target.value,
+                  }))
+                }
+              />
+            </div>
+
+            <div className="space-y-2">
+              <label className="text-sm font-medium">New Password</label>
+
+              <Input
+                type="password"
+                placeholder="Enter new password"
+                value={passwordData.newPassword}
+                onChange={(e) =>
+                  setPasswordData((prev) => ({
+                    ...prev,
+                    newPassword: e.target.value,
+                  }))
+                }
+              />
+
+              <p className="text-xs text-muted-foreground">
+                Password must be at least 8 characters long.
+              </p>
+            </div>
+
+            <div className="space-y-2">
+              <label className="text-sm font-medium">
+                Confirm New Password
+              </label>
+
+              <Input
+                type="password"
+                placeholder="Re-type new password"
+                value={passwordData.confirmPassword}
+                onChange={(e) =>
+                  setPasswordData((prev) => ({
+                    ...prev,
+                    confirmPassword: e.target.value,
+                  }))
+                }
+              />
+            </div>
+
+            <div className="flex justify-end gap-3 pt-4">
+              <Button
+                variant="outline"
+                onClick={() => setOpenPasswordModal(false)}
+              >
+                Cancel
+              </Button>
+
+              <Button>Update Password</Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

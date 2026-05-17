@@ -1525,23 +1525,49 @@ export const getAllStudentsApi = async (params) => {
 
 // Admin student  UPDATE (PUT)
 
+// export const updateStudentApi = async (id, data) => {
+//   try {
+//     const token = sessionStorage.getItem("token");
+
+//     axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+
+//     const res = await axios.put(`${Domain}/student/update/${id}`, data);
+
+//     if (res) {
+//       return res;
+//     } else {
+//       return [];
+//     }
+//   } catch (error) {
+//     console.log("UPDATE STUDENT ERROR 👉", error);
+
+//     return [];
+//   }
+// };
+
 export const updateStudentApi = async (id, data) => {
   try {
     const token = sessionStorage.getItem("token");
 
-    axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+    const res = await axios.put(`${Domain}/student/update/${id}`, data, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "multipart/form-data",
+      },
+    });
 
-    const res = await axios.put(`${Domain}/student/update/${id}`, data);
-
-    if (res) {
-      return res;
-    } else {
-      return [];
-    }
+    return res;
   } catch (error) {
-    console.log("UPDATE STUDENT ERROR 👉", error);
+    console.log("UPDATE STUDENT ERROR 👉", error?.response?.data || error);
 
-    return [];
+    return (
+      error?.response || {
+        data: {
+          status: "failure",
+          message: "Update failed",
+        },
+      }
+    );
   }
 };
 

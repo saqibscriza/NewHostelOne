@@ -114,40 +114,32 @@ export default function Dashboard() {
 
   const dashboardStats = [
     {
-      ...stats[0],
-      value:
-        dashboardData?.todayStudent ||
-        dashboardData?.totalMeals ||
-        dashboardData?.mealCount ||
-        stats[0].value,
+      title: "TODAY STUDENT",
+      value: dashboardData?.todayStudent || 0,
+      sub: "TODAY",
+      icon: Users,
     },
     {
-      ...stats[1],
-      value:
-        dashboardData?.breakfastStatus ||
-        dashboardData?.breakfastPercentage ||
-        stats[1].value,
-      progress:
-        Number.parseInt(
-          dashboardData?.breakfastStatus || dashboardData?.breakfastPercentage,
-          10,
-        ) || stats[1].progress,
+      title: "LOW STOCK ITEMS",
+      value: dashboardData?.lowStockItems || 0,
+      sub: "Requires attention",
+      icon: ClipboardList,
+      action: "View All",
     },
     {
-      ...stats[2],
-      value:
-        dashboardData?.lowStockItems ||
-        dashboardData?.lowStockCount ||
-        stats[2].value,
+      title: "AVERAGE STUDENT RATING",
+      value: dashboardData?.averageStudentRating || 0,
+      sub: "Rating",
+      icon: Star,
     },
     {
-      ...stats[3],
-      value:
-        dashboardData?.averageStudentRating ||
-        dashboardData?.averageRating ||
-        stats[3].value,
+      title: "TODAY MENU ITEMS",
+      value: dashboardData?.todayMenuItems || 0,
+      sub: "Meals",
+      icon: Sandwich,
     },
   ];
+
   const todayMenuData = dashboardData?.todayMenu;
 
   const todayMenu = todayMenuData
@@ -209,16 +201,14 @@ export default function Dashboard() {
                       <Icon className="h-5 w-5 text-foreground" />
                     </div>
 
-                    {item.topText && (
-                      <span className="text-xs font-semibold tracking-wide text-muted-foreground">
-                        {item.topText}
-                      </span>
-                    )}
-
-                    {item.action && (
-                      <button className="text-xs font-medium underline underline-offset-4">
+                    {item.action ? (
+                      <button className="text-xs font-semibold underline underline-offset-4 text-foreground">
                         {item.action}
                       </button>
+                    ) : (
+                      <span className="text-xs font-semibold tracking-wide text-muted-foreground">
+                        TODAY
+                      </span>
                     )}
                   </div>
 
@@ -228,23 +218,14 @@ export default function Dashboard() {
                     </p>
 
                     <div className="flex items-center gap-3">
-                      <h2 className="text-3xl font-bold tracking-tight">
+                      <h2 className="text-4xl font-bold tracking-tight">
                         {item.value}
                       </h2>
 
                       {item.sub && (
-                        <p className="text-sm font-medium text-foreground">
+                        <p className="text-sm font-semibold text-foreground">
                           {item.sub}
                         </p>
-                      )}
-
-                      {item.progress && (
-                        <div className="h-2.5 w-24 overflow-hidden rounded-full bg-muted">
-                          <div
-                            className="h-full rounded-full bg-foreground"
-                            style={{ width: `${item.progress}%` }}
-                          />
-                        </div>
                       )}
                     </div>
                   </div>
@@ -253,7 +234,6 @@ export default function Dashboard() {
             );
           })}
         </div>
-
         {/* Bottom Grid */}
         <div className="grid grid-cols-1 gap-5 xl:grid-cols-[2fr_1fr]">
           {/* Menu Section */}
@@ -262,9 +242,20 @@ export default function Dashboard() {
               <div className="mb-8 flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
                 <div>
                   <h2 className="text-3xl font-bold">Today's Menu</h2>
-
                   <p className="mt-1 text-sm text-muted-foreground">
-                    Wednesday, Oct 25th
+                    {dashboardData?.todayMenu?.date
+                      ? `${dashboardData.todayMenu.day
+                          ?.charAt(0)
+                          .toUpperCase()}${dashboardData.todayMenu.day
+                          ?.slice(1)
+                          .toLowerCase()}, ${new Date(
+                          dashboardData.todayMenu.date,
+                        ).toLocaleDateString("en-US", {
+                          month: "long",
+                          day: "numeric",
+                          year: "numeric",
+                        })}`
+                      : "Today's Menu"}
                   </p>
                 </div>
 
@@ -322,7 +313,7 @@ export default function Dashboard() {
                 <h2 className="text-3xl font-bold">Inventory Alerts</h2>
 
                 <Badge className="rounded-lg bg-muted px-3 py-1 text-[10px] font-bold tracking-wide text-foreground">
-                  URGENT
+                  {dashboardData?.inventoryAlerts?.length || 0} ALERTS
                 </Badge>
               </div>
 
@@ -331,10 +322,7 @@ export default function Dashboard() {
                   const Icon =
                     typeof item.icon === "function" ? item.icon : TriangleAlert;
                   const itemName = item.name || item.itemName || item.title;
-                  const quantity = item.quantity
-                    ? `${item.quantity} ${item.unit || ""} (${item.status || "Normal"})`
-                    : item.availableQuantity || item.stock || item.description;
-
+                  const quantity = `${item.quantity || 0} ${item.unit || ""} (${item.status || "Normal"})`;
                   return (
                     <div
                       key={index}
