@@ -98,7 +98,7 @@ export default function SignUp() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
               <label className="text-sm font-semibold text-[#111827]">
-                Admin Full Name<span className="text-red-500">*</span>
+                Admin Full Name<span className="text-red-500"> *</span>
               </label>
               <input
                 type="text"
@@ -111,7 +111,7 @@ export default function SignUp() {
 
             <div className="space-y-2">
               <label className="text-sm font-semibold text-[#111827]">
-                Admin Email Address<span className="text-red-500">*</span>
+                Admin Email Address<span className="text-red-500"> *</span>
               </label>
               <input
                 type="email"
@@ -129,7 +129,7 @@ export default function SignUp() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
               <label className="text-sm font-semibold text-[#111827]">
-                Admin Phone Number<span className="text-red-500">*</span>
+                Admin Phone Number<span className="text-red-500"> *</span>
               </label>
               <input
                 type="tel"
@@ -148,7 +148,7 @@ export default function SignUp() {
 
             <div className="space-y-2">
               <label className="text-sm font-semibold text-[#111827]">
-                PIN Code<span className="text-red-500">*</span>
+                PIN Code<span className="text-red-500"> *</span>
               </label>
               <input
                 type="text"
@@ -168,7 +168,7 @@ export default function SignUp() {
 
           <div className="space-y-2">
             <label className="text-sm font-semibold text-[#111827]">
-              Address<span className="text-red-500">*</span>
+              Address<span className="text-red-500"> *</span>
             </label>
             <textarea
               rows={2}
@@ -181,7 +181,7 @@ export default function SignUp() {
 
           <div className="grid grid-cols-3 gap-4">
             <div className="space-y-2">
-              <label className="text-sm font-semibold text-[#111827]">Country<span className="text-red-500">*</span></label>
+              <label className="text-sm font-semibold text-[#111827]">Country<span className="text-red-500"> *</span></label>
               <select
                 {...register("country", { required: "Required" })}
                 className={`w-full px-3 h-[46px] rounded-xl border bg-white text-sm focus:outline-none focus:ring-1 focus:ring-gray-300 ${errors.country ? "border-red-500" : "border-gray-200"}`}
@@ -194,7 +194,7 @@ export default function SignUp() {
             </div>
 
             <div className="space-y-2">
-              <label className="text-sm font-semibold text-[#111827]">State<span className="text-red-500">*</span></label>
+              <label className="text-sm font-semibold text-[#111827]">State<span className="text-red-500"> *</span></label>
               <select
                 {...register("state", { required: "Required" })}
                 className={`w-full px-3 h-[46px] rounded-xl border bg-white text-sm focus:outline-none focus:ring-1 focus:ring-gray-300 ${errors.state ? "border-red-500" : "border-gray-200"}`}
@@ -209,7 +209,7 @@ export default function SignUp() {
             </div>
 
             <div className="space-y-2">
-              <label className="text-sm font-semibold text-[#111827]">City<span className="text-red-500">*</span></label>
+              <label className="text-sm font-semibold text-[#111827]">City<span className="text-red-500"> *</span></label>
               <select
                 {...register("city", { required: "Required" })}
                 className={`w-full px-3 h-[46px] rounded-xl border bg-white text-sm focus:outline-none focus:ring-1 focus:ring-gray-300 ${errors.city ? "border-red-500" : "border-gray-200"}`}

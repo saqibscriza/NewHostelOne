@@ -87,9 +87,9 @@ const deleteCategory = async (id) => {
       className="w-full h-full object-cover"
     />
   ) : (
-    <div className="text-xs text-muted-foreground">
-      No Image
-    </div>
+    <span className="text-lg font-semibold text-slate-600 dark:text-slate-300 uppercase">
+      {category.categoryName?.charAt(0)}
+    </span>
   )}
 </div>
                   <div className="flex items-center gap-3">
@@ -140,3 +140,4 @@ const deleteCategory = async (id) => {
     </div>
   );
 }
+

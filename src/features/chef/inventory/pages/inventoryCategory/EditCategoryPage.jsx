@@ -253,8 +253,8 @@ const handleDeleteItem = async (itemId) => {
             </Button>
           </div>
 
-          <div className="overflow-x-auto">
-            <Table>
+          <div className="overflow-x-auto rounded-none">
+            <Table >
               <TableHeader className="bg-muted/10 border-b border-border text-xs uppercase tracking-wider">
                 <TableRow className="hover:bg-transparent">
                   <TableHead className="font-bold text-muted-foreground h-14 pl-6">

@@ -15,7 +15,7 @@ export default function AccountSettingPage() {
   const [hostelId, setHostelId] = useState(null);
   const [loaderCheck, setLoaderCheck] = useState(false);
 
- const {
+  const {
     register,
     handleSubmit,
     reset,
@@ -34,15 +34,15 @@ export default function AccountSettingPage() {
       if (hostel) {
         setHostelId(hostel.hostelId);
         reset({
-  hostelName: hostel.hostelName ?? "N/A",
-  address: hostel.address ?? "N/A",
-  hostelType: hostel.hostelType ?? "N/A",
-  contactNumber: hostel.contactNumber ?? "N/A",
-  alternateContactNumber: hostel.alternateContactNumber ?? "N/A",
-  pinCode: hostel.pinCode ?? "N/A",
-  country: hostel.country ?? "N/A",
-  state: hostel.state ?? "N/A",
-  city: hostel.city ?? "N/A",
+          hostelName: hostel.hostelName ?? "N/A",
+          address: hostel.address ?? "N/A",
+          hostelType: hostel.hostelType ?? "N/A",
+          contactNumber: hostel.contactNumber ?? "N/A",
+          alternateContactNumber: hostel.alternateContactNumber ?? "N/A",
+          pinCode: hostel.pinCode ?? "N/A",
+          country: hostel.country ?? "N/A",
+          state: hostel.state ?? "N/A",
+          city: hostel.city ?? "N/A",
         });
       } else {
         toast.error("Hostel not found");
@@ -56,9 +56,9 @@ export default function AccountSettingPage() {
 
   const MyHostelUpdateApi = async (data) => {
     console.log("Form Data:", data);
-    
+
     try {
-      setLoading(true); 
+      setLoading(true);
       const payload = {
         hostelName: data.hostelName,
         address: data.address,
@@ -119,14 +119,10 @@ export default function AccountSettingPage() {
               <Label className="text-sm font-medium text-slate-700">
                 Hostel Name
               </Label>
-              <Input
-                {...register("hostelName")}
-                
-                className="h-11"
-              />
+              <Input {...register("hostelName")} className="h-11" />
             </div>
 
-              {/* Hostel Type - md:col-span-2 makes it full width */}
+            {/* Hostel Type - md:col-span-2 makes it full width */}
             <div className="space-y-2 md:col-span-2">
               <Label className="text-sm font-medium text-slate-700">
                 Hostel Type
@@ -147,12 +143,39 @@ export default function AccountSettingPage() {
               <Label className="text-sm font-medium text-slate-700">
                 Contact Number
               </Label>
+
               <Input
-                {...register("contactNumber")}
-                
+                type="tel"
+                maxLength={10}
+                inputMode="numeric"
+                {...register("contactNumber", {
+                  required: "Contact number is required",
+                  pattern: {
+                    value: /^[6-9]\d{9}$/,
+                    message: "Enter valid 10-digit contact number",
+                  },
+                  minLength: {
+                    value: 10,
+                    message: "Contact number must be 10 digits",
+                  },
+                  maxLength: {
+                    value: 10,
+                    message: "Contact number must be 10 digits",
+                  },
+                })}
+                onInput={(e) => {
+                  e.target.value = e.target.value
+                    .replace(/\D/g, "")
+                    .slice(0, 10);
+                }}
                 className="h-11"
               />
-              
+
+              {errors?.contactNumber && (
+                <p className="text-sm text-red-500">
+                  {errors.contactNumber.message}
+                </p>
+              )}
             </div>
 
             {/* Alternate Contact Number - Takes 1 column (half width) */}
@@ -160,11 +183,30 @@ export default function AccountSettingPage() {
               <Label className="text-sm font-medium text-slate-700">
                 Alternate Contact Number
               </Label>
+
               <Input
-                {...register("alternateContactNumber")}
-                
+                type="tel"
+                maxLength={10}
+                inputMode="numeric"
+                {...register("alternateContactNumber", {
+                  pattern: {
+                    value: /^[6-9]\d{9}$/,
+                    message: "Enter valid 10-digit contact number",
+                  },
+                })}
+                onInput={(e) => {
+                  e.target.value = e.target.value
+                    .replace(/\D/g, "")
+                    .slice(0, 10);
+                }}
                 className="h-11"
               />
+
+              {errors?.alternateContactNumber && (
+                <p className="text-sm text-red-500">
+                  {errors.alternateContactNumber.message}
+                </p>
+              )}
             </div>
 
             {/* Address Details - md:col-span-2 makes it full width */}
@@ -172,11 +214,7 @@ export default function AccountSettingPage() {
               <Label className="text-sm font-medium text-slate-700">
                 Address Details
               </Label>
-              <Input
-                {...register("address")}
-                
-                className="h-11"
-              />
+              <Input {...register("address")} className="h-11" />
             </div>
 
             {/* Pin Code - Takes 1 column */}
@@ -184,11 +222,29 @@ export default function AccountSettingPage() {
               <Label className="text-sm font-medium text-slate-700">
                 Pin Code
               </Label>
+
               <Input
-                {...register("pinCode")}
-                
+                type="tel"
+                maxLength={6}
+                inputMode="numeric"
+                {...register("pinCode", {
+                  required: "Pin code is required",
+                  pattern: {
+                    value: /^[0-9]{6}$/,
+                    message: "Pin code must be 6 digits",
+                  },
+                })}
+                onInput={(e) => {
+                  e.target.value = e.target.value
+                    .replace(/\D/g, "")
+                    .slice(0, 6);
+                }}
                 className="h-11"
               />
+
+              {errors?.pinCode && (
+                <p className="text-sm text-red-500">{errors.pinCode.message}</p>
+              )}
             </div>
 
             {/* Country - Takes 1 column */}
@@ -203,7 +259,6 @@ export default function AccountSettingPage() {
                 <option value="">Select Country</option>
                 <option value="India">India</option>
                 <option value="USA">USA</option>
-
               </select>
             </div>
 
@@ -220,7 +275,6 @@ export default function AccountSettingPage() {
                 <option value="Uttar Pradesh">Uttar Pradesh</option>
                 <option value="Maharastra">Maharashtra</option>
                 <option value="Rajasthan">Rajasthan</option>
-
               </select>
             </div>
 
@@ -238,7 +292,6 @@ export default function AccountSettingPage() {
                 <option value="Pune">Pune</option>
                 <option value="Udaipur">Udaipur</option>
                 <option value="Noida">Noida</option>
-
               </select>
             </div>
           </div>
@@ -247,8 +300,10 @@ export default function AccountSettingPage() {
         {/* 3. FOOTER BUTTONS */}
         <div className="flex items-center justify-end gap-4 pt-4 pb-10">
           <Button
+            type="button"
             variant="secondary"
             className="h-11 px-8 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold"
+            onClick={() => navigate("/admin/staff")}
           >
             Cancel
           </Button>

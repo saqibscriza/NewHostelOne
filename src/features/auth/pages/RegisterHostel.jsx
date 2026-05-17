@@ -172,7 +172,7 @@ export default function RegisterHostel() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
               <label className="text-sm font-semibold text-[#111827]">
-                Hostel Name<span className="text-red-500">*</span>
+                Hostel Name<span className="text-red-500"> *</span>
               </label>
               <input
                 type="text"
@@ -185,7 +185,7 @@ export default function RegisterHostel() {
 
             <div className="space-y-2">
               <label className="text-sm font-semibold text-[#111827]">
-                Hostel Type<span className="text-red-500">*</span>
+                Hostel Type<span className="text-red-500"> *</span>
               </label>
               <select
                 {...register("hostelType", { required: "Required" })}
@@ -204,7 +204,7 @@ export default function RegisterHostel() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
 <div className="space-y-2">
   <label className="text-sm font-semibold text-[#111827]">
-    Package<span className="text-red-500">*</span>
+    Package<span className="text-red-500"> *</span>
   </label>
 
   <select
@@ -221,7 +221,7 @@ export default function RegisterHostel() {
 
             <div className="space-y-2">
               <label className="text-sm font-semibold text-[#111827]">
-                PIN Code<span className="text-red-500">*</span>
+                PIN Code<span className="text-red-500"> *</span>
               </label>
               <input
                 type="text"
@@ -241,7 +241,7 @@ export default function RegisterHostel() {
 
           <div className="space-y-2">
             <label className="text-sm font-semibold text-[#111827]">
-              Address<span className="text-red-500">*</span>
+              Address<span className="text-red-500"> *</span>
             </label>
             <textarea
               rows={2}
@@ -254,7 +254,7 @@ export default function RegisterHostel() {
 
           <div className="grid grid-cols-3 gap-4">
             <div className="space-y-2">
-              <label className="text-sm font-semibold text-[#111827]">Country<span className="text-red-500">*</span></label>
+              <label className="text-sm font-semibold text-[#111827]">Country<span className="text-red-500"> *</span></label>
               <select
                 {...register("hostelCountry", { required: "Required" })}
                 className={`w-full px-3 h-[46px] rounded-xl border bg-white text-sm focus:outline-none focus:ring-1 focus:ring-gray-300 ${errors.hostelCountry ? "border-red-500" : "border-gray-200"}`}
@@ -267,7 +267,7 @@ export default function RegisterHostel() {
             </div>
 
             <div className="space-y-2">
-              <label className="text-sm font-semibold text-[#111827]">State<span className="text-red-500">*</span></label>
+              <label className="text-sm font-semibold text-[#111827]">State<span className="text-red-500"> *</span></label>
               <select
                 {...register("hostelState", { required: "Required" })}
                 className={`w-full px-3 h-[46px] rounded-xl border bg-white text-sm focus:outline-none focus:ring-1 focus:ring-gray-300 ${errors.hostelState ? "border-red-500" : "border-gray-200"}`}
@@ -281,7 +281,7 @@ export default function RegisterHostel() {
             </div>
 
             <div className="space-y-2">
-              <label className="text-sm font-semibold text-[#111827]">City<span className="text-red-500">*</span></label>
+              <label className="text-sm font-semibold text-[#111827]">City<span className="text-red-500"> *</span></label>
               <select
                 {...register("hostelCity", { required: "Required" })}
                 className={`w-full px-3 h-[46px] rounded-xl border bg-white text-sm focus:outline-none focus:ring-1 focus:ring-gray-300 ${errors.hostelCity ? "border-red-500" : "border-gray-200"}`}
@@ -311,7 +311,7 @@ export default function RegisterHostel() {
               disabled={loaderCheck}
               className="h-11 px-8 rounded-full bg-[#0F172A] hover:bg-[#1E293B] text-white font-medium text-sm flex items-center gap-2"
             >
-              {loaderCheck ? "Submitting..." : "Sign Up"} <ArrowRight className="w-4 h-4" />
+             Sign Up <ArrowRight className="w-4 h-4" />
             </Button>
           </div>
         </form>

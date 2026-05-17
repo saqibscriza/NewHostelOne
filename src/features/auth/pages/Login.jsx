@@ -5,7 +5,9 @@ import { useForm } from "react-hook-form";
 import { ArrowRight } from "lucide-react";
 import { Rings } from "react-loader-spinner";
 import { Button } from "../../../components/ui/button";
+import toast from "react-hot-toast";
 import { loginApi } from "../../../utils/utils";
+import { Eye, EyeOff } from "lucide-react";
 import AuthLayout from "../../auth/component/AuthLayout";
 
 export default function Login() {
@@ -14,6 +16,8 @@ export default function Login() {
 
   const [loading, setLoading] = useState(false);
   const [apiError, setApiError] = useState("");
+
+  const [showPassword, setShowPassword] = useState(false);
 
   const {
     register,
@@ -50,11 +54,6 @@ export default function Login() {
 
         userRole =
           roleMap[userRole?.toLowerCase()] || userRole?.toLowerCase()?.trim();
-
-        if (!userRole) {
-          setApiError("Role not found");
-          return;
-        }
         
     // 🔥 FIRST HANDLE MULTIPLE HOSTELS
     if (status === "multiple-hostels") {
@@ -80,6 +79,8 @@ export default function Login() {
 
       login(userRole, token, name);
 
+      toast.success(response?.data?.message || "Login successful");
+
       if (userRole === "superadmin") navigate("/superadmin");
       else if (userRole === "admin") navigate("/admin");
       else if (userRole === "student") navigate("/student");
@@ -88,14 +89,23 @@ export default function Login() {
 
       return;
     }
-    // window.location.reload()
+   // API ERROR
+    const errorMessage =
+      response?.data?.message || "Login failed";
 
-    // ❌ ERROR
-    setApiError(response?.data?.message || "Login failed");
+    toast.error(errorMessage);
 
   } catch (error) {
     console.error(error);
-    setApiError("Server error. Please try again.");
+
+    const errorMessage =
+      error?.response?.data?.message ||
+      error?.response?.data?.error ||
+      error?.message ||
+      "Something went wrong";
+
+    toast.error(errorMessage);
+
   } finally {
     setLoading(false);
   }
@@ -122,7 +132,7 @@ export default function Login() {
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
         <div className="space-y-2">
           <label className="text-sm font-semibold text-[#111827]">
-            Email Address<span className="text-red-500">*</span>
+            Email Address<span className="text-red-500"> *</span>
           </label>
           <input
             type="text"
@@ -139,34 +149,47 @@ export default function Login() {
           )}
         </div>
 
-        <div className="space-y-2">
-          <div className="flex justify-between items-center">
-            <label className="text-sm font-semibold text-[#111827]">
-              Password<span className="text-red-500">*</span>
-            </label>
-            <span 
-              onClick={() => navigate("/forgot-password")}
-              className="text-xs text-[#6B7280] hover:text-[#111827] cursor-pointer"
-            >
-              Forgot Password?
-            </span>
-          </div>
-          <input
-            type="password"
-            placeholder="Enter your password"
-            {...register("password", {
-              required: "Password is required",
-            })}
-            className={`w-full p-3.5 rounded-xl border bg-white focus:outline-none focus:ring-1 focus:ring-gray-300 text-sm ${
-              errors.password ? "border-red-500" : "border-gray-200"
-            }`}
-          />
-          {errors.password && (
-            <p className="text-red-500 text-xs mt-1">
-              {errors.password.message}
-            </p>
-          )}
-        </div>
+<div className="space-y-2">
+      <div className="flex justify-between items-center">
+        <label className="text-sm font-semibold text-[rgb(17,24,39)]">
+          Password<span className="text-red-500"> *</span>
+        </label>
+
+        <span
+          onClick={() => navigate("/forgot-password")}
+          className="text-xs text-[#6B7280] hover:text-[#111827] cursor-pointer"
+        >
+          Forgot Password?
+        </span>
+      </div>
+
+      <div className="relative">
+        <input
+          type={showPassword ? "text" : "password"}
+          placeholder="Enter your password"
+          {...register("password", {
+            required: "Password is required",
+          })}
+          className={`w-full p-3.5 pr-12 rounded-xl border bg-white focus:outline-none focus:ring-1 focus:ring-gray-300 text-sm ${
+            errors.password ? "border-red-500" : "border-gray-200"
+          }`}
+        />
+
+        <button
+          type="button"
+          onClick={() => setShowPassword(!showPassword)}
+          className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
+        >
+          {showPassword ? <Eye size={20} /> : <EyeOff size={20} />}
+        </button>
+      </div>
+
+      {errors.password && (
+        <p className="text-red-500 text-xs mt-1">
+          {errors.password.message}
+        </p>
+      )}
+    </div>
 
         {apiError && (
           <p className="text-red-500 text-sm font-medium">{apiError}</p>

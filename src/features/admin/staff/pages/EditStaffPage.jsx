@@ -32,6 +32,10 @@ export default function UpdateStaff() {
   const [sameAddress, setSameAddress] = useState(false);
   const [loaderCheck, setLoaderCheck] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [existingProfileImage, setExistingProfileImage] = useState("");
+const [existingIdProof, setExistingIdProof] = useState("");
+const [existingPoliceVerification, setExistingPoliceVerification] = useState("");
+const [existingProfileImageName, setExistingProfileImageName] = useState("");
 
   useEffect(() => {
     const fetchRoles = async () => {
@@ -71,6 +75,12 @@ export default function UpdateStaff() {
       const staff = response.data; // ✅ FIX
 
       if (staff) {
+        setExistingProfileImage(staff.profileImage || "");
+        setExistingIdProof(staff.idProof || "");
+        setExistingPoliceVerification(staff.policeVerification || "");
+
+        
+
         setEmployeeId(staff.staffId);
 
         reset({
@@ -100,20 +110,19 @@ export default function UpdateStaff() {
     try {
       setLoading(true);
 
-      const payload = {
-        fullName: data.fullName,
-        dob: data.dob,
-        gender: data.gender,
-        roleId: data.roleId,
-        joiningDate: data.joiningDate,
-        email: data.email,
-        phone: data.phone,
-        currentAddress: data.currentAddress,
-        permanentAddress: data.permanentAddress,
-        // ⚠️ status mismatch — backend uses attendanceStatus (check this!)
-      };
+  const formData = new FormData();
 
-      const response = await updateStaffApi(id, payload);
+formData.append("fullName", data.fullName);
+formData.append("dob", data.dob);
+formData.append("gender", data.gender);
+formData.append("roleId", data.roleId);
+formData.append("joiningDate", data.joiningDate);
+formData.append("email", data.email);
+formData.append("phone", data.phone);
+formData.append("currentAddress", data.currentAddress);
+formData.append("permanentAddress", data.permanentAddress);
+
+      const response = await updateStaffApi(id, formData);
 
       if (response?.data?.status === "success") {
         toast.success(response?.data?.message);
@@ -163,7 +172,7 @@ export default function UpdateStaff() {
             {/* Full Name Field */}
             <div className="space-y-2">
               <Label className="text-sm font-medium text-slate-700">
-                Full Name
+                Full Name <span className="text-red-500">*</span>
               </Label>
               <Input
                 name="fullName"
@@ -180,11 +189,17 @@ export default function UpdateStaff() {
                 Profile Picture
               </Label>
               <div className="flex items-center gap-4">
-                <div className="w-11 h-11 rounded-lg bg-slate-100 border flex items-center justify-center overflow-hidden">
-                  {profileImage && profileImage.length > 0 ? (
+                <div className="w-11 h-11 rounded-lg bg-slate-100 border flex items-center justify-center overflow-hidden min-w-11">
+                  {profileImage?.length > 0 ? (
                     <img
                       src={URL.createObjectURL(profileImage[0])}
                       alt="preview"
+                      className="w-full h-full object-cover"
+                    />
+                  ) : existingProfileImage ? (
+                    <img
+                      src={existingProfileImage}
+                      alt="profile"
                       className="w-full h-full object-cover"
                     />
                   ) : (
@@ -195,11 +210,19 @@ export default function UpdateStaff() {
                   id="profileUpload"
                   type="file"
                   accept="image/*"
+                  className="hidden"
                   {...register("profileImage")}
                 />
-                <Button
+                <span className="text-sm text-slate-500 truncate max-w-[200px]" title={profileImage?.length > 0 ? profileImage[0].name : existingProfileImage ? existingProfileImage.split('/').pop() : "No file chosen"}>
+                  {profileImage?.length > 0
+                    ? profileImage[0].name
+                    : existingProfileImage
+                    ? existingProfileImage.split('/').pop()
+                    : "No file chosen"}
+                </span>
+                 <Button
                   variant="secondary"
-                  className="h-11 bg-slate-100 hover:bg-slate-200 text-slate-700"
+                  className="h-11 bg-slate-100 hover:bg-slate-200 text-slate-700 whitespace-nowrap"
                   type="button"
                   onClick={() =>
                     document.getElementById("profileUpload").click()
@@ -213,7 +236,7 @@ export default function UpdateStaff() {
             {/* Date of Birth Field */}
             <div className="space-y-2">
               <Label className="text-sm font-medium text-slate-700">
-                Date of Birth
+                Date of Birth <span className="text-red-500">*</span>
               </Label>
               <div className="relative">
                 <CalendarDays className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-500 pointer-events-none z-10" />
@@ -236,7 +259,7 @@ export default function UpdateStaff() {
             {/* Gender Field */}
             <div className="space-y-2">
               <Label className="text-sm font-medium text-slate-700">
-                Gender
+                Gender <span className="text-red-500">*</span>
               </Label>
               <select
                 // name="gender"
@@ -263,7 +286,7 @@ export default function UpdateStaff() {
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div className="space-y-2">
-              <Label className="text-sm font-medium text-slate-700">Role</Label>
+              <Label className="text-sm font-medium text-slate-700">Role <span className="text-red-500">*</span></Label>
               <select
                 {...register("roleId", { required: "Role is required" })}
                 className="flex h-11 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
@@ -279,7 +302,7 @@ export default function UpdateStaff() {
 
             <div className="space-y-2">
               <Label className="text-sm font-medium text-slate-700">
-                Employee ID
+                Employee ID <span className="text-red-500">*</span>
               </Label>
               <Input
                 value={employeeId}
@@ -290,7 +313,7 @@ export default function UpdateStaff() {
 
             <div className="space-y-2">
               <Label className="text-sm font-medium text-slate-700">
-                Date of Joining
+                Date of Joining <span className="text-red-500">*</span>
               </Label>
               <Input
                 type="date"
@@ -313,7 +336,7 @@ export default function UpdateStaff() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="space-y-2">
               <Label className="text-sm font-medium text-slate-700">
-                Email Address
+                Email Address <span className="text-red-500">*</span>
               </Label>
               <div className="relative">
                 <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
@@ -328,7 +351,7 @@ export default function UpdateStaff() {
 
             <div className="space-y-2">
               <Label className="text-sm font-medium text-slate-700">
-                Phone Number
+                Phone Number <span className="text-red-500">*</span>
               </Label>
               <div className="relative">
                 <Smartphone className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
@@ -347,14 +370,14 @@ export default function UpdateStaff() {
           <div className="flex items-center gap-2 mb-6 border-b border-slate-100 pb-4">
             <MapPin className="w-5 h-5 text-slate-700" />
             <h2 className="text-lg font-semibold text-slate-800">
-              Address Details
+              Address Details 
             </h2>
           </div>
 
           <div className="space-y-6">
             <div className="space-y-2">
               <Label className="text-sm font-medium text-slate-700">
-                Current Address
+                Current Address <span className="text-red-500">*</span>
               </Label>
               <Input
                 placeholder="Current Address"
@@ -366,7 +389,7 @@ export default function UpdateStaff() {
             <div className="space-y-2">
               <div className="flex items-center justify-between">
                 <Label className="text-sm font-medium text-slate-700">
-                  Permanent Address
+                  Permanent Address <span className="text-red-500">*</span>
                 </Label>
                 <div className="flex items-center gap-2">
                   <input
@@ -425,15 +448,21 @@ export default function UpdateStaff() {
                   {...register("idProof")}
                 />
                 {/* preview or icon */}
-                {idProof && idProof.length > 0 ? (
-                  <img
-                    src={URL.createObjectURL(idProof[0])}
-                    alt="preview"
-                    className="w-20 h-20 object-cover rounded mb-2"
-                  />
-                ) : (
-                  <UploadCloud className="w-8 h-8 text-slate-400 mb-3" />
-                )}
+{idProof?.length > 0 ? (
+  <img
+    src={URL.createObjectURL(idProof[0])}
+    alt="preview"
+    className="w-20 h-20 object-cover rounded mb-2"
+  />
+) : existingIdProof ? (
+  <img
+    src={existingIdProof}
+    alt="id proof"
+    className="w-20 h-20 object-cover rounded mb-2"
+  />
+) : (
+  <UploadCloud className="w-8 h-8 text-slate-400 mb-3" />
+)}
                 <p className="text-sm font-medium text-slate-700">
                   Click to upload or drag & drop
                 </p>
@@ -458,15 +487,21 @@ export default function UpdateStaff() {
                 />
 
                 {/* preview or icon */}
-                {policeVerification && policeVerification.length > 0 ? (
-                  <img
-                    src={URL.createObjectURL(policeVerification[0])}
-                    alt="preview"
-                    className="w-20 h-20 object-cover rounded mb-2"
-                  />
-                ) : (
-                  <CheckCircle2 className="w-8 h-8 text-slate-400 mb-3" />
-                )}
+{policeVerification?.length > 0 ? (
+  <img
+    src={URL.createObjectURL(policeVerification[0])}
+    alt="preview"
+    className="w-20 h-20 object-cover rounded mb-2"
+  />
+) : existingPoliceVerification ? (
+  <img
+    src={existingPoliceVerification}
+    alt="police verification"
+    className="w-20 h-20 object-cover rounded mb-2"
+  />
+) : (
+  <CheckCircle2 className="w-8 h-8 text-slate-400 mb-3" />
+)}
 
                 {/* text */}
                 <p className="text-sm font-medium text-slate-700">

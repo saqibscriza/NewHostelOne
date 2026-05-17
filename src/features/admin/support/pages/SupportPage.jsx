@@ -130,9 +130,9 @@ const fetchSupportTickets = async () => {
             <Ticket className="w-5 h-5 font-bold" />
             <h2 className="text-lg md:text-xl font-bold">Recent Support Tickets</h2>
           </div>
-          <button className="text-sm font-semibold hover:underline">
+          {/* <button className="text-sm font-semibold hover:underline">
             View All Tickets
-          </button>
+          </button> */}
         </div>
 
         {/* Table Container */}

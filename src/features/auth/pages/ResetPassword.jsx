@@ -4,14 +4,14 @@ import { useForm } from "react-hook-form";
 import { ArrowRight, ArrowLeft, Eye, EyeOff } from "lucide-react";
 import { Button } from "../../../components/ui/button";
 import AuthLayout from "../../auth/component/AuthLayout";
-import { verifyOtpApi } from "../../../utils/utils";
+import { setPasswordApi } from "../../../utils/utils";
 import toast from "react-hot-toast";
 
 export default function ResetPassword() {
   const navigate = useNavigate();
   const location = useLocation();
   const email = location.state?.email;
-  const otp = location.state?.otp;
+  const token = location.state?.token;
 
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
@@ -31,14 +31,19 @@ export default function ResetPassword() {
       setLoaderCheck(true);
 
       const payload = {
-        OTP: otp,
-        newPassword: data.newPassword,
+        token: token,
+        password: data.newPassword,
         confirmPassword: data.confirmPassword,
       };
 
-      const res = await verifyOtpApi(payload);
+      const res = await setPasswordApi(payload);
 
-      if (res?.data?.status === "success") {
+      if (
+        res?.data?.status === "success" || 
+        res?.data?.status === 1 || 
+        res?.data?.success === true ||
+        (res?.status === 200 && res?.data?.status !== 0 && res?.data?.status !== "error" && res?.data?.status !== "fail")
+      ) {
         toast.success(res?.data?.message || "Password updated successfully");
         navigate("/password-updated");
       } else {
@@ -132,7 +137,7 @@ export default function ResetPassword() {
           disabled={loaderCheck}
           className="w-full h-12 rounded-xl bg-[#0F172A] hover:bg-[#1E293B] text-white font-medium text-[15px] flex items-center justify-center gap-2 mt-4 disabled:opacity-75 disabled:cursor-not-allowed transition-all"
         >
-          {loaderCheck ? "Updating..." : "Update Password"} <ArrowRight className="w-4 h-4" />
+          Update Password <ArrowRight className="w-4 h-4" />
         </Button>
       </form>
 

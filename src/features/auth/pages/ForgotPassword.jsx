@@ -23,11 +23,12 @@ const onSubmit = async (data) => {
     setLoaderCheck(true);
     const res = await getOtpApi(data.email);
 
-    if (res?.data?.status === "success") {
+    if (res?.data?.status === "success" || (res?.status === 200 && res?.data?.status !== "error" && res?.data?.status !== "fail")) {
       toast.success(res?.data?.message || "OTP sent successfully");
       navigate("/verify-otp", {
         state: {
           email: data.email,
+          token: res?.data?.token,
         },
       });
     } else {
@@ -47,7 +48,7 @@ const onSubmit = async (data) => {
 };
 
   return (
-        <AuthLayout
+    <AuthLayout
       title={<>Reset Your Dashboard<br />Access Securely</>}
       subtitle="Reset your password securely to regain access to your hostel management dashboard. Enter your registered email address, and we'll help you restore your account access quickly."
     >
@@ -88,7 +89,7 @@ const onSubmit = async (data) => {
             disabled={loaderCheck}
             className="h-12 px-8 rounded-full bg-[#0F172A] hover:bg-[#1E293B] text-white font-medium text-[15px] flex items-center gap-2 disabled:opacity-75 disabled:cursor-not-allowed transition-all"
           >
-            {loaderCheck ? "Sending..." : "Send OTP"} <ArrowRight className="w-4 h-4" />
+           Send OTP <ArrowRight className="w-4 h-4" />
           </Button>
         </div>
       </form>

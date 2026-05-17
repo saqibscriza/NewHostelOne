@@ -138,7 +138,7 @@ export default function AddStaff() {
             {/* Full Name Field */}
             <div className="space-y-2">
               <Label className="text-sm font-medium text-slate-700">
-                Full Name
+                Full Name<span className="text-red-500">*</span>
               </Label>
               <Input
                 className="h-11"
@@ -154,8 +154,8 @@ export default function AddStaff() {
                 Profile Picture
               </Label>
               <div className="flex items-center gap-4">
-                <div className="w-11 h-11 rounded-lg bg-slate-100 border flex items-center justify-center overflow-hidden">
-                  {profileImage && profileImage.length > 0 ? (
+                <div className="w-11 h-11 rounded-lg bg-slate-100 border flex items-center justify-center overflow-hidden min-w-11">
+                  {profileImage?.length > 0 ? (
                     <img
                       src={URL.createObjectURL(profileImage[0])}
                       alt="preview"
@@ -169,10 +169,16 @@ export default function AddStaff() {
                   id="profileUpload"
                   type="file"
                   accept="image/*"
+                  className="hidden"
                   {...register("profileImage")}
                 />
+                <span className="text-sm text-slate-500 truncate max-w-[200px]" title={profileImage?.length > 0 ? profileImage[0].name : "No file chosen"}>
+                  {profileImage?.length > 0
+                    ? profileImage[0].name
+                    : "No file chosen"}
+                </span>
                 <Button
-                  className="h-11 bg-slate-100 hover:bg-slate-200 text-slate-700"
+                  className="h-11 bg-slate-100 hover:bg-slate-200 text-slate-700 whitespace-nowrap"
                   type="button"
                   onClick={() =>
                     document.getElementById("profileUpload").click()
@@ -187,7 +193,7 @@ export default function AddStaff() {
 
             <div className="space-y-2">
               <Label className="text-sm font-medium text-slate-700">
-                Date of Birth
+                Date of Birth<span className="text-red-500">*</span>
               </Label>
               <div className="relative">
                 <CalendarDays className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-500 pointer-events-none z-10" />
@@ -195,6 +201,7 @@ export default function AddStaff() {
                   type="date"
                   max={new Date().toISOString().split("T")[0]}
                   {...register("dob", {
+                    required: "Date of birth is required",
                     validate: (value) =>
                       new Date(value) <= new Date() ||
                       "Future date not allowed",
@@ -212,11 +219,13 @@ export default function AddStaff() {
             {/* Gender Field */}
             <div className="space-y-2">
               <Label className="text-sm font-medium text-slate-700">
-                Gender
+                Gender<span className="text-red-500">*</span>
               </Label>
               <select
                 name="gender"
-                {...register("gender")}
+                {...register("gender",{
+                  required: "Gender is required",
+                })}
                 className="flex h-11 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
               >
                 <option value="">Select Gender</option>
@@ -239,7 +248,7 @@ export default function AddStaff() {
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div className="space-y-2">
-              <Label className="text-sm font-medium text-slate-700">Role</Label>
+              <Label className="text-sm font-medium text-slate-700">Role<span className="text-red-500">*</span></Label>
               <select
                 {...register("roleId", { required: "Role is required" })}
                 className="flex h-11 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
@@ -255,7 +264,7 @@ export default function AddStaff() {
 
             <div className="space-y-2">
               <Label className="text-sm font-medium text-slate-700">
-                Employee ID
+                Employee ID<span className="text-red-500">*</span>
               </Label>
               <Input
                 name="employeeId"
@@ -267,61 +276,121 @@ export default function AddStaff() {
               />
             </div>
 
-            <div className="space-y-2">
-              <Label className="text-sm font-medium text-slate-700">
-                Date of Joining
-              </Label>
-              <Input
-                type="date"
-                name="joiningDate"
-                {...register("joiningDate")}
-                className="h-11 text-slate-500"
-              />
-            </div>
+ <div className="space-y-2">
+  <Label className="text-sm font-medium text-slate-700">
+    Date of Joining<span className="text-red-500">*</span>
+  </Label>
+
+  <div className="relative">
+    <CalendarDays className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-500 pointer-events-none z-10" />
+
+    <Input
+      type="date"
+      name="joiningDate"
+      {...register("joiningDate", {
+        required: "Joining date is required",
+      })}
+      className="h-11 w-full pl-10 text-slate-500 [&::-webkit-calendar-picker-indicator]:opacity-0 [&::-webkit-calendar-picker-indicator]:absolute [&::-webkit-calendar-picker-indicator]:left-0 [&::-webkit-calendar-picker-indicator]:w-full [&::-webkit-calendar-picker-indicator]:h-full [&::-webkit-calendar-picker-indicator]:cursor-pointer"
+    />
+  </div>
+
+  {errors?.joiningDate && (
+    <p className="text-sm text-red-500">
+      {errors.joiningDate.message}
+    </p>
+  )}
+</div>
           </div>
         </Card>
 
-        {/* 4. CONTACT INFORMATION CARD */}
-        <Card className="p-6 rounded-xl border-slate-200 shadow-sm bg-white">
-          <div className="flex items-center gap-2 mb-6 border-b border-slate-100 pb-4">
-            <PhoneCall className="w-5 h-5 text-slate-700" />
-            <h2 className="text-lg font-semibold text-slate-800">
-              Contact Information
-            </h2>
-          </div>
+       {/* 4. CONTACT INFORMATION CARD */}
+<Card className="p-6 rounded-xl border-slate-200 shadow-sm bg-white">
+  <div className="flex items-center gap-2 mb-6 border-b border-slate-100 pb-4">
+    <PhoneCall className="w-5 h-5 text-slate-700" />
+    <h2 className="text-lg font-semibold text-slate-800">
+      Contact Information
+    </h2>
+  </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="space-y-2">
-              <Label className="text-sm font-medium text-slate-700">
-                Email Address
-              </Label>
-              <div className="relative">
-                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-                <Input
-                  name="email"
-                  {...register("email")}
-                  placeholder="Enter Email"
-                  className="h-11 pl-9"
-                />
-              </div>
-            </div>
+  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+    
+    {/* EMAIL */}
+    <div className="space-y-2">
+      <Label className="text-sm font-medium text-slate-700">
+        Email Address <span className="text-red-500">*</span>
+      </Label>
 
-            <div className="space-y-2">
-              <Label className="text-sm font-medium text-slate-700">
-                Phone Number
-              </Label>
-              <div className="relative">
-                <Smartphone className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-                <Input
-                  name="phone"
-                  {...register("phone")}
-                  placeholder="Enter Phone"
-                  className="h-11 pl-9"
-                />
-              </div>
-            </div>
-          </div>
-        </Card>
+      <div className="relative">
+        <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+
+        <Input
+          name="email"
+          {...register("email", {
+            required: "Email is required",
+            pattern: {
+              value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+              message: "Enter a valid email address",
+            },
+          })}
+          placeholder="Enter Email"
+          className="h-11 pl-9"
+        />
+      </div>
+
+      {errors.email && (
+        <p className="text-sm text-red-500">
+          {errors.email.message}
+        </p>
+      )}
+    </div>
+
+    {/* PHONE */}
+    <div className="space-y-2">
+      <Label className="text-sm font-medium text-slate-700">
+        Phone Number <span className="text-red-500">*</span>
+      </Label>
+
+<div className="relative">
+  <Smartphone className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+
+  <Input
+    type="tel"
+    maxLength={10}
+    inputMode="numeric"
+    name="phone"
+    {...register("phone", {
+      required: "Phone number is required",
+      pattern: {
+        value: /^[6-9]\d{9}$/,
+        message: "Enter a valid 10-digit phone number",
+      },
+      minLength: {
+        value: 10,
+        message: "Phone number must be 10 digits",
+      },
+      maxLength: {
+        value: 10,
+        message: "Phone number must be 10 digits",
+      },
+    })}
+    onInput={(e) => {
+      e.target.value = e.target.value
+        .replace(/\D/g, "")
+        .slice(0, 10);
+    }}
+    placeholder="Enter Phone"
+    className="h-11 pl-9"
+  />
+</div>
+
+      {errors.phone && (
+        <p className="text-sm text-red-500">
+          {errors.phone.message}
+        </p>
+      )}
+    </div>
+  </div>
+</Card>
 
         {/* 5. ADDRESS DETAILS CARD */}
         <Card className="p-6 rounded-xl border-slate-200 shadow-sm bg-white">
@@ -335,11 +404,13 @@ export default function AddStaff() {
           <div className="space-y-6">
             <div className="space-y-2">
               <Label className="text-sm font-medium text-slate-700">
-                Current Address
+                Current Address<span className="text-red-500">*</span>
               </Label>
               <Input
                 name="currentAddress"
-                {...register("currentAddress")}
+                {...register("currentAddress",{
+                  required: "Current address is required",
+                })}
                 placeholder="Street name, City, State, ZIP"
                 className="h-11"
               />
@@ -348,7 +419,7 @@ export default function AddStaff() {
             <div className="space-y-2">
               <div className="flex items-center justify-between">
                 <Label className="text-sm font-medium text-slate-700">
-                  Permanent Address
+                  Permanent Address<span className="text-red-500">*</span>
                 </Label>
                 <div className="flex items-center gap-2">
                   <input
@@ -377,7 +448,9 @@ export default function AddStaff() {
               </div>
               <Input
                 name="permanentAddress"
-                {...register("permanentAddress")}
+                {...register("permanentAddress",{
+                  required: "Permanent address is required",
+                })}
                 placeholder="Street name, City, State, ZIP"
                 className="h-11"
               />

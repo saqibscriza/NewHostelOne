@@ -3,16 +3,22 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
 import { Button } from "../../../components/ui/button";
 import AuthLayout from "../../auth/component/AuthLayout";
+import {verifyOtpApi, getOtpApi} from "../../../utils/utils";
 import toast from "react-hot-toast";
 
 
 export default function VerifyOTP() {
   const navigate = useNavigate();
   const location = useLocation();
-  const [loaderCheck, setLoaderCheck] = useState(false);
   const email = location.state?.email || "your email address";
+  const initialToken = location.state?.token;
 
+  const [token, setToken] = useState(initialToken);
   const [otp, setOtp] = useState(["", "", "", "", "", ""]);
+  const [loaderCheck, setLoaderCheck] = useState(false);
+  const [resendLoader, setResendLoader] = useState(false);
+  const [timer, setTimer] = useState(0);
+  const [isResendDisabled, setIsResendDisabled] = useState(false);
   const inputRefs = useRef([]);
 
   useEffect(() => {
@@ -21,6 +27,20 @@ export default function VerifyOTP() {
       inputRefs.current[0].focus();
     }
   }, []);
+
+
+  useEffect(() => {
+    let interval;
+    if (timer > 0) {
+      interval = setInterval(() => {
+        setTimer((prevTimer) => prevTimer - 1);
+      }, 1000);
+    } else {
+      setIsResendDisabled(false);
+      clearInterval(interval);
+    }
+    return () => clearInterval(interval);
+  }, [timer]);
 
   const handleChange = (index, e) => {
     const value = e.target.value;
@@ -43,23 +63,85 @@ export default function VerifyOTP() {
     }
   };
 
-const handleSubmit = async (e) => {
-  e.preventDefault();
+  const handleSubmit = async (e) => {
+    e.preventDefault();
 
-  const otpValue = otp.join("");
+    const otpValue = otp.join("");
 
-  if (otpValue.length !== 6) {
-    toast.error("Please enter valid OTP");
-    return;
-  }
+    if (otpValue.length !== 6) {
+      toast.error("Please enter valid OTP");
+      return;
+    }
 
-  navigate("/reset-password", {
-    state: {
-      email,
-      otp: otpValue,
-    },
-  });
-};
+    try {
+      setLoaderCheck(true);
+
+      const payload = {
+        OTP: otpValue,
+        token: token,
+      };
+
+      const res = await verifyOtpApi(payload);
+
+      if (
+        res?.data?.status === "success" || 
+        res?.data?.status === 1 || 
+        res?.data?.success === true ||
+        (res?.status === 200 && res?.data?.status !== 0 && res?.data?.status !== "error" && res?.data?.status !== "fail")
+      ) {
+        toast.success(res?.data?.message || "OTP verified successfully");
+        navigate("/reset-password", {
+          state: {
+            email,
+            token: res?.data?.token, // Pass the new token from VerifyOTP
+          },
+        });
+      } else {
+        toast.error(res?.data?.message || "Invalid OTP");
+      }
+    } catch (error) {
+      console.log(error);
+
+      toast.error(
+        error?.response?.data?.message || "Something went wrong"
+      );
+    } finally {
+      setLoaderCheck(false);
+    }
+  };
+
+  const handleResendOtp = async () => {
+    if (!email || email === "your email address") {
+      toast.error("Valid email not found. Please restart the process.");
+      return;
+    }
+
+  try {
+      setResendLoader(true);
+      const res = await getOtpApi(email);
+
+      if (
+        res?.data?.status === "success" || 
+        res?.data?.status === 1 || 
+        res?.data?.success === true ||
+        (res?.status === 200 && res?.data?.status !== 0 && res?.data?.status !== "error" && res?.data?.status !== "fail")
+      ) {
+        toast.success(res?.data?.message || "OTP resent successfully");
+        if (res?.data?.token) {
+          setToken(res?.data?.token); // Update token from resend response
+        }
+        setOtp(["", "", "", "", "", ""]);
+        if (inputRefs.current[0]) inputRefs.current[0].focus();
+      } else {
+        toast.error(res?.data?.message || "Failed to resend OTP");
+      }
+    } catch (error) {
+      console.log(error);
+      toast.error(error?.response?.data?.message || "Failed to resend OTP");
+    } finally {
+      setResendLoader(false);
+    }
+  };
 
   return (
     <AuthLayout
@@ -92,7 +174,7 @@ const handleSubmit = async (e) => {
 
         <Button
           type="submit"
-          disabled={otp.join("").length !== 6}
+          disabled={otp.join("").length !== 6 || loaderCheck}
           className="w-full h-12 rounded-xl bg-[#0F172A] hover:bg-[#1E293B] text-white font-medium text-[15px] disabled:opacity-75 disabled:cursor-not-allowed transition-all"
         >
           Verify
@@ -100,9 +182,20 @@ const handleSubmit = async (e) => {
 
         <div className="text-center mt-6">
           <span className="text-sm text-[#6B7280]">Didn't receive the code? </span>
-          <button type="button" className="text-sm font-semibold text-[#0F172A] hover:underline">
-            Resend OTP
-          </button>
+          {isResendDisabled ? (
+            <span className="text-sm font-semibold text-[#6B7280]">
+              Resend OTP in {timer}s
+            </span>
+          ) : (
+            <button 
+              type="button" 
+              onClick={handleResendOtp}
+              disabled={resendLoader}
+              className="text-sm font-semibold text-[#0F172A] hover:underline disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              Resend OTP
+            </button>
+          )}
         </div>
       </form>
 

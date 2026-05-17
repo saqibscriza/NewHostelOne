@@ -1,19 +1,31 @@
 import React, { useEffect, useState } from "react";
 import { Button } from "../../../../../src/components/ui/button";
+import { useNavigate } from "react-router-dom";
 import { Link } from "react-router-dom";
 import { Wallet, Calendar, TrendingUp, TrendingDown, ArrowUpRight, ArrowDownRight, CalendarDays } from "lucide-react";
 import { ChevronDown } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "../../../../../src/components/ui/Card";
 import { Eye, CreditCard, Banknote, Building, ChevronLeft, ChevronRight } from "lucide-react";
 import { AlertCircle, Mail } from "lucide-react";
-import {getFeeDashboard} from "../../../../utils/utils";
+import {
+  Pagination,
+  PaginationContent,
+  PaginationEllipsis,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from "../../../../../src/components/ui/pagination";
+import {getFeeDashboard,getFeeCSV} from "../../../../utils/utils";
 
 export default function FeesPage() {
-
+const navigate = useNavigate();
 const [dashboardData, setDashboardData] = useState(null);
 const [filterStudent, setFilterStudent] = useState("All Student");
 const [filterMethod, setFilterMethod] = useState("All Payment Method");
 const [filterStatus, setFilterStatus] = useState("All Status");
+const [currentPage, setCurrentPage] = useState(1);
+const itemsPerPage = 10;
 
 const clearFilters = () => {
   setFilterStudent("All Student");
@@ -33,6 +45,34 @@ const fetchDashboard = async () => {
   useEffect(() => {
   fetchDashboard();
 }, []);
+
+
+
+const handleExportCSV = async () => {
+  try {
+    const response = await getFeeCSV();
+
+    if (!response) return;
+
+    const blob = new Blob([response.data], {
+      type: "text/csv",
+    });
+
+    const url = window.URL.createObjectURL(blob);
+
+    const link = document.createElement("a");
+    link.href = url;
+    link.setAttribute("download", "fee-transactions.csv");
+
+    document.body.appendChild(link);
+    link.click();
+
+    link.remove();
+    window.URL.revokeObjectURL(url);
+  } catch (error) {
+    console.error("CSV Export Error:", error);
+  }
+};
 
   const stats = [
     {
@@ -62,6 +102,7 @@ const fetchDashboard = async () => {
 const transactions =
   dashboardData?.recentTransactions?.map((tx) => ({
     id: tx.transactionId,
+    studentId: tx.studentId,
     name: tx.studentName,
     initials: tx.studentName?.slice(0, 2).toUpperCase(),
     amount: `₹${tx.amount}`,
@@ -81,6 +122,35 @@ const filteredTransactions = transactions.filter(tx => {
   const matchStatus = filterStatus === "All Status" || tx.status === filterStatus;
   return matchStudent && matchMethod && matchStatus;
 });
+
+useEffect(() => {
+  setCurrentPage(1);
+}, [filterStudent, filterMethod, filterStatus]);
+
+const startIndex = (currentPage - 1) * itemsPerPage;
+const endIndex = startIndex + itemsPerPage;
+const currentItems = filteredTransactions.slice(startIndex, endIndex);
+const totalPages = Math.ceil(filteredTransactions.length / itemsPerPage);
+
+const getPaginationItems = () => {
+  const pages = [];
+  for (let i = 1; i <= totalPages; i++) {
+    if (
+      i === 1 ||
+      i === totalPages ||
+      i === currentPage ||
+      i === currentPage - 1 ||
+      i === currentPage + 1
+    ) {
+      pages.push(i);
+    } else if (i === currentPage - 2 || i === currentPage + 2) {
+      pages.push("...");
+    }
+  }
+  return pages.filter(
+    (item, index) => item !== "..." || pages[index - 1] !== "..."
+  );
+};
 
 
 const getStatusColor = (status) => {
@@ -227,7 +297,7 @@ const methods = [
             <CardTitle className="text-lg font-bold text-slate-900">Recent Transactions</CardTitle>
             <div className="flex gap-2">
               {/* <Button variant="outline" className="text-sm border-slate-200 text-slate-600">Filter</Button> */}
-              <Button variant="outline" className="text-sm border-slate-200 text-slate-600">Export CSV</Button>
+              <Button onClick={handleExportCSV} variant="outline" className="text-sm border-slate-200 text-slate-600">Export CSV</Button>
             </div>
           </CardHeader>
           <div className="overflow-x-auto">
@@ -243,7 +313,14 @@ const methods = [
                 </tr>
               </thead>
               <tbody>
-                {filteredTransactions?.map((tx, index) => {
+               {currentItems.length === 0 ? (
+                  <tr>
+                    <td colSpan="6" className="text-center py-10">
+                      No transactions found
+                    </td>
+                  </tr>
+                ) : (
+                  currentItems.map((tx, index) => {
                   const MethodIcon = tx.methodIcon;
                   return (
                     <tr key={index} className="bg-white border-b border-slate-50 last:border-0 hover:bg-slate-50/50">
@@ -272,35 +349,68 @@ const methods = [
                         </span>
                       </td>
                       <td className="px-6 py-4 text-right">
-                        <button className="text-slate-400 hover:text-slate-600">
+                        <button 
+                        onClick={() =>
+    navigate(`/admin/fees/history?studentId=${tx.studentId}`)
+  }className="text-slate-400 hover:text-slate-600">
                           <Eye className="w-4 h-4" />
                         </button>
                       </td>
                     </tr>
                   );
-                })}
+                }))}
               </tbody>
             </table>
           </div>
           
           {/* Pagination */}
-          <div className="flex items-center justify-between px-6 py-4 border-t border-slate-100">
-            <span className="text-sm text-slate-500">Showing 1 to 4 of 24 hostels</span>
-            <div className="flex items-center gap-1">
-              <button className="p-1 text-slate-400 hover:text-slate-600"><ChevronLeft className="w-4 h-4" /></button>
-              <button className="w-7 h-7 flex items-center justify-center rounded bg-slate-900 text-white text-sm font-medium">1</button>
-              <button className="w-7 h-7 flex items-center justify-center rounded text-slate-600 hover:bg-slate-100 text-sm font-medium">2</button>
-              <button className="w-7 h-7 flex items-center justify-center rounded text-slate-600 hover:bg-slate-100 text-sm font-medium">3</button>
-              <span className="text-slate-400 px-1">...</span>
-              <button className="w-7 h-7 flex items-center justify-center rounded text-slate-600 hover:bg-slate-100 text-sm font-medium">6</button>
-              <button className="p-1 text-slate-400 hover:text-slate-600"><ChevronRight className="w-4 h-4" /></button>
+          {totalPages > 0 && (
+            <div className="flex items-center justify-between border-t border-slate-100 bg-white px-6 py-4">
+              <span className="text-sm text-slate-500 hidden sm:block w-1/3">
+                Showing {startIndex + 1} to {Math.min(endIndex, filteredTransactions.length)} of {filteredTransactions.length} transactions
+              </span>
+              <div className="flex-1 flex justify-end">
+                <Pagination className="w-auto mx-0">
+                  <PaginationContent>
+                    <PaginationItem>
+                      <PaginationPrevious
+                        onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+                        className={currentPage === 1 ? "pointer-events-none opacity-50" : "cursor-pointer"}
+                      />
+                    </PaginationItem>
+                    
+                    {getPaginationItems().map((item, idx) => (
+                      <PaginationItem key={idx} className="hidden sm:inline-block">
+                        {item === "..." ? (
+                          <PaginationEllipsis />
+                        ) : (
+                          <PaginationLink
+                            isActive={currentPage === item}
+                            onClick={() => setCurrentPage(item)}
+                            className="cursor-pointer"
+                          >
+                            {item}
+                          </PaginationLink>
+                        )}
+                      </PaginationItem>
+                    ))}
+
+                    <PaginationItem>
+                      <PaginationNext
+                        onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+                        className={currentPage === totalPages ? "pointer-events-none opacity-50" : "cursor-pointer"}
+                      />
+                    </PaginationItem>
+                  </PaginationContent>
+                </Pagination>
+              </div>
             </div>
-          </div>
+          )}
         </Card>
 
       
        {/* Urgent Reminders and Payment Methods */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      {/* <div className="grid grid-cols-1 lg:grid-cols-2 gap-6"> */}
 {/* <Card className="border border-slate-100 shadow-sm rounded-xl h-full">
   <CardHeader className="p-6 pb-4">
     <CardTitle className="text-lg font-bold text-slate-900">
@@ -371,7 +481,7 @@ const methods = [
                  ))}
                </CardContent>
              </Card> */}
-      </div>
+      {/* </div> */}
     </div>
   );
 }

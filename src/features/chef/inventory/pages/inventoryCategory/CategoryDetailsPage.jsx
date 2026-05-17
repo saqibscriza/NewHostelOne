@@ -95,25 +95,25 @@ export default function CategoryDetailsPage() {
   </div>
 </div>
 
-        <div className="overflow-x-auto">
+        <div className="overflow-x-auto px-6 pb-4">
           <Table>
             <TableHeader className="bg-muted/10 border-b border-border">
               <TableRow className="hover:bg-transparent">
-                <TableHead className="text-xs font-bold text-muted-foreground uppercase tracking-wider h-14 pl-6">
+                <TableHead className="text-xs font-bold text-muted-foreground uppercase tracking-wider h-14">
                   Item Details
                 </TableHead>
                 <TableHead className="text-xs font-bold text-muted-foreground uppercase tracking-wider h-14">
                   SKU Identifier
                 </TableHead>
-                <TableHead className="text-xs font-bold text-muted-foreground uppercase tracking-wider text-right h-14 pr-6">
+                <TableHead className="text-xs font-bold text-muted-foreground uppercase tracking-wider text-right h-14">
                   Actions
                 </TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {items.map((item, index) => (
-                <TableRow key={index.id} className="border-border hover:bg-muted/30 transition-colors">
-                  <TableCell className="pl-6 py-5">
+                <TableRow key={index.id} className="hover:bg-muted/30 transition-colors">
+                  <TableCell className="py-5">
                      <span className="font-bold text-[15px] text-foreground">{item.itemName}</span>
                   </TableCell>
                   <TableCell className="py-5">
@@ -121,7 +121,7 @@ export default function CategoryDetailsPage() {
                       {item.skuId}
                     </Badge>
                   </TableCell>
-                  <TableCell className="py-5 text-right pr-6">
+                  <TableCell className="py-5 text-right">
                     <Link to={`/chef/inventory/category/${item.categoryId}/item/${item.id}/edit`} className="inline-flex text-muted-foreground hover:text-foreground transition-colors p-2 rounded-lg hover:bg-muted">
                       <Edit2 className="w-4 h-4" />
                     </Link>

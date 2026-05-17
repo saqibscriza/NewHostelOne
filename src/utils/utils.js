@@ -69,7 +69,9 @@ export const signUpApi = async (data) => {
 // ******************************************** Password API ******************************************** */
 export const getOtpApi = async (email) => {
   try {
-    var res = await axios.post(`${Domain}/login/getOtp?email=${email}`);
+  var res = await axios.post(
+      `${Domain}/login/getOtp?email=${encodeURIComponent(email)}`
+    );
     return res;
   } catch (error) {
     throw error;
@@ -78,22 +80,55 @@ export const getOtpApi = async (email) => {
 
 export const verifyOtpApi = async (data) => {
   try {
-    const res = await axios.post(`${Domain}/login/verify-otp`, null, {
-      params: {
-        OTP: data.OTP,
-        newPassword: data.newPassword,
-        confirmPassword: data.confirmPassword,
-      },
-      headers: {
-        Authorization: `Bearer ${data.token}`,
-      },
-    });
+    console.log("verifyOtpApi called with data:", data);
+    console.log("Token being sent:", data.token?.startsWith("Bearer") ? data.token : `Bearer ${data.token}`);
+    const res = await axios.post(
+      `${Domain}/login/verify-otp`,
+      null,
+      {
+        params: {
+          OTP: data.OTP,
+        },
+        headers: {
+          Authorization: data.token?.startsWith("Bearer") ? data.token : `Bearer ${data.token}`,
+        },
+      }
+    );
+
+    return res;
+  } catch (error) {
+    console.log("verifyOtpApi Error:", error?.response?.data || error);
+    throw error;
+  }
+};
+
+export const setPasswordApi = async (data) => {
+  try {
+    console.log("setPasswordApi called with data:", data);
+    const res = await axios.post(
+      `${Domain}/login/setPassword`,
+      null,
+      {
+        params: {
+          password: data.password,
+          confirmPassword: data.confirmPassword,
+        },
+        headers: {
+          Authorization: data.token?.startsWith("Bearer") ? data.token : `Bearer ${data.token}`,
+        },
+      }
+    );
 
     return res;
   } catch (error) {
     throw error;
   }
 };
+
+
+
+
+
 
 //************************ Chef APIs ************************ */
 
@@ -588,6 +623,19 @@ export const getAllStudentApi = async ({ page = 0, size = 10 }) => {
     return [];
   }
 };
+
+
+export const getFeeCSV = async (data) => {
+  try {
+    axios.defaults.headers.common["Authorization"] = token;
+    const res = await axios.get(`${Domain}/fee/export-csv`);
+    return res?.data;
+  } catch (error) {
+    console.log("GET FEE CSV ERROR 👉", error);
+    return null;
+  }
+};
+
 
 export const getFeeSummaryByIdApi = async (studentId) => {
   try {

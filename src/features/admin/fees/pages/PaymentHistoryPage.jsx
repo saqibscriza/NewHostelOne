@@ -9,6 +9,15 @@ import { Button } from "../../../../components/ui/button";
 
 import { Input } from "../../../../components/ui/input";
 import {
+  Pagination,
+  PaginationContent,
+  PaginationEllipsis,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from "../../../../components/ui/pagination";
+import {
   Select,
   SelectContent,
   SelectItem,
@@ -16,7 +25,7 @@ import {
   SelectValue,
 } from "../../../../components/ui/select";
 import { Search } from "lucide-react";
-import { getFeePaymentHistory } from "../../../../utils/utils";
+import { getFeePaymentHistory, getFeeCSV } from "../../../../utils/utils";
 import { useSearchParams } from "react-router-dom";
 
 import {
@@ -38,6 +47,8 @@ export default function PaymentHistoryPage() {
   const studentId = searchParams.get("studentId");
   const [searchTxn, setSearchTxn] = useState("");
   const [status, setStatus] = useState("ALL");
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
 
   const myFeeHistory = async () => {
     try {
@@ -61,6 +72,32 @@ export default function PaymentHistoryPage() {
     }
   }, [studentId]);
 
+  const handleExportCSV = async () => {
+  try {
+    const response = await getFeeCSV();
+
+    if (!response) return;
+
+    const blob = new Blob([response.data], {
+      type: "text/csv",
+    });
+
+    const url = window.URL.createObjectURL(blob);
+
+    const link = document.createElement("a");
+    link.href = url;
+    link.setAttribute("download", "fee-transactions.csv");
+
+    document.body.appendChild(link);
+    link.click();
+
+    link.remove();
+    window.URL.revokeObjectURL(url);
+  } catch (error) {
+    console.error("CSV Export Error:", error);
+  }
+};
+
   const filteredHistory = useMemo(() => {
   return feeHistory.filter((tx) => {
     const matchesMethod =
@@ -77,6 +114,35 @@ export default function PaymentHistoryPage() {
     return matchesMethod && matchesStatus && matchesTxn;
   });
 }, [feeHistory, method, status, searchTxn]);
+
+useEffect(() => {
+    setCurrentPage(1);
+  }, [method, status, searchTxn]);
+
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const currentItems = filteredHistory.slice(startIndex, endIndex);
+  const totalPages = Math.ceil(filteredHistory.length / itemsPerPage);
+
+  const getPaginationItems = () => {
+    const pages = [];
+    for (let i = 1; i <= totalPages; i++) {
+      if (
+        i === 1 ||
+        i === totalPages ||
+        i === currentPage ||
+        i === currentPage - 1 ||
+        i === currentPage + 1
+      ) {
+        pages.push(i);
+      } else if (i === currentPage - 2 || i === currentPage + 2) {
+        pages.push("...");
+      }
+    }
+    return pages.filter(
+      (item, index) => item !== "..." || pages[index - 1] !== "..."
+    );
+  };
 
   return (
     <div className="max-w-7xl mx-auto space-y-6">
@@ -237,13 +303,14 @@ export default function PaymentHistoryPage() {
             Recent Transactions
           </CardTitle>
           <div className="flex gap-2">
-            <Button
+            {/* <Button
               variant="outline"
               className="text-sm border-border text-foreground"
             >
               Filter
-            </Button>
+            </Button> */}
             <Button
+            onClick={handleExportCSV}
               variant="outline"
               className="text-sm border-border text-foreground"
             >
@@ -265,8 +332,16 @@ export default function PaymentHistoryPage() {
               </tr>
             </thead>
             <tbody>
-              {filteredHistory.map((tx, index) => {
-                const getMethodIcon = (method) => {
+
+              {currentItems.length === 0 ? (
+                <tr>
+                  <td colSpan="7" className="text-center py-10">
+                    No transactions found
+                  </td>
+                </tr>
+              ) : (
+                currentItems.map((tx, index) => {
+                  const getMethodIcon = (method) => {
   switch (method) {
     case "CASH":
       return <Banknote className="w-4 h-4" />;
@@ -316,38 +391,54 @@ export default function PaymentHistoryPage() {
                     </td>
                   </tr>
                 );
-              })}
+              }))}
             </tbody>
           </table>
         </div>
 
         {/* Pagination */}
-        <div className="flex items-center justify-between px-6 py-4 border-t border-border">
-          <span className="text-sm text-muted-foreground">
-            Showing 1 to 4 of 24 hostels
-          </span>
-          <div className="flex items-center gap-1">
-            <button className="p-1 text-muted-foreground hover:text-foreground">
-              <ChevronLeft className="w-4 h-4" />
-            </button>
-            <button className="w-7 h-7 flex items-center justify-center rounded bg-foreground text-background text-sm font-bold">
-              1
-            </button>
-            <button className="w-7 h-7 flex items-center justify-center rounded text-foreground hover:bg-muted text-sm font-bold">
-              2
-            </button>
-            <button className="w-7 h-7 flex items-center justify-center rounded text-foreground hover:bg-muted text-sm font-bold">
-              3
-            </button>
-            <span className="text-muted-foreground px-1">...</span>
-            <button className="w-7 h-7 flex items-center justify-center rounded text-foreground hover:bg-muted text-sm font-bold">
-              6
-            </button>
-            <button className="p-1 text-muted-foreground hover:text-foreground">
-              <ChevronRight className="w-4 h-4" />
-            </button>
+        {totalPages > 0 && (
+          <div className="flex items-center justify-between border-t border-border bg-card px-6 py-4">
+            <span className="text-sm text-muted-foreground hidden sm:block w-1/3">
+              Showing {startIndex + 1} to {Math.min(endIndex, filteredHistory.length)} of {filteredHistory.length} transactions
+            </span>
+            <div className="flex-1 flex justify-end">
+              <Pagination className="w-auto mx-0">
+                <PaginationContent>
+                  <PaginationItem>
+                    <PaginationPrevious
+                      onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+                      className={currentPage === 1 ? "pointer-events-none opacity-50" : "cursor-pointer"}
+                    />
+                  </PaginationItem>
+                  
+                  {getPaginationItems().map((item, idx) => (
+                    <PaginationItem key={idx} className="hidden sm:inline-block">
+                      {item === "..." ? (
+                        <PaginationEllipsis />
+                      ) : (
+                        <PaginationLink
+                          isActive={currentPage === item}
+                          onClick={() => setCurrentPage(item)}
+                          className="cursor-pointer"
+                        >
+                          {item}
+                        </PaginationLink>
+                      )}
+                    </PaginationItem>
+                  ))}
+
+                  <PaginationItem>
+                    <PaginationNext
+                      onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+                      className={currentPage === totalPages ? "pointer-events-none opacity-50" : "cursor-pointer"}
+                    />
+                  </PaginationItem>
+                </PaginationContent>
+              </Pagination>
+            </div>
           </div>
-        </div>
+        )}
       </Card>
     </div>
   );
