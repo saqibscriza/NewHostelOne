@@ -7,10 +7,11 @@ import React, { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 
 import { getAllNoticesApi, updateNoticeApi } from "../../../../utils/utils";
+
 const categoryOptions = [
-  { label: "High", icon: AlertCircle },
-  { label: "Medium", icon: BadgeAlert },
-  { label: "Low", icon: BellRing },
+  { label: "HIGH", icon: AlertCircle },
+  { label: "MEDIUM", icon: BadgeAlert },
+  { label: "LOW", icon: BellRing },
 ];
 
 const Label = ({ children }) => (
@@ -27,7 +28,7 @@ export default function EditNoticePage() {
 
   const [form, setForm] = useState({
     title: "",
-    category: "High",
+    category: "MEDIUM",
     priority: "MEDIUM",
     description: "",
     scheduleLater: false,
@@ -49,7 +50,7 @@ export default function EditNoticePage() {
         if (selectedNotice) {
           setForm({
             title: selectedNotice.title || "",
-            category: selectedNotice.category || "High",
+            category: selectedNotice.category || "MEDIUM",
             priority: selectedNotice.priority || "MEDIUM",
             description: selectedNotice.description || "",
             scheduleLater: false,

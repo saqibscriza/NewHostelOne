@@ -141,7 +141,7 @@ function PaymentBadge({ value }) {
         {value}
       </div>
 
-      <span className="w-2 h-2 bg-slate-400 rounded-full"></span>
+      {/* <span className="w-2 h-2 bg-slate-400 rounded-full"></span> */}
     </div>
   );
 }

@@ -6,12 +6,36 @@ import React, { useEffect, useMemo, useState } from "react";
 import { toast } from "react-toastify";
 import { getAllNoticesApi, deleteNoticeApi } from "../../../../utils/utils";
 
-const filters = ["All Notices", "High", "Medium", "Low"];
+const filters = ["All Notices", "HIGH", "MEDIUM", "LOW"];
 
 const badgeStyles = {
-  High: "bg-rose-50 text-rose-500",
-  Medium: "bg-amber-50 text-amber-500",
-  Low: "bg-slate-100 text-slate-500",
+  HIGH: "bg-rose-50 text-rose-500",
+  MEDIUM: "bg-amber-50 text-amber-500",
+  LOW: "bg-slate-100 text-slate-500",
+};
+const formatNoticeDateTime = (dateString) => {
+  if (!dateString) {
+    return {
+      date: "No Date",
+      time: "",
+    };
+  }
+
+  const date = new Date(dateString);
+
+  return {
+    date: date.toLocaleDateString("en-US", {
+      month: "short",
+      day: "numeric",
+      year: "numeric",
+    }),
+
+    time: date.toLocaleTimeString("en-US", {
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: true,
+    }),
+  };
 };
 
 export default function NoticesPage() {
@@ -69,7 +93,9 @@ export default function NoticesPage() {
   const filteredNotices = useMemo(() => {
     if (activeFilter === "All Notices") return noticeData;
 
-    return noticeData.filter((notice) => notice.category === activeFilter);
+    return noticeData.filter(
+      (notice) => notice?.category?.toUpperCase() === activeFilter,
+    );
   }, [activeFilter, noticeData]);
 
   return (
@@ -110,15 +136,6 @@ export default function NoticesPage() {
             );
           })}
         </div>
-
-        {/* <button
-          type="button"
-          className="flex items-center gap-2 self-start text-sm text-muted-foreground"
-        >
-          <span>Sort by:</span>
-          <span className="font-semibold text-foreground">Newest First</span>
-          <ChevronDown className="h-4 w-4" />
-        </button> */}
       </div>
 
       <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
@@ -130,9 +147,9 @@ export default function NoticesPage() {
             <CardContent className="p-0">
               <div className="space-y-4 p-5">
                 <span
-                  className={`inline-flex rounded-md px-2.5 py-1 text-xs font-bold uppercase tracking-wide ${badgeStyles[notice.category]}`}
+                  className={`inline-flex rounded-md px-2.5 py-1 text-xs font-bold uppercase tracking-wide ${badgeStyles[notice?.category?.toUpperCase()]}`}
                 >
-                  {notice.category}
+                  {notice?.category?.toUpperCase()}
                 </span>
 
                 <div>
@@ -144,12 +161,19 @@ export default function NoticesPage() {
                   </p>
                 </div>
 
-                <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                  <CalendarDays className="h-4 w-4" />
-                  <span>
-                    {notice.date} • {notice.time}
-                  </span>
-                </div>
+                {(() => {
+                  const formatted = formatNoticeDateTime(notice?.createdAt);
+
+                  return (
+                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                      <CalendarDays className="h-4 w-4" />
+
+                      <span>
+                        {formatted.date} • {formatted.time}
+                      </span>
+                    </div>
+                  );
+                })()}
               </div>
 
               <div className="flex items-center gap-4 border-t border-border px-5 py-4 text-muted-foreground">

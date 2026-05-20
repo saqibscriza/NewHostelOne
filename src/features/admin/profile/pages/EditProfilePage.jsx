@@ -1,8 +1,7 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import {
   CalendarDays,
   Fingerprint,
-  Pencil,
   ShieldCheck,
   Upload,
   User,
@@ -23,11 +22,12 @@ import {
   updateAdminPersonalDetailsApi,
   getAdminByIdApi,
 } from "../../../../utils/utils";
+import { useAuth } from "../../../../context/AuthContext";
 
-const InfoBlock = ({ icon: Icon, label, value, helper, tone = "default" }) => (
+const InfoBlock = ({ icon, label, value, helper, tone = "default" }) => (
   <div className="flex items-start gap-4">
     <div className="rounded-xl bg-muted p-3 text-muted-foreground">
-      <Icon className="h-5 w-5" />
+      {React.createElement(icon, { className: "h-5 w-5" })}
     </div>
     <div>
       <p className="text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">
@@ -55,10 +55,31 @@ const Label = ({ children }) => (
   </label>
 );
 
+const getInitials = (name = "") => {
+  const parts = name.trim().split(/\s+/).filter(Boolean);
+  const first = parts[0]?.[0] || "";
+  const last = parts.length > 1 ? parts[parts.length - 1]?.[0] : "";
+  return `${first}${last}`.toUpperCase() || "A";
+};
+
+const pickFirst = (...values) =>
+  values.find((value) => value !== undefined && value !== null && value !== "") ||
+  "";
+
+const getAdminFromResponse = (response) =>
+  response?.data?.data ||
+  response?.data?.admin ||
+  response?.data?.profile ||
+  response?.data?.adminData ||
+  response?.data ||
+  {};
+
 const EditProfilePage = () => {
   const [selectedImage, setSelectedImage] = useState(null);
   const [previewImage, setPreviewImage] = useState("");
+  const [imageRemoved, setImageRemoved] = useState(false);
   const fileInputRef = useRef(null);
+  const { updateUserProfile } = useAuth();
 
   const handleImageUpload = (e) => {
     const file = e.target.files[0];
@@ -66,16 +87,20 @@ const EditProfilePage = () => {
     if (!file) return;
 
     setSelectedImage(file);
+    setImageRemoved(false);
 
-    const imageUrl = URL.createObjectURL(file);
-
-    setPreviewImage(imageUrl);
+    const reader = new FileReader();
+    reader.onload = () => {
+      setPreviewImage(reader.result || "");
+    };
+    reader.readAsDataURL(file);
   };
 
   const handleRemoveImage = () => {
     setSelectedImage(null);
 
     setPreviewImage("");
+    setImageRemoved(true);
 
     if (fileInputRef.current) {
       fileInputRef.current.value = "";
@@ -103,39 +128,44 @@ const EditProfilePage = () => {
     }));
   };
 
-  const AdminDataById = async () => {
+  const AdminDataById = useCallback(async () => {
     try {
       const response = await getAdminByIdApi();
 
       console.log("ADMIN DATA BY ID =>", response);
 
       if (response?.status === 200) {
-        const admin = response?.data;
+        const admin = getAdminFromResponse(response);
 
         setForm({
-          fullName: admin?.name || "",
-          email: admin?.email || "",
-          phone: admin?.phone || "",
-          address: admin?.address || "",
-          pinCode: "",
-          country: "",
-          state: "",
-          city: "",
-          dateOfJoining: admin?.dateOfBirth || "",
-          adminId: admin?.id || "",
+          fullName: pickFirst(admin?.fullName, admin?.name, admin?.adminName),
+          email: pickFirst(admin?.email, admin?.adminEmail),
+          phone: pickFirst(admin?.phone, admin?.adminPhone),
+          address: pickFirst(admin?.address, admin?.adminAddress),
+          pinCode: pickFirst(admin?.pinCode, admin?.pincode),
+          country: pickFirst(admin?.country),
+          state: pickFirst(admin?.state),
+          city: pickFirst(admin?.city),
+          dateOfJoining: pickFirst(
+            admin?.dateOfJoining,
+            admin?.joiningDate,
+            admin?.dateOfBirth,
+          ),
+          adminId: pickFirst(admin?.id, admin?.adminId, admin?._id),
         });
 
-        if (admin?.image) {
-          setPreviewImage(admin.image);
-        }
+        setPreviewImage(
+          pickFirst(admin?.image, admin?.photo, admin?.profileImage),
+        );
+        setImageRemoved(false);
       }
     } catch (error) {
       console.log(error);
     }
-  };
-  useEffect(() => {
-    AdminDataById();
   }, []);
+  useEffect(() => {
+    queueMicrotask(AdminDataById);
+  }, [AdminDataById]);
 
   const UpdateAdminProfileApi = async () => {
     try {
@@ -152,6 +182,16 @@ const EditProfilePage = () => {
 
       if (selectedImage) {
         formData.append("profileImage", selectedImage);
+        formData.append("image", selectedImage);
+        formData.append("photo", selectedImage);
+      }
+
+      if (imageRemoved) {
+        formData.append("removeProfileImage", "true");
+        formData.append("removeImage", "true");
+        formData.append("profileImageRemoved", "true");
+        formData.append("image", "");
+        formData.append("photo", "");
       }
 
       const response = await updateAdminPersonalDetailsApi(formData);
@@ -159,6 +199,20 @@ const EditProfilePage = () => {
       console.log("UPDATE PROFILE =>", response);
 
       if (response?.status === 200) {
+        const updatedPhoto =
+          response?.data?.profile?.photo ||
+          response?.data?.profile?.image ||
+          response?.data?.data?.photo ||
+          response?.data?.data?.image ||
+          response?.data?.photo ||
+          response?.data?.image ||
+          previewImage;
+
+        updateUserProfile({
+          name: form.fullName,
+          photo: imageRemoved ? "" : updatedPhoto || previewImage,
+        });
+
         toast.success("Profile Updated Successfully");
 
         setTimeout(() => {
@@ -196,8 +250,8 @@ const EditProfilePage = () => {
                   className="h-full w-full object-cover"
                 />
               ) : (
-                <div className="flex h-full w-full items-center justify-center text-muted-foreground">
-                  <User className="h-10 w-10" />
+                <div className="flex h-full w-full items-center justify-center text-2xl font-semibold text-foreground">
+                  {getInitials(form.fullName)}
                 </div>
               )}
               {/* <button className="absolute bottom-2 right-2 rounded-full bg-foreground p-1.5 text-background">
@@ -214,13 +268,14 @@ const EditProfilePage = () => {
               </p>
               <div className="mt-5 flex flex-wrap gap-3">
                 <Button
+                  type="button"
                   className="gap-2"
                   onClick={() => fileInputRef.current?.click()}
                 >
                   <Upload className="h-4 w-4" />
                   Upload New Photo
                 </Button>
-                <Button variant="outline" onClick={handleRemoveImage}>
+                <Button type="button" variant="outline" onClick={handleRemoveImage}>
                   Remove
                 </Button>{" "}
               </div>

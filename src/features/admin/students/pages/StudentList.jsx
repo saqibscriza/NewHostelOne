@@ -271,7 +271,7 @@ function PaymentBadge({ value }) {
   return (
     <div className="flex items-center gap-2">
       <div
-        className={`h-6 w-[130px] rounded-full flex items-center px-3 text-xs font-medium ${
+        className={`h-6 w-[80px] rounded-full flex items-center px-3 text-xs font-medium ${
           isPaid
             ? "bg-green-100 text-green-700"
             : "bg-muted text-muted-foreground"
@@ -279,7 +279,7 @@ function PaymentBadge({ value }) {
       >
         {value}
       </div>
-      <span className="w-2 h-2 bg-muted-foreground rounded-full"></span>
+      {/* <span className="w-2 h-2 bg-muted-foreground rounded-full"></span> */}
     </div>
   );
 }

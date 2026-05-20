@@ -834,7 +834,7 @@ export default function AddStudent() {
         )}
       </Section>
 
-      <Section title="Room Status">
+      <Section title="Student Status">
         <div className="space-y-4 max-w-md">
           <Field label="Initial Availability Status">
             <StyledSelect

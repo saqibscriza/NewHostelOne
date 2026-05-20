@@ -94,10 +94,7 @@ const AddOccupancyModal = ({ isOpen, onClose }) => {
     try {
       const selectedItem = occupancies[editIndex];
 
-      const response = await updateOccupancyById(
-        selectedItem.id,
-        formData,
-      );
+      const response = await updateOccupancyById(selectedItem.id, formData);
 
       if (response?.data?.status === "success") {
         toast.success(response.data.message);
@@ -168,7 +165,7 @@ const AddOccupancyModal = ({ isOpen, onClose }) => {
 
             return (
               <div
-                key={item.occupancyId}
+                key={item.id}
                 className="grid grid-cols-2 items-center px-4 py-3 border-t border-border"
               >
                 {isEditing ? (

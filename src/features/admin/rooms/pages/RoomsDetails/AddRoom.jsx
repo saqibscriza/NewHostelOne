@@ -53,7 +53,7 @@ const initialForm = {
   totalBeds: "",
   totalRoomPrice: "",
   securityDeposit: "",
-  description: "",
+  roomDescription: "",
   status: "AVAILABLE",
 };
 
@@ -123,7 +123,7 @@ const AddRoom = () => {
         totalBeds: String(room?.totalBeds || room?.availableBeds || ""),
         totalRoomPrice: String(room?.totalRoomPrice || room?.rentPerBed || ""),
         securityDeposit: String(room?.securityDeposit || ""),
-        description: room?.description || room?.roomDescription || "",
+        roomDescription: room?.roomDescription || room?.description || "",
         status: room?.status || "AVAILABLE",
       });
 
@@ -239,7 +239,7 @@ const AddRoom = () => {
     totalBeds: Number(form.totalBeds),
     totalRoomPrice: Number(form.totalRoomPrice),
     securityDeposit: Number(form.securityDeposit),
-    description: form.description.trim(),
+    roomDescription: form.roomDescription.trim(),
     status: form.status,
     roomImages,
   });
@@ -414,8 +414,8 @@ const AddRoom = () => {
 
           <Field label="Room Description">
             <textarea
-              value={form.description}
-              onChange={(e) => setField("description", e.target.value)}
+              value={form.roomDescription}
+              onChange={(e) => setField("roomDescription", e.target.value)}
               placeholder="Enter room description"
               className="min-h-24 w-full rounded-md border border-border bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
             />

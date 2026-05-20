@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import {
   Edit3,
   Mail,
@@ -6,7 +6,6 @@ import {
   MapPin,
   CalendarDays,
   Shield,
-  BellRing,
   KeyRound,
   User,
   Building2,
@@ -14,7 +13,6 @@ import {
 import { useNavigate } from "react-router-dom";
 import { Card, CardContent } from "../../../../components/ui/Card";
 import { Button } from "../../../../components/ui/button";
-import { Switch } from "../../../../components/ui/switch";
 import { Input } from "../../../../components/ui/input";
 import {
   Dialog,
@@ -23,10 +21,59 @@ import {
   DialogTitle,
 } from "../../../../components/ui/dialog";
 import { getAdminProfileApi, changePasswordApi } from "../../../../utils/utils";
-const DetailItem = ({ icon: Icon, label, value }) => (
+import { toast } from "react-hot-toast";
+import { useAuth } from "../../../../context/AuthContext";
+
+const getInitials = (name = "") => {
+  const parts = name.trim().split(/\s+/).filter(Boolean);
+  const first = parts[0]?.[0] || "";
+  const last = parts.length > 1 ? parts[parts.length - 1]?.[0] : "";
+  return `${first}${last}`.toUpperCase() || "A";
+};
+
+const pickFirst = (...values) =>
+  values.find((value) => value !== undefined && value !== null && value !== "") ||
+  "";
+
+const normalizeAdminProfile = (data = {}) => {
+  const admin = data?.data || data?.admin || data?.profile || data?.adminData || data;
+  const personalDetails = data?.personalDetails || {};
+
+  return {
+    name: pickFirst(admin?.name, admin?.fullName, admin?.adminName),
+    role: pickFirst(admin?.role, admin?.roleName, admin?.designation, "Admin"),
+    photo: pickFirst(admin?.image, admin?.photo, admin?.profileImage),
+    email: pickFirst(personalDetails?.email, admin?.email, admin?.adminEmail),
+    phone: pickFirst(personalDetails?.phone, admin?.phone, admin?.adminPhone),
+    address: pickFirst(
+      personalDetails?.address,
+      admin?.address,
+      admin?.adminAddress,
+    ),
+    dateOfJoining: pickFirst(
+      personalDetails?.dateOfJoining,
+      admin?.dateOfJoining,
+      admin?.joiningDate,
+      admin?.dateOfBirth,
+    ),
+    adminId: pickFirst(personalDetails?.adminId, admin?.id, admin?.adminId, admin?._id),
+    staffCount: pickFirst(admin?.staffCount, data?.profile?.staffCount, 0),
+    studentsCount: pickFirst(
+      admin?.studentsCount,
+      data?.profile?.studentsCount,
+      0,
+    ),
+    passwordLastChangedText: pickFirst(
+      data?.security?.passwordLastChangedText,
+      "Keep your password updated for better security.",
+    ),
+  };
+};
+
+const DetailItem = ({ icon, label, value }) => (
   <div className="space-y-2">
     <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">
-      <Icon className="h-3.5 w-3.5" />
+      {React.createElement(icon, { className: "h-3.5 w-3.5" })}
       <span>{label}</span>
     </div>
     <p className="text-sm font-medium leading-6 text-foreground sm:text-base">
@@ -38,9 +85,9 @@ const DetailItem = ({ icon: Icon, label, value }) => (
 const ProfilePage = () => {
   const [profileData, setProfileData] = useState(null);
   const [loader, setLoader] = useState(false);
+  const { userPhoto, updateUserProfile } = useAuth();
 
   const navigate = useNavigate();
-  const [emailNotifications, setEmailNotifications] = useState(true);
   const [openPasswordModal, setOpenPasswordModal] = useState(false);
   const [passwordData, setPasswordData] = useState({
     currentPassword: "",
@@ -48,16 +95,23 @@ const ProfilePage = () => {
     confirmPassword: "",
   });
 
-  const AdminProfileApi = async () => {
+  const AdminProfileApi = useCallback(async () => {
     setLoader(true);
 
     try {
       const response = await getAdminProfileApi();
+      console.log('my profile update data by id0-0-0-0-0-',response)
 
       console.log("ADMIN PROFILE =>", response);
 
       if (response?.status === 200) {
+        const adminProfile = normalizeAdminProfile(response?.data);
+
         setProfileData(response?.data);
+        updateUserProfile({
+          name: adminProfile.name,
+          ...(adminProfile.photo ? { photo: adminProfile.photo } : {}),
+        });
         setLoader(false);
       } else {
         setLoader(false);
@@ -66,7 +120,7 @@ const ProfilePage = () => {
       console.log(error);
       setLoader(false);
     }
-  };
+  }, [updateUserProfile]);
 
   const handleChangePassword = async () => {
     if (!passwordData.currentPassword.trim()) {
@@ -122,8 +176,8 @@ const ProfilePage = () => {
   };
 
   useEffect(() => {
-    AdminProfileApi();
-  }, []);
+    queueMicrotask(AdminProfileApi);
+  }, [AdminProfileApi]);
 
   if (loader) {
     return (
@@ -132,6 +186,9 @@ const ProfilePage = () => {
       </div>
     );
   }
+  const adminProfile = normalizeAdminProfile(profileData);
+  const profilePhoto = adminProfile.photo || userPhoto;
+
   return (
     <div className="min-h-screen bg-background">
       <div className="mx-auto max-w-7xl space-y-6 p-4 sm:p-6">
@@ -160,30 +217,30 @@ const ProfilePage = () => {
             <Card className="border-border bg-card shadow-sm">
               <CardContent className="flex flex-col items-center p-8 text-center">
                 <div className="mb-6 h-28 w-28 overflow-hidden rounded-full border border-border bg-muted">
-                  {profileData?.profile?.photo ? (
+                  {profilePhoto ? (
                     <img
-                      src={profileData?.profile?.photo}
+                      src={profilePhoto}
                       alt="Profile"
                       className="h-full w-full object-cover"
                     />
                   ) : (
-                    <div className="flex h-full w-full items-center justify-center text-muted-foreground">
-                      <User className="h-12 w-12" />
+                    <div className="flex h-full w-full items-center justify-center text-3xl font-semibold text-foreground">
+                      {getInitials(adminProfile.name)}
                     </div>
                   )}
                 </div>
 
                 <h2 className="text-3xl font-semibold text-foreground">
-                  {profileData?.profile?.name}
+                  {adminProfile.name || "Admin"}
                 </h2>
                 <p className="mt-2 text-xs font-semibold uppercase tracking-[0.22em] text-muted-foreground">
-                  {profileData?.profile?.role}
+                  {adminProfile.role}
                 </p>
 
                 <div className="mt-8 grid w-full grid-cols-2 divide-x divide-border rounded-2xl border border-border bg-muted/35">
                   <div className="px-4 py-5">
                     <p className="text-3xl font-bold text-foreground">
-                      {profileData?.profile?.staffCount}
+                      {adminProfile.staffCount}
                     </p>
                     <p className="mt-1 text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground">
                       Staff
@@ -191,7 +248,7 @@ const ProfilePage = () => {
                   </div>
                   <div className="px-4 py-5">
                     <p className="text-3xl font-bold text-foreground">
-                      {profileData?.profile?.studentsCount}
+                      {adminProfile.studentsCount}
                     </p>
                     <p className="mt-1 text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground">
                       Students
@@ -245,25 +302,25 @@ const ProfilePage = () => {
                   <DetailItem
                     icon={Mail}
                     label="Email Address"
-                    value={profileData?.personalDetails?.email}
+                    value={adminProfile.email || "Not Available"}
                   />
                   <DetailItem
                     icon={Phone}
                     label="Phone Number"
-                    value={profileData?.personalDetails?.phone}
+                    value={adminProfile.phone || "Not Available"}
                   />
                   <div className="md:col-span-2">
                     <DetailItem
                       icon={MapPin}
                       label="Address Details"
-                      value={profileData?.personalDetails?.address}
+                      value={adminProfile.address || "Not Available"}
                     />
                   </div>
                   <DetailItem
                     icon={CalendarDays}
                     label="Date Of Joining"
                     value={
-                      profileData?.personalDetails?.dateOfJoining ||
+                      adminProfile.dateOfJoining ||
                       "Not Available"
                     }
                   />
@@ -271,7 +328,7 @@ const ProfilePage = () => {
                     icon={Building2}
                     label="Admin ID"
                     value={
-                      profileData?.personalDetails?.adminId || "Not Available"
+                      adminProfile.adminId || "Not Available"
                     }
                   />
                 </div>
@@ -332,7 +389,7 @@ const ProfilePage = () => {
                         Password Management
                       </p>
                       <p className="text-sm text-muted-foreground">
-                        {profileData?.security?.passwordLastChangedText}
+                        {adminProfile.passwordLastChangedText}
                       </p>
                     </div>
                   </div>

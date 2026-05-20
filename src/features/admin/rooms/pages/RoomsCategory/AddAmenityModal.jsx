@@ -29,11 +29,19 @@ const AddAmenityModal = ({ isOpen, onClose, onAdd }) => {
 
       if (response?.data?.status === "success") {
         toast.success(response?.data?.message);
-        onAdd();
+
+        // reset local state FIRST
         setName("");
         setFile(null);
         setPreview(null);
+
+        // close modal immediately
         onClose();
+
+        // THEN refresh parent data
+        if (onAdd) {
+          await onAdd();
+        }
       } else {
         toast.error(response?.data?.message);
       }

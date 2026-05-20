@@ -9,6 +9,8 @@ import { toast } from "react-hot-toast";
 import {
   getAllCategoryApi,
   deleteCategoryById,
+  getAllOccupancyApi,
+  getAllAmenitiesApi,
 } from "../../../../../utils/utils";
 
 const Rooms = () => {
@@ -19,9 +21,42 @@ const Rooms = () => {
 
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [occupancyList, setOccupancyList] = useState([]);
+  const [amenitiesList, setAmenitiesList] = useState([]);
 
   // ================= FETCH CATEGORY =================
+  const fetchOccupancy = async () => {
+    try {
+      const res = await getAllOccupancyApi();
+      setOccupancyList(res?.data?.Occupancy || []);
+    } catch (error) {
+      console.log(error);
+      setOccupancyList([]);
+    }
+  };
 
+  const fetchAmenities = async () => {
+    try {
+      const res = await getAllAmenitiesApi();
+
+      const list = Array.isArray(res?.data) ? res.data : [];
+
+      const formatted = list.map((item) => ({
+        id: item.id,
+        name: item.amenitiesName,
+        icon: item.amenitiesIconUrl,
+      }));
+
+      setAmenitiesList(formatted);
+
+      return formatted;
+    } catch (error) {
+      console.log(error);
+      setAmenitiesList([]);
+
+      return [];
+    }
+  };
   const fetchCategories = async () => {
     setLoading(true);
     try {
@@ -37,28 +72,26 @@ const Rooms = () => {
         return;
       }
 
-  const formatted = list.map((item) => ({
-  id: item.id,
+      const formatted = list.map((item) => ({
+        id: item.id,
 
-  name: item.categoryName,
+        name: item.categoryName,
 
-  occupancyType:
-    item.occupancyName || "N/A",
+        occupancyType: item.occupancyName || "N/A",
 
-  price: `₹${item.monthlyRentPerBed}`,
+        price: `₹${item.monthlyRentPerBed}`,
 
-  description:
-    item.description || "No description available",
+        description: item.description || "No description available",
 
-  amenities:
-    item.amenities?.map((a) =>
-      a.amenitiesName === "[object FormData]"
-        ? "Unknown"
-        : a.amenitiesName,
-    ) || [],
+        amenities:
+          item.amenities?.map((a) =>
+            a.amenitiesName === "[object FormData]"
+              ? "Unknown"
+              : a.amenitiesName,
+          ) || [],
 
-  status: item.status ? "Active" : "Inactive",
-}));
+        status: item.status ? "Active" : "Inactive",
+      }));
       console.log("FORMATTED 👉", formatted);
 
       setCategories(formatted);
@@ -94,8 +127,9 @@ const Rooms = () => {
 
   useEffect(() => {
     fetchCategories();
-    
-  },[]);
+    fetchOccupancy();
+    fetchAmenities();
+  }, []);
 
   return (
     <div className="max-w-7xl mx-auto space-y-8 pb-12 p-6">
@@ -158,23 +192,29 @@ const Rooms = () => {
       </div>
 
       {/* MODALS */}
-      <RoomsAddCategoryModal
-        isOpen={openModal}
-        onClose={() => setOpenModal(false)}
-        onCategoryAdded={fetchCategories}
-      />
+  <RoomsAddCategoryModal
+  isOpen={openModal}
+  onClose={() => setOpenModal(false)}
+  onCategoryAdded={fetchCategories}
+  occupancyList={occupancyList}
+  amenitiesList={amenitiesList}
+  fetchAmenities={fetchAmenities}
+/>
 
       <AddOccupancyModal
         isOpen={openOccupancyModal}
         onClose={() => setOpenOccupancyModal(false)}
       />
 
-      <EditCategoryModal
-        isOpen={editModal}
-        onClose={() => setEditModal(false)}
-        category={selectedCategory}
-        onCategoryUpdated={fetchCategories}
-      />
+  <EditCategoryModal
+  isOpen={editModal}
+  onClose={() => setEditModal(false)}
+  category={selectedCategory}
+  onCategoryUpdated={fetchCategories}
+  occupancyList={occupancyList}
+  amenitiesList={amenitiesList}
+  fetchAmenities={fetchAmenities}
+/>
     </div>
   );
 };

@@ -8,9 +8,18 @@ import { toast } from "react-hot-toast";
 import { createNoticeApi } from "../../../../utils/utils";
 
 const categoryOptions = [
-  { label: "GENERAL", icon: <BellRing className="h-5 w-5" /> },
-  { label: "HOSTEL", icon: <BadgeAlert className="h-5 w-5" /> },
-  { label: "URGENT", icon: <AlertCircle className="h-5 w-5" /> },
+  {
+    label: "HIGH",
+    icon: <AlertCircle className="h-5 w-5" />,
+  },
+  {
+    label: "MEDIUM",
+    icon: <BadgeAlert className="h-5 w-5" />,
+  },
+  {
+    label: "LOW",
+    icon: <BellRing className="h-5 w-5" />,
+  },
 ];
 
 const Label = ({ children }) => (
@@ -23,8 +32,7 @@ export default function CreateNoticePage() {
   const [loaderCheck, setLoaderCheck] = useState(false);
   const [form, setForm] = useState({
     title: "",
-    category: "GENERAL",
-    priority: "MEDIUM",
+category: "MEDIUM",    priority: "MEDIUM",
     description: "",
     scheduleLater: false,
     scheduleDate: "",

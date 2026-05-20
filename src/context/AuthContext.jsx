@@ -1,29 +1,21 @@
-import { createContext, useCallback, useContext, useState, useEffect } from "react";
+import { createContext, useCallback, useContext, useState } from "react";
 
 const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
-  const [role, setRole] = useState(null);
-  const [token, setToken] = useState(null);
-  const [userName, setUserName] = useState(null);
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [isReady, setIsReady] = useState(false);
+  const storedRole = sessionStorage.getItem("role");
+  const storedToken = sessionStorage.getItem("token");
+  const storedName = sessionStorage.getItem("userName");
+  const storedPhoto =
+    sessionStorage.getItem("userPhoto") || localStorage.getItem("userPhoto");
+  const hasSession = Boolean(storedRole && storedToken);
 
-  // SESSION RESTORE
-  useEffect(() => {
-    const storedRole = sessionStorage.getItem("role");
-    const storedToken = sessionStorage.getItem("token");
-    const storedName = sessionStorage.getItem("userName");
-
-    if (storedRole && storedToken) {
-      setRole(storedRole);
-      setToken(storedToken);
-      setUserName(storedName || "User");
-      setIsAuthenticated(true);
-    }
-
-    setIsReady(true);
-  }, []);
+  const [role, setRole] = useState(hasSession ? storedRole : null);
+  const [token, setToken] = useState(hasSession ? storedToken : null);
+  const [userName, setUserName] = useState(hasSession ? storedName || "User" : null);
+  const [userPhoto, setUserPhoto] = useState(hasSession ? storedPhoto || "" : null);
+  const [isAuthenticated, setIsAuthenticated] = useState(hasSession);
+  const [isReady] = useState(true);
 
   // LOGIN
   const login = (userRole, userToken, name = "") => {
@@ -36,6 +28,8 @@ export const AuthProvider = ({ children }) => {
     sessionStorage.removeItem("role");
     sessionStorage.removeItem("token");
     sessionStorage.removeItem("userName");
+    sessionStorage.removeItem("userPhoto");
+    localStorage.removeItem("userPhoto");
 
     let defaultName = name;
     if (!defaultName) {
@@ -53,6 +47,7 @@ export const AuthProvider = ({ children }) => {
     setRole(userRole);
     setToken(userToken);
     setUserName(defaultName);
+    setUserPhoto("");
     setIsAuthenticated(true);
   };
 
@@ -62,15 +57,37 @@ export const AuthProvider = ({ children }) => {
     setUserName(name);
   }, []);
 
+  const updateUserPhoto = useCallback((photo = "") => {
+    if (photo) {
+      sessionStorage.setItem("userPhoto", photo);
+      localStorage.setItem("userPhoto", photo);
+    } else {
+      sessionStorage.removeItem("userPhoto");
+      localStorage.removeItem("userPhoto");
+    }
+    setUserPhoto(photo);
+  }, []);
+
+  const updateUserProfile = useCallback(
+    ({ name, photo } = {}) => {
+      if (name) updateUserName(name);
+      if (photo !== undefined) updateUserPhoto(photo || "");
+    },
+    [updateUserName, updateUserPhoto],
+  );
+
   // LOGOUT
   const logout = () => {
     sessionStorage.removeItem("role");
     sessionStorage.removeItem("token");
     sessionStorage.removeItem("userName");
+    sessionStorage.removeItem("userPhoto");
+    localStorage.removeItem("userPhoto");
 
     setRole(null);
     setToken(null);
     setUserName(null);
+    setUserPhoto(null);
     setIsAuthenticated(false);
   };
 
@@ -80,11 +97,14 @@ export const AuthProvider = ({ children }) => {
         role,
         token,
         userName,
+        userPhoto,
         isAuthenticated,
         isReady,
         login,
         logout,
         updateUserName,
+        updateUserPhoto,
+        updateUserProfile,
       }}
     >
       {children}

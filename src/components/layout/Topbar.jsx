@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Menu, Bell, User, Search, MapPin } from "lucide-react";
+import { Menu, Bell, Search, MapPin } from "lucide-react";
 import { Input } from "../ui/input";
 import { Button } from "../ui/button";
 import { useAuth } from "../../context/AuthContext";
@@ -8,7 +8,6 @@ import { ThemeToggle } from "../../theme/ThemeToggle";
 import {
   Getadminswitchaccount,
   getAdminProfileApi,
-  getStaffByIdApi,
   getStudentDashboardApi,
   selectHostelApi,
   getChefDashboardApi,
@@ -24,13 +23,25 @@ const getFirstValue = (source, keys) => {
   return "";
 };
 
+const getInitials = (name = "") => {
+  const parts = name.trim().split(/\s+/).filter(Boolean);
+  const first = parts[0]?.[0] || "";
+  const last = parts.length > 1 ? parts[parts.length - 1]?.[0] : "";
+  return `${first}${last}`.toUpperCase() || "U";
+};
+
 const Topbar = ({ onMenuClick }) => {
-  const { role, login, userName, updateUserName } = useAuth(); // get role from context
+  const { role, token, login, userName, userPhoto, updateUserProfile } = useAuth(); // get role from context
   const [open, setOpen] = useState(false);
   const [showModal, setShowModal] = useState(false); // modal
   const [hostels, setHostels] = useState([]);
   const [hostelLoading, setHostelLoading] = useState(false);
   const [switchingHostelId, setSwitchingHostelId] = useState("");
+
+  const [user, setUser] = useState("");
+  const [roleName, setRoleName] = useState("");
+  const [userImage, setUserImage] = useState("");
+
   const [hostelError, setHostelError] = useState("");
   const navigate = useNavigate();
   const location = useLocation();
@@ -54,9 +65,17 @@ const Topbar = ({ onMenuClick }) => {
       if (!role || !sessionStorage.getItem("token")) return;
 
       let displayName = "";
+      let displayPhoto = undefined;
 
       if (role === "admin") {
         const response = await getAdminProfileApi();
+         const data = response?.data
+
+          console.log('my data in variableeeeeee',data)
+          setUser(data?.name)
+          setRoleName(data?.roleName)
+          setUserImage(data?.image)
+        console.log('my top bar data', response)
         displayName = getFirstValue(response?.data, [
           "profile.name",
           "profile.fullName",
@@ -67,6 +86,17 @@ const Topbar = ({ onMenuClick }) => {
           "name",
           "fullName",
           "adminName",
+        ]);
+        displayPhoto = getFirstValue(response?.data, [
+          "profile.photo",
+          "profile.image",
+          "profile.profileImage",
+          "data.photo",
+          "data.image",
+          "data.profileImage",
+          "photo",
+          "image",
+          "profileImage",
         ]);
       }
 
@@ -91,11 +121,16 @@ const Topbar = ({ onMenuClick }) => {
         ]);
       }
       
-      if (displayName) updateUserName(displayName);
+      if (displayName || displayPhoto) {
+        updateUserProfile({
+          name: displayName,
+          ...(displayPhoto ? { photo: displayPhoto } : {}),
+        });
+      }
     };
 
     fetchProfileName();
-  }, [role, updateUserName]);
+  }, [role, token, updateUserProfile]);
 
   const fetchHostelsForSwitch = async () => {
     if (!sessionStorage.getItem("token")) {
@@ -210,10 +245,10 @@ const Topbar = ({ onMenuClick }) => {
           {/* TEXT */}
           <div className="text-right min-w-[120px]">
             <p className="text-sm font-semibold text-foreground leading-tight whitespace-nowrap">
-              {userName || "User"}
+              {user || "User"}
             </p>
             <p className="text-xs text-muted-foreground uppercase tracking-wide whitespace-nowrap">
-              {role?.replace("-", " ") || "USER"}
+              {roleName?.replace("-", " ") || "USER"}
             </p>
           </div>
 
@@ -224,7 +259,17 @@ const Topbar = ({ onMenuClick }) => {
             onClick={() => setOpen(!open)}
           >
             <div className="h-8 w-8 bg-muted rounded-full flex items-center justify-center">
-              <User className="w-4 h-4 text-muted-foreground" />
+              {userImage || userPhoto ? (
+                <img
+                  src={userImage || userPhoto}
+                  alt={userName || "Profile"}
+                  className="h-full w-full rounded-full object-cover"
+                />
+              ) : (
+                <span className="text-xs font-semibold text-foreground">
+                  {getInitials(user || userName)}
+                </span>
+              )}
             </div>
             {role === "admin" && open && (
               <div className="absolute right-0 top-12 w-48 bg-card border border-border rounded-lg shadow-md p-2 z-50">

@@ -3,8 +3,6 @@ import { X, Pencil } from "lucide-react";
 import AddAmenityModal from "./AddAmenityModal";
 import UpdateAmenityModal from "./UpdateAmenityModal";
 import {
-  getAllOccupancyApi,
-  getAllAmenitiesApi,
   deleteAmenityById,
   editCategoryById,
 } from "../../../../../utils/utils";
@@ -15,18 +13,19 @@ const EditCategoryModal = ({
   onClose,
   category,
   onCategoryUpdated,
+  occupancyList = [],
+  amenitiesList = [],
+  fetchAmenities,
 }) => {
   const [selectedAmenities, setSelectedAmenities] = useState([]);
   const [openAmenityModal, setOpenAmenityModal] = useState(false);
   const [openUpdateModal, setOpenUpdateModal] = useState(false);
-  const [amenitiesListState, setAmenitiesListState] = useState([]);
   const [editingAmenity, setEditingAmenity] = useState(null);
 
   const [categoryName, setCategoryName] = useState("");
   const [occupancyId, setOccupancyId] = useState("");
   const [monthlyRent, setMonthlyRent] = useState("");
   const [description, setDescription] = useState("");
-  const [occupancyList, setOccupancyList] = useState([]);
 
   // ================= PREFILL =================
   useEffect(() => {
@@ -38,53 +37,6 @@ const EditCategoryModal = ({
       setSelectedAmenities(category.amenities || []);
     }
   }, [category]);
-
-  // ================= OCCUPANCY =================
-  const fetchOccupancy = async () => {
-    try {
-      const res = await getAllOccupancyApi();
-
-      const list = res?.data?.Occupancy || [];
-
-      setOccupancyList(list);
-    } catch (error) {
-      console.log("OCCUPANCY ERROR 👉", error);
-      setOccupancyList([]);
-    }
-  };
-
-  // ================= AMENITIES =================
-  const fetchAmenities = async () => {
-    try {
-      const res = await getAllAmenitiesApi();
-
-      if (res?.data?.status === "failure") {
-        toast.error(res.data.message);
-        setAmenitiesListState([]);
-        return;
-      }
-
-      const list = Array.isArray(res.data) ? res.data : [];
-
-      const formatted = list.map((item) => ({
-        id: item.id,
-        name: item.amenitiesName,
-        icon: item.amenitiesIconUrl,
-      }));
-
-      setAmenitiesListState(formatted);
-    } catch (error) {
-      console.log("AMENITIES ERROR 👉", error);
-      setAmenitiesListState([]);
-    }
-  };
-
-  useEffect(() => {
-    if (isOpen) {
-      fetchAmenities();
-      fetchOccupancy();
-    }
-  }, [isOpen]);
 
   if (!isOpen) return null;
 
@@ -111,21 +63,6 @@ const EditCategoryModal = ({
     }
   };
 
-  // ================= UPDATE AMENITY =================
-  const handleUpdateAmenity = (updatedAmenity) => {
-    setAmenitiesListState((prev) =>
-      prev.map((item) =>
-        item.id === updatedAmenity.id
-          ? {
-              ...item,
-              name: String(updatedAmenity.name),
-              icon: updatedAmenity.icon,
-            }
-          : item,
-      ),
-    );
-  };
-
   // ================= UPDATE CATEGORY =================
   const handleUpdateCategory = async () => {
     const payload = {
@@ -137,7 +74,7 @@ const EditCategoryModal = ({
 
       amenitiesIds: selectedAmenities
         .map((name) => {
-          const found = amenitiesListState.find((a) => a.name === name);
+          const found = amenitiesList.find((a) => a.name === name);
 
           return found?.id;
         })
@@ -261,7 +198,7 @@ const EditCategoryModal = ({
             </div>
 
             <div className="flex flex-wrap gap-3 mt-4">
-              {amenitiesListState.map((item) => {
+              {amenitiesList.map((item) => {
                 const isSelected = selectedAmenities.includes(item.name);
 
                 return (
@@ -341,18 +278,16 @@ const EditCategoryModal = ({
           </div>
         </div>
       </div>
-
       <AddAmenityModal
         isOpen={openAmenityModal}
         onClose={() => setOpenAmenityModal(false)}
         onAdd={fetchAmenities}
       />
-
       <UpdateAmenityModal
         isOpen={openUpdateModal}
         onClose={() => setOpenUpdateModal(false)}
         amenity={editingAmenity}
-        onUpdate={handleUpdateAmenity}
+        onUpdate={fetchAmenities}
       />
     </>
   );

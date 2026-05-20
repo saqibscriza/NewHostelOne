@@ -2,96 +2,31 @@ import React, { useState, useEffect } from "react";
 import { X, Pencil } from "lucide-react";
 import AddAmenityModal from "./AddAmenityModal";
 import UpdateAmenityModal from "./UpdateAmenityModal";
-import {
-  getAllOccupancyApi,
-  AddnewCategory,
-  deleteAmenityById,
-  getAllAmenitiesApi,
-} from "../../../../../utils/utils";
+import { AddnewCategory, deleteAmenityById } from "../../../../../utils/utils";
 import { toast } from "react-hot-toast";
 
-const RoomsAddCategoryModal = ({ isOpen, onClose }) => {
+const RoomsAddCategoryModal = ({
+  isOpen,
+  onClose,
+  occupancyList = [],
+  amenitiesList = [],
+  fetchAmenities,
+}) => {
   const [selectedAmenities, setSelectedAmenities] = useState([]);
   const [openAmenityModal, setOpenAmenityModal] = useState(false);
   const [openUpdateModal, setOpenUpdateModal] = useState(false);
-  const [amenitiesListState, setAmenitiesListState] = useState([]);
   const [editingAmenity, setEditingAmenity] = useState(null);
 
   const [categoryName, setCategoryName] = useState("");
   const [occupancyId, setOccupancyId] = useState("");
   const [monthlyRent, setMonthlyRent] = useState("");
   const [description, setDescription] = useState("");
-  const [occupancyList, setOccupancyList] = useState([]);
   const [errors, setErrors] = useState({
     categoryName: "",
     occupancyId: "",
     monthlyRent: "",
     description: "",
   });
-  // ================= OCCUPANCY =================
-  const fetchOccupancy = async () => {
-    try {
-      const res = await getAllOccupancyApi();
-
-      console.log("OCCUPANCY RAW 👉", res?.data);
-
-      const list = res?.data?.Occupancy || [];
-
-      // console.log("OCCUPANCY LIST 👉", list);
-
-      setOccupancyList(list);
-    } catch (error) {
-      console.log("OCCUPANCY ERROR 👉", error);
-      setOccupancyList([]);
-    }
-  };
-
-  // ================= AMENITIES =================
-  const fetchAmenities = async () => {
-    try {
-      const res = await getAllAmenitiesApi();
-
-      console.log("AMENITIES FULL 👉", res);
-      console.log("AMENITIES DATA 👉", res?.data);
-
-      // 🔴 STOP if API failed (YOUR CASE)
-      if (res?.data?.status === "failure") {
-        console.log("❌ API ERROR 👉", res.data.message);
-        toast.error(res.data.message);
-        setAmenitiesListState([]);
-        return;
-      }
-
-      const list = Array.isArray(res.data) ? res.data : [];
-
-      // console.log("FINAL LIST 👉", list);
-
-      if (!Array.isArray(list)) {
-        console.log("❌ Not array:", list);
-        setAmenitiesListState([]);
-        return;
-      }
-
-      const formatted = list.map((item) => ({
-        id: item.id,
-        name: item.amenitiesName,
-        icon: item.amenitiesIconUrl,
-      }));
-      // console.log("FORMATTED 👉", formatted);
-
-      setAmenitiesListState(formatted);
-    } catch (error) {
-      console.log("AMENITIES ERROR 👉", error);
-      setAmenitiesListState([]);
-    }
-  };
-
-  useEffect(() => {
-    if (isOpen) {
-      fetchAmenities();
-      fetchOccupancy();
-    }
-  }, [isOpen]);
 
   if (!isOpen) return null;
 
@@ -117,22 +52,6 @@ const RoomsAddCategoryModal = ({ isOpen, onClose }) => {
       console.log("DELETE ERROR 👉", error);
       toast.error("Delete failed");
     }
-  };
-
-  const handleUpdateAmenity = (updatedAmenity) => {
-    console.log("UPDATED RECEIVED 👉", updatedAmenity);
-
-    setAmenitiesListState((prev) =>
-      prev.map((item) =>
-        item.id === updatedAmenity.id
-          ? {
-              ...item,
-              name: String(updatedAmenity.name), // 🔒 FORCE CLEAN STRING
-              icon: updatedAmenity.icon,
-            }
-          : item,
-      ),
-    );
   };
 
   const validateForm = () => {
@@ -178,7 +97,7 @@ const RoomsAddCategoryModal = ({ isOpen, onClose }) => {
 
       amenitiesIds: selectedAmenities
         .map((name) => {
-          const found = amenitiesListState.find((a) => a.name === name);
+          const found = amenitiesList.find((a) => a.name === name);
           return found?.id;
         })
         .filter(Boolean),
@@ -347,7 +266,7 @@ const RoomsAddCategoryModal = ({ isOpen, onClose }) => {
             </div>
 
             <div className="flex flex-wrap gap-3 mt-4">
-              {amenitiesListState.map((item) => {
+              {amenitiesList.map((item) => {
                 const isSelected = selectedAmenities.includes(item.name);
                 // const Icon = Icons[item.icon];
 
@@ -397,9 +316,7 @@ const RoomsAddCategoryModal = ({ isOpen, onClose }) => {
                       />
                     </div>
 
-                    <span className="text-xs mt-1">
-                      {item.name}
-                    </span>
+                    <span className="text-xs mt-1">{item.name}</span>
                   </div>
                 );
               })}
@@ -452,12 +369,11 @@ const RoomsAddCategoryModal = ({ isOpen, onClose }) => {
         onClose={() => setOpenAmenityModal(false)}
         onAdd={fetchAmenities}
       />
-
       <UpdateAmenityModal
         isOpen={openUpdateModal}
         onClose={() => setOpenUpdateModal(false)}
         amenity={editingAmenity}
-        onUpdate={handleUpdateAmenity}
+        onUpdate={fetchAmenities}
       />
     </>
   );
