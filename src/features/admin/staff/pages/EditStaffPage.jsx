@@ -65,6 +65,14 @@ const [existingProfileImageName, setExistingProfileImageName] = useState("");
   const idProof = watch("idProof") || [];
   const policeVerification = watch("policeVerification") || [];
 
+  const currentAddressValue = watch("currentAddress");
+
+  useEffect(() => {
+    if (sameAddress) {
+      setValue("permanentAddress", currentAddressValue, { shouldValidate: true });
+    }
+  }, [currentAddressValue, sameAddress, setValue]);
+
   const MyStaffDataById = async () => {
     setLoaderCheck(true);
     try {
@@ -82,6 +90,12 @@ const [existingProfileImageName, setExistingProfileImageName] = useState("");
         
 
         setEmployeeId(staff.staffId);
+
+        if (staff.currentAddress && staff.currentAddress === staff.permanentAddress) {
+          setSameAddress(true);
+        } else {
+          setSameAddress(false);
+        }
 
         reset({
           fullName: staff.fullName || "",
@@ -122,7 +136,22 @@ formData.append("phone", data.phone);
 formData.append("currentAddress", data.currentAddress);
 formData.append("permanentAddress", data.permanentAddress);
 
-      const response = await updateStaffApi(id, formData);
+    // Append files only if they exist in the input payload
+    if (data.profileImage && data.profileImage.length > 0) {
+      formData.append("profileImage", data.profileImage[0]);
+    }
+    if (data.idProof && data.idProof.length > 0) {
+      formData.append("idProof", data.idProof[0]);
+    }
+    if (data.policeVerification && data.policeVerification.length > 0) {
+      formData.append("policeVerification", data.policeVerification[0]);
+    }
+
+    if (data.status) {
+      formData.append("status", data.status);
+    }
+
+const response = await updateStaffApi(id, formData);
 
       if (response?.data?.status === "success") {
         toast.success(response?.data?.message);
@@ -514,9 +543,9 @@ formData.append("permanentAddress", data.permanentAddress);
               </div>
               <Input
                 placeholder="Permanent Address"
+                disabled={sameAddress}
                 {...register("permanentAddress")}
-                className="h-11"
-              />
+className={`h-11 ${sameAddress ? "bg-slate-100 cursor-not-allowed text-slate-500" : ""}`}              />
             </div>
           </div>
         </Card>

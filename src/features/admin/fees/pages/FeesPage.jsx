@@ -247,7 +247,7 @@ const methods = [
             <select 
               value={filterStudent}
               onChange={(e) => setFilterStudent(e.target.value)}
-              className="appearance-none bg-white border border-slate-200 text-slate-700 text-sm rounded-lg focus:outline-none focus:ring-2 focus:ring-slate-900 focus:border-transparent py-2 pl-3 pr-8 cursor-pointer">
+              className="appearance-none bg-none bg-white border border-slate-200 text-slate-700 text-sm rounded-lg focus:outline-none focus:ring-2 focus:ring-slate-900 focus:border-transparent py-2 pl-3 pr-8 cursor-pointer">
               <option value="All Student">All Student</option>
               {uniqueStudents.map(s => (
                 <option key={s} value={s}>{s}</option>
@@ -260,7 +260,7 @@ const methods = [
             <select 
               value={filterMethod}
               onChange={(e) => setFilterMethod(e.target.value)}
-              className="appearance-none bg-white border border-slate-200 text-slate-700 text-sm rounded-lg focus:outline-none focus:ring-2 focus:ring-slate-900 focus:border-transparent py-2 pl-3 pr-8 cursor-pointer">
+              className="appearance-none bg-none bg-white border border-slate-200 text-slate-700 text-sm rounded-lg focus:outline-none focus:ring-2 focus:ring-slate-900 focus:border-transparent py-2 pl-3 pr-8 cursor-pointer">
               <option value="All Payment Method">All Payment Method</option>
               {uniqueMethods.map(m => (
                 <option key={m} value={m}>{m}</option>
@@ -273,7 +273,7 @@ const methods = [
             <select 
               value={filterStatus}
               onChange={(e) => setFilterStatus(e.target.value)}
-              className="appearance-none bg-white border border-slate-200 text-slate-700 text-sm rounded-lg focus:outline-none focus:ring-2 focus:ring-slate-900 focus:border-transparent py-2 pl-3 pr-8 cursor-pointer">
+              className="appearance-none bg-none bg-white border border-slate-200 text-slate-700 text-sm rounded-lg focus:outline-none focus:ring-2 focus:ring-slate-900 focus:border-transparent py-2 pl-3 pr-8 cursor-pointer">
               <option value="All Status">All Status</option>
               {uniqueStatuses.map(s => (
                 <option key={s} value={s}>{s}</option>

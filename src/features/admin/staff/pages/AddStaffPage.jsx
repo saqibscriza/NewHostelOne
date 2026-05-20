@@ -58,6 +58,14 @@ export default function AddStaff() {
   const idProof = watch("idProof");
   const policeVerification = watch("policeVerification");
 
+    const currentAddressValue = watch("currentAddress");
+
+  useEffect(() => {
+    if (sameAddress) {
+      setValue("permanentAddress", currentAddressValue, { shouldValidate: true });
+    }
+  }, [currentAddressValue, sameAddress, setValue]);
+
   const myEmployeeGenerateIdApi = async () => {
     try {
       const res = await getAllStaffEmployeeIdApi();
@@ -93,7 +101,7 @@ export default function AddStaff() {
     try {
       setLoaderCheck(true); // loader start
       const res = await addStaffApi(formData);
-      if (res?.data?.status === "success" || res?.status === 200 || res?.status === 201) {
+      if (res?.data?.status === "success") {
         toast.success(res?.data?.message || "Staff added successfully");
         setLoaderCheck(false);
         setTimeout(() => {
@@ -483,11 +491,12 @@ export default function AddStaff() {
               </div>
               <Input
                 name="permanentAddress"
+                disabled={sameAddress}
                 {...register("permanentAddress",{
                   required: "Permanent address is required",
                 })}
                 placeholder="Street name, City, State, ZIP"
-                className="h-11"
+                className={`h-11 ${sameAddress ? "bg-slate-100 cursor-not-allowed text-slate-500" : ""}`}
               />
             </div>
           </div>

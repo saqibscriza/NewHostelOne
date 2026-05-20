@@ -2419,18 +2419,19 @@ export const verifyOtpApi = async (data) => {
 export const setPasswordApi = async (data) => {
   try {
     console.log("setPasswordApi called with data:", data);
-    const res = await axios.post(`${Domain}/login/setPassword`, null, {
-      params: {
-        password: data.password,
-        confirmPassword: data.confirmPassword,
-      },
-      headers: {
-        Authorization: data.token?.startsWith("Bearer")
-          ? data.token
-          : `Bearer ${data.token}`,
-      },
-    });
-
+    const res = await axios.post(
+      `${Domain}/login/setPassword`,
+      null,
+      {
+        params: {
+          password: data.password,
+          confirmPassword: data.confirmPassword,
+        },
+        headers: {
+          Authorization: data.token?.startsWith("Bearer") ? data.token : `Bearer ${data.token}`,
+        },
+      }
+    );
     return res;
   } catch (error) {
     throw error;
@@ -2511,28 +2512,7 @@ export const addHostelApi = async (data) => {
   }
 };
 
-// const toCleanParams = (data) => {
-//   const source =
-//     data instanceof FormData ? Object.fromEntries(data.entries()) : data || {};
 
-//   return Object.fromEntries(
-//     Object.entries(source)
-//       .filter(([, value]) => {
-//         if (value instanceof File) return false;
-//         if (value === undefined || value === null) return false;
-//         if (typeof value === "string" && value.trim() === "") return false;
-//         if (typeof value === "string" && value.trim() === "undefined") {
-//           return false;
-//         }
-//         if (typeof value === "string" && value.trim() === "null") return false;
-//         return true;
-//       })
-//       .map(([key, value]) => [
-//         key,
-//         typeof value === "string" ? value.trim() : value,
-//       ]),
-//   );
-// };
 
 const toHostelCreateParams = (data) => {
   const params = toCleanParams(data);
@@ -2558,28 +2538,6 @@ const toHostelCreateParams = (data) => {
   return params;
 };
 
-// export const addHostelApi = async (data) => {
-//   try {
-//     axios.defaults.headers.common["Authorization"] = token;
-//     const params = toHostelCreateParams(data);
-
-//     var res = await axios.post(
-//       `${Domain}/hostel/create`,
-//       {},
-//       {
-//         params,
-//       },
-//     );
-
-//     if (res) {
-//       return res;
-//     } else {
-//       return [];
-//     }
-//   } catch (error) {
-//     return error?.response;
-//   }
-// };
 
 //********* Update Hostel********* */
 export const updateHostelApi = async (id, data) => {

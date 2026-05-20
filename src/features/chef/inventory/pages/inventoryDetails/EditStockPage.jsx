@@ -5,6 +5,7 @@ import { Card, CardContent } from '../../../../../components/ui/Card';
 import { Button } from '../../../../../components/ui/button';
 import { Input } from '../../../../../components/ui/input';
 import { Label } from '../../../../../components/ui/label';
+import { CalendarDays } from "lucide-react";
 import {
   Select,
   SelectContent,
@@ -21,10 +22,10 @@ export default function EditStockPage() {
   const navigate = useNavigate();
   const location = useLocation();
   const { stockId } = useParams();
-  
+
   const [ingredientOptions, setIngredientOptions] = useState([]);
   const [loadingOptions, setLoadingOptions] = useState(true);
-  const [submitError, setSubmitError] = useState('');
+  const [submitError, setSubmitError] = useState("");
 
   // Extract from passed state
   const stockData = location.state?.stockData || {};
@@ -36,19 +37,19 @@ export default function EditStockPage() {
     watch,
     reset,
     setValue,
+    getValues,
     formState: { errors, isSubmitting },
   } = useForm({
     defaultValues: {
-      itemId: stockData.itemId ? String(stockData.itemId) : '',
-      quantity: stockData.quantity || '',
-      unit: stockData.unit || 'kg',
-      skuId: stockData.skuId || stockData.batchNumber || '',
-      expiryDate: stockData.expiry || '',
-      unitCost: stockData.unitCost || '',
-    }
+      itemId: stockData.itemId ? String(stockData.itemId) : "",
+      quantity: stockData.quantity || "",
+      unit: stockData.unit || "kg",
+      skuId: stockData.skuId || stockData.batchNumber || "",
+      expiryDate: stockData.expiry || "",
+      unitCost: stockData.unitCost || "",
+    },
   });
-
-  useEffect(() => {
+    useEffect(() => {
     fetchIngredients();
   }, []);
 
@@ -58,73 +59,77 @@ export default function EditStockPage() {
       try {
         const dateObj = new Date(stockData.expiry);
         if (!isNaN(dateObj.getTime())) {
-          setValue('expiryDate', dateObj.toISOString().split("T")[0]);
+          setValue("expiryDate", dateObj.toISOString().split("T")[0]);
         }
       } catch (e) {
         // silently fail
       }
     }
   }, [stockData, setValue]);
-const selectedItemId = watch('itemId');
+  const selectedItemId = watch("itemId");
 
-const selectedIngredient = ingredientOptions.find(
-  (item) => String(item.id) === String(selectedItemId)
-);
+  const selectedIngredient = ingredientOptions.find(
+    (item) => String(item.id) === String(selectedItemId),
+  );
 
-const fetchIngredients = async () => {
-  try {
-    setLoadingOptions(true);
-
-    const res = await getAllInventoryItemApi();
-
-    console.log("INGREDIENTS:", res);
-
-    if (res?.status === "success") {
-      setIngredientOptions(res?.items || []);
+  useEffect(() => {
+    if (selectedIngredient) {
+      setValue("skuId", selectedIngredient.skuId || "");
     }
-  } catch (error) {
-    console.log("INGREDIENT FETCH ERROR:", error);
-  } finally {
-    setLoadingOptions(false);
-  }
-};
+  }, [selectedIngredient, setValue]);
+
+  const fetchIngredients = async () => {
+    try {
+      setLoadingOptions(true);
+
+      const res = await getAllInventoryItemApi();
+
+      console.log("INGREDIENTS:", res);
+
+      if (res?.status === "success") {
+        setIngredientOptions(res?.items || []);
+      }
+    } catch (error) {
+      console.log("INGREDIENT FETCH ERROR:", error);
+    } finally {
+      setLoadingOptions(false);
+    }
+  };
 
   const onSubmit = async (data) => {
-  try {
-    setSubmitError('');
+    try {
+      setSubmitError("");
 
-    const formattedDate = new Date(data.expiryDate)
-      .toISOString()
-      .split("T")[0];
+      const dateObj = new Date(data.expiryDate);
+      const formattedDate = `${String(dateObj.getDate()).padStart(2, "0")}/${String(dateObj.getMonth() + 1).padStart(2, "0")}/${dateObj.getFullYear()}`;
 
-    const params = {
-      quantity: data.quantity,
-      unit: data.unit,
-      skuId: data.skuId,
-      expiryDate: formattedDate,
-      unitCost: data.unitCost
-    };
 
-    console.log("UPDATE PARAMS:", params);
+      const params = {
+        quantity: data.quantity,
+        unit: data.unit,
+        skuId: data.skuId || getValues("skuId"),
+        expiryDate: formattedDate,
+        unitCost: data.unitCost,
+      };
 
-    const res = await updateStockApi(stockId, params);
+      console.log("UPDATE PARAMS:", params);
 
-    console.log("UPDATE STOCK RESPONSE:", res);
+      const res = await updateStockApi(stockId, params);
 
-    if (res?.status === 'success' || res?.statusCode === 200) {
-      reset();
-      navigate('/chef/inventory/details');
-      return;
+      console.log("UPDATE STOCK RESPONSE:", res);
+
+      if (res?.status === "success" || res?.statusCode === 200) {
+        reset();
+        navigate("/chef/inventory/details");
+        return;
+      }
+
+      setSubmitError(res?.message || "Failed to update stock.");
+    } catch (error) {
+      console.log("UPDATE STOCK ERROR:", error);
+      setSubmitError("Something went wrong while updating stock.");
     }
-
-    setSubmitError(res?.message || 'Failed to update stock.');
-  } catch (error) {
-    console.log("UPDATE STOCK ERROR:", error);
-    setSubmitError('Something went wrong while updating stock.');
-  }
-};
-
-
+  };
 
   return (
     <div className="max-w-5xl mx-auto space-y-6 pb-10">
@@ -133,13 +138,16 @@ const fetchIngredients = async () => {
           Edit Stock
         </h1>
         <p className="text-muted-foreground mt-1 text-sm">
-          Update ingredient stock details, quantities, expiry, and pricing information easily.
+          Update ingredient stock details, quantities, expiry, and pricing
+          information easily.
         </p>
       </div>
 
       <Card className="border-border shadow-sm rounded-2xl bg-card">
         <CardContent className="p-8 sm:p-10 space-y-12">
-          {submitError ? <p className="text-sm text-red-500">{submitError}</p> : null}
+          {submitError ? (
+            <p className="text-sm text-red-500">{submitError}</p>
+          ) : null}
 
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-12">
             <div className="space-y-6">
@@ -147,7 +155,9 @@ const fetchIngredients = async () => {
                 <div className="w-8 h-8 rounded-full bg-muted flex items-center justify-center font-bold text-sm text-foreground">
                   1
                 </div>
-                <h2 className="text-lg font-bold text-foreground">Ingredient Details</h2>
+                <h2 className="text-lg font-bold text-foreground">
+                  Ingredient Details
+                </h2>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pl-0 md:pl-12">
@@ -158,7 +168,7 @@ const fetchIngredients = async () => {
                   <Controller
                     name="itemId"
                     control={control}
-                    rules={{ required: 'Ingredient is required.' }}
+                    rules={{ required: "Ingredient is required." }}
                     render={({ field }) => (
                       <Select
                         value={field.value || ""}
@@ -169,23 +179,25 @@ const fetchIngredients = async () => {
                           <SelectValue
                             placeholder={
                               loadingOptions
-                                ? 'Loading ingredients...'
-                                : 'Search or select ingredient...'
+                                ? "Loading ingredients..."
+                                : "Search or select ingredient..."
                             }
                           />
                         </SelectTrigger>
                         <SelectContent>
                           {ingredientOptions.map((item) => (
                             <SelectItem key={item.id} value={String(item.id)}>
-  {item.itemName}
-</SelectItem>
+                              {item.itemName}
+                            </SelectItem>
                           ))}
                         </SelectContent>
                       </Select>
                     )}
                   />
                   {errors.itemId ? (
-                    <p className="text-xs text-red-500">{errors.itemId.message}</p>
+                    <p className="text-xs text-red-500">
+                      {errors.itemId.message}
+                    </p>
                   ) : (
                     <p className="text-xs text-muted-foreground mt-1">
                       Current stock levels will be updated automatically.
@@ -194,10 +206,12 @@ const fetchIngredients = async () => {
                 </div>
 
                 <div className="space-y-3">
-                  <Label className="text-sm font-semibold text-foreground">Category</Label>
+                  <Label className="text-sm font-semibold text-foreground">
+                    Category
+                  </Label>
                   <Input
                     disabled
-                    value={selectedIngredient?.categoryName || ''}
+                    value={selectedIngredient?.categoryName || ""}
                     placeholder="Auto-filled based on selection"
                     className="bg-muted/30 border-border rounded-xl h-11"
                   />
@@ -205,7 +219,7 @@ const fetchIngredients = async () => {
               </div>
             </div>
 
-                        <div className="space-y-6">
+            <div className="space-y-6">
               <div className="flex items-center gap-4">
                 <div className="w-8 h-8 rounded-full bg-muted flex items-center justify-center font-bold text-sm text-foreground">
                   2
@@ -226,11 +240,11 @@ const fetchIngredients = async () => {
                       step="0.01"
                       placeholder="0.00"
                       className="flex-1 bg-transparent border-0 focus-visible:ring-0 focus-visible:ring-offset-0 rounded-none h-full shadow-none"
-                      {...register('quantity', {
-                        required: 'Quantity is required.',
+                      {...register("quantity", {
+                        required: "Quantity is required.",
                         min: {
                           value: 0.01,
-                          message: 'Quantity must be greater than 0.',
+                          message: "Quantity must be greater than 0.",
                         },
                         valueAsNumber: true,
                       })}
@@ -239,12 +253,15 @@ const fetchIngredients = async () => {
                     <Controller
                       name="unit"
                       control={control}
-                      rules={{ required: 'Unit is required.' }}
+                      rules={{ required: "Unit is required." }}
                       render={({ field }) => (
-                        <Select value={field.value} onValueChange={field.onChange}>
+                        <Select
+                          value={field.value}
+                          onValueChange={field.onChange}
+                        >
                           <SelectTrigger className="w-[80px] flex-shrink-0 border-0 focus:ring-0 focus:ring-offset-0 bg-muted/30 rounded-none h-full shadow-none px-3">
-  <SelectValue placeholder="unit" />
-</SelectTrigger>
+                            <SelectValue placeholder="unit" />
+                          </SelectTrigger>
                           <SelectContent>
                             <SelectItem value="kg">kg</SelectItem>
                             <SelectItem value="L">L</SelectItem>
@@ -256,7 +273,9 @@ const fetchIngredients = async () => {
                     />
                   </div>
                   {errors.quantity ? (
-                    <p className="text-xs text-red-500">{errors.quantity.message}</p>
+                    <p className="text-xs text-red-500">
+                      {errors.quantity.message}
+                    </p>
                   ) : null}
                 </div>
 
@@ -265,32 +284,46 @@ const fetchIngredients = async () => {
                     SKU ID
                   </Label>
                   <Input
+                    disabled
                     readOnly
                     placeholder="e.g. Enter SKU ID"
-                    className="bg-muted/30 border-border rounded-xl h-11"
-                    {...register('skuId', {
-                      required: 'SKU ID number is required.',
+                    className="bg-muted/30 border-border rounded-xl h-11 disabled:opacity-50 disabled:cursor-not-allowed"
+                    {...register("skuId", {
+                      required: "SKU ID number is required.",
                     })}
                   />
                   {errors.skuId ? (
-                    <p className="text-xs text-red-500">{errors.skuId.message}</p>
+                    <p className="text-xs text-red-500">
+                      {errors.skuId.message}
+                    </p>
                   ) : null}
                 </div>
-
                 <div className="space-y-3">
                   <Label className="text-sm font-semibold text-foreground">
                     Expiry Date
                   </Label>
-                  <Input
-                    type="date"
-                    className="bg-transparent border-border rounded-xl h-11 text-foreground block w-full"
-                    {...register('expiryDate', {
-                      required: 'Expiry date is required.',
-                    })}
-                  />
-                  {errors.expiryDate ? (
-                    <p className="text-xs text-red-500">{errors.expiryDate.message}</p>
-                  ) : null}
+                  <div className="relative">
+                    <CalendarDays className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-500 pointer-events-none z-10" />
+
+                    <Input
+                      type="date"
+                      min={new Date().toISOString().split("T")[0]}
+                      {...register("expiryDate", {
+                        required: "Expiry date is required",
+                        validate: (value) =>
+                          new Date(value) >
+                            new Date(new Date().setHours(0, 0, 0, 0)) ||
+                          "Past date not allowed",
+                      })}
+                      className="w-full pl-10 bg-transparent border-border rounded-xl h-11 text-foreground block [&::-webkit-calendar-picker-indicator]:opacity-0 [&::-webkit-calendar-picker-indicator]:absolute [&::-webkit-calendar-picker-indicator]:left-0 [&::-webkit-calendar-picker-indicator]:w-full [&::-webkit-calendar-picker-indicator]:h-full [&::-webkit-calendar-picker-indicator]:cursor-pointer"
+                    />
+                  </div>
+
+                  {errors?.expiryDate && (
+                    <p className="text-sm text-red-500">
+                      {errors.expiryDate.message}
+                    </p>
+                  )}
                 </div>
               </div>
             </div>
@@ -319,11 +352,11 @@ const fetchIngredients = async () => {
                       step="0.01"
                       placeholder="0.00"
                       className="pl-8 pr-12 bg-transparent border-border rounded-xl h-11"
-                      {...register('unitCost', {
-                        required: 'Unit cost is required.',
+                      {...register("unitCost", {
+                        required: "Unit cost is required.",
                         min: {
                           value: 0.01,
-                          message: 'Unit cost must be greater than 0.',
+                          message: "Unit cost must be greater than 0.",
                         },
                         valueAsNumber: true,
                       })}
@@ -333,7 +366,9 @@ const fetchIngredients = async () => {
                     </span>
                   </div>
                   {errors.unitCost ? (
-                    <p className="text-xs text-red-500">{errors.unitCost.message}</p>
+                    <p className="text-xs text-red-500">
+                      {errors.unitCost.message}
+                    </p>
                   ) : null}
                 </div>
               </div>
@@ -353,7 +388,7 @@ const fetchIngredients = async () => {
                 disabled={isSubmitting || loadingOptions}
                 className="bg-[#0f1419] dark:bg-white dark:text-black hover:bg-[#272c30] dark:hover:bg-gray-100 text-white rounded-xl h-11 px-8 shadow-sm"
               >
-                {isSubmitting ? 'Updating...' : 'Save Changes'}
+                {isSubmitting ? "Updating..." : "Save Changes"}
               </Button>
             </div>
           </form>
