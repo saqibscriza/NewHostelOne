@@ -1,13 +1,14 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate,useLocation } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { ArrowLeft, ArrowRight, Camera } from "lucide-react";
 import { Button } from "../../../components/ui/button";
 import AuthLayout from "../../auth/component/AuthLayout";
+import { getLocationByPincodeApi } from "../../../utils/utils";
+import {Input} from "../../../components/ui/input";
 
 
 export default function SignUp() {
-
   const navigate = useNavigate();
   const location = useLocation();
   const savedAdminInfo = location.state?.adminInfo;
@@ -17,10 +18,46 @@ export default function SignUp() {
     register,
     handleSubmit,
     watch,
+    setValue,
     formState: { errors },
   } = useForm({
     defaultValues: savedAdminInfo || {}
   });
+
+
+const pinCode = watch("pinCode");
+
+useEffect(() => {
+  const fetchLocation = async () => {
+    if (pinCode && pinCode.length === 6) {
+      try {
+        const res = await getLocationByPincodeApi(pinCode);
+
+        console.log("PINCODE API RESPONSE:", res);
+
+        // agar axios use kar rahe ho
+        const locationData = res?.data || res;
+
+        if (locationData) {
+          setValue("country", locationData.country || "");
+          setValue("state", locationData.state || "");
+          setValue(
+            "city",
+            locationData.district ||
+              locationData.city ||
+              locationData.region ||
+              ""
+          );
+        }
+      } catch (error) {
+        console.log("Location fetch error:", error);
+      }
+    }
+  };
+
+  fetchLocation();
+}, [pinCode, setValue]);
+
 
   // We can watch the photo to show a preview if desired, otherwise standard UI
   const profilePhoto = watch("profilePhoto");
@@ -75,14 +112,15 @@ export default function SignUp() {
             </div>
             <div>
               <p className="text-sm font-semibold text-[#111827]">Profile Photo</p>
-              <p className="text-xs text-gray-500 mt-1 mb-2">JPG, PNG or GIF. Max size 2MB</p>
+              <p className="text-xs text-gray-500 mt-1 mb-2">JPG, PNG or GIF. Max size 200KB</p>
               <div className="relative">
-                <input
+                <Input
                   type="file"
                   id="profilePhoto"
                   className="hidden"
                   accept="image/*"
-                  {...register("profilePhoto", { required: savedAdminInfo?.profilePhoto ? false : "Profile photo is required" })}
+                  {...register("profilePhoto")}
+                  // {...register("profilePhoto", { required: savedAdminInfo?.profilePhoto ? false : "Profile photo is required" })}
                 />
                 <label
                   htmlFor="profilePhoto"
@@ -96,24 +134,45 @@ export default function SignUp() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <label className="text-sm font-semibold text-[#111827]">
-                Admin Full Name<span className="text-red-500"> *</span>
-              </label>
-              <input
-                type="text"
-                placeholder="Enter Admin Full Name"
-                {...register("fullName", { required: "Name is required" })}
-                className={`w-full p-3 rounded-xl border bg-white focus:outline-none focus:ring-1 focus:ring-gray-300 text-sm ${errors.fullName ? "border-red-500" : "border-gray-200"}`}
-              />
-              {errors.fullName && <span className="text-red-500 text-xs">{errors.fullName.message}</span>}
-            </div>
+<div className="space-y-2">
+  <label className="text-sm font-semibold text-[#111827]">
+    Admin Full Name<span className="text-red-500"> *</span>
+  </label>
+
+  <Input
+    type="text"
+    placeholder="Enter Admin Full Name"
+    {...register("fullName", {
+      required: "Name is required",
+      minLength: {
+        value: 3,
+        message: "Name must be at least 3 characters",
+      },
+      pattern: {
+        value: /^[A-Za-z ]+$/,
+        message: "Special characters and numbers are not allowed",
+      },
+    })}
+    onInput={(e) => {
+      e.target.value = e.target.value.replace(/[^A-Za-z ]/g, "");
+    }}
+    className={`w-full p-3 rounded-xl border bg-white focus:outline-none focus:ring-1 focus:ring-gray-300 text-sm ${
+      errors.fullName ? "border-red-500" : "border-gray-200"
+    }`}
+  />
+
+  {errors.fullName && (
+    <span className="text-red-500 text-xs">
+      {errors.fullName.message}
+    </span>
+  )}
+</div>
 
             <div className="space-y-2">
               <label className="text-sm font-semibold text-[#111827]">
                 Admin Email Address<span className="text-red-500"> *</span>
               </label>
-              <input
+              <Input
                 type="email"
                 placeholder="Enter Email Address"
                 {...register("email", { 
@@ -127,30 +186,44 @@ export default function SignUp() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <label className="text-sm font-semibold text-[#111827]">
-                Admin Phone Number<span className="text-red-500"> *</span>
-              </label>
-              <input
-                type="tel"
-                placeholder="Enter Phone Number"
-                {...register("phone", { 
-                  required: "Phone is required",
-                  pattern: { value: /^[0-9]{10}$/, message: "Invalid phone number, must be 10 digits" }
-                })}
-                onInput={(e) => {
-                  e.target.value = e.target.value.replace(/\D/g, '').slice(0, 10);
-                }}
-                className={`w-full p-3 rounded-xl border bg-white focus:outline-none focus:ring-1 focus:ring-gray-300 text-sm ${errors.phone ? "border-red-500" : "border-gray-200"}`}
-              />
-              {errors.phone && <span className="text-red-500 text-xs">{errors.phone.message}</span>}
-            </div>
+<div className="space-y-2">
+  <label className="text-sm font-semibold text-[#111827]">
+    Admin Phone Number<span className="text-red-500"> *</span>
+  </label>
+
+  <Input
+    type="tel"
+    placeholder="Enter Phone Number"
+    {...register("phone", {
+      required: "Phone is required",
+      pattern: {
+        value: /^[6-9]\d{9}$/,
+        message:
+          "Phone number must be 10 digits and start with 6, 7, 8, or 9",
+      },
+    })}
+    onInput={(e) => {
+      e.target.value = e.target.value
+        .replace(/\D/g, "")
+        .slice(0, 10);
+    }}
+    className={`w-full p-3 rounded-xl border bg-white focus:outline-none focus:ring-1 focus:ring-gray-300 text-sm ${
+      errors.phone ? "border-red-500" : "border-gray-200"
+    }`}
+  />
+
+  {errors.phone && (
+    <span className="text-red-500 text-xs">
+      {errors.phone.message}
+    </span>
+  )}
+</div>
 
             <div className="space-y-2">
               <label className="text-sm font-semibold text-[#111827]">
                 PIN Code<span className="text-red-500"> *</span>
               </label>
-              <input
+              <Input
                 type="text"
                 placeholder="6-digit code"
                 {...register("pinCode", { 
@@ -182,47 +255,33 @@ export default function SignUp() {
           <div className="grid grid-cols-3 gap-4">
             <div className="space-y-2">
               <label className="text-sm font-semibold text-[#111827]">Country<span className="text-red-500"> *</span></label>
-              <select
+              <input
+                type="text"
+                placeholder="Country"
                 {...register("country", { required: "Required" })}
-                className={`w-full px-3 h-[46px] rounded-xl border bg-white text-sm focus:outline-none focus:ring-1 focus:ring-gray-300 ${errors.country ? "border-red-500" : "border-gray-200"}`}
-                defaultValue=""
-              >
-                <option value="" disabled hidden>Select Country</option>
-                <option value="India">India</option>
-                <option value="USA">USA</option>
-              </select>
+                className={`w-full p-3 rounded-xl border bg-white focus:outline-none focus:ring-1 focus:ring-gray-300 text-sm ${errors.country ? "border-red-500" : "border-gray-200"}`}
+              />
             </div>
+
 
             <div className="space-y-2">
               <label className="text-sm font-semibold text-[#111827]">State<span className="text-red-500"> *</span></label>
-              <select
+              <Input
+                type="text"
+                placeholder="State"
                 {...register("state", { required: "Required" })}
-                className={`w-full px-3 h-[46px] rounded-xl border bg-white text-sm focus:outline-none focus:ring-1 focus:ring-gray-300 ${errors.state ? "border-red-500" : "border-gray-200"}`}
-                defaultValue=""
-              >
-                <option value="" disabled hidden>State/Province</option>
-                <option value="Rajasthan">Rajasthan</option>
-                <option value="Maharashtra">Maharashtra</option>
-                <option value="UP">UP</option>
-
-              </select>
+                className={`w-full p-3 rounded-xl border bg-white focus:outline-none focus:ring-1 focus:ring-gray-300 text-sm ${errors.state ? "border-red-500" : "border-gray-200"}`}
+              />
             </div>
 
             <div className="space-y-2">
               <label className="text-sm font-semibold text-[#111827]">City<span className="text-red-500"> *</span></label>
-              <select
+              <Input
+                type="text"
+                placeholder="City"
                 {...register("city", { required: "Required" })}
-                className={`w-full px-3 h-[46px] rounded-xl border bg-white text-sm focus:outline-none focus:ring-1 focus:ring-gray-300 ${errors.city ? "border-red-500" : "border-gray-200"}`}
-                defaultValue=""
-              >
-                <option value="" disabled hidden>City</option>
-                <option value="Jaipur">Jaipur</option>
-                <option value="Mumbai">Mumbai</option>
-                <option value="Pune">Pune</option>
-                <option value="Udaipur">Udaipur</option>
-                <option value="Noida">Noida</option>
-                
-              </select>
+                className={`w-full p-3 rounded-xl border bg-white focus:outline-none focus:ring-1 focus:ring-gray-300 text-sm ${errors.city ? "border-red-500" : "border-gray-200"}`}
+              />
             </div>
           </div>
 

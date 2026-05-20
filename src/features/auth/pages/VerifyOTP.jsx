@@ -28,7 +28,6 @@ export default function VerifyOTP() {
     }
   }, []);
 
-
   useEffect(() => {
     let interval;
     if (timer > 0) {
@@ -82,22 +81,38 @@ export default function VerifyOTP() {
       };
 
       const res = await verifyOtpApi(payload);
+      const resData = res?.data;
 
-      if (
-        res?.data?.status === "success" || 
-        res?.data?.status === 1 || 
-        res?.data?.success === true ||
-        (res?.status === 200 && res?.data?.status !== 0 && res?.data?.status !== "error" && res?.data?.status !== "fail")
+      // Check if the message contains fail keywords
+      const isErrorMsg = resData?.message && (
+        resData.message.toLowerCase().includes("invalid") ||
+        resData.message.toLowerCase().includes("wrong") ||
+        resData.message.toLowerCase().includes("incorrect") ||
+        resData.message.toLowerCase().includes("fail") ||
+        resData.message.toLowerCase().includes("expire") ||
+        resData.message.toLowerCase().includes("not match")
+      );
+
+      const isStatusError = resData?.status === 0 || resData?.status === "fail" || resData?.status === "error" || resData?.status === "failure";
+
+      if (isErrorMsg || isStatusError) {
+        toast.error(resData?.message || "Invalid OTP");
+      } else if (
+        resData?.status === "success" || 
+        resData?.status === 1 || 
+        resData?.success === true ||
+        resData?.message?.toLowerCase().includes("success") ||
+        res?.status === 200
       ) {
-        toast.success(res?.data?.message || "OTP verified successfully");
+        toast.success(resData?.message || "OTP verified successfully");
         navigate("/reset-password", {
           state: {
             email,
-            token: res?.data?.token, // Pass the new token from VerifyOTP
+            token: resData?.token || token, // Pass the new token from VerifyOTP, fallback to old token
           },
         });
       } else {
-        toast.error(res?.data?.message || "Invalid OTP");
+        toast.error(resData?.message || "Failed to verify OTP");
       }
     } catch (error) {
       console.log(error);
@@ -116,24 +131,39 @@ export default function VerifyOTP() {
       return;
     }
 
-  try {
+    try {
       setResendLoader(true);
       const res = await getOtpApi(email);
+      const data = res?.data;
 
-      if (
-        res?.data?.status === "success" || 
-        res?.data?.status === 1 || 
-        res?.data?.success === true ||
-        (res?.status === 200 && res?.data?.status !== 0 && res?.data?.status !== "error" && res?.data?.status !== "fail")
+      const isErrorMsg = data?.message && (
+        data.message.toLowerCase().includes("invalid") ||
+        data.message.toLowerCase().includes("fail") ||
+        data.message.toLowerCase().includes("error")
+      );
+      const isStatusError = data?.status === 0 || data?.status === "fail" || data?.status === "error";
+
+      if (isErrorMsg || isStatusError) {
+        toast.error(data?.message || "Failed to resend OTP");
+      } else if (
+        data?.status === "success" || 
+        data?.status === 1 || 
+        data?.success === true ||
+        data?.message?.toLowerCase().includes("success") ||
+        data?.message?.toLowerCase().includes("sent") ||
+        res?.status === 200
       ) {
-        toast.success(res?.data?.message || "OTP resent successfully");
-        if (res?.data?.token) {
-          setToken(res?.data?.token); // Update token from resend response
+        toast.success(data?.message || "OTP resent successfully");
+        if (data?.token) {
+          setToken(data?.token); // Update token from resend response
         }
         setOtp(["", "", "", "", "", ""]);
         if (inputRefs.current[0]) inputRefs.current[0].focus();
+        
+        // Start the timer
+        setTimer(60);
       } else {
-        toast.error(res?.data?.message || "Failed to resend OTP");
+        toast.error(data?.message || "Failed to resend OTP");
       }
     } catch (error) {
       console.log(error);
@@ -182,20 +212,14 @@ export default function VerifyOTP() {
 
         <div className="text-center mt-6">
           <span className="text-sm text-[#6B7280]">Didn't receive the code? </span>
-          {isResendDisabled ? (
-            <span className="text-sm font-semibold text-[#6B7280]">
-              Resend OTP in {timer}s
-            </span>
-          ) : (
-            <button 
-              type="button" 
-              onClick={handleResendOtp}
-              disabled={resendLoader}
-              className="text-sm font-semibold text-[#0F172A] hover:underline disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              Resend OTP
-            </button>
-          )}
+          <button 
+            type="button" 
+            onClick={handleResendOtp}
+            disabled={resendLoader || timer > 0}
+            className="text-sm font-semibold text-[#0F172A] hover:underline disabled:text-[#6B7280] disabled:hover:no-underline disabled:cursor-not-allowed transition-all"
+          >
+            {resendLoader ? "Sending..." : (timer > 0 ? `Resend OTP in ${timer}s` : "Resend OTP")}
+          </button>
         </div>
       </form>
 

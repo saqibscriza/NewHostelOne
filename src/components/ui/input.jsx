@@ -1,19 +1,12 @@
 import React from "react";
 import { cn } from "../../lib/utils";
 
-const Input = React.forwardRef(({ className, type, ...props }, ref) => {
+const Input = React.forwardRef(({ className, type = "text", ...props }, ref) => {
   return (
     <input
       type={type}
       className={cn(
-        /**
-         * ✅ FIX 1: bg-backgraound ❌ → bg-background ✅
-         * ✅ FIX 2: removed slate text + placeholder
-         * ✅ FIX 3: added text-foreground + placeholder-muted
-         * ✅ FIX 4: fixed focus ring to theme
-         */
-        "flex h-10 w-full rounded-md border border-border bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 ring-offset-background disabled:cursor-not-allowed disabled:opacity-50",
-
+        "flex h-12 w-full rounded-[var(--field-radius)] border border-border bg-background px-4 py-3 text-[15px] text-foreground shadow-[0_1px_2px_rgba(15,23,42,0.03)] outline-none transition-[border-color,box-shadow,background-color] placeholder:text-muted-foreground focus-visible:border-slate-300 focus-visible:ring-4 focus-visible:ring-slate-200/80 disabled:cursor-not-allowed disabled:opacity-50 disabled:bg-muted/60 aria-invalid:border-destructive aria-invalid:focus-visible:border-destructive aria-invalid:focus-visible:ring-destructive/10 file:border-0 file:bg-transparent file:text-sm file:font-medium",
         className,
       )}
       ref={ref}

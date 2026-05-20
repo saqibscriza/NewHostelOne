@@ -136,17 +136,52 @@ export default function AddStaff() {
           {/* Grid Layout: md:grid-cols-2 ka matlab hai medium screens par 2 columns banenge */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {/* Full Name Field */}
-            <div className="space-y-2">
-              <Label className="text-sm font-medium text-slate-700">
-                Full Name<span className="text-red-500">*</span>
-              </Label>
-              <Input
-                className="h-11"
-                name="fullName"
-                {...register("fullName", { required: "Full name required" })}
-                placeholder="Enter Full Name"
-              />
-            </div>
+<div className="space-y-2">
+  <Label className="text-sm font-medium text-slate-700">
+    Full Name<span className="text-red-500">*</span>
+  </Label>
+
+  <Input
+    className="h-11"
+    type="text"
+    placeholder="Enter Full Name"
+    {...register("fullName", {
+      required: "Full name is required",
+
+      minLength: {
+        value: 3,
+        message: "Full name must be at least 3 characters",
+      },
+
+      maxLength: {
+        value: 50,
+        message: "Full name cannot exceed 50 characters",
+      },
+
+      pattern: {
+        value: /^(?!\s)(?!.*\s$)[A-Za-z]+(?:\s[A-Za-z]+)*$/,
+        message:
+          "Only alphabets and single spaces are allowed",
+      },
+
+      validate: {
+        notOnlySpaces: (value) =>
+          value.trim().length > 0 ||
+          "Full name cannot contain only spaces",
+      },
+    })}
+    onInput={(e) => {
+      // remove multiple spaces
+      e.target.value = e.target.value.replace(/\s{2,}/g, " ");
+    }}
+  />
+
+  {errors.fullName && (
+    <span className="text-red-500 text-xs">
+      {errors.fullName.message}
+    </span>
+  )}
+</div>
 
             {/* Profile Picture Field */}
             <div className="space-y-2">

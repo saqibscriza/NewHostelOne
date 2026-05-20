@@ -22,20 +22,38 @@ const onSubmit = async (data) => {
   try {
     setLoaderCheck(true);
     const res = await getOtpApi(data.email);
+    const resData = res?.data;
 
-    if (res?.data?.status === "success" || (res?.status === 200 && res?.data?.status !== "error" && res?.data?.status !== "fail")) {
-      toast.success(res?.data?.message || "OTP sent successfully");
-      navigate("/verify-otp", {
-        state: {
-          email: data.email,
-          token: res?.data?.token,
-        },
-      });
-    } else {
-      toast.error(
-        res?.data?.message || "Failed to send OTP"
+    const isErrorMsg = resData?.message && (
+        resData.message.toLowerCase().includes("invalid") ||
+        resData.message.toLowerCase().includes("fail") ||
+        resData.message.toLowerCase().includes("error") ||
+        resData.message.toLowerCase().includes("not found")
       );
-    }
+
+      const isStatusError = resData?.status === 0 || resData?.status === "fail" || resData?.status === "error" || resData?.status === "failure";
+
+      if (isErrorMsg || isStatusError) {
+        toast.error(resData?.message || "User not found or failed to send OTP");
+      } else if (
+        resData?.status === "success" || 
+        resData?.status === 1 || 
+        resData?.success === true ||
+        resData?.message?.toLowerCase().includes("success") ||
+        res?.status === 200
+      ) {
+        toast.success(resData?.message || "OTP sent successfully");
+        navigate("/verify-otp", {
+          state: {
+            email: data.email,
+            token: resData?.token,
+          },
+        });
+      } else {
+        toast.error(
+          resData?.message || "Failed to send OTP"
+        );
+      }
   } catch (error) {
     console.log(error);
     toast.error(
@@ -89,7 +107,7 @@ const onSubmit = async (data) => {
             disabled={loaderCheck}
             className="h-12 px-8 rounded-full bg-[#0F172A] hover:bg-[#1E293B] text-white font-medium text-[15px] flex items-center gap-2 disabled:opacity-75 disabled:cursor-not-allowed transition-all"
           >
-           Send OTP <ArrowRight className="w-4 h-4" />
+            Send OTP <ArrowRight className="w-4 h-4" />
           </Button>
         </div>
       </form>

@@ -53,6 +53,18 @@ export const logoutApi = async () => {
 };
 
 // ******************************************** SignUp API ******************************************** */
+
+export const getLocationByPincodeApi = async (pincode) => {
+  try {
+    const res = await axios.get(`${Domain}/api/location/pincode/${pincode}`);
+    return res.data;
+  } catch (error) {
+    console.log("PINCODE GET ERROR 👉", error);
+    return null;
+  }
+};
+
+
 export const signUpApi = async (data) => {
   try {
     var res = await axios.post(`${Domain}/login/signup`, data);
@@ -897,6 +909,18 @@ export const getAllInventoryItemApi = async () => {
   }
 };
 
+// Get SKU ID
+export const getSkuIdAPI = async () => {
+  try {
+    axios.defaults.headers.common["Authorization"] = token;
+    const res = await axios.get(`${Domain}/inventory/generate/sku`);
+    return res.data;
+  } catch (error) {
+    console.log("GET ALL INVENTORY CATEGORY ERROR 👉", error);
+    return [];
+  }
+};
+
 // Get category details by category id
 export const getCategoryItemsByIdApi = async (id) => {
   try {
@@ -1047,6 +1071,19 @@ export const addStockApi = async (data) => {
     return res.data;
   } catch (error) {
     console.log("ADD STOCK ERROR 👉", error);
+    return null;
+  }
+};
+
+export const updateStockApi = async (stockId, params) => {
+  try {
+    axios.defaults.headers.common["Authorization"] = token;
+    const res = await axios.put(`${Domain}/inventory/stock/update/${stockId}`, null, {
+      params
+    });
+    return res.data;
+  } catch (error) {
+    console.log("UPDATE STOCK ERROR 👉", error);
     return null;
   }
 };

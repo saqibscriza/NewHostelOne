@@ -37,17 +37,30 @@ export default function ResetPassword() {
       };
 
       const res = await setPasswordApi(payload);
+      const resData = res?.data;
 
-      if (
-        res?.data?.status === "success" || 
-        res?.data?.status === 1 || 
-        res?.data?.success === true ||
-        (res?.status === 200 && res?.data?.status !== 0 && res?.data?.status !== "error" && res?.data?.status !== "fail")
+      const isErrorMsg = resData?.message && (
+        resData.message.toLowerCase().includes("invalid") ||
+        resData.message.toLowerCase().includes("fail") ||
+        resData.message.toLowerCase().includes("error") ||
+        resData.message.toLowerCase().includes("expire")
+      );
+      
+      const isStatusError = resData?.status === 0 || resData?.status === "fail" || resData?.status === "error" || resData?.status === "failure";
+
+      if (isErrorMsg || isStatusError) {
+        toast.error(resData?.message || "Failed to reset password");
+      } else if (
+        resData?.status === "success" || 
+        resData?.status === 1 || 
+        resData?.success === true ||
+        resData?.message?.toLowerCase().includes("success") ||
+        res?.status === 200
       ) {
-        toast.success(res?.data?.message || "Password updated successfully");
+        toast.success(resData?.message || "Password updated successfully");
         navigate("/password-updated");
       } else {
-        toast.error(res?.data?.message || "Failed to reset password");
+        toast.error(resData?.message || "Failed to reset password");
       }
     } catch (error) {
       console.log(error);
@@ -94,7 +107,7 @@ export default function ResetPassword() {
               onClick={() => setShowNewPassword(!showNewPassword)}
               className="absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 focus:outline-none"
             >
-              {showNewPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+              {showNewPassword ? <Eye className="w-5 h-5" /> : <EyeOff className="w-5 h-5" />}
             </button>
           </div>
           {errors.newPassword && (
@@ -124,7 +137,7 @@ export default function ResetPassword() {
               onClick={() => setShowConfirmPassword(!showConfirmPassword)}
               className="absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 focus:outline-none"
             >
-              {showConfirmPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+              {showConfirmPassword ? <Eye className="w-5 h-5" /> : <EyeOff className="w-5 h-5" />}
             </button>
           </div>
           {errors.confirmPassword && (

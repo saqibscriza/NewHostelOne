@@ -39,16 +39,30 @@ const filteredTickets = tickets.filter((ticket) => {
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 8;        // Aapko 8 dikhane hain ya 10? 
 
-// 3 
-// Step pagination ka
-const indexOfLastItem = currentPage * itemsPerPage;
-const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-// Ye filtered records hain! Ise render karna hota map function mein.
-const currentTickets = filteredTickets.slice(
-  indexOfFirstItem,
-  indexOfLastItem
-);
-const totalPages = Math.ceil(filteredTickets.length / itemsPerPage);
+  // 3 
+  // Pagination logic
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const currentTickets = tickets.slice(indexOfFirstItem, indexOfLastItem);
+  const totalPages = Math.ceil(tickets.length / itemsPerPage);
+
+  const getPageNumbers = () => {
+    const pages = [];
+    if (totalPages <= 5) {
+      for (let i = 1; i <= totalPages; i++) {
+        pages.push(i);
+      }
+    } else {
+      if (currentPage <= 3) {
+        pages.push(1, 2, 3, "...", totalPages);
+      } else if (currentPage >= totalPages - 2) {
+        pages.push(1, "...", totalPages - 3, totalPages - 2, totalPages - 1, totalPages);
+      } else {
+        pages.push(1, "...", currentPage - 1, currentPage, currentPage + 1, "...", totalPages);
+      }
+    }
+    return pages;
+  };
 
 //Step 4. 
 //Apne Map Function Ko Update Karein
@@ -233,31 +247,48 @@ const fetchSupportTickets = async () => {
       {/* // Step 5 */}
 
       {/* Pagination UI */}
+      {/* Pagination UI */}
       {totalPages > 1 && (
         <Pagination className="mt-4 flex justify-end">
           <PaginationContent>
             <PaginationItem>
               <PaginationPrevious 
-                onClick={() => setCurrentPage(p => Math.max(1, p - 1))} 
+                href="#"
+                onClick={(e) => {
+                  e.preventDefault();
+                  setCurrentPage(p => Math.max(1, p - 1));
+                }} 
                 className={currentPage === 1 ? "pointer-events-none opacity-50" : "cursor-pointer"}
               />
             </PaginationItem>
             
-            {[...Array(totalPages)].map((_, i) => (
-              <PaginationItem key={i}>
-                <PaginationLink 
-                  isActive={currentPage === i + 1}
-                  onClick={() => setCurrentPage(i + 1)}
-                  className="cursor-pointer"
-                >
-                  {i + 1}
-                </PaginationLink>
+            {getPageNumbers().map((page, index) => (
+              <PaginationItem key={index}>
+                {page === "..." ? (
+                  <PaginationEllipsis />
+                ) : (
+                  <PaginationLink 
+                    href="#"
+                    isActive={currentPage === page}
+                    onClick={(e) => {
+                      e.preventDefault();
+                      setCurrentPage(page);
+                    }}
+                    className="cursor-pointer"
+                  >
+                    {page}
+                  </PaginationLink>
+                )}
               </PaginationItem>
             ))}
 
             <PaginationItem>
               <PaginationNext 
-                onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))} 
+                href="#"
+                onClick={(e) => {
+                  e.preventDefault();
+                  setCurrentPage(p => Math.min(totalPages, p + 1));
+                }} 
                 className={currentPage === totalPages ? "pointer-events-none opacity-50" : "cursor-pointer"}
               />
             </PaginationItem>

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Info, List, Upload, Plus, X } from 'lucide-react';
 import { Card, CardContent } from '../../../../../components/ui/Card';
@@ -6,7 +6,7 @@ import { Button } from '../../../../../components/ui/button';
 import { Input } from '../../../../../components/ui/input';
 import { Label } from '../../../../../components/ui/label';
 import { useForm, useFieldArray } from 'react-hook-form';
-import { addInventoryCategoryApi } from '../../../../../utils/utils';
+import { addInventoryCategoryApi, getSkuIdAPI } from '../../../../../utils/utils';
 
 export default function AddCategoryPage() {
 
@@ -17,11 +17,12 @@ export default function AddCategoryPage() {
   register,
   handleSubmit,
   control,
+  setValue,
   formState: { errors },
 } = useForm({
   defaultValues: {
     categoryName: "",
-    items: [{ name: "", sku: "" }],
+    items: [{ name: "", sku: "Generating..." }],
     icon: null,
   },
 });
@@ -30,6 +31,35 @@ export default function AddCategoryPage() {
     control,
     name: "items",
   });
+
+    useEffect(() => {
+    const fetchInitialSku = async () => {
+      try {
+        const res = await getSkuIdAPI();
+        const sku = res?.data || res?.skuId || res?.sku || (typeof res === 'string' ? res : "");
+        setValue("items.0.sku", sku);
+      } catch (err) {
+        setValue("items.0.sku", "");
+      }
+    };
+    fetchInitialSku();
+  }, [setValue]);
+
+
+    const handleAppendItem = async () => {
+    // Show a temporary generating state
+    append({ name: "", sku: "Generating..." });
+    const lastIndex = fields.length; // index of the newly added item
+    try {
+      const res = await getSkuIdAPI();
+      const sku = res?.data || res?.skuId || res?.sku || (typeof res === 'string' ? res : "");
+      setValue(`items.${lastIndex}.sku`, sku);
+    } catch (e) {
+      setValue(`items.${lastIndex}.sku`, "");
+    }
+  };
+
+
 
   const addInventoryCategory = async (data) => {
     console.log("FORM DATA 👉", data); 
@@ -189,7 +219,7 @@ export default function AddCategoryPage() {
 
               <button 
               type='button'
-                onClick={() => append({ name: "", sku: "" })}
+               onClick={handleAppendItem}
                 className="text-blue-600 dark:text-blue-400 text-sm font-bold flex items-center gap-2 hover:underline mt-2"
               >
                 <Plus className="w-4 h-4" /> ADD MORE ITEM

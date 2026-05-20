@@ -170,18 +170,52 @@ formData.append("permanentAddress", data.permanentAddress);
           {/* Grid Layout: md:grid-cols-2 ka matlab hai medium screens par 2 columns banenge */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {/* Full Name Field */}
-            <div className="space-y-2">
-              <Label className="text-sm font-medium text-slate-700">
-                Full Name <span className="text-red-500">*</span>
-              </Label>
-              <Input
-                name="fullName"
-                {...register("fullName", { required: "Full name required" })}
-                placeholder="Enter Full Name"
-                className="h-11"
-              />
-              <small className="text-danger">{errors.fullName?.message}</small>
-            </div>
+<div className="space-y-2">
+  <Label className="text-sm font-medium text-slate-700">
+    Full Name<span className="text-red-500">*</span>
+  </Label>
+
+  <Input
+    className="h-11"
+    type="text"
+    placeholder="Enter Full Name"
+    {...register("fullName", {
+      required: "Full name is required",
+
+      minLength: {
+        value: 3,
+        message: "Full name must be at least 3 characters",
+      },
+
+      maxLength: {
+        value: 50,
+        message: "Full name cannot exceed 50 characters",
+      },
+
+      pattern: {
+        value: /^(?!\s)(?!.*\s$)[A-Za-z]+(?:\s[A-Za-z]+)*$/,
+        message:
+          "Only alphabets and single spaces are allowed",
+      },
+
+      validate: {
+        notOnlySpaces: (value) =>
+          value.trim().length > 0 ||
+          "Full name cannot contain only spaces",
+      },
+    })}
+    onInput={(e) => {
+      // remove multiple spaces
+      e.target.value = e.target.value.replace(/\s{2,}/g, " ");
+    }}
+  />
+
+  {errors.fullName && (
+    <span className="text-red-500 text-xs">
+      {errors.fullName.message}
+    </span>
+  )}
+</div>
 
             {/* Profile Picture Field */}
             <div className="space-y-2">
@@ -236,7 +270,7 @@ formData.append("permanentAddress", data.permanentAddress);
             {/* Date of Birth Field */}
             <div className="space-y-2">
               <Label className="text-sm font-medium text-slate-700">
-                Date of Birth <span className="text-red-500">*</span>
+                Date of Birth<span className="text-red-500">*</span>
               </Label>
               <div className="relative">
                 <CalendarDays className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-500 pointer-events-none z-10" />
@@ -244,6 +278,7 @@ formData.append("permanentAddress", data.permanentAddress);
                   type="date"
                   max={new Date().toISOString().split("T")[0]}
                   {...register("dob", {
+                    required: "Date of birth is required",
                     validate: (value) =>
                       new Date(value) <= new Date() ||
                       "Future date not allowed",
@@ -252,7 +287,9 @@ formData.append("permanentAddress", data.permanentAddress);
                 />
               </div>
               {errors?.dob && (
-                <p className="text-sm text-red-500">{errors.dob.message}</p>
+                <p className="text-sm text-red-500">
+                  {errors.dob.message}
+                </p>
               )}
             </div>
 
@@ -311,16 +348,30 @@ formData.append("permanentAddress", data.permanentAddress);
               />
             </div>
 
-            <div className="space-y-2">
-              <Label className="text-sm font-medium text-slate-700">
-                Date of Joining <span className="text-red-500">*</span>
-              </Label>
-              <Input
-                type="date"
-                {...register("joiningDate")}
-                className="h-11 text-slate-500"
-              />
-            </div>
+ <div className="space-y-2">
+  <Label className="text-sm font-medium text-slate-700">
+    Date of Joining<span className="text-red-500">*</span>
+  </Label>
+
+  <div className="relative">
+    <CalendarDays className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-500 pointer-events-none z-10" />
+
+    <Input
+      type="date"
+      name="joiningDate"
+      {...register("joiningDate", {
+        required: "Joining date is required",
+      })}
+      className="h-11 w-full pl-10 text-slate-500 [&::-webkit-calendar-picker-indicator]:opacity-0 [&::-webkit-calendar-picker-indicator]:absolute [&::-webkit-calendar-picker-indicator]:left-0 [&::-webkit-calendar-picker-indicator]:w-full [&::-webkit-calendar-picker-indicator]:h-full [&::-webkit-calendar-picker-indicator]:cursor-pointer"
+    />
+  </div>
+
+  {errors?.joiningDate && (
+    <p className="text-sm text-red-500">
+      {errors.joiningDate.message}
+    </p>
+  )}
+</div>
           </div>
         </Card>
 
@@ -334,34 +385,79 @@ formData.append("permanentAddress", data.permanentAddress);
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="space-y-2">
-              <Label className="text-sm font-medium text-slate-700">
-                Email Address <span className="text-red-500">*</span>
-              </Label>
-              <div className="relative">
-                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-                <Input
-                  name="email"
-                  placeholder="Enter Email Address"
-                  {...register("email")}
-                  className="h-11 pl-9"
-                />
-              </div>
-            </div>
+    <div className="space-y-2">
+      <Label className="text-sm font-medium text-slate-700">
+        Email Address <span className="text-red-500">*</span>
+      </Label>
 
-            <div className="space-y-2">
-              <Label className="text-sm font-medium text-slate-700">
-                Phone Number <span className="text-red-500">*</span>
-              </Label>
-              <div className="relative">
-                <Smartphone className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-                <Input
-                  placeholder="Enter Phone Number"
-                  {...register("phone")}
-                  className="h-11 pl-9"
-                />
-              </div>
-            </div>
+      <div className="relative">
+        <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+
+        <Input
+          name="email"
+          {...register("email", {
+            required: "Email is required",
+            pattern: {
+              value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+              message: "Enter a valid email address",
+            },
+          })}
+          placeholder="Enter Email"
+          className="h-11 pl-9"
+        />
+      </div>
+
+      {errors.email && (
+        <p className="text-sm text-red-500">
+          {errors.email.message}
+        </p>
+      )}
+    </div>
+
+    <div className="space-y-2">
+      <Label className="text-sm font-medium text-slate-700">
+        Phone Number <span className="text-red-500">*</span>
+      </Label>
+
+<div className="relative">
+  <Smartphone className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+
+  <Input
+    type="tel"
+    maxLength={10}
+    inputMode="numeric"
+    name="phone"
+    {...register("phone", {
+      required: "Phone number is required",
+      pattern: {
+        value: /^[6-9]\d{9}$/,
+        message: "Enter a valid 10-digit phone number",
+      },
+      minLength: {
+        value: 10,
+        message: "Phone number must be 10 digits",
+      },
+      maxLength: {
+        value: 10,
+        message: "Phone number must be 10 digits",
+      },
+    })}
+    onInput={(e) => {
+      e.target.value = e.target.value
+        .replace(/\D/g, "")
+        .slice(0, 10);
+    }}
+    placeholder="Enter Phone"
+    className="h-11 pl-9"
+  />
+</div>
+
+      {errors.phone && (
+        <p className="text-sm text-red-500">
+          {errors.phone.message}
+        </p>
+      )}
+    </div>
           </div>
         </Card>
 

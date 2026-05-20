@@ -190,7 +190,7 @@ export default function StaffManagement() {
               Present Today
             </p>
             <div className="flex items-end justify-between">
-              <span className="text-3xl font-bold text-foreground">21</span>
+              <span className="text-3xl font-bold text-foreground">0</span>
               <div className="w-16 h-1.5 bg-muted rounded-full overflow-hidden mb-2">
                 <div className="w-3/4 h-full bg-foreground rounded-full"></div>
               </div>
@@ -205,7 +205,7 @@ export default function StaffManagement() {
               On Leave
             </p>
             <div className="flex items-end justify-between">
-              <span className="text-3xl font-bold text-foreground">3</span>
+              <span className="text-3xl font-bold text-foreground">0</span>
               <span className="bg-muted text-foreground text-xs font-bold px-2.5 py-1 rounded-full">
                 Approved
               </span>
@@ -220,7 +220,7 @@ export default function StaffManagement() {
               New Applications
             </p>
             <div className="flex items-end justify-between">
-              <span className="text-3xl font-bold text-foreground">12</span>
+              <span className="text-3xl font-bold text-foreground">0</span>
               <span className="bg-muted text-foreground text-xs font-bold px-2.5 py-1 rounded-full">
                 Pending
               </span>

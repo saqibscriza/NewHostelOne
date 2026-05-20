@@ -32,10 +32,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from "../../../../../components/ui/select";
-import { Link } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { getInventoryStockDashboardApi, deleteStockApi } from "../../../../../utils/utils";
 
 export default function InventoryDetailsPage() {
+  const navigate = useNavigate();
   const [dashboard, setDashboard] = useState({
     totalInventoryValue: 0,
     lowStockAlerts: 0,
@@ -348,6 +349,7 @@ export default function InventoryDetailsPage() {
                       <div className="flex items-center justify-end gap-3">
                         <button
                           type="button"
+                           onClick={() => navigate(`/chef/inventory/details/${item.stockId}/edit`, { state: { stockData: item } })}
                           className="p-1.5 text-muted-foreground hover:text-foreground transition-colors rounded-lg hover:bg-muted"
                         >
                           <Edit2 className="w-[18px] h-[18px]" />

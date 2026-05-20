@@ -377,15 +377,26 @@ export default function CollectFeePage() {
             </CardHeader>
 
             <CardContent className="p-6 pt-0 space-y-6">
-              <div className="space-y-2">
-                <label className="text-sm font-medium text-slate-700">Amount Paid (₹)</label>
-                <input
-                  type="text"
-                  value={amountPaid}
-                  onChange={(event) => setAmountPaid(event.target.value)}
-                  className="w-full p-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-slate-900 focus:border-transparent text-base font-bold text-slate-900"
-                />
-              </div>
+<div className="space-y-2">
+  <label className="text-sm font-medium text-slate-700">
+    Amount Paid (₹)
+  </label>
+
+  <input
+    type="text"
+    value={amountPaid}
+    onChange={(event) => {
+      const value = event.target.value;
+
+      // Allow only numbers and optional decimal values
+      if (/^\d*\.?\d{0,2}$/.test(value)) {
+        setAmountPaid(value);
+      }
+    }}
+    placeholder="Enter amount"
+    className="w-full p-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-slate-900 focus:border-transparent text-base font-bold text-slate-900"
+  />
+</div>
 
               <div className="space-y-2">
                 <label className="text-sm font-medium text-slate-700">Payment Date</label>

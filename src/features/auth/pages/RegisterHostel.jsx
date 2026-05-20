@@ -3,9 +3,10 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { ArrowLeft, ArrowRight, Camera } from "lucide-react";
 import toast from "react-hot-toast";
+import { Input } from "../../../components/ui/input";
 
 import { Button } from "../../../components/ui/button";
-import {signUpApi} from "../../../utils/utils";
+import {signUpApi,getLocationByPincodeApi} from "../../../utils/utils";
 // import { getAllPackageApi} from "../../../utils/utils";
 import AuthLayout from "../../auth/component/AuthLayout";
 
@@ -22,6 +23,7 @@ export default function RegisterHostel() {
     register,
     handleSubmit,
     watch,
+    setValue,
     getValues,
     formState: { errors },
   } = useForm({
@@ -29,6 +31,46 @@ export default function RegisterHostel() {
   });
 
   const propertyLogo = watch("propertyLogo");
+  const hostelPinCode = watch("hostelPinCode");
+
+  useEffect(() => {
+    const fetchLocation = async () => {
+      if (hostelPinCode && String(hostelPinCode).length === 6) {
+        try {
+          const res = await getLocationByPincodeApi(hostelPinCode);
+          console.log("LOCATION API RES in RegisterHostel:", res);
+          
+          let locationObj = null;
+          
+          // Handle different possible response structures
+          if (Array.isArray(res)) {
+            locationObj = res[0];
+          } else if (res && res.data && Array.isArray(res.data)) {
+            locationObj = res.data[0];
+          } else if (res && res.data && typeof res.data === 'object') {
+            locationObj = res.data;
+          } else if (res && typeof res === 'object') {
+            locationObj = res;
+          }
+
+          if (locationObj) {
+            // Looking for properties in the location object
+            const country = locationObj.country || locationObj.Country;
+            const state = locationObj.state || locationObj.State;
+            const city = locationObj.district || locationObj.District || locationObj.region || locationObj.Region || locationObj.city || locationObj.City || "";
+
+            if (country) setValue("hostelCountry", country, { shouldValidate: true, shouldDirty: true });
+            if (state) setValue("hostelState", state, { shouldValidate: true, shouldDirty: true });
+            if (city) setValue("hostelCity", city, { shouldValidate: true, shouldDirty: true });
+          }
+        } catch (e) {
+          console.log("Location fetch error:", e);
+        }
+      }
+    };
+    fetchLocation();
+  }, [hostelPinCode, setValue]);
+
 
   useEffect(() => {
     // If no admin info is present, optionally redirect back to step 1
@@ -150,9 +192,9 @@ export default function RegisterHostel() {
             </div>
             <div>
               <p className="text-sm font-semibold text-[#111827]">Upload your Property Logo</p>
-              <p className="text-xs text-gray-500 mt-1 mb-2">JPG, PNG or GIF. Max size 2MB</p>
+              <p className="text-xs text-gray-500 mt-1 mb-2">JPG, PNG or GIF. Max size 200KB</p>
               <div className="relative">
-                <input
+                <Input
                   type="file"
                   id="propertyLogo"
                   className="hidden"
@@ -170,18 +212,33 @@ export default function RegisterHostel() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <label className="text-sm font-semibold text-[#111827]">
-                Hostel Name<span className="text-red-500"> *</span>
-              </label>
-              <input
-                type="text"
-                placeholder="Enter Hostel Name"
-                {...register("hostelName", { required: "Name is required" })}
-                className={`w-full p-3 rounded-xl border bg-white focus:outline-none focus:ring-1 focus:ring-gray-300 text-sm ${errors.hostelName ? "border-red-500" : "border-gray-200"}`}
-              />
-              {errors.hostelName && <span className="text-red-500 text-xs">{errors.hostelName.message}</span>}
-            </div>
+<div className="space-y-2">
+  <label className="text-sm font-semibold text-[#111827]">
+    Hostel Name<span className="text-red-500"> *</span>
+  </label>
+
+  <Input
+    type="text"
+    placeholder="Enter Hostel Name"
+    {...register("hostelName", {
+      required: "Hostel name is required",
+      pattern: {
+        value: /^[A-Za-z0-9\s&.-]{3,100}$/,
+        message:
+          "Hostel name must be 3-100 characters and can contain letters, numbers, spaces, &, . and - only",
+      },
+    })}
+    className={`w-full bg-white text-sm ${
+      errors.hostelName ? "border-red-500" : ""
+    }`}
+  />
+
+  {errors.hostelName && (
+    <span className="text-red-500 text-xs">
+      {errors.hostelName.message}
+    </span>
+  )}
+</div>
 
             <div className="space-y-2">
               <label className="text-sm font-semibold text-[#111827]">
@@ -223,7 +280,7 @@ export default function RegisterHostel() {
               <label className="text-sm font-semibold text-[#111827]">
                 PIN Code<span className="text-red-500"> *</span>
               </label>
-              <input
+              <Input
                 type="text"
                 placeholder="6-digit code"
                 {...register("hostelPinCode", { 
@@ -239,7 +296,7 @@ export default function RegisterHostel() {
             </div>
           </div>
 
-          <div className="space-y-2">
+          {/* <div className="space-y-2">
             <label className="text-sm font-semibold text-[#111827]">
               Address<span className="text-red-500"> *</span>
             </label>
@@ -250,51 +307,63 @@ export default function RegisterHostel() {
               className={`w-full p-3 rounded-xl border bg-white focus:outline-none focus:ring-1 focus:ring-gray-300 text-sm resize-none ${errors.hostelAddress ? "border-red-500" : "border-gray-200"}`}
             />
             {errors.hostelAddress && <span className="text-red-500 text-xs">{errors.hostelAddress.message}</span>}
-          </div>
+          </div> */}
 
-          <div className="grid grid-cols-3 gap-4">
+
+          <div className="space-y-2">
+  <label className="text-sm font-semibold text-[#111827]">
+    Address<span className="text-red-500"> *</span>
+  </label>
+
+  <Input
+    type="text"
+    placeholder="Street address, building, floor..."
+    {...register("hostelAddress", {
+      required: "Address is required",
+      minLength: {
+        value: 5,
+        message: "Address must be at least 5 characters",
+      },
+    })}
+    className={errors.hostelAddress ? "border-red-500" : ""}
+  />
+
+  {errors.hostelAddress && (
+    <span className="text-red-500 text-xs">
+      {errors.hostelAddress.message}
+    </span>
+  )}
+</div>
+
+<div className="grid grid-cols-3 gap-4">
             <div className="space-y-2">
-              <label className="text-sm font-semibold text-[#111827]">Country<span className="text-red-500"> *</span></label>
-              <select
+              <label className="text-sm font-semibold text-[#111827]">Country<span className="text-red-500">*</span></label>
+              <Input
+                type="text"
+                placeholder="Country"
                 {...register("hostelCountry", { required: "Required" })}
-                className={`w-full px-3 h-[46px] rounded-xl border bg-white text-sm focus:outline-none focus:ring-1 focus:ring-gray-300 ${errors.hostelCountry ? "border-red-500" : "border-gray-200"}`}
-                defaultValue=""
-              >
-                <option value="" disabled hidden>Select Country</option>
-                <option value="India">India</option>
-                <option value="USA">USA</option>
-              </select>
+                className={`w-full p-3 rounded-xl border bg-white focus:outline-none focus:ring-1 focus:ring-gray-300 text-sm ${errors.hostelCountry ? "border-red-500" : "border-gray-200"}`}
+              />
             </div>
 
             <div className="space-y-2">
-              <label className="text-sm font-semibold text-[#111827]">State<span className="text-red-500"> *</span></label>
-              <select
+              <label className="text-sm font-semibold text-[#111827]">State<span className="text-red-500">*</span></label>
+              <Input
+                type="text"
+                placeholder="State"
                 {...register("hostelState", { required: "Required" })}
-                className={`w-full px-3 h-[46px] rounded-xl border bg-white text-sm focus:outline-none focus:ring-1 focus:ring-gray-300 ${errors.hostelState ? "border-red-500" : "border-gray-200"}`}
-                defaultValue=""
-              >
-                <option value="" disabled hidden>State/Province</option>
-                <option value="Rajasthan">Rajasthan</option>
-                <option value="Maharashtra">Maharashtra</option>
-                <option value="UP">UP</option>
-              </select>
+                className={`w-full p-3 rounded-xl border bg-white focus:outline-none focus:ring-1 focus:ring-gray-300 text-sm ${errors.hostelState ? "border-red-500" : "border-gray-200"}`}
+              />
             </div>
 
             <div className="space-y-2">
-              <label className="text-sm font-semibold text-[#111827]">City<span className="text-red-500"> *</span></label>
-              <select
+              <label className="text-sm font-semibold text-[#111827]">City<span className="text-red-500">*</span></label>
+              <Input
+                type="text"
+                placeholder="City"
                 {...register("hostelCity", { required: "Required" })}
-                className={`w-full px-3 h-[46px] rounded-xl border bg-white text-sm focus:outline-none focus:ring-1 focus:ring-gray-300 ${errors.hostelCity ? "border-red-500" : "border-gray-200"}`}
-                defaultValue=""
-              >
-                <option value="" disabled hidden>City</option>
-                <option value="Jaipur">Jaipur</option>
-                <option value="Mumbai">Mumbai</option>
-                <option value="Pune">Pune</option>
-                <option value="Udaipur">Udaipur</option>
-                <option value="Noida">Noida</option>
-                
-              </select>
+                className={`w-full p-3 rounded-xl border bg-white focus:outline-none focus:ring-1 focus:ring-gray-300 text-sm ${errors.hostelCity ? "border-red-500" : "border-gray-200"}`}
+              />
             </div>
           </div>
 

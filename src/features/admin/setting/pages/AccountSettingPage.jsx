@@ -4,7 +4,7 @@ import { useForm } from "react-hook-form";
 import { Input } from "../../../../components/ui/input";
 import { Button } from "../../../../components/ui/button";
 import { Label } from "../../../../components/ui/label";
-import { getHostelByIdApi, updateHostelByIdApi } from "../../../../utils/utils";
+import { getHostelByIdApi, updateHostelByIdApi, getLocationByPincodeApi } from "../../../../utils/utils";
 import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { toast } from "react-hot-toast";
@@ -19,8 +19,38 @@ export default function AccountSettingPage() {
     register,
     handleSubmit,
     reset,
+    watch,
+    setValue,
     formState: { errors },
   } = useForm();
+
+  const pinCode = watch("pinCode");
+
+  useEffect(() => {
+    const fetchLocation = async () => {
+      if (pinCode && pinCode.length === 6) {
+        try {
+          const res = await getLocationByPincodeApi(pinCode);
+          const locationData = res?.data || res;
+          
+          if (locationData && locationData.country && locationData.state) {
+            setValue("country", locationData.country || "");
+            setValue("state", locationData.state || "");
+            setValue("city", locationData.district || locationData.city || locationData.region || "");
+          } else {
+            toast.error("Invalid PIN Code");
+            setValue("country", "");
+            setValue("state", "");
+            setValue("city", "");
+          }
+        } catch (error) {
+          console.error("Error fetching location:", error);
+          toast.error("Failed to fetch location details");
+        }
+      }
+    };
+    fetchLocation();
+  }, [pinCode, setValue]);
 
   const MyHostelDataById = async () => {
     setLoaderCheck(true);
@@ -252,14 +282,12 @@ export default function AccountSettingPage() {
               <Label className="text-sm font-medium text-slate-700">
                 Country
               </Label>
-              <select
-                {...register("country")}
-                className="flex h-11 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
-              >
-                <option value="">Select Country</option>
-                <option value="India">India</option>
-                <option value="USA">USA</option>
-              </select>
+              <Input
+                type="text"
+                placeholder="Country"
+                {...register("country", { required: "Required" })}
+                className="h-11"
+              />
             </div>
 
             {/* State - Takes 1 column */}
@@ -267,32 +295,23 @@ export default function AccountSettingPage() {
               <Label className="text-sm font-medium text-slate-700">
                 State
               </Label>
-              <select
-                {...register("state")}
-                className="flex h-11 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
-              >
-                <option value="">Select State</option>
-                <option value="Uttar Pradesh">Uttar Pradesh</option>
-                <option value="Maharastra">Maharashtra</option>
-                <option value="Rajasthan">Rajasthan</option>
-              </select>
+              <Input
+                type="text"
+                placeholder="State"
+                {...register("state", { required: "Required" })}
+                className="h-11"
+              />
             </div>
 
             {/* City - Takes 1 column */}
             <div className="space-y-2">
               <Label className="text-sm font-medium text-slate-700">City</Label>
-
-              <select
-                {...register("city")}
-                className="flex h-11 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
-              >
-                <option value="">Select City</option>
-                <option value="Jaipur">Jaipur</option>
-                <option value="Mumbai">Mumbai</option>
-                <option value="Pune">Pune</option>
-                <option value="Udaipur">Udaipur</option>
-                <option value="Noida">Noida</option>
-              </select>
+              <Input
+                type="text"
+                placeholder="City"
+                {...register("city", { required: "Required" })}
+                className="h-11"
+              />
             </div>
           </div>
         </Card>

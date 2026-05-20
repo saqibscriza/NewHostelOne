@@ -15,6 +15,7 @@ import {
 import {
   getCategoryItemsByIdApi,
   updateCategoryItemsApi,
+  getSkuIdAPI
 } from '../../../../../utils/utils';
 
 export default function AddCategoryItemPage() {
@@ -22,10 +23,23 @@ export default function AddCategoryItemPage() {
   const { categoryId } = useParams();
 
   const [category, setCategory] = useState(null);
-  const [items, setItems] = useState([{ id: Date.now(), name: '', sku: '' }]);
+  const [items, setItems] = useState([{ id: Date.now(), name: '', sku: 'Generating...' }]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
+
+    useEffect(() => {
+    const fetchInitialSku = async () => {
+      try {
+        const res = await getSkuIdAPI();
+        const sku = res?.data || res?.skuId || res?.sku || (typeof res === 'string' ? res : "");
+        setItems([{ id: 1, name: '', sku }]);
+      } catch (err) {
+        setItems([{ id: 1, name: '', sku: '' }]);
+      }
+    };
+    fetchInitialSku();
+  }, []);
 
   useEffect(() => {
     const getCategoryDetails = async () => {
@@ -58,20 +72,32 @@ export default function AddCategoryItemPage() {
     getCategoryDetails();
   }, [categoryId]);
 
-  const handleAddItem = () => {
-    setItems((prev) => [...prev, { id: Date.now(), name: '', sku: '' }]);
+  const handleAddItem = async () => {
+    const newId = Date.now();
+    setItems(prev => [...prev, { id: newId, name: '', sku: 'Generating...' }]);
+    try {
+      const res = await getSkuIdAPI();
+      const sku = res?.data || res?.skuId || res?.sku || (typeof res === 'string' ? res : "");
+      setItems(prev => prev.map(item => item.id === newId ? { ...item, sku } : item));
+    } catch (e) {
+      setItems(prev => prev.map(item => item.id === newId ? { ...item, sku: '' } : item));
+    }
   };
 
   const handleRemoveItem = (idToRemove) => {
     setItems((prev) => prev.filter((item) => item.id !== idToRemove));
   };
 
-  const handleItemChange = (idToUpdate, field, value) => {
-    setItems((prev) =>
-      prev.map((item) =>
-        item.id === idToUpdate ? { ...item, [field]: value } : item
-      )
-    );
+  // const handleItemChange = (idToUpdate, field, value) => {
+  //   setItems((prev) =>
+  //     prev.map((item) =>
+  //       item.id === idToUpdate ? { ...item, [field]: value } : item
+  //     )
+  //   );
+  // };
+
+    const handleItemChange = (id, field, value) => {
+    setItems(prev => prev.map(item => item.id === id ? { ...item, [field]: value } : item));
   };
 
 const handleSubmit = async () => {
@@ -192,13 +218,11 @@ const handleSubmit = async () => {
                     <Label className="text-xs font-bold text-muted-foreground uppercase tracking-wider">
                       Item Name
                     </Label>
-                    <Input
-                      value={item.name}
-                      onChange={(e) =>
-                        handleItemChange(item.id, 'name', e.target.value)
-                      }
-                      placeholder="Enter Item Name"
+                    <Input 
+                      placeholder="Enter Item Name" 
                       className="bg-transparent border-border rounded-xl h-11 text-foreground"
+                      value={item.name}
+                      onChange={(e) => handleItemChange(item.id, 'name', e.target.value)}
                     />
                   </div>
 
@@ -206,13 +230,11 @@ const handleSubmit = async () => {
                     <Label className="text-xs font-bold text-muted-foreground uppercase tracking-wider">
                       SKU ID
                     </Label>
-                    <Input
-                      value={item.sku}
-                      onChange={(e) =>
-                        handleItemChange(item.id, 'sku', e.target.value)
-                      }
-                      placeholder="Enter SKU Id"
+                    <Input 
+                      placeholder="Enter SKU Id" 
                       className="bg-transparent border-border rounded-xl h-11 text-foreground"
+                      value={item.sku}
+                      onChange={(e) => handleItemChange(item.id, 'sku', e.target.value)}
                     />
                   </div>
 
