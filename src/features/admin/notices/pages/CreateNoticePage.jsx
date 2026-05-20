@@ -18,7 +18,6 @@ const Label = ({ children }) => (
     {children}
   </p>
 );
-
 export default function CreateNoticePage() {
   const navigate = useNavigate();
   const [loaderCheck, setLoaderCheck] = useState(false);

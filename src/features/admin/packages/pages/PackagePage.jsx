@@ -42,12 +42,10 @@ const PlanCard = ({ plan, index }) => {
 
           <div className="mt-4 flex items-end gap-2">
             <span className="text-5xl font-bold tracking-tight text-[#0F172A]">
-              ₹{plan?.price || 0}
+              ₹{plan?.monthlyPrice || 0}{" "}
             </span>
 
-            <span className="mb-1 text-[15px] text-gray-500">
-              /month
-            </span>
+            <span className="mb-1 text-[15px] text-gray-500">/month</span>
           </div>
         </div>
 
@@ -61,17 +59,40 @@ const PlanCard = ({ plan, index }) => {
                 className="flex items-start gap-3 text-[15px] text-gray-700"
               >
                 <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-gray-400" />
-
-                <span>{feature}</span>
+                <span>
+                  {feature
+                    ?.toLowerCase()
+                    ?.replaceAll("_", " ")
+                    ?.replace(/\b\w/g, (c) => c.toUpperCase())}
+                </span>{" "}
               </div>
             ))
           ) : (
-            <div className="text-sm text-gray-400">
-              No features available
-            </div>
+            <div className="text-sm text-gray-400">No features available</div>
           )}
         </div>
 
+        <div className="mt-6 space-y-2 border-t pt-4 text-sm text-gray-600">
+          <div className="flex justify-between">
+            <span>Max Beds</span>
+            <span>{plan?.maxBeds || 0}</span>
+          </div>
+
+          <div className="flex justify-between">
+            <span>Max Staff</span>
+            <span>{plan?.maxStaff || 0}</span>
+          </div>
+
+          <div className="flex justify-between">
+            <span>Max Students</span>
+            <span>{plan?.maxStudents || 0}</span>
+          </div>
+
+          <div className="flex justify-between">
+            <span>Yearly Discount</span>
+            <span>{plan?.yearlyDiscountPercentage || 0}%</span>
+          </div>
+        </div>
         {/* BUTTON */}
 
         <div className="mt-auto pt-10">
@@ -94,6 +115,8 @@ const PlanCard = ({ plan, index }) => {
 
 export default function PackagePage() {
   const [plans, setPlans] = useState([]);
+  const [subscriptionHistory, setSubscriptionHistory] = useState([]);
+  const [detailedPackages, setDetailedPackages] = useState([]);
   const [loaderCheck, setLoaderCheck] = useState(true);
 
   // ================= API FUNCTION =================
@@ -107,46 +130,48 @@ export default function PackagePage() {
       console.log("FULL PACKAGE RESPONSE =>", response);
       console.log("PACKAGE DATA =>", response?.data);
 
-      const packageData =
-        response?.data?.packages ||
-        response?.data?.data ||
-        response?.data ||
-        [];
+      const packageData = response?.data?.allPackages || [];
 
       console.log("FINAL PACKAGE DATA =>", packageData);
 
       const formattedPackages = Array.isArray(packageData)
         ? packageData.map((item) => ({
-            _id: item?._id,
+            id: item?.id,
 
-            name:
-              item?.name ||
-              item?.packageName ||
-              item?.package_name ||
-              "Package",
+            packageId: item?.packageId,
 
-            price:
-              item?.price ||
-              item?.amount ||
-              0,
+            name: item?.packageName || "Package",
 
-            features: Array.isArray(item?.features)
-              ? item?.features
-              : item?.description
-              ? [item?.description]
-              : [],
+            monthlyPrice: item?.monthlyPrice || 0,
 
-            currentPlan:
-              item?.currentPlan || false,
+            annualPrice: item?.annualPrice || 0,
+
+            yearlyDiscountPercentage: item?.yearlyDiscountPercentage || 0,
+
+            maxBeds: item?.maxBeds || 0,
+
+            maxStaff: item?.maxStaff || 0,
+
+            maxStudents: item?.maxStudents || 0,
+
+            maxRooms: item?.maxRooms || 0,
+
+            active: item?.active || false,
+
+            features: Array.isArray(item?.features) ? item.features : [],
+
+            createdAt: item?.createdAt || "",
+
+            currentPlan: item?.activeSubscription || false,
           }))
         : [];
 
-      console.log(
-        "FORMATTED PACKAGES =>",
-        formattedPackages
-      );
+      console.log("FORMATTED PACKAGES =>", formattedPackages);
 
       setPlans(formattedPackages);
+      setSubscriptionHistory(response?.data?.subscriptionHistory || []);
+
+      setDetailedPackages(response?.data?.detailedPackageList || []);
     } catch (error) {
       console.log("PACKAGE API ERROR =>", error);
 
@@ -164,39 +189,6 @@ export default function PackagePage() {
 
   // ================= DUMMY TABLE DATA =================
 
-  const historyRows = [
-    [
-      "Basic",
-      "₹49.00",
-      "22 Aug 2024",
-      "SC23654125478",
-      "Monthly",
-      "21 Aug 2025",
-    ],
-    [
-      "Premium",
-      "₹99.00",
-      "03 Feb 2023",
-      "SC23654122563",
-      "Monthly",
-      "02 Feb 2024",
-    ],
-    [
-      "Enterprise",
-      "₹249.00",
-      "10 Jan 2024",
-      "SC23654122599",
-      "Monthly",
-      "09 Jan 2025",
-    ],
-  ];
-
-  const detailRows = [
-    ["Basic", "₹49.00", "50", "124"],
-    ["Premium", "₹99.00", "200", "432"],
-    ["Enterprise", "₹249.00", "Unlimited", "86"],
-  ];
-
   return (
     <div className="min-h-screen bg-[#F8FAFC] p-6">
       <div className="space-y-10">
@@ -208,9 +200,8 @@ export default function PackagePage() {
           </h1>
 
           <p className="mt-2 text-sm text-gray-500">
-            Upgrade your plan to unlock advanced features,
-            increase service limits, and manage your hostel
-            more efficiently.
+            Upgrade your plan to unlock advanced features, increase service
+            limits, and manage your hostel more efficiently.
           </p>
         </div>
 
@@ -224,11 +215,7 @@ export default function PackagePage() {
           <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
             {plans?.length > 0 ? (
               plans?.map((plan, index) => (
-                <PlanCard
-                  key={plan?._id || index}
-                  plan={plan}
-                  index={index}
-                />
+                <PlanCard key={plan?._id || index} plan={plan} index={index} />
               ))
             ) : (
               <div className="col-span-3 flex items-center justify-center py-20 text-lg font-semibold text-gray-400">
@@ -249,10 +236,7 @@ export default function PackagePage() {
             <div className="relative w-full md:max-w-sm">
               <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
 
-              <Input
-                placeholder="Transaction ID"
-                className="bg-white pl-10"
-              />
+              <Input placeholder="Transaction ID" className="bg-white pl-10" />
             </div>
           </div>
 
@@ -270,15 +254,40 @@ export default function PackagePage() {
               </TableHeader>
 
               <TableBody>
-                {historyRows.map((row, index) => (
-                  <TableRow key={index}>
-                    {row.map((cell, i) => (
-                      <TableCell key={i}>
-                        {cell}
+                {subscriptionHistory?.length > 0 ? (
+                  subscriptionHistory.map((item, index) => (
+                    <TableRow key={index}>
+                      <TableCell>{item?.packageName || "-"}</TableCell>
+
+                      <TableCell>₹{item?.amount || 0}</TableCell>
+
+                      <TableCell>
+                        {item?.purchaseDate
+                          ? new Date(item.purchaseDate).toLocaleDateString()
+                          : "-"}
                       </TableCell>
-                    ))}
+
+                      <TableCell>{item?.transactionNumber || "-"}</TableCell>
+
+                      <TableCell>{item?.billingCycle || "-"}</TableCell>
+
+                      <TableCell>
+                        {item?.expiryDate
+                          ? new Date(item.expiryDate).toLocaleDateString()
+                          : "-"}
+                      </TableCell>
+                    </TableRow>
+                  ))
+                ) : (
+                  <TableRow>
+                    <TableCell
+                      colSpan={6}
+                      className="text-center py-8 text-gray-400"
+                    >
+                      No subscription history found
+                    </TableCell>
                   </TableRow>
-                ))}
+                )}
               </TableBody>
             </Table>
           </div>
@@ -303,15 +312,30 @@ export default function PackagePage() {
               </TableHeader>
 
               <TableBody>
-                {detailRows.map((row, index) => (
-                  <TableRow key={index}>
-                    {row.map((cell, i) => (
-                      <TableCell key={i}>
-                        {cell}
+                {detailedPackages?.length > 0 ? (
+                  detailedPackages.map((item, index) => (
+                    <TableRow key={index}>
+                      <TableCell>{item?.packageName || "-"}</TableCell>
+
+                      <TableCell>₹{item?.monthlyPrice || 0}</TableCell>
+
+                      <TableCell>{item?.maxStudents || "Unlimited"}</TableCell>
+
+                      <TableCell>
+                        {item?.activeSubscriptionsCount || 0}
                       </TableCell>
-                    ))}
+                    </TableRow>
+                  ))
+                ) : (
+                  <TableRow>
+                    <TableCell
+                      colSpan={4}
+                      className="text-center py-8 text-gray-400"
+                    >
+                      No package details found
+                    </TableCell>
                   </TableRow>
-                ))}
+                )}
               </TableBody>
             </Table>
           </div>

@@ -10,7 +10,7 @@ import {
   SelectItem,
 } from "../../../../components/ui/select";
 import { useNavigate, useParams } from "react-router-dom";
-import { ArrowLeft, Loader2 } from "lucide-react";
+import { ArrowLeft, Camera, FileText, Loader2, Upload } from "lucide-react";
 import { useState, useEffect } from "react";
 import {
   addStudentApi,
@@ -18,12 +18,30 @@ import {
   getStudentByIdApi,
   getRoomAllData,
 } from "../../../../utils/utils";
+
+const textOnlyFields = {
+  fullName: "Only alphabets are allowed",
+  course: "Only alphabets are allowed",
+  guardianName: "Only alphabets are allowed",
+  relation: "Only alphabets are allowed",
+};
+
+const numberOnlyFields = {
+  year: "Only numbers are allowed",
+  phone: "Only numbers are allowed",
+  emergencyContact: "Only numbers are allowed",
+};
+
+const isTextOnly = (value) => /^[A-Za-z\s.]+$/.test(value);
+const isNumberOnly = (value) => /^\d+$/.test(value);
+
 export default function AddStudent() {
   const navigate = useNavigate();
   const { id } = useParams();
 
   const [form, setForm] = useState({});
   const [files, setFiles] = useState({});
+  const [filePreviews, setFilePreviews] = useState({});
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState({});
 
@@ -58,15 +76,39 @@ export default function AddStudent() {
     }
   };
 
+  useEffect(() => {
+    return () => {
+      Object.values(filePreviews).forEach((preview) => {
+        if (preview?.startsWith("blob:")) URL.revokeObjectURL(preview);
+      });
+    };
+  }, [filePreviews]);
+
   const handleChange = (key, value) => {
+    let message = "";
+
+    if (value && textOnlyFields[key] && !isTextOnly(value)) {
+      message = textOnlyFields[key];
+    }
+
+    if (value && numberOnlyFields[key] && !isNumberOnly(value)) {
+      message = numberOnlyFields[key];
+    }
+
     setForm((prev) => ({ ...prev, [key]: value }));
-    setErrors((prev) => ({ ...prev, [key]: "" }));
+    setErrors((prev) => ({ ...prev, [key]: message }));
   };
 
   const handleFile = (key, file) => {
     if (!file) return;
 
-    const allowedTypes = [
+    const allowedTypesByKey = {
+      photo: ["image/jpeg", "image/jpg", "image/png", "image/webp"],
+      idProof: ["application/pdf", "image/jpeg", "image/jpg", "image/png"],
+      admissionLetter: ["application/pdf"],
+    };
+
+    const allowedTypes = allowedTypesByKey[key] || [
       "application/pdf",
       "image/jpeg",
       "image/jpg",
@@ -76,19 +118,28 @@ export default function AddStudent() {
     if (!allowedTypes.includes(file.type)) {
       setErrors((prev) => ({
         ...prev,
-        [key]: "Only PDF, JPG and PNG files are allowed",
+        [key]:
+          key === "photo"
+            ? "Only JPG, PNG and WEBP images are allowed"
+            : key === "admissionLetter"
+              ? "Only PDF files are allowed"
+              : "Only PDF, JPG and PNG files are allowed",
       }));
       return;
     }
 
     const maxSize =
-      key === "admissionLetter" ? 10 * 1024 * 1024 : 5 * 1024 * 1024;
+      key === "admissionLetter"
+        ? 10 * 1024 * 1024
+        : key === "photo"
+          ? 2 * 1024 * 1024
+          : 5 * 1024 * 1024;
 
     if (file.size > maxSize) {
       setErrors((prev) => ({
         ...prev,
         [key]: `File size exceeded ${
-          key === "admissionLetter" ? "10MB" : "5MB"
+          key === "admissionLetter" ? "10MB" : key === "photo" ? "2MB" : "5MB"
         }`,
       }));
       return;
@@ -103,6 +154,15 @@ export default function AddStudent() {
       ...prev,
       [key]: file,
     }));
+
+    setFilePreviews((prev) => {
+      if (prev[key]?.startsWith("blob:")) URL.revokeObjectURL(prev[key]);
+
+      return {
+        ...prev,
+        [key]: file.type.startsWith("image/") ? URL.createObjectURL(file) : "",
+      };
+    });
   };
   const formatDateForInput = (date) => {
     if (!date || !date.includes("/")) return date;
@@ -166,20 +226,25 @@ export default function AddStudent() {
       nextErrors.dateOfJoining = "Date of joining is required";
     }
 
-    if (!files.idProof && !id) {
-      nextErrors.idProof = "ID Proof is required";
-    }
-
-    if (!files.admissionLetter && !id) {
-      nextErrors.admissionLetter = "Admission Letter is required";
-    }
     if (!form.dob) nextErrors.dob = "Date of birth is required";
     if (!form.gender) nextErrors.gender = "Please select gender";
     if (!form.course?.trim()) nextErrors.course = "Course is required";
     if (!form.year) nextErrors.year = "Year is required";
-    if (!form.email?.trim()) nextErrors.email = "Email is required";
-    if (!files.photo && !id) {
-      nextErrors.photo = "Photo is required";
+
+    Object.entries(textOnlyFields).forEach(([key, message]) => {
+      if (form[key]?.trim() && !isTextOnly(form[key].trim())) {
+        nextErrors[key] = message;
+      }
+    });
+
+    Object.entries(numberOnlyFields).forEach(([key, message]) => {
+      if (form[key] && !isNumberOnly(form[key])) {
+        nextErrors[key] = message;
+      }
+    });
+
+    if (!form.email?.trim()) {
+      nextErrors.email = "Email is required";
     } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) {
       nextErrors.email = "Enter a valid email address";
     }
@@ -305,14 +370,42 @@ export default function AddStudent() {
       <Section title="Personal Information">
         <div className="grid grid-cols-3 gap-6">
           <div className="border border-dashed border-border rounded-xl p-6">
-            <p className="text-sm mb-3">
-              Photo
-              <span className="text-red-500 ml-1">*</span>
-            </p>{" "}
+            <p className="text-sm font-medium mb-3">Profile Photo</p>
             <input
               type="file"
+              accept=".jpg,.jpeg,.png,.webp"
+              className="hidden"
+              id="studentPhoto"
               onChange={(e) => handleFile("photo", e.target.files[0])}
             />
+            <label
+              htmlFor="studentPhoto"
+              className="min-h-48 cursor-pointer rounded-lg bg-muted/30 flex flex-col items-center justify-center text-center overflow-hidden"
+            >
+              {filePreviews.photo ? (
+                <img
+                  src={filePreviews.photo}
+                  alt="Selected student profile"
+                  className="h-48 w-full rounded-lg object-cover"
+                />
+              ) : (
+                <div className="px-4">
+                  <div className="mx-auto mb-3 flex h-16 w-16 items-center justify-center rounded-full bg-background border">
+                    <Camera className="h-7 w-7 text-muted-foreground" />
+                  </div>
+                  <p className="text-sm font-medium">Click to upload photo</p>
+                  <p className="mt-1 text-xs text-muted-foreground">
+                    JPG, PNG or WEBP up to 2MB
+                  </p>
+                </div>
+              )}
+            </label>
+            {files.photo && (
+              <p className="mt-2 flex items-center gap-1 text-xs text-green-600">
+                <Upload className="h-3 w-3" />
+                {files.photo.name}
+              </p>
+            )}
             {errors.photo && (
               <p className="text-xs text-destructive mt-2">{errors.photo}</p>
             )}
@@ -444,7 +537,9 @@ export default function AddStudent() {
             {" "}
             <Input
               value={form.course || ""}
+              placeholder="Enter Course"
               onChange={(e) => handleChange("course", e.target.value)}
+              className={errors.course ? "border-destructive" : ""}
             />{" "}
             {errors.course && (
               <p className="text-xs text-destructive">{errors.course}</p>
@@ -454,24 +549,19 @@ export default function AddStudent() {
           <Field label="Year" required>
             {" "}
             <Input
-              type="number"
-              min="1"
-              max="5"
+              type="text"
+              inputMode="numeric"
+              maxLength={1}
               placeholder="Enter Year (1-5)"
               value={form.year || ""}
               onChange={(e) => {
                 let value = e.target.value;
 
-                // only allow numbers
-                if (/\D/.test(value)) {
-                  setErrors((prev) => ({
-                    ...prev,
-                    year: "Only numbers are allowed",
-                  }));
+                if (value && !isNumberOnly(value)) {
+                  handleChange("year", value);
+                  return;
                 }
 
-                value = value.replace(/\D/g, "");
-                // prevent values above 5
                 if (Number(value) > 5) {
                   value = "5";
                 }
@@ -504,15 +594,12 @@ export default function AddStudent() {
             <Input
               type="tel"
               maxLength={10}
+              inputMode="numeric"
               placeholder="Enter 10 digit phone number"
               value={form.phone || ""}
               onChange={(e) => {
                 let value = e.target.value;
 
-                // allow only numbers
-                value = value.replace(/\D/g, "");
-
-                // limit to 10 digits
                 if (value.length > 10) {
                   value = value.slice(0, 10);
                 }
@@ -535,14 +622,7 @@ export default function AddStudent() {
             <Input
               placeholder="Enter Guardian Name"
               value={form.guardianName || ""}
-              onChange={(e) => {
-                let value = e.target.value;
-
-                // allow only letters and spaces
-                value = value.replace(/[^a-zA-Z\s]/g, "");
-
-                handleChange("guardianName", value);
-              }}
+              onChange={(e) => handleChange("guardianName", e.target.value)}
               className={errors.guardianName ? "border-destructive" : ""}
             />
             {errors.guardianName && (
@@ -552,6 +632,7 @@ export default function AddStudent() {
 
           <Field label="Relationship" required>
             <Input
+              placeholder="Enter Relationship"
               value={form.relation || ""}
               onChange={(e) => handleChange("relation", e.target.value)}
               className={errors.relation ? "border-destructive" : ""}
@@ -567,15 +648,12 @@ export default function AddStudent() {
             <Input
               type="tel"
               maxLength={10}
+              inputMode="numeric"
               placeholder="Enter 10 digit emergency contact"
               value={form.emergencyContact || ""}
               onChange={(e) => {
                 let value = e.target.value;
 
-                // allow only numbers
-                value = value.replace(/\D/g, "");
-
-                // limit to 10 digits
                 if (value.length > 10) {
                   value = value.slice(0, 10);
                 }
@@ -648,10 +726,7 @@ export default function AddStudent() {
         <div className="grid grid-cols-2 gap-6">
           {/* ID Proof */}
           <div>
-            <label className="text-sm text-muted-foreground">
-              ID Proof
-              <span className="text-red-500 ml-1">*</span>
-            </label>
+            <label className="text-sm text-muted-foreground">ID Proof</label>
 
             <div className="mt-2 border-2 border-dashed border-border rounded-xl p-6 text-center cursor-pointer hover:bg-muted/30 transition">
               <input
@@ -667,14 +742,17 @@ export default function AddStudent() {
                   <div className="space-y-3">
                     {files.idProof.type.startsWith("image/") ? (
                       <img
-                        src={URL.createObjectURL(files.idProof)}
+                        src={filePreviews.idProof}
                         alt="preview"
                         className="w-32 h-32 object-cover rounded-lg mx-auto"
                       />
                     ) : (
-                      <p className="text-sm font-medium">
-                        {files.idProof.name}
-                      </p>
+                      <div>
+                        <FileText className="mx-auto mb-2 h-8 w-8 text-muted-foreground" />
+                        <p className="text-sm font-medium">
+                          {files.idProof.name}
+                        </p>
+                      </div>
                     )}
 
                     <p className="text-xs text-green-600">
@@ -704,13 +782,12 @@ export default function AddStudent() {
           <div>
             <label className="text-sm text-muted-foreground">
               College Admission Letter
-              <span className="text-red-500 ml-1">*</span>
             </label>
 
             <div className="mt-2 border-2 border-dashed border-border rounded-xl p-6 text-center cursor-pointer hover:bg-muted/30 transition">
               <input
                 type="file"
-                accept=".pdf,.jpg,.jpeg,.png"
+                accept=".pdf"
                 className="hidden"
                 id="admissionLetter"
                 onChange={(e) =>
@@ -721,17 +798,12 @@ export default function AddStudent() {
               <label htmlFor="admissionLetter" className="cursor-pointer">
                 {files.admissionLetter ? (
                   <div className="space-y-3">
-                    {files.admissionLetter.type.startsWith("image/") ? (
-                      <img
-                        src={URL.createObjectURL(files.admissionLetter)}
-                        alt="preview"
-                        className="w-32 h-32 object-cover rounded-lg mx-auto"
-                      />
-                    ) : (
+                    <div>
+                      <FileText className="mx-auto mb-2 h-8 w-8 text-muted-foreground" />
                       <p className="text-sm font-medium">
                         {files.admissionLetter.name}
                       </p>
-                    )}
+                    </div>
 
                     <p className="text-xs text-green-600">
                       File selected successfully
@@ -754,6 +826,11 @@ export default function AddStudent() {
         </div>
         {errors.idProof && (
           <p className="text-xs text-destructive mt-2">{errors.idProof}</p>
+        )}
+        {errors.admissionLetter && (
+          <p className="text-xs text-destructive mt-2">
+            {errors.admissionLetter}
+          </p>
         )}
       </Section>
 

@@ -131,7 +131,8 @@ export default function AppRoutes() {
               <Route path="rooms" element={<Rooms />} />
               <Route path="rooms/details" element={<RoomDetails />} />
               <Route path="rooms/add" element={<AddRoom />} />
-              <Route path="rooms/edit/:id" element={<EditRoom />} />
+              <Route path="rooms/view/:id" element={<EditRoom />} />
+              <Route path="rooms/edit/:id" element={<AddRoom />} />
 
               <Route path="fees" element={<FeesPage />} />
               <Route path="fees/collect" element={<CollectFeePage />} />

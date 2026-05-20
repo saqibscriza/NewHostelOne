@@ -37,22 +37,28 @@ const Rooms = () => {
         return;
       }
 
-      const formatted = list.map((item) => ({
-        id: item.id,
-        name: item.categoryName,
-        occupancyType: item.occupancyId || "N/A",
-        price: `₹${item.monthlyRentPerBed}`,
+  const formatted = list.map((item) => ({
+  id: item.id,
 
-        amenities:
-          item.amenities?.map((a) =>
-            a.amenitiesName === "[object FormData]"
-              ? "Unknown"
-              : a.amenitiesName,
-          ) || [],
+  name: item.categoryName,
 
-        status: item.status ? "Active" : "Inactive",
-      }));
+  occupancyType:
+    item.occupancyName || "N/A",
 
+  price: `₹${item.monthlyRentPerBed}`,
+
+  description:
+    item.description || "No description available",
+
+  amenities:
+    item.amenities?.map((a) =>
+      a.amenitiesName === "[object FormData]"
+        ? "Unknown"
+        : a.amenitiesName,
+    ) || [],
+
+  status: item.status ? "Active" : "Inactive",
+}));
       console.log("FORMATTED 👉", formatted);
 
       setCategories(formatted);

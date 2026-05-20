@@ -22,8 +22,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "../../../../components/ui/dialog";
-import { getAdminProfileApi } from "../../../../utils/utils";
-
+import { getAdminProfileApi, changePasswordApi } from "../../../../utils/utils";
 const DetailItem = ({ icon: Icon, label, value }) => (
   <div className="space-y-2">
     <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">
@@ -69,6 +68,59 @@ const ProfilePage = () => {
     }
   };
 
+  const handleChangePassword = async () => {
+    if (!passwordData.currentPassword.trim()) {
+      toast.error("Current password is required");
+      return;
+    }
+
+    if (!passwordData.newPassword.trim()) {
+      toast.error("New password is required");
+      return;
+    }
+
+    if (passwordData.newPassword.length < 8) {
+      toast.error("Password must be at least 8 characters");
+      return;
+    }
+
+    if (passwordData.newPassword !== passwordData.confirmPassword) {
+      toast.error("Passwords do not match");
+      return;
+    }
+
+    try {
+      const response = await changePasswordApi({
+        oldPassword: passwordData.currentPassword,
+        password: passwordData.newPassword,
+      });
+
+      console.log("CHANGE PASSWORD RESPONSE =>", response);
+
+      if (response?.status === 200) {
+        toast.success(
+          response?.data?.message || "Password updated successfully",
+        );
+
+        // CLOSE MODAL
+        setOpenPasswordModal(false);
+
+        // RESET FIELDS
+        setPasswordData({
+          currentPassword: "",
+          newPassword: "",
+          confirmPassword: "",
+        });
+      } else {
+        toast.error(response?.data?.message || "Failed to update password");
+      }
+    } catch (error) {
+      console.log(error);
+
+      toast.error("Something went wrong");
+    }
+  };
+
   useEffect(() => {
     AdminProfileApi();
   }, []);
@@ -107,8 +159,18 @@ const ProfilePage = () => {
           <div className="space-y-6">
             <Card className="border-border bg-card shadow-sm">
               <CardContent className="flex flex-col items-center p-8 text-center">
-                <div className="mb-6 flex h-28 w-28 items-center justify-center rounded-full border border-border bg-muted text-muted-foreground">
-                  <User className="h-12 w-12" />
+                <div className="mb-6 h-28 w-28 overflow-hidden rounded-full border border-border bg-muted">
+                  {profileData?.profile?.photo ? (
+                    <img
+                      src={profileData?.profile?.photo}
+                      alt="Profile"
+                      className="h-full w-full object-cover"
+                    />
+                  ) : (
+                    <div className="flex h-full w-full items-center justify-center text-muted-foreground">
+                      <User className="h-12 w-12" />
+                    </div>
+                  )}
                 </div>
 
                 <h2 className="text-3xl font-semibold text-foreground">
@@ -356,8 +418,9 @@ const ProfilePage = () => {
               >
                 Cancel
               </Button>
-
-              <Button>Update Password</Button>
+              <Button onClick={handleChangePassword}>
+                Update Password
+              </Button>{" "}
             </div>
           </div>
         </DialogContent>

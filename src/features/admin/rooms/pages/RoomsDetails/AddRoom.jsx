@@ -1,334 +1,550 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useMemo, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 import { Card, CardContent } from "../../../../../components/ui/Card";
 import { Button } from "../../../../../components/ui/button";
 import { Input } from "../../../../../components/ui/input";
-import { Upload, BedDouble, Info, Image, Settings } from "lucide-react";
-import { addRoomApi, getAllCategoryApi } from "../../../../../utils/utils";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "../../../../../components/ui/select";
+import {
+  ArrowLeft,
+  BedDouble,
+  Camera,
+  Image,
+  Info,
+  Loader2,
+  Settings,
+} from "lucide-react";
+import {
+  addRoomApi,
+  getAllCategoryApi,
+  getRoomById,
+  updateRoomApi,
+} from "../../../../../utils/utils";
 import { toast } from "react-hot-toast";
 
 const numberOnlyMessage = "Only numbers are allowed";
+const textOnlyMessage = "Only alphabets and numbers are allowed";
+
+const getRoomFromResponse = (response) =>
+  response?.data?.data?.Room ||
+  response?.data?.data?.room ||
+  response?.data?.Room ||
+  response?.data?.room ||
+  response?.data?.data ||
+  {};
+
+const getRoomImage = (room) =>
+  room?.roomImage ||
+  room?.roomImages ||
+  room?.image ||
+  room?.imageUrl ||
+  room?.photo ||
+  "";
+
+const initialForm = {
+  roomNameNumber: "",
+  blockFloor: "",
+  categoryId: "",
+  totalBeds: "",
+  totalRoomPrice: "",
+  securityDeposit: "",
+  description: "",
+  status: "AVAILABLE",
+};
 
 const AddRoom = () => {
-  const [roomNumber, setRoomNumber] = useState("");
-  const [roomName, setRoomName] = useState("");
-  const [categoryId, setCategoryId] = useState("");
-  const [block, setBlock] = useState("");
-  const [totalBeds, setTotalBeds] = useState("");
-  const [rentPerBed, setRentPerBed] = useState("");
-  const [securityDeposit, setSecurityDeposit] = useState("");
-  const [errors, setErrors] = useState({});
-  // const [selectedAmenities, setSelectedAmenities] = useState([]);
+  const navigate = useNavigate();
+  const { id } = useParams();
+  const isEditMode = Boolean(id);
 
-  // ✅ NEW STATE
+  const [form, setForm] = useState(initialForm);
   const [categoryList, setCategoryList] = useState([]);
+  const [roomImages, setRoomImages] = useState([]);
+  const [imagePreviews, setImagePreviews] = useState([]);
+  const [errors, setErrors] = useState({});
+  const [loading, setLoading] = useState(false);
+  const [pageLoading, setPageLoading] = useState(isEditMode);
 
-  // ✅ FETCH CATEGORY
+  const pageTitle = isEditMode ? "Edit Room" : "Add New Room";
+  const submitText = isEditMode ? "Update Room" : "Add Room";
+
+  const selectedCategory = useMemo(
+    () =>
+      categoryList.find((item) => String(item.id) === String(form.categoryId)),
+    [categoryList, form.categoryId],
+  );
+
+  useEffect(() => {
+    fetchCategories();
+  }, []);
+
+  useEffect(() => {
+    if (isEditMode) {
+      fetchRoom();
+    }
+  }, [id]);
+
+  useEffect(() => {
+    return () => {
+      imagePreviews.forEach((preview) => {
+        if (preview?.startsWith("blob:")) {
+          URL.revokeObjectURL(preview);
+        }
+      });
+    };
+  }, [imagePreviews]);
 
   const fetchCategories = async () => {
     try {
       const res = await getAllCategoryApi();
-
-      console.log("CATEGORY API 👉", res?.data);
-
-      // ✅ CORRECT KEY
-      const list = res?.data?.Category || [];
-
-      console.log("CATEGORY LIST 👉", list);
-
-      setCategoryList(list);
+      const list = res?.data?.Category || res?.data?.data?.Category || [];
+      setCategoryList(Array.isArray(list) ? list : []);
     } catch (error) {
       console.log("CATEGORY ERROR 👉", error);
       setCategoryList([]);
     }
   };
 
-  useEffect(() => {
-    fetchCategories();
-  }, []);
+  const fetchRoom = async () => {
+    setPageLoading(true);
+    try {
+      const response = await getRoomById(id);
+      const room = getRoomFromResponse(response);
 
-  const setNumberValue = (key, value, setter) => {
-    setter(value);
+      setForm({
+        roomNameNumber: room?.roomNameNumber || room?.roomNumber || "",
+        blockFloor: room?.blockFloor || room?.block || "",
+        categoryId: String(room?.categoryId || room?.category?.id || ""),
+        totalBeds: String(room?.totalBeds || room?.availableBeds || ""),
+        totalRoomPrice: String(room?.totalRoomPrice || room?.rentPerBed || ""),
+        securityDeposit: String(room?.securityDeposit || ""),
+        description: room?.description || room?.roomDescription || "",
+        status: room?.status || "AVAILABLE",
+      });
+
+      setImagePreview(getRoomImage(room));
+    } catch (error) {
+      console.log("ROOM BY ID ERROR 👉", error);
+      toast.error("Failed to load room details");
+    } finally {
+      setPageLoading(false);
+    }
+  };
+
+  const setField = (key, value) => {
+    let message = "";
+
+    if (
+      ["roomNameNumber", "blockFloor"].includes(key) &&
+      value &&
+      !/^[A-Za-z0-9\s./-]+$/.test(value)
+    ) {
+      message = textOnlyMessage;
+    }
+
+    if (
+      ["totalBeds", "totalRoomPrice", "securityDeposit"].includes(key) &&
+      value &&
+      !/^\d+$/.test(value)
+    ) {
+      message = numberOnlyMessage;
+    }
+
+    setForm((prev) => ({ ...prev, [key]: value }));
+    setErrors((prev) => ({ ...prev, [key]: message }));
+  };
+  const handleImage = (files) => {
+    if (!files?.length) return;
+
+    const validFiles = [];
+    const validPreviews = [];
+
+    Array.from(files).forEach((file) => {
+      if (
+        !["image/jpeg", "image/jpg", "image/png", "image/webp"].includes(
+          file.type,
+        )
+      ) {
+        return;
+      }
+
+      if (file.size > 2 * 1024 * 1024) {
+        return;
+      }
+
+      validFiles.push(file);
+      validPreviews.push(URL.createObjectURL(file));
+    });
+
+    setRoomImages((prev) => [...prev, ...validFiles]);
+
+    setImagePreviews((prev) => [...prev, ...validPreviews]);
+
     setErrors((prev) => ({
       ...prev,
-      [key]: /^\d*$/.test(value) ? "" : numberOnlyMessage,
+      roomImage: "",
     }));
   };
 
   const validateForm = () => {
     const nextErrors = {};
 
-    if (!roomNumber.trim()) nextErrors.roomNumber = "Room number/name is required";
-    if (!block.trim()) nextErrors.block = "Block/location is required";
-    if (!categoryId) nextErrors.categoryId = "Please select a category";
-    if (!totalBeds) nextErrors.totalBeds = "Number of beds is required";
-    else if (!/^\d+$/.test(totalBeds)) nextErrors.totalBeds = numberOnlyMessage;
-    else if (Number(totalBeds) <= 0) nextErrors.totalBeds = "Beds must be greater than 0";
-    if (!rentPerBed) nextErrors.rentPerBed = "Rent per bed is required";
-    else if (!/^\d+$/.test(rentPerBed)) nextErrors.rentPerBed = numberOnlyMessage;
-    if (!securityDeposit) nextErrors.securityDeposit = "Security deposit is required";
-    else if (!/^\d+$/.test(securityDeposit)) nextErrors.securityDeposit = numberOnlyMessage;
+    if (!form.roomNameNumber.trim()) {
+      nextErrors.roomNameNumber = "Room number/name is required";
+    } else if (!/^[A-Za-z0-9\s./-]+$/.test(form.roomNameNumber)) {
+      nextErrors.roomNameNumber = textOnlyMessage;
+    }
+
+    if (!form.blockFloor.trim()) {
+      nextErrors.blockFloor = "Block/location is required";
+    } else if (!/^[A-Za-z0-9\s./-]+$/.test(form.blockFloor)) {
+      nextErrors.blockFloor = textOnlyMessage;
+    }
+
+    if (!form.categoryId) nextErrors.categoryId = "Please select a category";
+
+    if (!form.totalBeds) nextErrors.totalBeds = "Number of beds is required";
+    else if (!/^\d+$/.test(form.totalBeds))
+      nextErrors.totalBeds = numberOnlyMessage;
+    else if (Number(form.totalBeds) <= 0) {
+      nextErrors.totalBeds = "Beds must be greater than 0";
+    }
+
+    if (!form.totalRoomPrice)
+      nextErrors.totalRoomPrice = "Rent per bed is required";
+    else if (!/^\d+$/.test(form.totalRoomPrice)) {
+      nextErrors.totalRoomPrice = numberOnlyMessage;
+    }
+
+    if (!form.securityDeposit) {
+      nextErrors.securityDeposit = "Security deposit is required";
+    } else if (!/^\d+$/.test(form.securityDeposit)) {
+      nextErrors.securityDeposit = numberOnlyMessage;
+    }
 
     setErrors(nextErrors);
     return Object.keys(nextErrors).length === 0;
   };
 
-  const handleAddRoom = async () => {
-    if (!validateForm()) return;
+  const buildPayload = () => ({
+    roomNameNumber: form.roomNameNumber.trim(),
+    blockFloor: form.blockFloor.trim(),
+    categoryId: Number(form.categoryId),
+    availableBeds: Number(form.totalBeds),
+    totalBeds: Number(form.totalBeds),
+    totalRoomPrice: Number(form.totalRoomPrice),
+    securityDeposit: Number(form.securityDeposit),
+    description: form.description.trim(),
+    status: form.status,
+    roomImages,
+  });
 
+  const handleSubmit = async () => {
+    if (!validateForm() || loading) return;
+
+    setLoading(true);
     try {
-      const payload = {
-        roomNameNumber: roomNumber,
-        blockFloor: block,
-        categoryId: Number(categoryId),
-        availableBeds: Number(totalBeds),
-        totalBeds: Number(totalBeds),
-        totalRoomPrice: Number(rentPerBed),
-        securityDeposit: Number(securityDeposit),
-      };
-
-      console.log("ROOM PAYLOAD 👉", payload);
-
-      const response = await addRoomApi(payload);
+      const payload = buildPayload();
+      const response = isEditMode
+        ? await updateRoomApi(id, payload)
+        : await addRoomApi(payload);
 
       if (response?.data?.status === "success") {
-        toast.success(response?.data?.message);
+        toast.success(
+          response?.data?.message ||
+            (isEditMode
+              ? "Room updated successfully"
+              : "Room added successfully"),
+        );
+        navigate("/admin/rooms/details");
       } else {
-        toast.error(response?.data?.message || "Failed to add room");
+        toast.error(
+          response?.data?.message ||
+            (isEditMode ? "Failed to update room" : "Failed to add room"),
+        );
       }
     } catch (error) {
       console.log(error);
       toast.error("Something went wrong");
+    } finally {
+      setLoading(false);
     }
   };
 
+  if (pageLoading) {
+    return (
+      <div className="p-6 text-sm text-muted-foreground">Loading room...</div>
+    );
+  }
+
   return (
-    <div className="p-6 space-y-6">
-      {/* Header */}
-      <div>
-        <h1 className="text-2xl font-semibold text-foreground">Add New Room</h1>
-        <p className="text-muted-foreground">
-          Create and manage a new room entry
-        </p>
+    <div className="p-6 space-y-6 bg-background min-h-screen text-foreground">
+      <div className="flex items-start justify-between gap-4">
+        <div>
+          <h1 className="text-2xl font-semibold">{pageTitle}</h1>
+          <p className="text-sm text-muted-foreground">
+            {isEditMode
+              ? "Update room information, pricing and image."
+              : "Create and manage a new room entry."}
+          </p>
+        </div>
+
+        <Button
+          variant="outline"
+          onClick={() => navigate(-1)}
+          disabled={loading}
+        >
+          <ArrowLeft className="mr-2 h-4 w-4" />
+          Back
+        </Button>
       </div>
 
-      {/* Room Basic Info */}
       <Card>
         <CardContent className="p-5 space-y-4">
           <div className="flex items-center gap-2 font-medium">
-            <Info className="w-4 h-4" />
+            <Info className="h-4 w-4" />
             Room Basic Information
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="text-sm text-muted-foreground">
-                Room Number/ Room Name
-              </label>
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+            <Field
+              label="Room Number / Room Name"
+              error={errors.roomNameNumber}
+              required
+            >
               <Input
-                value={roomNumber}
-                onChange={(e) => {
-                  setRoomNumber(e.target.value);
-                  setErrors((prev) => ({ ...prev, roomNumber: "" }));
-                }}
+                value={form.roomNameNumber}
+                onChange={(e) => setField("roomNameNumber", e.target.value)}
                 placeholder="e.g. 101, Deluxe Suite"
-                className={`mt-1 ${errors.roomNumber ? "border-destructive" : ""}`}
+                className={errors.roomNameNumber ? "border-destructive" : ""}
               />
-              {errors.roomNumber && (
-                <p className="mt-1 text-xs text-destructive">{errors.roomNumber}</p>
-              )}
-            </div>
+            </Field>
 
-            <div>
-              <label className="text-sm text-muted-foreground">
-                Block / Location
-              </label>
+            <Field label="Block / Location" error={errors.blockFloor} required>
               <Input
-                value={block}
-                onChange={(e) => {
-                  setBlock(e.target.value);
-                  setErrors((prev) => ({ ...prev, block: "" }));
-                }}
-                className={`mt-1 ${errors.block ? "border-destructive" : ""}`}
+                value={form.blockFloor}
+                onChange={(e) => setField("blockFloor", e.target.value)}
+                placeholder="e.g. Block A, First Floor"
+                className={errors.blockFloor ? "border-destructive" : ""}
               />
-              {errors.block && (
-                <p className="mt-1 text-xs text-destructive">{errors.block}</p>
-              )}
-            </div>
+            </Field>
 
-            {/* ✅ ONLY CHANGE HERE */}
-            <div className="col-span-2">
-              <label className="text-sm text-muted-foreground">Category</label>
-              <select
-                value={categoryId}
-                onChange={(e) => {
-                  setCategoryId(e.target.value);
-                  setErrors((prev) => ({ ...prev, categoryId: "" }));
-                }}
-                className={`mt-1 w-full rounded-md border px-3 py-2 bg-background ${
-                  errors.categoryId ? "border-destructive" : "border-border"
-                }`}
+            <Field label="Category" error={errors.categoryId} required>
+              <Select
+                value={form.categoryId}
+                onValueChange={(value) => setField("categoryId", value)}
               >
-                <option value="">Select Category</option>
+                <SelectTrigger
+                  className={`h-10 w-full ${errors.categoryId ? "border-destructive" : ""}`}
+                >
+                  <SelectValue placeholder="Select Category" />
+                </SelectTrigger>
+                <SelectContent>
+                  {categoryList.map((item) => (
+                    <SelectItem key={item.id} value={String(item.id)}>
+                      {item.categoryName}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </Field>
 
-                {categoryList?.map((item) => (
-                  <option key={item.id} value={item.id}>
-                    {item.categoryName}
-                  </option>
-                ))}
-              </select>
-              {errors.categoryId && (
-                <p className="mt-1 text-xs text-destructive">{errors.categoryId}</p>
-              )}
-            </div>
+            {/* <Field label="Selected Category">
+              <Input
+                value={selectedCategory?.categoryName || "-"}
+                disabled
+                className="disabled:opacity-70"
+              />
+            </Field> */}
           </div>
         </CardContent>
       </Card>
 
-      {/* ======================== */}
       <Card>
         <CardContent className="p-5 space-y-4">
           <div className="flex items-center gap-2 font-medium">
-            <BedDouble className="w-4 h-4" />
+            <BedDouble className="h-4 w-4" />
             Capacity & Pricing
           </div>
 
-          <div className="grid grid-cols-3 gap-4">
-            <div>
-              <label className="text-sm text-muted-foreground">
-                Number of Beds
-              </label>
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+            <Field label="Number of Beds" error={errors.totalBeds} required>
               <Input
                 inputMode="numeric"
-                value={totalBeds}
-                onChange={(e) =>
-                  setNumberValue("totalBeds", e.target.value, setTotalBeds)
-                }
-                className={`mt-1 ${errors.totalBeds ? "border-destructive" : ""}`}
+                value={form.totalBeds}
+                onChange={(e) => setField("totalBeds", e.target.value)}
+                placeholder="e.g. 4"
+                className={errors.totalBeds ? "border-destructive" : ""}
               />
-              {errors.totalBeds && (
-                <p className="mt-1 text-xs text-destructive">{errors.totalBeds}</p>
-              )}
-            </div>
+            </Field>
 
-            <div>
-              <label className="text-sm text-muted-foreground">
-                Base Rent per Bed (Monthly)
-              </label>
+            <Field
+              label="Base Rent per Bed (Monthly)"
+              error={errors.totalRoomPrice}
+              required
+            >
               <Input
                 inputMode="numeric"
-                value={rentPerBed}
-                onChange={(e) =>
-                  setNumberValue("rentPerBed", e.target.value, setRentPerBed)
-                }
+                value={form.totalRoomPrice}
+                onChange={(e) => setField("totalRoomPrice", e.target.value)}
                 placeholder="₹ 0.00"
-                className={`mt-1 ${errors.rentPerBed ? "border-destructive" : ""}`}
+                className={errors.totalRoomPrice ? "border-destructive" : ""}
               />
-              {errors.rentPerBed && (
-                <p className="mt-1 text-xs text-destructive">{errors.rentPerBed}</p>
-              )}
-            </div>
+            </Field>
 
-            <div>
-              <label className="text-sm text-muted-foreground">
-                Security Deposit
-              </label>
+            <Field
+              label="Security Deposit"
+              error={errors.securityDeposit}
+              required
+            >
               <Input
                 inputMode="numeric"
-                value={securityDeposit}
-                onChange={(e) =>
-                  setNumberValue(
-                    "securityDeposit",
-                    e.target.value,
-                    setSecurityDeposit,
-                  )
-                }
+                value={form.securityDeposit}
+                onChange={(e) => setField("securityDeposit", e.target.value)}
                 placeholder="₹ 0.00"
-                className={`mt-1 ${
-                  errors.securityDeposit ? "border-destructive" : ""
-                }`}
+                className={errors.securityDeposit ? "border-destructive" : ""}
               />
-              {errors.securityDeposit && (
-                <p className="mt-1 text-xs text-destructive">
-                  {errors.securityDeposit}
-                </p>
-              )}
-            </div>
+            </Field>
           </div>
 
-          <div>
-            <label className="text-sm text-muted-foreground">
-              Room Description
-            </label>
+          <Field label="Room Description">
             <textarea
-              value={roomName}
-              onChange={(e) => setRoomName(e.target.value)}
-              placeholder="Enter Room Description"
-              className="mt-1 w-full border border-border rounded-md px-3 py-2 bg-background"
+              value={form.description}
+              onChange={(e) => setField("description", e.target.value)}
+              placeholder="Enter room description"
+              className="min-h-24 w-full rounded-md border border-border bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
             />
-          </div>
+          </Field>
         </CardContent>
       </Card>
 
-      {/* Room Photo */}
       <Card>
-        <CardContent className="p-5 space-y-4">
+        <CardContent className="p-5 space-y-6">
           <div className="flex items-center gap-2 font-medium">
-            <Image className="w-4 h-4" />
-            Room Photo
+            <Image className="h-4 w-4" />
+            Room Photos
           </div>
 
-          <div className="flex gap-4">
-            {[1, 2, 3, 4].map((_, i) => (
-              <div
-                key={i}
-                className="w-40 h-32 border-2 border-dashed border-border rounded-lg flex flex-col items-center justify-center text-muted-foreground"
+          <input
+            id="roomImages"
+            type="file"
+            multiple
+            accept=".jpg,.jpeg,.png,.webp"
+            className="hidden"
+            onChange={(e) => handleImage(e.target.files)}
+          />
+
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            {[0, 1, 2, 3].map((slot) => {
+              const preview = imagePreviews[slot];
+
+              return (
+                <label
+                  key={slot}
+                  htmlFor="roomImages"
+                  className="relative flex h-56 cursor-pointer items-center justify-center overflow-hidden rounded-xl border-2 border-dashed border-border bg-muted/30 hover:bg-muted/50 transition"
+                >
+                  {preview ? (
+                    <img
+                      src={preview}
+                      alt={`Room ${slot + 1}`}
+                      className="h-full w-full object-cover"
+                    />
+                  ) : (
+                    <div className="text-center px-4">
+                      <div className="mx-auto mb-3 flex h-14 w-14 items-center justify-center rounded-full border bg-background">
+                        <Camera className="h-6 w-6 text-muted-foreground" />
+                      </div>
+
+                      <p className="text-sm font-medium">Upload Logo</p>
+                    </div>
+                  )}
+                </label>
+              );
+            })}
+          </div>
+
+          {imagePreviews.length >= 4 && (
+            <div className="flex justify-end">
+              <label
+                htmlFor="roomImages"
+                className="cursor-pointer text-sm font-medium text-primary hover:underline"
               >
-                <Upload className="w-5 h-5 mb-2" />
-                <span className="text-xs">UPLOAD LOGO</span>
-              </div>
-            ))}
-          </div>
+                + More Upload
+              </label>
+            </div>
+          )}
 
-          <button className="text-primary text-sm">+ More Upload</button>
+          {errors.roomImage && (
+            <p className="text-xs text-destructive">{errors.roomImage}</p>
+          )}
         </CardContent>
       </Card>
 
-      {/* Room Status */}
       <Card>
         <CardContent className="p-5 space-y-4">
           <div className="flex items-center gap-2 font-medium">
-            <Settings className="w-4 h-4" />
+            <Settings className="h-4 w-4" />
             Room Status
           </div>
 
-          <div>
-            <label className="text-sm text-muted-foreground">
-              Initial Availability Status
-            </label>
-            <select className="mt-1 w-full border border-border rounded-md px-3 py-2 bg-background">
-              <option>Available</option>
-            </select>
-
-            <p className="text-xs text-muted-foreground mt-1">
-              Sets the status of the room immediately after creation.
-            </p>
-          </div>
+          <Field label="Availability Status">
+            <Select
+              value={form.status}
+              onValueChange={(value) => setField("status", value)}
+            >
+              <SelectTrigger className="h-10 w-full">
+                <SelectValue placeholder="Select Status" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="AVAILABLE">Available</SelectItem>
+                <SelectItem value="OCCUPIED">Occupied</SelectItem>
+                <SelectItem value="MAINTENANCE">Maintenance</SelectItem>
+              </SelectContent>
+            </Select>
+          </Field>
         </CardContent>
       </Card>
-      {/* ======================== */}
-      {/* REST OF YOUR UI — UNCHANGED */}
-      {/* Actions */}
+
       <div className="flex justify-end gap-3">
-        <Button variant="outline">Cancel</Button>
         <Button
-          onClick={handleAddRoom}
-          className="bg-primary text-primary-foreground"
+          variant="outline"
+          onClick={() => navigate(-1)}
+          disabled={loading}
         >
-          Add Room
+          Cancel
+        </Button>
+        <Button onClick={handleSubmit} disabled={loading} className="min-w-36">
+          {loading ? (
+            <span className="flex items-center gap-2">
+              <Loader2 className="h-4 w-4 animate-spin" />
+              Saving...
+            </span>
+          ) : (
+            submitText
+          )}
         </Button>
       </div>
     </div>
   );
 };
+
+function Field({ label, children, error, required = false }) {
+  return (
+    <div className="space-y-1">
+      <label className="text-xs font-medium text-muted-foreground">
+        {label}
+        {required && <span className="ml-1 text-destructive">*</span>}
+      </label>
+      {children}
+      {error && <p className="text-xs text-destructive">{error}</p>}
+    </div>
+  );
+}
 
 export default AddRoom;

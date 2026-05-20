@@ -50,25 +50,40 @@ export default function OccupancyChart() {
             <option value="30">30 Days</option>
           </select>
         </div>
+<div className="flex items-end justify-between h-60 gap-3 overflow-hidden">
+  {chartData?.map((value, i) => {
+    const maxValue = Math.max(
+      ...chartData.map((item) => item?.occupancyPercentage || 0)
+    );
 
-        <div className="flex items-end justify-between h-60">
-          {chartData?.map((value, i) => (
-            <div key={i} className="flex flex-col items-center gap-2">
-              <div
-                className={`w-24 md:w-16 rounded-md ${
-                  colors[i % colors.length]
-                }`}
-                style={{
-                  height: `${value?.occupancyPercentage * 5}px`,
-                }}
-              />
+    // scale height relative to biggest bar
+    const scaledHeight =
+      maxValue > 0
+        ? (value?.occupancyPercentage / maxValue) * 180
+        : 0;
 
-              <p className="text-xs text-muted-foreground">
-                {value?.month?.split(" ")[0]}
-              </p>
-            </div>
-          ))}
-        </div>
+    return (
+      <div
+        key={i}
+        className="flex flex-col items-center justify-end gap-2 flex-1"
+      >
+        <div
+          className={`w-full max-w-[60px] rounded-md transition-all duration-300 ${
+            colors[i % colors.length]
+          }`}
+          style={{
+            height: `${scaledHeight}px`,
+            minHeight: "12px",
+          }}
+        />
+
+        <p className="text-xs text-muted-foreground whitespace-nowrap">
+          {value?.month?.split(" ")[0]}
+        </p>
+      </div>
+    );
+  })}
+</div>
       </CardContent>
     </Card>
   );

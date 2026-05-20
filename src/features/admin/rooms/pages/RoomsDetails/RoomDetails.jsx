@@ -29,8 +29,16 @@ import {
   CheckCircle,
   Wrench,
   Eye,
-  // Pencil,
+  Pencil,
 } from "lucide-react";
+
+const getRoomImage = (room) =>
+  room?.roomImage ||
+  room?.roomImages ||
+  room?.image ||
+  room?.imageUrl ||
+  room?.photo ||
+  "";
 
 const RoomDetails = () => {
   const [roomData, setRoomData] = useState([]);
@@ -40,6 +48,10 @@ const RoomDetails = () => {
   const [pageSize, setPageSize] = useState(10);
   const [totalPages, setTotalPages] = useState(1);
   const [totalElements, setTotalElements] = useState(0);
+  const [categoryFilter, setCategoryFilter] = useState("all");
+  const [statusFilter, setStatusFilter] = useState("all");
+  const [searchFilter, setSearchFilter] = useState("");
+  const [locationFilter, setLocationFilter] = useState("all");
 
   const navigate = useNavigate();
 
@@ -88,6 +100,27 @@ const RoomDetails = () => {
   useEffect(() => {
     RoomGetAllApi();
   }, [currentPage, pageSize]);
+
+  const filteredRooms = roomData.filter((room) => {
+    const matchesLocation =
+      locationFilter === "all" ||
+      room?.blockFloor === locationFilter ||
+      room?.block === locationFilter;
+    const matchesCategory =
+      categoryFilter === "all" || room?.categoryName === categoryFilter;
+
+    const matchesStatus =
+      statusFilter === "all" || room?.status === statusFilter;
+
+    const matchesSearch =
+      room?.roomNameNumber
+        ?.toLowerCase()
+        ?.includes(searchFilter.toLowerCase()) ||
+      room?.roomType?.toLowerCase()?.includes(searchFilter.toLowerCase()) ||
+      room?.categoryName?.toLowerCase()?.includes(searchFilter.toLowerCase());
+
+    return matchesCategory && matchesStatus && matchesSearch && matchesLocation;
+  });
 
   return (
     <div className="space-y-6 p-6">
@@ -165,35 +198,77 @@ const RoomDetails = () => {
           <div className="flex gap-3 items-center">
             <span className="text-sm text-muted-foreground">Filter by:</span>
 
-            <Select>
+            <Select value={locationFilter} onValueChange={setLocationFilter}>
+              {" "}
               <SelectTrigger className="w-[160px]">
                 <SelectValue placeholder="All Location" />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">All Location</SelectItem>
+
+                {[
+                  ...new Set(
+                    roomData.map((room) => room?.blockFloor || room?.block),
+                  ),
+                ]
+                  .filter(Boolean)
+                  .map((location, index) => (
+                    <SelectItem key={index} value={location}>
+                      {location}
+                    </SelectItem>
+                  ))}
               </SelectContent>
             </Select>
 
-            <Select>
+            <Select value={categoryFilter} onValueChange={setCategoryFilter}>
               <SelectTrigger className="w-[160px]">
                 <SelectValue placeholder="All Category" />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">All Category</SelectItem>
+
+                {[...new Set(roomData.map((room) => room?.categoryName))].map(
+                  (category, index) => (
+                    <SelectItem key={index} value={category}>
+                      {category}
+                    </SelectItem>
+                  ),
+                )}
               </SelectContent>
             </Select>
 
-            <Select>
+            <Select value={statusFilter} onValueChange={setStatusFilter}>
               <SelectTrigger className="w-[160px]">
                 <SelectValue placeholder="All Status" />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">All Status</SelectItem>
+
+                <SelectItem value="AVAILABLE">AVAILABLE</SelectItem>
+
+                <SelectItem value="OCCUPIED">OCCUPIED</SelectItem>
+
+                <SelectItem value="MAINTENANCE">MAINTENANCE</SelectItem>
               </SelectContent>
             </Select>
           </div>
+          {/* <input
+            type="text"
+            placeholder="Search room, type or category..."
+            value={searchFilter}
+            onChange={(e) => setSearchFilter(e.target.value)}
+            className="border rounded-md px-3 py-2 text-sm w-[250px]"
+          /> */}
 
-          <button className="text-sm text-muted-foreground hover:underline">
+          <button
+            className="text-sm text-muted-foreground hover:underline"
+            onClick={() => {
+              setCategoryFilter("all");
+              setStatusFilter("all");
+              setSearchFilter("");
+              setLocationFilter("all");
+            }}
+          >
             Clear all filters
           </button>
         </CardContent>
@@ -223,7 +298,7 @@ const RoomDetails = () => {
 
             <TableBody>
               {/* ✅ FIX */}
-              {roomData?.length === 0 && !loaderCheck && (
+              {filteredRooms?.length === 0 && !loaderCheck && (
                 <TableRow>
                   <TableCell colSpan={7} className="text-center py-6">
                     No rooms found
@@ -232,16 +307,29 @@ const RoomDetails = () => {
               )}
 
               {/* ✅ FIX */}
-              {roomData?.map((room, index) => (
+              {filteredRooms?.map((room, index) => (
                 <TableRow key={room?.id || index}>
                   <TableCell>
-                    <div>
-                      <p className="font-medium">
-                        {room?.roomNameNumber || room?.roomNumber}
-                      </p>
-                      <span className="text-xs text-primary cursor-pointer">
-                        Room Image
-                      </span>
+                    <div className="flex items-center gap-3">
+                      {getRoomImage(room) ? (
+                        <img
+                          src={getRoomImage(room)}
+                          alt={room?.roomNameNumber || "Room"}
+                          className="h-12 w-14 rounded-md object-cover"
+                        />
+                      ) : (
+                        <div className="flex h-12 w-14 items-center justify-center rounded-md bg-muted text-xs text-muted-foreground">
+                          No image
+                        </div>
+                      )}
+                      <div>
+                        <p className="font-medium">
+                          {room?.roomNameNumber || room?.roomNumber}
+                        </p>
+                        <span className="text-xs text-muted-foreground">
+                          Room Image
+                        </span>
+                      </div>
                     </div>
                   </TableCell>
 
@@ -265,18 +353,26 @@ const RoomDetails = () => {
 
                   <TableCell>
                     <div className="flex gap-3 text-muted-foreground">
-                      <Eye
-                        className="w-4 h-4 cursor-pointer"
+                      <button
+                        type="button"
+                        className="rounded-md p-1 hover:bg-muted hover:text-foreground"
+                        onClick={() =>
+                          navigate(`/admin/rooms/view/${room?.roomId}`)
+                        }
+                        aria-label="View room"
+                      >
+                        <Eye className="h-4 w-4" />
+                      </button>
+                      <button
+                        type="button"
+                        className="rounded-md p-1 hover:bg-muted hover:text-foreground"
                         onClick={() =>
                           navigate(`/admin/rooms/edit/${room?.roomId}`)
                         }
-                      />
-                      {/* <Pencil
-                        className="w-4 h-4 cursor-pointer"
-                        onClick={() =>
-                          navigate(`/admin/rooms/edit/${room?.roomId}`)
-                        }
-                      /> */}
+                        aria-label="Edit room"
+                      >
+                        <Pencil className="h-4 w-4" />
+                      </button>
                     </div>
                   </TableCell>
                 </TableRow>

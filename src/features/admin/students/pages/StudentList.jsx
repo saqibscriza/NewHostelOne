@@ -13,7 +13,7 @@ export default function StudentList() {
   const [pageSize, setPageSize] = useState(10);
   const [totalPages, setTotalPages] = useState(1);
   const [totalElements, setTotalElements] = useState(0);
-  const [searchQuery, setSearchQuery] = useState("");
+  // const [searchQuery, setSearchQuery] = useState("");
 
   // ================= API =================
 
@@ -52,8 +52,37 @@ export default function StudentList() {
   };
 
   useEffect(() => {
-    fetchStudents(searchQuery ? { searchKey: searchQuery } : {}, currentPage);
+    fetchStudents({}, currentPage);
   }, [currentPage, pageSize]);
+
+  const filteredStudents = students.filter((student) => {
+    const query = search.toLowerCase();
+
+    return (
+      student?.fullName?.toLowerCase()?.includes(query) ||
+      String(student?.studentId || student?.id || "")
+        .toLowerCase()
+        .includes(query) ||
+      String(student?.room?.roomNameNumber || "")
+        .toLowerCase()
+        .includes(query) ||
+      String(student?.room?.blockFloor || "")
+        .toLowerCase()
+        .includes(query) ||
+      String(student?.contact?.phone || "")
+        .toLowerCase()
+        .includes(query) ||
+      String(student?.contact?.email || "")
+        .toLowerCase()
+        .includes(query) ||
+      String(student?.paymentStatus || "")
+        .toLowerCase()
+        .includes(query) ||
+      String(student?.occupancyStatus || "")
+        .toLowerCase()
+        .includes(query)
+    );
+  });
 
   return (
     <div className="p-6 space-y-6 bg-background min-h-screen">
@@ -76,7 +105,6 @@ export default function StudentList() {
           Add Student
         </button>
       </div>
-
       {/* FILTER BAR */}
       <div className="flex items-center gap-4 bg-card border border-border rounded-xl p-4 shadow-sm">
         <span className="text-sm text-muted-foreground">Filter by:</span>
@@ -86,12 +114,6 @@ export default function StudentList() {
           <input
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === "Enter") {
-                setCurrentPage(1);
-                setSearchQuery(search);
-              }
-            }}
             placeholder="Search"
             className="h-9 w-64 pl-3 pr-9 rounded-md border border-border bg-background text-sm outline-none"
           />
@@ -101,8 +123,7 @@ export default function StudentList() {
         <button
           onClick={() => {
             setSearch("");
-            setSearch("");
-            setSearchQuery("");
+            setCurrentPage(1);
             setCurrentPage(1);
           }}
           className="ml-auto text-sm text-muted-foreground hover:text-foreground"
@@ -110,9 +131,8 @@ export default function StudentList() {
           Clear all filters
         </button>
       </div>
-
       {/* TABLE */}
-      <StudentTable students={students} />
+      <StudentTable students={filteredStudents} />{" "}
       <div className="flex justify-between items-center px-2">
         <span className="text-sm text-muted-foreground">
           Showing page {currentPage} of {totalPages}
@@ -127,7 +147,7 @@ export default function StudentList() {
             ‹
           </button>
 
-          {Array.from({ length: Math.max(totalPages, 5) }, (_, index) => (
+          {Array.from({ length: totalPages }, (_, index) => (
             <button
               key={index}
               onClick={() => setCurrentPage(index + 1)}
@@ -247,8 +267,7 @@ function Avatar({ name }) {
 }
 
 function PaymentBadge({ value }) {
-  const isPaid = value === "Paid";
-
+  const isPaid = value?.toLowerCase() === "paid";
   return (
     <div className="flex items-center gap-2">
       <div
@@ -266,8 +285,8 @@ function PaymentBadge({ value }) {
 }
 
 function OccupancyStatus({ value }) {
-  const isActive = value === "Active";
-
+const isActive =
+  value?.toLowerCase() === "active";
   return (
     <div className="flex items-center gap-2">
       <span

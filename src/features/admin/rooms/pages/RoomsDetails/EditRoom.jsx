@@ -6,8 +6,16 @@ import { Card, CardContent } from "../../../../../components/ui/Card";
 import { Badge } from "../../../../../components/ui/Badge";
 import { useParams } from "react-router-dom";
 import { getRoomById, deleteRoomApi } from "../../../../../utils/utils";
-import { DoorOpen, User, Wifi, Snowflake, Brush } from "lucide-react";
+import { Brush, Snowflake, Wifi } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+
+const getRoomImage = (room) =>
+  room?.roomImage ||
+  room?.roomImages ||
+  room?.image ||
+  room?.imageUrl ||
+  room?.photo ||
+  "";
 
 const EditRoom = () => {
   const [roomData, setRoomData] = useState({});
@@ -50,7 +58,7 @@ const EditRoom = () => {
       if (response?.data?.status === "success") {
         alert("Room deleted successfully");
 
-        navigate("/room");
+        navigate("/admin/rooms/details");
       } else {
         alert("Failed to delete room");
       }
@@ -66,6 +74,15 @@ const EditRoom = () => {
 
   return (
     <div className="p-6 space-y-6">
+      <div>
+  <Button
+    variant="outline"
+    onClick={() => navigate(-1)}
+    className="mb-2"
+  >
+    ← Back
+  </Button>
+</div>
       {/* Header */}
       <div className="flex justify-between items-center">
         <div>
@@ -81,8 +98,13 @@ const EditRoom = () => {
           <Button variant="outline" onClick={handleDeleteRoom}>
             Delete Room
           </Button>{" "}
-          <Button>Edit Room</Button>
-        </div>
+<Button
+  onClick={() =>
+    navigate(`/admin/rooms/edit/${roomData?.roomId || id}`)
+  }
+>
+  Edit Room
+</Button>        </div>
       </div>
 
       {/* Top Grid */}
@@ -147,7 +169,7 @@ const EditRoom = () => {
             <p className="text-xs text-muted-foreground">BLOCK / LOCATION</p>
             <h3 className="text-base font-semibold">
               {roomData?.blockFloor}
-            </h3>{" "}
+            </h3>
           </CardContent>
         </Card>
 
@@ -195,24 +217,24 @@ const EditRoom = () => {
           <h3 className="text-sm text-muted-foreground">ROOM GALLERY</h3>
 
           <div className="grid grid-cols-2 gap-4">
-            <img
-              src="/room1.jpg"
-              className="rounded-xl h-[250px] w-full object-cover"
-            />
+            {getRoomImage(roomData) ? (
+              <img
+                src={getRoomImage(roomData)}
+                alt={roomData?.roomNameNumber || "Room"}
+                className="h-[250px] w-full rounded-xl object-cover"
+              />
+            ) : (
+              <div className="flex h-[250px] w-full items-center justify-center rounded-xl bg-muted text-sm text-muted-foreground">
+                No room image uploaded
+              </div>
+            )}
 
             <div className="grid gap-4">
-              <img
-                src="/room2.jpg"
-                className="rounded-xl h-[120px] w-full object-cover"
-              />
-              <div className="relative">
-                <img
-                  src="/room3.jpg"
-                  className="rounded-xl h-[120px] w-full object-cover brightness-75"
-                />
-                <span className="absolute inset-0 flex items-center justify-center text-white font-semibold">
-                  +4 Photos
-                </span>
+              <div className="flex h-[120px] items-center justify-center rounded-xl bg-muted text-sm text-muted-foreground">
+                Additional images
+              </div>
+              <div className="flex h-[120px] items-center justify-center rounded-xl bg-muted text-sm text-muted-foreground">
+                Add more from edit page
               </div>
             </div>
           </div>
