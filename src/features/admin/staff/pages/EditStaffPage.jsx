@@ -107,7 +107,7 @@ const [existingProfileImageName, setExistingProfileImageName] = useState("");
           phone: staff.phone || "",
           currentAddress: staff.currentAddress || "",
           permanentAddress: staff.permanentAddress || "",
-          status: staff.status ? "ACTIVE" : "INACTIVE",
+          status: staff.status ? "true" : "false",
         });
       } else {
         toast.error("Staff not found");
@@ -135,6 +135,7 @@ formData.append("email", data.email);
 formData.append("phone", data.phone);
 formData.append("currentAddress", data.currentAddress);
 formData.append("permanentAddress", data.permanentAddress);
+formData.append("status", data.status);
 
     // Append files only if they exist in the input payload
     if (data.profileImage && data.profileImage.length > 0) {
@@ -145,10 +146,6 @@ formData.append("permanentAddress", data.permanentAddress);
     }
     if (data.policeVerification && data.policeVerification.length > 0) {
       formData.append("policeVerification", data.policeVerification[0]);
-    }
-
-    if (data.status) {
-      formData.append("status", data.status);
     }
 
 const response = await updateStaffApi(id, formData);
@@ -272,7 +269,7 @@ const response = await updateStaffApi(id, formData);
                 <input
                   id="profileUpload"
                   type="file"
-                  accept="image/*"
+                  accept=".jpg,.jpeg,.png"
                   className="hidden"
                   {...register("profileImage")}
                 />
@@ -568,7 +565,7 @@ className={`h-11 ${sameAddress ? "bg-slate-100 cursor-not-allowed text-slate-500
               <label className="border-2 border-dashed border-slate-200 rounded-xl p-8 flex flex-col items-center justify-center text-center hover:bg-slate-50 transition-colors cursor-pointer bg-slate-50/50">
                 <input
                   type="file"
-                  accept=".pdf,.jpg,.png"
+                  accept=".pdf,.jpg,.jpeg,.png"
                   className="hidden"
                   {...register("idProof")}
                 />
@@ -606,7 +603,7 @@ className={`h-11 ${sameAddress ? "bg-slate-100 cursor-not-allowed text-slate-500
               <label className="border-2 border-dashed border-slate-200 rounded-xl p-8 flex flex-col items-center justify-center text-center hover:bg-slate-50 transition-colors cursor-pointer bg-slate-50/50">
                 <input
                   type="file"
-                  accept=".pdf,.jpg,.png"
+                  accept=".pdf,.jpg,.jpeg,.png"
                   className="hidden"
                   {...register("policeVerification")}
                 />
@@ -655,8 +652,8 @@ className={`h-11 ${sameAddress ? "bg-slate-100 cursor-not-allowed text-slate-500
               {...register("status")}
               className="flex h-11 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
             >
-              <option value="ACTIVE">Active</option>
-              <option value="INACTIVE">Inactive</option>
+              <option value="true">Active</option>
+              <option value="false">Inactive</option>
             </select>
           </div>
         </Card>

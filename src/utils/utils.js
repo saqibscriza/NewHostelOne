@@ -76,6 +76,19 @@ export const signUpApi = async (data) => {
   }
 };
 
+export const validateAdminDetailsApi = async (data) => {
+  try {
+    var res = await axios.post(`${Domain}/login/validate-admin-details`, data);
+    if (res) {
+      return res;
+    } else {
+      return [];
+    }
+  } catch (error) {
+    return [];
+  }
+};
+
 // ******************************************** Password API ******************************************** */
 export const getOtpApi = async (email) => {
   try {
@@ -235,28 +248,6 @@ const toHostelCreateParams = (data) => {
   return params;
 };
 
-// export const addHostelApi = async (data) => {
-//   try {
-//     axios.defaults.headers.common["Authorization"] = getToken();
-//     const params = toHostelCreateParams(data);
-
-//     var res = await axios.post(
-//       `${Domain}/hostel/create`,
-//       {},
-//       {
-//         params,
-//       },
-//     );
-
-//     if (res) {
-//       return res;
-//     } else {
-//       return [];
-//     }
-//   } catch (error) {
-//     return error?.response;
-//   }
-// };
 
 //********* Update Hostel********* */
 export const updateHostelApi = async (id, data) => {
@@ -945,21 +936,6 @@ export const updateInventoryCategoryApi = async (id, data) => {
   }
 };
 
-// // Update inventory category item by id
-// export const updateInventoryCategoryItemApi = async (id, data) => {
-//   try {
-//     axios.defaults.headers.common["Authorization"] = getToken();
-//     const res = await axios.put(
-//       `${Domain}/inventory/categoryItem/update/${id}`,
-//       data,
-//     );
-//     return res.data;
-//   } catch (error) {
-//     console.log("UPDATE INVENTORY CATEGORY ITEM ERROR 👉", error);
-//     return null;
-//   }
-// };
-
 export const updateCategoryItemsApi = async (categoryId, data) => {
   try {
     axios.defaults.headers.common["Authorization"] = getToken();
@@ -1630,14 +1606,6 @@ export const updateStudentApi = async (id, data) => {
   }
 };
 
-// admin student get by id
-
-// =================
-// =================
-// =================
-
-// Admin Queries GET api
-// Done getToken
 
 export const getAllQueriesApi = async (params = {}) => {
   try {
@@ -1804,9 +1772,6 @@ export const updateSuperAdminQueryStatusApi = async (id, params = {}) => {
     return error?.response || null;
   }
 };
-
-//*************************** User Apis **************************** */
-//*************************** User Apis **************************** */
 //*************************** User Apis **************************** */
 
 // GET API for get all hostels for user

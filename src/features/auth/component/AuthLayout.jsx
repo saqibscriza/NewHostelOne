@@ -5,7 +5,7 @@ import AuthImage from "../../../assets/AuthImage.png";
 
 export default function AuthLayout({ children, title, subtitle }) {
   return (
-    <div className="min-h-screen flex flex-col md:flex-row bg-[#FAFAFA] font-sans">
+    <div className="h-screen flex flex-col md:flex-row bg-[#FAFAFA] font-sans">
       {/* Left Panel */}
       <div className="hidden md:flex md:w-5/12 lg:w-1/2 relative bg-neutral-900 text-white overflow-hidden">
         {/* Background Image */}
@@ -48,7 +48,8 @@ export default function AuthLayout({ children, title, subtitle }) {
       </div>
 
       {/* Right Panel */}
-      <div className="flex-1 flex flex-col pt-12 md:pt-0 justify-center items-center p-6 md:p-8 lg:p-12 relative overflow-y-auto">
+      {/* <div className="flex-1 flex flex-col pt-12 md:pt-0 justify-center items-center p-6 md:p-8 lg:p-12 relative overflow-y-auto"> */}
+      <div className="flex-1 flex flex-col justify-center items-center p-4 lg:p-8 relative overflow-y-auto">
         <div className="w-full max-w-[480px] lg:max-w-[500px]">{children}</div>
       </div>
     </div>

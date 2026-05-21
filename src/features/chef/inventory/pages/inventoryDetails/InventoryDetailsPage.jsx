@@ -202,30 +202,12 @@ export default function InventoryDetailsPage() {
             Filter by:
           </span>
 
-          <Select defaultValue="all-location">
-            <SelectTrigger className="w-full sm:w-[150px] bg-muted/30 border-border rounded-xl">
-              <SelectValue placeholder="All Location" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all-location">All Location</SelectItem>
-            </SelectContent>
-          </Select>
-
           <Select defaultValue="all-category">
-            <SelectTrigger className="w-full sm:w-[150px] bg-muted/30 border-border rounded-xl">
+            <SelectTrigger className="w-full sm:w-[150px] bg-muted/30 border-border rounded-md">
               <SelectValue placeholder="All Category" />
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all-category">All Category</SelectItem>
-            </SelectContent>
-          </Select>
-
-          <Select defaultValue="all-status">
-            <SelectTrigger className="w-full sm:w-[150px] bg-muted/30 border-border rounded-xl">
-              <SelectValue placeholder="All Status" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all-status">All Status</SelectItem>
             </SelectContent>
           </Select>
 

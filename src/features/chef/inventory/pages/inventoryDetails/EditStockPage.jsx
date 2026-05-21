@@ -163,7 +163,7 @@ export default function EditStockPage() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pl-0 md:pl-12">
                 <div className="space-y-3">
                   <Label className="text-sm font-semibold text-foreground">
-                    Select Ingredient
+                    Select Ingredient <span className="text-red-500">*</span>
                   </Label>
                   <Controller
                     name="itemId"
@@ -207,7 +207,7 @@ export default function EditStockPage() {
 
                 <div className="space-y-3">
                   <Label className="text-sm font-semibold text-foreground">
-                    Category
+                    Category <span className="text-red-500">*</span>
                   </Label>
                   <Input
                     disabled
@@ -232,7 +232,7 @@ export default function EditStockPage() {
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6 pl-0 md:pl-12">
                 <div className="space-y-3">
                   <Label className="text-sm font-semibold text-foreground">
-                    Quantity Received
+                    Quantity Received <span className="text-red-500">*</span>
                   </Label>
                   <div className="flex h-11 items-center rounded-xl border border-border bg-transparent shadow-sm focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2 overflow-hidden transition-all">
                     <Input
@@ -281,7 +281,7 @@ export default function EditStockPage() {
 
                 <div className="space-y-3">
                   <Label className="text-sm font-semibold text-foreground">
-                    SKU ID
+                    SKU ID <span className="text-red-500">*</span>
                   </Label>
                   <Input
                     disabled
@@ -300,7 +300,7 @@ export default function EditStockPage() {
                 </div>
                 <div className="space-y-3">
                   <Label className="text-sm font-semibold text-foreground">
-                    Expiry Date
+                    Expiry Date <span className="text-red-500">*</span>
                   </Label>
                   <div className="relative">
                     <CalendarDays className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-500 pointer-events-none z-10" />
@@ -341,7 +341,7 @@ export default function EditStockPage() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pl-0 md:pl-12">
                 <div className="space-y-3">
                   <Label className="text-sm font-semibold text-foreground">
-                    Unit Cost (₹)
+                    Unit Cost (₹) <span className="text-red-500">*</span>
                   </Label>
                   <div className="relative">
                     <span className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground font-medium">

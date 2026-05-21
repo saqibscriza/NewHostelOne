@@ -283,6 +283,7 @@ export default function AccountSettingPage() {
                 Country
               </Label>
               <Input
+              disabled
                 type="text"
                 placeholder="Country"
                 {...register("country", { required: "Required" })}
@@ -296,6 +297,7 @@ export default function AccountSettingPage() {
                 State
               </Label>
               <Input
+              disabled
                 type="text"
                 placeholder="State"
                 {...register("state", { required: "Required" })}
@@ -307,6 +309,7 @@ export default function AccountSettingPage() {
             <div className="space-y-2">
               <Label className="text-sm font-medium text-slate-700">City</Label>
               <Input
+              disabled
                 type="text"
                 placeholder="City"
                 {...register("city", { required: "Required" })}

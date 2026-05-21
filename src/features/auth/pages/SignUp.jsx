@@ -4,8 +4,9 @@ import { useForm } from "react-hook-form";
 import { ArrowLeft, ArrowRight, Camera } from "lucide-react";
 import { Button } from "../../../components/ui/button";
 import AuthLayout from "../../auth/component/AuthLayout";
-import { getLocationByPincodeApi } from "../../../utils/utils";
+import { getLocationByPincodeApi,validateAdminDetailsApi } from "../../../utils/utils";
 import {Input} from "../../../components/ui/input";
+import toast from "react-hot-toast";
 
 
 export default function SignUp() {
@@ -49,6 +50,13 @@ useEffect(() => {
               ""
           );
         }
+        else {
+          setValue("country", "");
+          setValue("state", "");
+          setValue("city", "");
+
+          toast.error("Invalid pincode");
+        }
       } catch (error) {
         console.log("Location fetch error:", error);
       }
@@ -62,20 +70,57 @@ useEffect(() => {
   // We can watch the photo to show a preview if desired, otherwise standard UI
   const profilePhoto = watch("profilePhoto");
 
-  const onNextStep = (data) => {
+  // const onNextStep = (data) => {
+  //   if (!data.profilePhoto || data.profilePhoto.length === 0) {
+  //     data.profilePhoto = savedAdminInfo?.profilePhoto;
+  //   }
+  //   // Instead of API call, navigate to next step with the form data
+  //   navigate("/register-hostel", { state: { adminInfo: data, hostelDetails: savedHostelDetails } });
+  // };
+
+  const onNextStep = async (data) => {
+  try {
     if (!data.profilePhoto || data.profilePhoto.length === 0) {
       data.profilePhoto = savedAdminInfo?.profilePhoto;
     }
-    // Instead of API call, navigate to next step with the form data
-    navigate("/register-hostel", { state: { adminInfo: data, hostelDetails: savedHostelDetails } });
-  };
+
+    const payload = {
+      email: data.email,
+      phone: data.phone,
+    };
+
+    const res = await validateAdminDetailsApi(payload);
+
+    console.log("VALIDATE RESPONSE:", res);
+
+    if (res?.status === 200 || res?.data?.status === "success") {
+      navigate("/register-hostel", {
+        state: {
+          adminInfo: data,
+          hostelDetails: savedHostelDetails,
+        },
+      });
+    } else {
+      toast.error(
+        res?.data?.message || "Email or phone already exists"
+      );
+    }
+  } catch (error) {
+    console.log("VALIDATE ERROR:", error);
+
+    toast.error(
+      error?.response?.data?.message ||
+        "Email or phone already exists"
+    );
+  }
+};
 
   return (
     <AuthLayout
       title={<>Start Your Hostel<br />Journey Today</>}
       subtitle="Empowering property managers with high-stakes precision and total control. Join the industry standard for hostel management."
     >
-      <div className="flex flex-col space-y-8">
+      <div className="flex flex-col space-y-4">
         
         {/* Stepper */}
         <div className="flex items-center justify-center gap-4 mb-4">
@@ -97,7 +142,7 @@ useEffect(() => {
           </p>
         </div>
 
-        <form onSubmit={handleSubmit(onNextStep)} className="space-y-6">
+        <form onSubmit={handleSubmit(onNextStep)} className="space-y-4">
           
           {/* Profile Photo */}
           <div className="flex items-center gap-4">
@@ -112,13 +157,13 @@ useEffect(() => {
             </div>
             <div>
               <p className="text-sm font-semibold text-[#111827]">Profile Photo</p>
-              <p className="text-xs text-gray-500 mt-1 mb-2">JPG, PNG or GIF. Max size 200KB</p>
+              <p className="text-xs text-gray-500 mt-1 mb-2">JPG, PNG or JPEG Max size 5MB</p>
               <div className="relative">
                 <Input
                   type="file"
                   id="profilePhoto"
                   className="hidden"
-                  accept="image/*"
+                  accept=".jpg,.jpeg,.png"
                   {...register("profilePhoto")}
                   // {...register("profilePhoto", { required: savedAdminInfo?.profilePhoto ? false : "Profile photo is required" })}
                 />
@@ -198,8 +243,8 @@ useEffect(() => {
       required: "Phone is required",
       pattern: {
         value: /^[6-9]\d{9}$/,
-        message:
-          "Phone number must be 10 digits and start with 6, 7, 8, or 9",
+        // message:
+        //   "Phone number must be 10 digits and start with 6, 7, 8, or 9",
       },
     })}
     onInput={(e) => {
@@ -239,7 +284,7 @@ useEffect(() => {
             </div>
           </div>
 
-          <div className="space-y-2">
+          <div className="space-y-1">
             <label className="text-sm font-semibold text-[#111827]">
               Address<span className="text-red-500"> *</span>
             </label>
@@ -247,7 +292,7 @@ useEffect(() => {
               rows={2}
               placeholder="Street address, building, floor..."
               {...register("address", { required: "Address is required" })}
-              className={`w-full p-3 rounded-xl border bg-white focus:outline-none focus:ring-1 focus:ring-gray-300 text-sm resize-none ${errors.address ? "border-red-500" : "border-gray-200"}`}
+              className={`w-full p-2.5 rounded-xl border bg-white focus:outline-none focus:ring-1 focus:ring-gray-300 text-sm resize-none ${errors.address ? "border-red-500" : "border-gray-200"}`}
             />
             {errors.address && <span className="text-red-500 text-xs">{errors.address.message}</span>}
           </div>
@@ -255,7 +300,8 @@ useEffect(() => {
           <div className="grid grid-cols-3 gap-4">
             <div className="space-y-2">
               <label className="text-sm font-semibold text-[#111827]">Country<span className="text-red-500"> *</span></label>
-              <input
+              <Input
+                disabled
                 type="text"
                 placeholder="Country"
                 {...register("country", { required: "Required" })}
@@ -267,6 +313,7 @@ useEffect(() => {
             <div className="space-y-2">
               <label className="text-sm font-semibold text-[#111827]">State<span className="text-red-500"> *</span></label>
               <Input
+                disabled
                 type="text"
                 placeholder="State"
                 {...register("state", { required: "Required" })}
@@ -277,6 +324,7 @@ useEffect(() => {
             <div className="space-y-2">
               <label className="text-sm font-semibold text-[#111827]">City<span className="text-red-500"> *</span></label>
               <Input
+                disabled
                 type="text"
                 placeholder="City"
                 {...register("city", { required: "Required" })}
@@ -285,7 +333,7 @@ useEffect(() => {
             </div>
           </div>
 
-          <div className="flex items-center justify-between pt-6">
+          <div className="flex items-center justify-between pt-2">
             <button
               type="button"
               onClick={() => navigate("/login")}

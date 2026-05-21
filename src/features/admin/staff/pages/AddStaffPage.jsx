@@ -53,7 +53,11 @@ export default function AddStaff() {
     setValue,
     watch,
     formState: { errors },
-  } = useForm();
+  } = useForm({
+  defaultValues: {
+    status: true,
+  },
+});
   const profileImage = watch("profileImage");
   const idProof = watch("idProof");
   const policeVerification = watch("policeVerification");
@@ -211,7 +215,7 @@ export default function AddStaff() {
                 <input
                   id="profileUpload"
                   type="file"
-                  accept="image/*"
+                  accept=".jpg,.jpeg,.png"
                   className="hidden"
                   {...register("profileImage")}
                 />
@@ -522,7 +526,7 @@ export default function AddStaff() {
                 {/* hidden input */}
                 <input
                   type="file"
-                  accept=".pdf,.jpg,.png"
+                  accept=".pdf,.jpg,.jpeg,.png"
                   className="hidden"
                   {...register("idProof")}
                 />
@@ -559,7 +563,7 @@ export default function AddStaff() {
                 {/* hidden input */}
                 <input
                   type="file"
-                  accept=".pdf,.jpg,.png"
+                  accept=".pdf,.jpg,.jpeg,.png"
                   className="hidden"
                   {...register("policeVerification")}
                 />
@@ -603,8 +607,8 @@ export default function AddStaff() {
               {...register("status")}
               className="flex h-11 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
             >
-              <option value="ACTIVE">Active</option>
-              <option value="INACTIVE">Inactive</option>
+              <option value="true">Active</option>
+              <option value="false">Inactive</option>
             </select>
           </div>
         </Card>

@@ -33,43 +33,52 @@ export default function RegisterHostel() {
   const propertyLogo = watch("propertyLogo");
   const hostelPinCode = watch("hostelPinCode");
 
-  useEffect(() => {
-    const fetchLocation = async () => {
-      if (hostelPinCode && String(hostelPinCode).length === 6) {
-        try {
-          const res = await getLocationByPincodeApi(hostelPinCode);
-          console.log("LOCATION API RES in RegisterHostel:", res);
-          
-          let locationObj = null;
-          
-          // Handle different possible response structures
-          if (Array.isArray(res)) {
-            locationObj = res[0];
-          } else if (res && res.data && Array.isArray(res.data)) {
-            locationObj = res.data[0];
-          } else if (res && res.data && typeof res.data === 'object') {
-            locationObj = res.data;
-          } else if (res && typeof res === 'object') {
-            locationObj = res;
-          }
+useEffect(() => {
+  const fetchLocation = async () => {
+    if (hostelPinCode && String(hostelPinCode).length === 6) {
+      try {
+        const res = await getLocationByPincodeApi(hostelPinCode);
 
-          if (locationObj) {
-            // Looking for properties in the location object
-            const country = locationObj.country || locationObj.Country;
-            const state = locationObj.state || locationObj.State;
-            const city = locationObj.district || locationObj.District || locationObj.region || locationObj.Region || locationObj.city || locationObj.City || "";
+        console.log("LOCATION API RES:", res);
 
-            if (country) setValue("hostelCountry", country, { shouldValidate: true, shouldDirty: true });
-            if (state) setValue("hostelState", state, { shouldValidate: true, shouldDirty: true });
-            if (city) setValue("hostelCity", city, { shouldValidate: true, shouldDirty: true });
-          }
-        } catch (e) {
-          console.log("Location fetch error:", e);
+        const locationData = res?.data || res;
+
+        if (locationData) {
+          setValue("hostelCountry", locationData.country || "");
+          setValue("hostelState", locationData.state || "");
+
+          setValue(
+            "hostelCity",
+            locationData.district ||
+              locationData.city ||
+              locationData.region ||
+              ""
+          );
+        } else {
+          setValue("hostelCountry", "");
+          setValue("hostelState", "");
+          setValue("hostelCity", "");
+
+          toast.error("Invalid pincode");
         }
+      } catch (error) {
+        console.log("Location fetch error:", error);
+
+        setValue("hostelCountry", "");
+        setValue("hostelState", "");
+        setValue("hostelCity", "");
+
+        toast.error(
+          error?.response?.data?.message ||
+            error?.response?.data ||
+            "Invalid pincode"
+        );
       }
-    };
-    fetchLocation();
-  }, [hostelPinCode, setValue]);
+    }
+  };
+
+  fetchLocation();
+}, [hostelPinCode, setValue]);
 
 
   useEffect(() => {
@@ -157,7 +166,7 @@ export default function RegisterHostel() {
       title={<>Start Your Hostel<br />Journey Today</>}
       subtitle="Empowering property managers with high-stakes precision and total control. Join the industry standard for hostel management."
     >
-      <div className="flex flex-col space-y-8 pb-12">
+      <div className="flex flex-col space-y-4">
         {/* Stepper */}
         <div className="flex items-center justify-center gap-4 mb-4">
           <div className="flex flex-col items-center gap-2">
@@ -180,7 +189,7 @@ export default function RegisterHostel() {
           </p>
         </div>
 
-        <form onSubmit={handleSubmit(MySignUp)} className="space-y-6">
+        <form onSubmit={handleSubmit(MySignUp)} className="space-y-4">
           {/* Property Logo */}
           <div className="flex items-center gap-4">
             <div className="relative w-20 h-20 rounded-full border border-dashed border-gray-300 bg-gray-50 flex items-center justify-center shrink-0 overflow-hidden">
@@ -192,13 +201,13 @@ export default function RegisterHostel() {
             </div>
             <div>
               <p className="text-sm font-semibold text-[#111827]">Upload your Property Logo</p>
-              <p className="text-xs text-gray-500 mt-1 mb-2">JPG, PNG or GIF. Max size 200KB</p>
+              <p className="text-xs text-gray-500 mt-1 mb-2">JPG, PNG or JPEG. Max size 5MB</p>
               <div className="relative">
                 <Input
                   type="file"
                   id="propertyLogo"
                   className="hidden"
-                  accept="image/*"
+                  accept=".jpg,.jpeg,.png"
                   {...register("propertyLogo")}
                 />
                 <label
@@ -339,6 +348,7 @@ export default function RegisterHostel() {
             <div className="space-y-2">
               <label className="text-sm font-semibold text-[#111827]">Country<span className="text-red-500">*</span></label>
               <Input
+              disabled
                 type="text"
                 placeholder="Country"
                 {...register("hostelCountry", { required: "Required" })}
@@ -349,6 +359,7 @@ export default function RegisterHostel() {
             <div className="space-y-2">
               <label className="text-sm font-semibold text-[#111827]">State<span className="text-red-500">*</span></label>
               <Input
+              disabled
                 type="text"
                 placeholder="State"
                 {...register("hostelState", { required: "Required" })}
@@ -359,6 +370,7 @@ export default function RegisterHostel() {
             <div className="space-y-2">
               <label className="text-sm font-semibold text-[#111827]">City<span className="text-red-500">*</span></label>
               <Input
+              disabled
                 type="text"
                 placeholder="City"
                 {...register("hostelCity", { required: "Required" })}
@@ -367,7 +379,7 @@ export default function RegisterHostel() {
             </div>
           </div>
 
-          <div className="flex items-center justify-between pt-6">
+          <div className="flex items-center justify-between pt-2">
             <button
               type="button"
               onClick={() => navigate("/signup", { state: { adminInfo: adminInfo, hostelDetails: getValues() } })}
