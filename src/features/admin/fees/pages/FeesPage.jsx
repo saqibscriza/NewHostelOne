@@ -17,6 +17,7 @@ import {
   PaginationPrevious,
 } from "../../../../../src/components/ui/pagination";
 import {getFeeDashboard,getFeeCSV} from "../../../../utils/utils";
+import toast from "react-hot-toast";
 
 export default function FeesPage() {
 const navigate = useNavigate();
@@ -52,25 +53,27 @@ const handleExportCSV = async () => {
   try {
     const response = await getFeeCSV();
 
-    if (!response) return;
+    if (!response) {
+      toast.error("Failed to fetch CSV data.");
+      return;
+    }
 
-    const blob = new Blob([response.data], {
-      type: "text/csv",
-    });
-
-    const url = window.URL.createObjectURL(blob);
-
-    const link = document.createElement("a");
-    link.href = url;
-    link.setAttribute("download", "fee-transactions.csv");
-
-    document.body.appendChild(link);
-    link.click();
-
-    link.remove();
-    window.URL.revokeObjectURL(url);
+    if (response?.data?.csvUrl) {
+      const link = document.createElement("a");
+      link.href = response.data.csvUrl;
+      link.target = "_blank";
+      link.setAttribute("download", response.data.filename || "fee-transactions.csv");
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      
+      toast.success(response.message || "CSV file downloaded successfully");
+    } else {
+      toast.error("CSV URL not found in the response.");
+    }
   } catch (error) {
     console.error("CSV Export Error:", error);
+    toast.error("An error occurred during CSV export.");
   }
 };
 
