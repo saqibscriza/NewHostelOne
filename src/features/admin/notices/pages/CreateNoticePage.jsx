@@ -45,41 +45,84 @@ category: "MEDIUM",    priority: "MEDIUM",
     setErrors((prev) => ({ ...prev, [key]: "" }));
   };
 
-  const CreateNoticeApi = async () => {
-    const nextErrors = {};
-    if (!form.title.trim()) nextErrors.title = "Notice title is required";
-    if (!form.description.trim()) {
-      nextErrors.description = "Notice description is required";
+
+const CreateNoticeApi = async () => {
+
+  const nextErrors = {};
+
+  if (!form.title.trim()) {
+    nextErrors.title = "Notice title is required";
+  }
+
+  if (!form.description.trim()) {
+    nextErrors.description = "Notice description is required";
+  }
+
+  setErrors(nextErrors);
+
+  if (Object.keys(nextErrors).length > 0) return;
+
+  setLoaderCheck(true);
+
+  try {
+    const response = await createNoticeApi(form);
+
+    console.log("CREATE NOTICE =>", response);
+
+    if (response?.status === 200) {
+
+      toast.success("Notice Created Successfully");
+
+      setTimeout(() => {
+        navigate("/admin/notices");
+      }, 500);
+
+    } else {
+      toast.error("Failed to create notice");
     }
 
-    setErrors(nextErrors);
-    if (Object.keys(nextErrors).length > 0) return;
+  } catch (error) {
+    console.log(error);
+    toast.error("Something went wrong");
+  } finally {
+    setLoaderCheck(false);
+  }
+};
+  // const CreateNoticeApi = async () => {
+  //   const nextErrors = {};
+  //   if (!form.title.trim()) nextErrors.title = "Notice title is required";
+  //   if (!form.description.trim()) {
+  //     nextErrors.description = "Notice description is required";
+  //   }
 
-    setLoaderCheck(true);
+  //   setErrors(nextErrors);
+  //   if (Object.keys(nextErrors).length > 0) return;
 
-    try {
-      const response = await createNoticeApi(form);
+  //   setLoaderCheck(true);
 
-      console.log("CREATE NOTICE =>", response);
+  //   try {
+  //     const response = await createNoticeApi(form);
 
-      if (response?.status === 200) {
-        toast.success("Notice Created Successfully");
+  //     console.log("CREATE NOTICE =>", response);
 
-        setLoaderCheck(false);
+  //     if (response?.status === 200) {
+  //       toast.success("Notice Created Successfully");
 
-        setTimeout(() => {
-          navigate("/admin/notices");
-        }, 500);
-      } else {
-        toast.error("Failed to create notice");
-        setLoaderCheck(false);
-      }
-    } catch (error) {
-      console.log(error);
-      toast.error("Something went wrong");
-      setLoaderCheck(false);
-    }
-  };
+  //       setLoaderCheck(false);
+
+  //       setTimeout(() => {
+  //         navigate("/admin/notices");
+  //       }, 500);
+  //     } else {
+  //       toast.error("Failed to create notice");
+  //       setLoaderCheck(false);
+  //     }
+  //   } catch (error) {
+  //     console.log(error);
+  //     toast.error("Something went wrong");
+  //     setLoaderCheck(false);
+  //   }
+  // };
 
   return (
     <div className="min-h-screen space-y-6 bg-background p-6">

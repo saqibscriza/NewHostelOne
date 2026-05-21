@@ -35,9 +35,13 @@ export default function EditNoticePage() {
     scheduleDate: "",
     scheduleTime: "",
   });
+    const [errors, setErrors] = useState({});
+  
   const handleChange = (key, value) => {
     setForm((prev) => ({ ...prev, [key]: value }));
+    setErrors((prev) => ({ ...prev, [key]: "" }));
   };
+ 
   const getNoticeDetails = async () => {
     try {
       const response = await getAllNoticesApi();
@@ -64,29 +68,76 @@ export default function EditNoticePage() {
     }
   };
 
-  const handleUpdateNotice = async () => {
-    setLoaderCheck(true);
+  // const handleUpdateNotice = async () => {
+  //   setLoaderCheck(true);
 
-    try {
-      const response = await updateNoticeApi(id, form);
+  //   try {
+  //     const response = await updateNoticeApi(id, form);
 
-      if (response?.status === 200) {
-        toast.success("Notice updated successfully");
+  //     if (response?.status === 200) {
+  //       toast.success("Notice updated successfully");
 
-        setTimeout(() => {
-          navigate("/admin/notices");
-        }, 1500);
-      } else {
-        toast.error("Failed to update notice");
-      }
-    } catch (error) {
-      console.log(error);
-      toast.error("Something went wrong");
-    } finally {
-      setLoaderCheck(false);
+  //       setTimeout(() => {
+  //         navigate("/admin/notices");
+  //       }, 1500);
+  //     } else {
+  //       toast.error("Failed to update notice");
+  //     }
+  //   } catch (error) {
+  //     console.log(error);
+  //     toast.error("Something went wrong");
+  //   } finally {
+  //     setLoaderCheck(false);
+  //   }
+  // }
+
+const handleUpdateNotice = async () => {
+
+  const nextErrors = {};
+
+  if (!form.title.trim()) {
+    nextErrors.title = "Notice title is required";
+  }
+
+  if (!form.description.trim()) {
+    nextErrors.description = "Notice description is required";
+  }
+
+  setErrors(nextErrors);
+
+  if (Object.keys(nextErrors).length > 0) return;
+
+  setLoaderCheck(true);
+
+  try {
+
+    const response = await updateNoticeApi(id, form);
+
+    console.log("UPDATE NOTICE =>", response);
+
+    if (response?.status === 200) {
+
+      toast.success("Notice updated successfully");
+
+      setTimeout(() => {
+        navigate("/admin/notices");
+      }, 1500);
+
+    } else {
+      toast.error("Failed to update notice");
     }
-  };
 
+  } catch (error) {
+
+    console.log(error);
+    toast.error("Something went wrong");
+
+  } finally {
+
+    setLoaderCheck(false);
+
+  }
+};
   useEffect(() => {
     getNoticeDetails();
   }, []);

@@ -2024,54 +2024,115 @@ export const getAllNoticesApi = async () => {
 // Admin Notic POST api
 // Done getToken
 
+// export const createNoticeApi = async (data) => {
+//   try {
+//     axios.defaults.headers.common["Authorization"] = getToken();
+
+//     const res = await axios.post(`${Domain}/notice/create`, null, {
+//       params: {
+//         title: data.title,
+//         description: data.description,
+//         category: data.category,
+//         priority: data.priority,
+//       },
+//     });
+
+//     if (res) {
+//       return res;
+//     } else {
+//       return [];
+//     }
+//   } catch (error) {
+//     console.log("CREATE NOTICE ERROR 👉", error);
+//     return [];
+//   }
+// };
+// utils/apis.js
+
 export const createNoticeApi = async (data) => {
   try {
     axios.defaults.headers.common["Authorization"] = getToken();
 
-    const res = await axios.post(`${Domain}/notice/create`, null, {
-      params: {
-        title: data.title,
-        description: data.description,
-        category: data.category,
-        priority: data.priority,
-      },
-    });
+    // ✅ FormData Create
+    const formData = new FormData();
 
-    if (res) {
-      return res;
-    } else {
-      return [];
-    }
+    formData.append("title", data.title);
+    formData.append("description", data.description);
+    formData.append("category", data.category);
+    formData.append("priority", data.priority);
+
+    const res = await axios.post(
+      `${Domain}/notice/create`,
+      formData,
+      {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      }
+    );
+
+    return res;
   } catch (error) {
     console.log("CREATE NOTICE ERROR 👉", error);
-    return [];
+    throw error;
   }
 };
 
 // admin notice PUT api
 // Done getToken
 
+// export const updateNoticeApi = async (noticeId, data) => {
+//   try {
+//     axios.defaults.headers.common["Authorization"] = getToken();
+
+//     const res = await axios.put(`${Domain}/notice/update/${noticeId}`, null, {
+//       params: {
+//         title: data.title,
+//         description: data.description,
+//         category: data.category,
+//         priority: data.priority,
+//         status: true,
+//       },
+//     });
+
+//     return res;
+//   } catch (error) {
+//     console.log("UPDATE NOTICE ERROR 👉", error);
+//     return null;
+//   }
+// };
+// utils/apis.js
+
 export const updateNoticeApi = async (noticeId, data) => {
   try {
     axios.defaults.headers.common["Authorization"] = getToken();
 
-    const res = await axios.put(`${Domain}/notice/update/${noticeId}`, null, {
-      params: {
-        title: data.title,
-        description: data.description,
-        category: data.category,
-        priority: data.priority,
-        status: true,
-      },
-    });
+    // ✅ FormData Create
+    const formData = new FormData();
+
+    formData.append("title", data.title);
+    formData.append("description", data.description);
+    formData.append("category", data.category);
+    formData.append("priority", data.priority);
+    formData.append("status", true);
+
+    const res = await axios.put(
+      `${Domain}/notice/update/${noticeId}`,
+      formData,
+      {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      }
+    );
 
     return res;
+
   } catch (error) {
     console.log("UPDATE NOTICE ERROR 👉", error);
-    return null;
+    throw error;
   }
 };
-
 // ====
 
 export const Getadminswitchaccount = async (params = {}) => {
