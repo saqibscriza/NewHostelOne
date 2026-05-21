@@ -26,38 +26,59 @@ export default function SignUp() {
   });
 
 const [isLoading, setIsLoading] = useState(false);
+
 const pinCode = watch("pinCode");
 
 useEffect(() => {
   const fetchLocation = async () => {
-    if (pinCode && pinCode.length === 6) {
-      try {
-        const res = await getLocationByPincodeApi(pinCode);
+    if (pinCode?.length !== 6) return;
 
-        console.log("PINCODE API RESPONSE:", res);
+    try {
+      const res = await getLocationByPincodeApi(pinCode);
 
-        if (res?.data?.status === "failure" || res?.status === "failure" || res?.status === 400 || res?.status === 404 || res?.data?.status === 404 || res?.data?.status === 400 || res?.status === "error") {
-          toast.error(res?.data?.message || res?.message || "Invalid PinCode");
-          return;
-        }
+      console.log("PINCODE API RESPONSE:", res);
 
-        // agar axios use kar rahe ho
-        const locationData = res?.data || res;
+      const locationData = res?.data || res;
 
-        if (locationData) {
-          setValue("country", locationData.country || "");
-          setValue("state", locationData.state || "");
-          setValue(
-            "city",
-            locationData.district ||
-              locationData.city ||
-              locationData.region ||
-              ""
-          );
-        }
-      } catch (error) {
-        console.log("Location fetch error:", error);
+      // FAILURE CHECK
+      if (
+        !locationData ||
+        locationData?.status === "failure" ||
+        locationData?.statusCode === 400 ||
+        locationData?.statusCode === 404
+      ) {
+        toast.error(
+          locationData?.message || "Invalid PinCode"
+        );
+
+        setValue("country", "");
+        setValue("state", "");
+        setValue("city", "");
+
+        return;
       }
+
+      // SUCCESS
+      setValue("country", locationData.country || "");
+      setValue("state", locationData.state || "");
+      setValue(
+        "city",
+        locationData.district ||
+          locationData.city ||
+          locationData.region ||
+          ""
+      );
+    } catch (error) {
+      console.log("Location fetch error:", error);
+
+      toast.error(
+        error?.response?.data?.message ||
+          "Invalid PinCode"
+      );
+
+      setValue("country", "");
+      setValue("state", "");
+      setValue("city", "");
     }
   };
 
