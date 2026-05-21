@@ -43,8 +43,8 @@ const filteredTickets = tickets.filter((ticket) => {
   // Pagination logic
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  const currentTickets = tickets.slice(indexOfFirstItem, indexOfLastItem);
-  const totalPages = Math.ceil(tickets.length / itemsPerPage);
+  const currentTickets = filteredTickets.slice(indexOfFirstItem, indexOfLastItem);
+  const totalPages = Math.ceil(filteredTickets.length / itemsPerPage);
 
   const getPageNumbers = () => {
     const pages = [];

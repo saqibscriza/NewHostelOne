@@ -51,13 +51,25 @@ export default function AddRoleModal({ isOpen, onClose }) {
   const onSubmit = async (data) => {
     const payload = {
       identityName: data.roleName.replace(/\s+/g, "_").toUpperCase(),
-    roleName: data.roleName,
+      roleName: data.roleName,
     };
 
     const res = await addRoleApi(payload);
     console.log("Add Role Response:", res);
-    if (res?.status === 200) {
+    
+    // The response might be directly the data object if we caught an error,
+    // or nested inside res.data if it was a successful axios request.
+    const responseData = res?.data || res;
+
+    if (responseData?.status === "failure") {
+      toast.error(responseData?.message || "Failed to add role");
+      reset();
+    } else if (res?.status === 200 || res?.status === 201 || responseData?.status === "success" || responseData?.status === "Success" || responseData?.message) {
+      toast.success(responseData?.message || "Role added successfully");
       fetchRoles(); // refresh list
+      reset();
+    } else {
+      toast.error("Failed to add role");
       reset();
     }
   };
