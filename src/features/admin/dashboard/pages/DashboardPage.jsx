@@ -19,15 +19,14 @@ import {
 
 export default function DashboardPage() {
   const [dashboardData, setDashboardData] = useState(null);
-  const [filter, setFilter] = useState("7");
+  // const [filter, setFilter] = useState("7");
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
   const fetchDashboard = async () => {
     setLoading(true);
 
-    const res = await getDashboardAdminApi(filter);
-
+    const res = await getDashboardAdminApi();
     if (res?.data?.status === "success") {
       setDashboardData(res?.data?.data);
     } else {
@@ -43,7 +42,7 @@ export default function DashboardPage() {
 
   useEffect(() => {
     fetchDashboard();
-  }, [filter]);
+  }, []);
 
   if (loading) {
     return <div className="p-6">Loading...</div>;
@@ -123,19 +122,14 @@ export default function DashboardPage() {
         <div className="lg:col-span-2 space-y-4">
           {/* <OccupancyChart data={stats.roomOccupancy} /> */}
 
-          <OccupancyChart
-            data={stats.roomOccupancy}
-            filter={filter}
-            setFilter={setFilter}
-          />
-
+          <OccupancyChart />
           <RecentApplicationsTable data={stats.recentApplications} />
         </div>
 
         <div className="space-y-4">
           <QuickActions />
           <MessMenu data={stats.todayMessMenu} />
-          <ActivityFeed data={stats.recentActivity} />
+          {/* <ActivityFeed data={stats.recentActivity} /> */}
         </div>
       </div>
     </div>

@@ -248,11 +248,10 @@ const ProfilePage = () => {
                 <p className="mt-2 text-xs font-semibold uppercase tracking-[0.22em] text-muted-foreground">
                   {adminProfile.role}
                 </p>
-
                 <div className="mt-8 grid w-full grid-cols-2 divide-x divide-border rounded-2xl border border-border bg-muted/35">
                   <div className="px-4 py-5">
                     <p className="text-3xl font-bold text-foreground">
-                      {adminProfile.staffCount}
+                      {adminProfile.staffCount ? adminProfile.staffCount : 0}
                     </p>
                     <p className="mt-1 text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground">
                       Staff
@@ -260,7 +259,9 @@ const ProfilePage = () => {
                   </div>
                   <div className="px-4 py-5">
                     <p className="text-3xl font-bold text-foreground">
-                      {adminProfile.studentsCount}
+                      {adminProfile.studentsCount
+                        ? adminProfile.studentsCount
+                        : 0}
                     </p>
                     <p className="mt-1 text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground">
                       Students
@@ -331,7 +332,11 @@ const ProfilePage = () => {
                   <DetailItem
                     icon={CalendarDays}
                     label="Date Of Joining"
-                    value={adminProfile.dateOfJoining || "Not Available"}
+                    value={
+                      adminProfile.dateOfJoining
+                        ? adminProfile.dateOfJoining.split("T")[0]
+                        : "Not Available"
+                    }
                   />
                   <DetailItem
                     icon={Building2}
@@ -490,33 +495,31 @@ const ProfilePage = () => {
                 Confirm New Password
               </label>
 
-            <div className="relative">
-  <Input
-    type={showConfirmPassword ? "text" : "password"}
-    placeholder="Re-type new password"
-    value={passwordData.confirmPassword}
-    onChange={(e) =>
-      setPasswordData((prev) => ({
-        ...prev,
-        confirmPassword: e.target.value,
-      }))
-    }
-  />
+              <div className="relative">
+                <Input
+                  type={showConfirmPassword ? "text" : "password"}
+                  placeholder="Re-type new password"
+                  value={passwordData.confirmPassword}
+                  onChange={(e) =>
+                    setPasswordData((prev) => ({
+                      ...prev,
+                      confirmPassword: e.target.value,
+                    }))
+                  }
+                />
 
-  <button
-    type="button"
-    onClick={() =>
-      setShowConfirmPassword(!showConfirmPassword)
-    }
-    className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground"
-  >
-    {showConfirmPassword ? (
-      <EyeOff className="w-4 h-4" />
-    ) : (
-      <Eye className="w-4 h-4" />
-    )}
-  </button>
-</div>
+                <button
+                  type="button"
+                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground"
+                >
+                  {showConfirmPassword ? (
+                    <EyeOff className="w-4 h-4" />
+                  ) : (
+                    <Eye className="w-4 h-4" />
+                  )}
+                </button>
+              </div>
             </div>
 
             <div className="flex justify-end gap-3 pt-4">

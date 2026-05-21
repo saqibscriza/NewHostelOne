@@ -1,6 +1,8 @@
 import { Card, CardContent } from "../../../../components/ui/Card";
+import { useEffect, useState } from "react";
+import { getDashboardAdminApi } from "../../../../utils/utils";
 
-export default function OccupancyChart({ data = [], filter, setFilter }) {
+export default function OccupancyChart() {
   const colors = [
     "bg-slate-900",
     "bg-slate-950",
@@ -9,11 +11,32 @@ export default function OccupancyChart({ data = [], filter, setFilter }) {
     "bg-slate-700",
     "bg-slate-600",
   ];
-
+  const [filter, setFilter] = useState("7");
+  const [data, setData] = useState([]);
+  const [loading, setLoading] = useState(false);
   const maxValue = Math.max(
     ...data.map((item) => item?.occupancyPercentage || 0),
     0,
   );
+  const fetchChartData = async () => {
+    try {
+      setLoading(true);
+
+      const res = await getDashboardAdminApi(filter);
+
+      if (res?.data?.status === "success") {
+        setData(res?.data?.data?.roomOccupancy || []);
+      }
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchChartData();
+  }, [filter]);
 
   return (
     <Card className="rounded-xl border bg-card text-card-foreground shadow-sm">
