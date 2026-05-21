@@ -628,7 +628,28 @@ const EditStudent = () => {
       <Section icon={User} title="Student Status">
         <div className="w-64">
           <Label>Status</Label>
-          <Select
+                <Select
+  value={
+    form.status === true
+      ? "Active"
+      : form.status === false
+        ? "Inactive"
+        : ""
+  }
+  onValueChange={(v) =>
+    handleChange("status", v === "Active")
+  }
+>
+  <SelectTrigger className="h-11 w-full rounded-lg border border-border bg-background px-4 text-sm">
+    <SelectValue placeholder="Select Status" />
+  </SelectTrigger>
+
+  <SelectContent>
+    <SelectItem value="Active">Active</SelectItem>
+    <SelectItem value="Inactive">Inactive</SelectItem>
+  </SelectContent>
+</Select>
+          {/* <Select
             value={form.status || ""}
             onValueChange={(v) => handleChange("status", v)}
           >
@@ -644,7 +665,7 @@ const EditStudent = () => {
                 ),
               )}
             </SelectContent>
-          </Select>
+          </Select> */}
         </div>
       </Section>
 

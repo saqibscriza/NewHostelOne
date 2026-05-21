@@ -9,6 +9,8 @@ import {
   KeyRound,
   User,
   Building2,
+  Eye,
+  EyeOff,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Card, CardContent } from "../../../../components/ui/Card";
@@ -20,7 +22,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "../../../../components/ui/dialog";
-import { getAdminProfileApi, changePasswordApi } from "../../../../utils/utils";
+import { getAdminDetailsApi, changePasswordApi } from "../../../../utils/utils";
 import { toast } from "react-hot-toast";
 import { useAuth } from "../../../../context/AuthContext";
 
@@ -32,11 +34,13 @@ const getInitials = (name = "") => {
 };
 
 const pickFirst = (...values) =>
-  values.find((value) => value !== undefined && value !== null && value !== "") ||
-  "";
+  values.find(
+    (value) => value !== undefined && value !== null && value !== "",
+  ) || "";
 
 const normalizeAdminProfile = (data = {}) => {
-  const admin = data?.data || data?.admin || data?.profile || data?.adminData || data;
+  const admin =
+    data?.data || data?.admin || data?.profile || data?.adminData || data;
   const personalDetails = data?.personalDetails || {};
 
   return {
@@ -56,7 +60,12 @@ const normalizeAdminProfile = (data = {}) => {
       admin?.joiningDate,
       admin?.dateOfBirth,
     ),
-    adminId: pickFirst(personalDetails?.adminId, admin?.id, admin?.adminId, admin?._id),
+    adminId: pickFirst(
+      personalDetails?.adminId,
+      admin?.id,
+      admin?.adminId,
+      admin?._id,
+    ),
     staffCount: pickFirst(admin?.staffCount, data?.profile?.staffCount, 0),
     studentsCount: pickFirst(
       admin?.studentsCount,
@@ -94,15 +103,18 @@ const ProfilePage = () => {
     newPassword: "",
     confirmPassword: "",
   });
+  const [showCurrentPassword, setShowCurrentPassword] = useState(false);
+  const [showNewPassword, setShowNewPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   const AdminProfileApi = useCallback(async () => {
     setLoader(true);
 
     try {
-      const response = await getAdminProfileApi();
-      console.log('my profile update data by id0-0-0-0-0-',response)
+      const response = await getAdminDetailsApi();
+      // console.log('my profile update data by id0-0-0-0-0-',response)
 
-      console.log("ADMIN PROFILE =>", response);
+      // console.log("ADMIN PROFILE =>", response);
 
       if (response?.status === 200) {
         const adminProfile = normalizeAdminProfile(response?.data);
@@ -319,17 +331,12 @@ const ProfilePage = () => {
                   <DetailItem
                     icon={CalendarDays}
                     label="Date Of Joining"
-                    value={
-                      adminProfile.dateOfJoining ||
-                      "Not Available"
-                    }
+                    value={adminProfile.dateOfJoining || "Not Available"}
                   />
                   <DetailItem
                     icon={Building2}
                     label="Admin ID"
-                    value={
-                      adminProfile.adminId || "Not Available"
-                    }
+                    value={adminProfile.adminId || "Not Available"}
                   />
                 </div>
               </CardContent>
@@ -417,33 +424,61 @@ const ProfilePage = () => {
             <div className="space-y-2">
               <label className="text-sm font-medium">Current Password</label>
 
-              <Input
-                type="password"
-                placeholder="Enter current password"
-                value={passwordData.currentPassword}
-                onChange={(e) =>
-                  setPasswordData((prev) => ({
-                    ...prev,
-                    currentPassword: e.target.value,
-                  }))
-                }
-              />
+              <div className="relative">
+                <Input
+                  type={showCurrentPassword ? "text" : "password"}
+                  placeholder="Enter current password"
+                  value={passwordData.currentPassword}
+                  onChange={(e) =>
+                    setPasswordData((prev) => ({
+                      ...prev,
+                      currentPassword: e.target.value,
+                    }))
+                  }
+                />
+
+                <button
+                  type="button"
+                  onClick={() => setShowCurrentPassword(!showCurrentPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground"
+                >
+                  {showCurrentPassword ? (
+                    <EyeOff className="w-4 h-4" />
+                  ) : (
+                    <Eye className="w-4 h-4" />
+                  )}
+                </button>
+              </div>
             </div>
 
             <div className="space-y-2">
               <label className="text-sm font-medium">New Password</label>
 
-              <Input
-                type="password"
-                placeholder="Enter new password"
-                value={passwordData.newPassword}
-                onChange={(e) =>
-                  setPasswordData((prev) => ({
-                    ...prev,
-                    newPassword: e.target.value,
-                  }))
-                }
-              />
+              <div className="relative">
+                <Input
+                  type={showNewPassword ? "text" : "password"}
+                  placeholder="Enter new password"
+                  value={passwordData.newPassword}
+                  onChange={(e) =>
+                    setPasswordData((prev) => ({
+                      ...prev,
+                      newPassword: e.target.value,
+                    }))
+                  }
+                />
+
+                <button
+                  type="button"
+                  onClick={() => setShowNewPassword(!showNewPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground"
+                >
+                  {showNewPassword ? (
+                    <EyeOff className="w-4 h-4" />
+                  ) : (
+                    <Eye className="w-4 h-4" />
+                  )}
+                </button>
+              </div>
 
               <p className="text-xs text-muted-foreground">
                 Password must be at least 8 characters long.
@@ -455,17 +490,33 @@ const ProfilePage = () => {
                 Confirm New Password
               </label>
 
-              <Input
-                type="password"
-                placeholder="Re-type new password"
-                value={passwordData.confirmPassword}
-                onChange={(e) =>
-                  setPasswordData((prev) => ({
-                    ...prev,
-                    confirmPassword: e.target.value,
-                  }))
-                }
-              />
+            <div className="relative">
+  <Input
+    type={showConfirmPassword ? "text" : "password"}
+    placeholder="Re-type new password"
+    value={passwordData.confirmPassword}
+    onChange={(e) =>
+      setPasswordData((prev) => ({
+        ...prev,
+        confirmPassword: e.target.value,
+      }))
+    }
+  />
+
+  <button
+    type="button"
+    onClick={() =>
+      setShowConfirmPassword(!showConfirmPassword)
+    }
+    className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground"
+  >
+    {showConfirmPassword ? (
+      <EyeOff className="w-4 h-4" />
+    ) : (
+      <Eye className="w-4 h-4" />
+    )}
+  </button>
+</div>
             </div>
 
             <div className="flex justify-end gap-3 pt-4">

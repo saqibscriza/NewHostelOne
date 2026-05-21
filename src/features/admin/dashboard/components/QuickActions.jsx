@@ -24,7 +24,7 @@ export default function QuickActions() {
           <Button
             variant="outline"
             onClick={() => navigate("/admin/students/add")}
-            className="w-full h-11 justify-start gap-2 rounded-xl"
+            className="w-full h-11 justify-start gap-2 rounded-xl transition-all hover:scale-[1.02] cursor-pointer"
           >
             <UserPlus className="w-4 h-4" />
             Add Student
@@ -34,7 +34,7 @@ export default function QuickActions() {
           <Button
             variant="outline"
             onClick={() => navigate("/admin/fees/collect")}
-            className="w-full h-11 justify-start gap-2 rounded-xl"
+            className="w-full h-11 justify-start gap-2 rounded-xl transition-all hover:scale-[1.02] cursor-pointer"
           >
             <Receipt className="w-4 h-4" />
             Collect Fee
@@ -44,7 +44,7 @@ export default function QuickActions() {
           <Button
             variant="outline"
             onClick={() => navigate("/admin/support")}
-            className="w-full h-11 justify-start gap-2 rounded-xl"
+            className="w-full h-11 justify-start gap-2 rounded-xl transition-all hover:scale-[1.02] cursor-pointer"
           >
             <Wrench className="w-4 h-4" />
             Maintenance Ticket

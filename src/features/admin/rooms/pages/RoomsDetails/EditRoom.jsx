@@ -10,6 +10,8 @@ import { Brush, Snowflake, Wifi } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 const getRoomImage = (room) =>
+  room?.photos?.[0]?.url ||
+  room?.photos?.[0] ||
   room?.roomImage ||
   room?.roomImages ||
   room?.image ||
@@ -28,16 +30,13 @@ const EditRoom = () => {
 
       console.log("ROOM BY ID ===========", response);
 
-      if (response?.data?.status === "success") {
-        const room =
-          response?.data?.data?.Room || // current structure
-          response?.data?.Room || // fallback
-          {};
+      // if (response?.data?.status !== "success") {
+      //   return;
+      // }
 
-        console.log("FINAL ROOM 👉", room);
+      const room = response?.data?.data?.Room || response?.data?.Room || {};
 
-        setRoomData(room);
-      }
+      setRoomData(room);
     } catch (error) {
       console.log(error);
     }
@@ -75,14 +74,10 @@ const EditRoom = () => {
   return (
     <div className="p-6 space-y-6">
       <div>
-  <Button
-    variant="outline"
-    onClick={() => navigate(-1)}
-    className="mb-2"
-  >
-    ← Back
-  </Button>
-</div>
+        <Button variant="outline" onClick={() => navigate(-1)} className="mb-2">
+          ← Back
+        </Button>
+      </div>
       {/* Header */}
       <div className="flex justify-between items-center">
         <div>
@@ -98,13 +93,14 @@ const EditRoom = () => {
           <Button variant="outline" onClick={handleDeleteRoom}>
             Delete Room
           </Button>{" "}
-<Button
-  onClick={() =>
-    navigate(`/admin/rooms/edit/${roomData?.roomId || id}`)
-  }
->
-  Edit Room
-</Button>        </div>
+          <Button
+            onClick={() =>
+              navigate(`/admin/rooms/edit/${roomData?.roomId || id}`)
+            }
+          >
+            Edit Room
+          </Button>{" "}
+        </div>
       </div>
 
       {/* Top Grid */}
@@ -167,9 +163,7 @@ const EditRoom = () => {
         <Card>
           <CardContent className="p-5">
             <p className="text-xs text-muted-foreground">BLOCK / LOCATION</p>
-            <h3 className="text-base font-semibold">
-              {roomData?.blockFloor}
-            </h3>
+            <h3 className="text-base font-semibold">{roomData?.blockFloor}</h3>
           </CardContent>
         </Card>
 

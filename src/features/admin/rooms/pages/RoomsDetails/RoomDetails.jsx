@@ -4,8 +4,6 @@ import { Card, CardContent } from "../../../../../components/ui/Card";
 import { Badge } from "../../../../../components/ui/Badge";
 import { useNavigate } from "react-router-dom";
 import { getRoomAllData } from "../../../../../utils/utils";
-import { toast } from "react-toastify";
-
 import {
   Table,
   TableBody,
@@ -76,22 +74,13 @@ const RoomDetails = () => {
           ? response.data.data.content
           : [];
 
-      if (Array.isArray(list)) {
-        setRoomData(list);
-        setTotalPages(response?.data?.data?.totalPages || 1);
+      setRoomData(list);
 
-        setTotalElements(response?.data?.data?.totalElements || 0);
-      } else {
-        setRoomData([]);
-      }
+      setTotalPages(response?.data?.data?.totalPages || 1);
 
-      // optional error toast (kept logic)
-      if (response?.data?.status !== "success") {
-        toast.error(response?.data?.message || "Something went wrong");
-      }
+      setTotalElements(response?.data?.data?.totalElements || 0);
     } catch (error) {
-      console.log(error);
-      toast.error("API Error");
+      console.log("ROOM FETCH ERROR =>", error);
     } finally {
       setLoaderCheck(false);
     }

@@ -15,7 +15,7 @@ export default function RecentApplicationsTable({ data = [] }) {
       </h2>
 
       <button
-        onClick={() => navigate("/admin/students")}
+        onClick={() => navigate("/admin/Queries/details")}
         className="text-sm cursor-pointer text-muted-foreground hover:text-foreground hover:underline transition-colors"
       >
         View All

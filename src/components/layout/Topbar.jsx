@@ -42,9 +42,8 @@ const Topbar = ({ onMenuClick }) => {
   const [user, setUser] = useState("");
   const [roleName, setRoleName] = useState("");
   console.log("user role-------", roleName);
-  const [userImage, setUserImage] = useState("");
+  // const [userImage, setUserImage] = useState("");
   const [hostelName, setHostelName] = useState("");
-
 
   const [hostelError, setHostelError] = useState("");
   const navigate = useNavigate();
@@ -78,7 +77,7 @@ const Topbar = ({ onMenuClick }) => {
         console.log("my data in variableeeeeee", data);
         setUser(data?.name);
         setRoleName(data?.roleName);
-        setUserImage(data?.image);
+        // setUserImage(data?.image);
         setHostelName(data?.hostelName);
         console.log("my top bar data", response);
         displayName = getFirstValue(response?.data, [
@@ -267,9 +266,9 @@ const Topbar = ({ onMenuClick }) => {
             onClick={() => setOpen(!open)}
           >
             <div className="h-8 w-8 bg-muted rounded-full flex items-center justify-center">
-              {userImage || userPhoto ? (
+              {userPhoto ? (
                 <img
-                  src={userImage || userPhoto}
+                  src={userPhoto}
                   alt={userName || "Profile"}
                   className="h-full w-full rounded-full object-cover"
                 />

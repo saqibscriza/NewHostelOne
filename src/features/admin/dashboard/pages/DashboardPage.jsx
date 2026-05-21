@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { getDashboardAdminApi } from "../../../../utils/utils";
-
+import { useNavigate } from "react-router-dom";
 import StatCard from "../components/StatCard";
 import OccupancyChart from "../components/OccupancyChart";
 import QuickActions from "../components/QuickActions";
@@ -21,26 +21,7 @@ export default function DashboardPage() {
   const [dashboardData, setDashboardData] = useState(null);
   const [filter, setFilter] = useState("7");
   const [loading, setLoading] = useState(true);
-  // const [barData, setBarData] = useState([]);
-  // console.log("data my bar---", barData);
-  // API CALL
-
-  // const fetchDashboard = async () => {
-  //   setLoading(true);
-
-  //   const res = await getDashboardAdminApi();
-
-  //   // console.log("FULL RESPONSE ===========", res);
-
-  //   if (res?.data?.status === "success") {
-  //     setDashboardData(res?.data?.data);
-  //     // setBarData(res?.data?.data?.roomOccupancy);
-  //   } else {
-  //     console.error(res?.data?.message || "Failed to load dashboard");
-  //   }
-
-  //   setLoading(false);
-  // };
+  const navigate = useNavigate();
 
   const fetchDashboard = async () => {
     setLoading(true);
@@ -95,30 +76,46 @@ export default function DashboardPage() {
 
       {/* Stats */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <StatCard
-          title="Total Students"
-          value={metrics.totalStudents || 0}
-          icon={<Users />}
-          badge={`${metrics.totalStudentsGrowth || 0}%`}
-        />
+        <div
+          onClick={() => navigate("/admin/students")}
+          className="cursor-pointer"
+        >
+          <StatCard
+            title="Total Students"
+            value={metrics.totalStudents || 0}
+            icon={<Users />}
+            badge={`${metrics.totalStudentsGrowth || 0}%`}
+          />
+        </div>
 
-        <StatCard
-          title="Available Beds"
-          value={metrics.availableBeds || 0}
-          icon={<BedDouble />}
-        />
+        <div
+          onClick={() => navigate("/admin/rooms/details")}
+          className="cursor-pointer"
+        >
+          <StatCard
+            title="Available Beds"
+            value={metrics.availableBeds || 0}
+            icon={<BedDouble />}
+          />
+        </div>
 
-        <StatCard
-          title="Monthly Revenue"
-          value={`₹${metrics.monthlyRevenue || 0}`}
-          icon={<IndianRupee />}
-        />
-
-        <StatCard
-          title="Maintenance"
-          value={metrics.maintenanceTickets || 0}
-          icon={<Wrench />}
-        />
+        <div onClick={() => navigate("/admin/fees")} className="cursor-pointer">
+          <StatCard
+            title="Monthly Revenue"
+            value={`₹${metrics.monthlyRevenue || 0}`}
+            icon={<IndianRupee />}
+          />
+        </div>
+        <div
+          onClick={() => navigate("/admin/support")}
+          className="cursor-pointer"
+        >
+          <StatCard
+            title="Maintenance"
+            value={metrics.maintenanceTickets || 0}
+            icon={<Wrench />}
+          />
+        </div>
       </div>
 
       {/* Layout */}

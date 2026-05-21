@@ -127,7 +127,7 @@ const AddRoom = () => {
         status: room?.status || "AVAILABLE",
       });
 
-      setImagePreview(getRoomImage(room));
+      setRoomImages([]);
     } catch (error) {
       console.log("ROOM BY ID ERROR 👉", error);
       toast.error("Failed to load room details");
@@ -183,8 +183,9 @@ const AddRoom = () => {
 
     setRoomImages((prev) => [...prev, ...validFiles]);
 
-    setImagePreviews((prev) => [...prev, ...validPreviews]);
-
+    setImagePreviews((prev) =>
+      prev.length ? [...prev, ...validPreviews] : validPreviews,
+    );
     setErrors((prev) => ({
       ...prev,
       roomImage: "",
@@ -241,7 +242,7 @@ const AddRoom = () => {
     securityDeposit: Number(form.securityDeposit),
     roomDescription: form.roomDescription.trim(),
     status: form.status,
-    roomImages,
+    roomImage: roomImages[0] || null,
   });
 
   const handleSubmit = async () => {

@@ -280,6 +280,8 @@ export default function AddStudent() {
     formData.append("relation", form.relation);
     formData.append("emergencyContact", form.emergencyContact);
     formData.append("roomId", form.roomId);
+    formData.append("status", form.status);
+    
     // formData.append("address", form.address || "");
     if (files.photo) formData.append("photo", files.photo);
     if (files.idProof) formData.append("idProof", files.idProof);
@@ -774,9 +776,7 @@ export default function AddStudent() {
             </div>
           </div>
 
-          {errors.idProof && (
-            <p className="text-xs text-destructive mt-2">{errors.idProof}</p>
-          )}
+      
 
           {/* Admission Letter */}
           <div>
@@ -836,13 +836,34 @@ export default function AddStudent() {
 
       <Section title="Student Status">
         <div className="space-y-4 max-w-md">
-          <Field label="Initial Availability Status">
+          {/* <Field label="Initial Availability Status">
             <StyledSelect
               placeholder="Select Status"
               onValueChange={(v) => handleChange("status", v)}
-              options={["Available", "Occupied", "Maintenance"]}
+              options={["true", "false"]}
             />
-          </Field>
+          </Field> */}
+          <Select
+  value={
+    form.status === true
+      ? "Active"
+      : form.status === false
+        ? "Inactive"
+        : ""
+  }
+  onValueChange={(v) =>
+    handleChange("status", v === "Active")
+  }
+>
+  <SelectTrigger className="h-11 w-full rounded-lg border border-border bg-background px-4 text-sm">
+    <SelectValue placeholder="Select Status" />
+  </SelectTrigger>
+
+  <SelectContent>
+    <SelectItem value="Active">Active</SelectItem>
+    <SelectItem value="Inactive">Inactive</SelectItem>
+  </SelectContent>
+</Select>
 
           <p className="text-xs text-muted-foreground">
             Sets the status of the room immediately after creation.

@@ -129,19 +129,17 @@ export const verifyOtpApi = async (data) => {
 export const setPasswordApi = async (data) => {
   try {
     console.log("setPasswordApi called with data:", data);
-    const res = await axios.post(
-      `${Domain}/login/setPassword`,
-      null,
-      {
-        params: {
-          password: data.password,
-          confirmPassword: data.confirmPassword,
-        },
-        headers: {
-          Authorization: data.token?.startsWith("Bearer") ? data.token : `Bearer ${data.token}`,
-        },
-      }
-    );
+    const res = await axios.post(`${Domain}/login/setPassword`, null, {
+      params: {
+        password: data.password,
+        confirmPassword: data.confirmPassword,
+      },
+      headers: {
+        Authorization: data.token?.startsWith("Bearer")
+          ? data.token
+          : `Bearer ${data.token}`,
+      },
+    });
     return res;
   } catch (error) {
     throw error;
@@ -221,8 +219,6 @@ export const addHostelApi = async (data) => {
     return [];
   }
 };
-
-
 
 const toHostelCreateParams = (data) => {
   const params = toCleanParams(data);
@@ -1412,26 +1408,35 @@ export const updateRoomApi = async (roomId, data) => {
 
     const formData = new FormData();
 
-    if (data.roomImage) {
+    // TEXT FIELDS
+    formData.append("roomId", roomId);
+    formData.append("roomNameNumber", data.roomNameNumber || "");
+    formData.append("blockFloor", data.blockFloor || "");
+    formData.append("categoryId", data.categoryId || "");
+    formData.append("availableBeds", data.availableBeds || 0);
+    formData.append("totalBeds", data.totalBeds || 0);
+    formData.append("totalRoomPrice", data.totalRoomPrice || 0);
+    formData.append("securityDeposit", data.securityDeposit || 0);
+
+    // IMPORTANT
+    formData.append("roomDescription", data.roomDescription || "");
+
+    formData.append("status", data.status || "AVAILABLE");
+
+    // IMAGE
+    if (data.roomImage instanceof File) {
       formData.append("roomImage", data.roomImage);
+    }
+
+    console.log("FORM DATA:");
+
+    for (let pair of formData.entries()) {
+      console.log(pair[0], pair[1]);
     }
 
     const res = await axios.put(`${Domain}/room/update`, formData, {
       headers: {
-        ...(data.roomImage ? { "Content-Type": "multipart/form-data" } : {}),
-      },
-
-      params: {
-        roomId,
-        roomNameNumber: data.roomNameNumber,
-        blockFloor: data.blockFloor,
-        categoryId: data.categoryId,
-        availableBeds: data.availableBeds,
-        totalBeds: data.totalBeds,
-        totalRoomPrice: data.totalRoomPrice,
-        securityDeposit: data.securityDeposit,
-        description: data.description || "",
-        status: data.status || "AVAILABLE",
+        "Content-Type": "multipart/form-data",
       },
     });
 
@@ -1449,7 +1454,6 @@ export const updateRoomApi = async (roomId, data) => {
     );
   }
 };
-
 // GET API Room details
 // Done getToken
 
@@ -1839,6 +1843,22 @@ export const getDashboardAdminApi = async () => {
 
 // Admin profile Get API
 
+export const getAdminDetailsApi = async () => {
+  try {
+    axios.defaults.headers.common["Authorization"] = getToken();
+
+    const res = await axios.get(`${Domain}/admin/profile`);
+
+    if (res) {
+      return res;
+    } else {
+      return [];
+    }
+  } catch (error) {
+    console.log("GET ADMIN PROFILE ERROR 👉", error);
+    return [];
+  }
+};
 export const getAdminProfileApi = async () => {
   try {
     axios.defaults.headers.common["Authorization"] = getToken();
