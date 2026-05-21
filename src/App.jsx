@@ -91,6 +91,7 @@ import EditCategoryPage from "./features/chef/inventory/pages/inventoryCategory/
 import EditCategoryItemPage from "./features/chef/inventory/pages/inventoryCategory/EditCategoryItemPage";
 import FeedbackPage from "./features/chef/feedback/pages/FeedbackPage";
 import NoticesPage from "../src/features/chef/notices/pages/NoticesPage";
+import DefaultTable from "./components/DefaultTable/DefaultTable";
 
 export default function AppRoutes() {
 
@@ -123,6 +124,7 @@ export default function AppRoutes() {
             <Route path="/admin" element={<MainLayout />}>
               <Route index element={<AdminDashboard />} />
 
+              <Route path="defaulttable" element={<DefaultTable />} />
               <Route path="students" element={<StudentList />} />
               <Route path="students/add" element={<AddStudent />} />
               <Route path="students/view/:id" element={<ViewStudent />} />

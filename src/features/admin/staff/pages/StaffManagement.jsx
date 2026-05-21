@@ -26,6 +26,7 @@ import { useNavigate } from "react-router-dom";
 import { getAllStaffApi } from "../../../../utils/utils";
 import { deleteStaffApi } from "../../../../utils/utils";
 import toast from "react-hot-toast";
+import DefaultTable from "@/components/DefaultTable/DefaultTable";
 
 export default function StaffManagement() {
   const [isRoleModalOpen, setIsRoleModalOpen] = useState(false);
@@ -84,7 +85,7 @@ export default function StaffManagement() {
   const currentItems = filteredData.slice(startIndex, endIndex);
   const totalPages = Math.ceil(filteredData.length / itemsPerPage);
 
-    const getPaginationItems = () => {
+  const getPaginationItems = () => {
     const pages = [];
     for (let i = 1; i <= totalPages; i++) {
       if (
@@ -267,90 +268,97 @@ export default function StaffManagement() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-border">
-                {loading ? (
-                  <tr>
-                    <td colSpan="4" className="text-center py-10">
-                      Loading...
-                    </td>
-                  </tr>
-                ) : filteredData.length === 0 ? (
-                  <tr>
-                    <td colSpan="4" className="text-center py-10">
-                      No staff found
-                    </td>
-                  </tr>
-                ) : (
-                  filteredData.map((staff) => (
-                    <tr
-                      key={staff.id}
-                      className="hover:bg-muted/30 transition-colors"
-                    >
-                      <td className="px-6 py-4">
-                        <div className="flex items-center gap-3">
-                          {/* Profile Image / Initials */}
-                          <div className="w-10 h-10 rounded-full overflow-hidden bg-muted flex items-center justify-center text-foreground font-bold text-sm shrink-0">
-                            {staff.profileImage ? (
-                              <img
-                                src={staff.profileImage}
-                                alt={staff.fullName}
-                                className="w-full h-full object-cover"
-                              />
-                            ) : (
-                              getInitials(staff.fullName)
-                            )}
+                {
+                  loading ? (
+                    <tr>
+                      <td colSpan="4" className="text-center py-10">
+                        Loading...
+                      </td>
+                    </tr>
+                  ) : filteredData.length === 0 ? (
+                    <tr>
+                      <td colSpan="4" className="p-0">
+                        <DefaultTable
+                          title="No staff yet"
+                          description="No records are available right now."
+                          buttonText="+ Add Staff"
+                          onButtonClick={() => navigate("/admin/staff/add")}
+                          height="450px"
+                        />
+                      </td>
+                    </tr>
+                  ) : (
+                    filteredData?.map((staff) => (
+                      <tr
+                        key={staff.id}
+                        className="hover:bg-muted/30 transition-colors"
+                      >
+                        <td className="px-6 py-4">
+                          <div className="flex items-center gap-3">
+                            {/* Profile Image / Initials */}
+                            <div className="w-10 h-10 rounded-full overflow-hidden bg-muted flex items-center justify-center text-foreground font-bold text-sm shrink-0">
+                              {staff.profileImage ? (
+                                <img
+                                  src={staff.profileImage}
+                                  alt={staff.fullName}
+                                  className="w-full h-full object-cover"
+                                />
+                              ) : (
+                                getInitials(staff.fullName)
+                              )}
+                            </div>
+                            <div>
+                              <p className="font-bold text-foreground">
+                                {staff.fullName}
+                              </p>
+                              <p className="text-xs text-muted-foreground mt-0.5">
+                                Emp ID: {staff.employeeId}
+                              </p>
+                            </div>
                           </div>
-                          <div>
-                            <p className="font-bold text-foreground">
-                              {staff.fullName}
-                            </p>
-                            <p className="text-xs text-muted-foreground mt-0.5">
-                              Emp ID: {staff.employeeId}
-                            </p>
+                        </td>
+                        <td className="px-6 py-4">
+                          <span className="bg-muted text-foreground text-xs font-bold px-3 py-1.5 rounded-full whitespace-nowrap">
+                            {staff.roleName}
+                          </span>
+                        </td>
+                        <td className="px-6 py-4 space-y-1.5">
+                          <div className="flex items-center gap-2 text-sm text-foreground">
+                            <Phone className="w-3.5 h-3.5 text-muted-foreground shrink-0" />
+                            {staff.phone}
                           </div>
-                        </div>
-                      </td>
-                      <td className="px-6 py-4">
-                        <span className="bg-muted text-foreground text-xs font-bold px-3 py-1.5 rounded-full whitespace-nowrap">
-                          {staff.roleName}
-                        </span>
-                      </td>
-                      <td className="px-6 py-4 space-y-1.5">
-                        <div className="flex items-center gap-2 text-sm text-foreground">
-                          <Phone className="w-3.5 h-3.5 text-muted-foreground shrink-0" />
-                          {staff.phone}
-                        </div>
-                        <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                          <Mail className="w-3.5 h-3.5 shrink-0" />
-                          {staff.email}
-                        </div>
-                      </td>
-                      {/* <td className="px-6 py-4">
+                          <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                            <Mail className="w-3.5 h-3.5 shrink-0" />
+                            {staff.email}
+                          </div>
+                        </td>
+                        {/* <td className="px-6 py-4">
                       <span className="inline-flex items-center gap-1.5 bg-muted text-foreground text-xs font-bold px-3 py-1.5 rounded-full">
                         <span className="w-1.5 h-1.5 rounded-full bg-foreground shrink-0"></span>
                         {staff.status}
                       </span>
                     </td> */}
-                      <td className="px-6 py-4 text-right">
-                        <div className="flex items-center justify-end gap-3">
-                          <button
-                            className="text-muted-foreground hover:text-foreground transition-colors"
-                            onClick={() =>
-                              navigate(`/admin/staff/edit/${staff.staffId}`)
-                            }
-                          >
-                            <Edit2 className="w-4 h-4" />
-                          </button>
-                          <button
-                            className="text-muted-foreground hover:text-destructive transition-colors"
-                            onClick={() => MyDeleteStaffApi(staff.staffId)}
-                          >
-                            <Trash2 className="w-4 h-4" />
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  ))
-                )}
+                        <td className="px-6 py-4 text-right">
+                          <div className="flex items-center justify-end gap-3">
+                            <button
+                              className="text-muted-foreground hover:text-foreground transition-colors"
+                              onClick={() =>
+                                navigate(`/admin/staff/edit/${staff.staffId}`)
+                              }
+                            >
+                              <Edit2 className="w-4 h-4" />
+                            </button>
+                            <button
+                              className="text-muted-foreground hover:text-destructive transition-colors"
+                              onClick={() => MyDeleteStaffApi(staff.staffId)}
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))
+                  )}
               </tbody>
             </table>
           </div>
@@ -371,7 +379,7 @@ export default function StaffManagement() {
                         className={currentPage === 1 ? "pointer-events-none opacity-50" : "cursor-pointer"}
                       />
                     </PaginationItem>
-                    
+
                     {getPaginationItems().map((item, idx) => (
                       <PaginationItem key={idx} className="hidden sm:inline-block">
                         {item === "..." ? (
