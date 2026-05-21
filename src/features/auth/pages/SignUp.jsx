@@ -4,7 +4,7 @@ import { useForm } from "react-hook-form";
 import { ArrowLeft, ArrowRight, Camera } from "lucide-react";
 import { Button } from "../../../components/ui/button";
 import AuthLayout from "../../auth/component/AuthLayout";
-import { getLocationByPincodeApi,validateAdminDetailsApi } from "../../../utils/utils";
+import { getLocationByPincodeApi, validateAdminDetailsApi } from "../../../utils/utils";
 import {Input} from "../../../components/ui/input";
 import toast from "react-hot-toast";
 
@@ -25,7 +25,7 @@ export default function SignUp() {
     defaultValues: savedAdminInfo || {}
   });
 
-
+const [isLoading, setIsLoading] = useState(false);
 const pinCode = watch("pinCode");
 
 useEffect(() => {
@@ -35,6 +35,11 @@ useEffect(() => {
         const res = await getLocationByPincodeApi(pinCode);
 
         console.log("PINCODE API RESPONSE:", res);
+
+        if (res?.data?.status === "failure" || res?.status === "failure" || res?.status === 400 || res?.status === 404 || res?.data?.status === 404 || res?.data?.status === 400 || res?.status === "error") {
+          toast.error(res?.data?.message || res?.message || "Invalid PinCode");
+          return;
+        }
 
         // agar axios use kar rahe ho
         const locationData = res?.data || res;
@@ -50,13 +55,6 @@ useEffect(() => {
               ""
           );
         }
-        else {
-          setValue("country", "");
-          setValue("state", "");
-          setValue("city", "");
-
-          toast.error("Invalid pincode");
-        }
       } catch (error) {
         console.log("Location fetch error:", error);
       }
@@ -70,48 +68,61 @@ useEffect(() => {
   // We can watch the photo to show a preview if desired, otherwise standard UI
   const profilePhoto = watch("profilePhoto");
 
-  // const onNextStep = (data) => {
-  //   if (!data.profilePhoto || data.profilePhoto.length === 0) {
-  //     data.profilePhoto = savedAdminInfo?.profilePhoto;
-  //   }
-  //   // Instead of API call, navigate to next step with the form data
-  //   navigate("/register-hostel", { state: { adminInfo: data, hostelDetails: savedHostelDetails } });
-  // };
+const onNextStep = async (data) => {
+  setIsLoading(true);
 
-  const onNextStep = async (data) => {
   try {
+    // FormData create
+    const formData = new FormData();
+
+    formData.append("email", data.email);
+    formData.append("phone", data.phone);
+
+    // API call with formData
+    const validationRes = await validateAdminDetailsApi(formData);
+
+    // Failure handling
+    if (
+      validationRes?.data?.status === "failure" ||
+      validationRes?.status === "failure" ||
+      validationRes?.status === 400 ||
+      validationRes?.data?.status === 400 ||
+      validationRes?.status === "error"
+    ) {
+      toast.error(
+        validationRes?.data?.message ||
+          validationRes?.message ||
+          "Validation failed"
+      );
+
+      setIsLoading(false);
+      return;
+    }
+
+    // Success toast
+    toast.success("Validation successful");
+
+    // Profile photo preserve
     if (!data.profilePhoto || data.profilePhoto.length === 0) {
       data.profilePhoto = savedAdminInfo?.profilePhoto;
     }
 
-    const payload = {
-      email: data.email,
-      phone: data.phone,
-    };
-
-    const res = await validateAdminDetailsApi(payload);
-
-    console.log("VALIDATE RESPONSE:", res);
-
-    if (res?.status === 200 || res?.data?.status === "success") {
-      navigate("/register-hostel", {
-        state: {
-          adminInfo: data,
-          hostelDetails: savedHostelDetails,
-        },
-      });
-    } else {
-      toast.error(
-        res?.data?.message || "Email or phone already exists"
-      );
-    }
+    // Navigate next page
+    navigate("/register-hostel", {
+      state: {
+        adminInfo: data,
+        hostelDetails: savedHostelDetails,
+      },
+    });
   } catch (error) {
-    console.log("VALIDATE ERROR:", error);
+    console.log(error);
 
     toast.error(
       error?.response?.data?.message ||
-        "Email or phone already exists"
+        "An error occurred during validation"
     );
+  } finally {
+    setIsLoading(false);
   }
 };
 
