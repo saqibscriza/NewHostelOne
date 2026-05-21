@@ -2,11 +2,12 @@ import React, { useEffect, useState } from "react";
 import { Card, CardContent } from "../../../../components/ui/Card";
 import { Button } from "../../../../components/ui/button";
 import { Badge } from "../../../../components/ui/Badge";
-import { Mail, Phone, FileText, Eye } from "lucide-react";
-import { useParams } from "react-router-dom";
+import { ArrowLeft, Mail, Phone, FileText, Eye } from "lucide-react";
+import { useNavigate, useParams } from "react-router-dom";
 import { getStudentByIdApi } from "../../../../utils/utils";
 const ViewStudent = () => {
   const { id } = useParams();
+  const navigate = useNavigate();
 
   const [student, setStudent] = useState(null);
 
@@ -26,6 +27,12 @@ const ViewStudent = () => {
         enrollment: d.personalInformation?.studentId,
         blood: d.personalInformation?.bloodGroup,
         gender: d.personalInformation?.gender,
+        photo:
+          d.photo ||
+          d.profileImage ||
+          d.image ||
+          d.documentUploads?.photo ||
+          d.personalInformation?.photo,
 
         id: d.personalInformation?.studentId,
         course: d.academicAndContactDetails?.course,
@@ -53,18 +60,30 @@ const ViewStudent = () => {
   return (
     <div className="p-6 space-y-6">
       {/* Header */}
-      <div className="flex justify-between items-center">
-        <div>
-          <h2 className="text-2xl font-semibold">Student Details</h2>
-          <p className="text-sm text-muted-foreground">
-            Student information overview
-          </p>
-        </div>
+      <div className="space-y-4">
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          className="gap-2"
+          onClick={() => navigate(-1)}
+        >
+          <ArrowLeft className="h-4 w-4" />
+          Back
+        </Button>
 
-        <div className="flex gap-3">
-          <Badge variant="secondary">{student.status}</Badge>
-          <Button onClick={() => window.history.back()}>Back</Button>
-          {/* <Button >Edit Details</Button> */}
+        <div className="flex justify-between items-center">
+          <div>
+            <h2 className="text-2xl font-semibold">Student Details</h2>
+            <p className="text-sm text-muted-foreground">
+              Student information overview
+            </p>
+          </div>
+
+          <div className="flex gap-3">
+            <Badge variant="secondary">{student.status}</Badge>
+            {/* <Button >Edit Details</Button> */}
+          </div>
         </div>
       </div>
 
@@ -73,8 +92,16 @@ const ViewStudent = () => {
         {/* Profile */}
         <Card>
           <CardContent className="p-6 text-center space-y-4">
-            <div className="w-24 h-24 mx-auto rounded-xl bg-primary flex items-center justify-center text-white text-xl font-bold">
-              {student.name?.charAt(0)}
+            <div className="w-24 h-24 mx-auto overflow-hidden rounded-xl bg-primary flex items-center justify-center text-white text-xl font-bold">
+              {student.photo ? (
+                <img
+                  src={student.photo}
+                  alt={student.name || "Student"}
+                  className="h-full w-full object-cover"
+                />
+              ) : (
+                student.name?.charAt(0)
+              )}
             </div>
 
             <div>

@@ -63,19 +63,15 @@ const getInitials = (name = "") => {
 };
 
 const pickFirst = (...values) =>
-  values.find((value) => value !== undefined && value !== null && value !== "") ||
-  "";
-
-const getAdminFromResponse = (response) =>
-  response?.data?.data ||
-  response?.data?.admin ||
-  response?.data?.profile ||
-  response?.data?.adminData ||
-  response?.data ||
-  {};
+  values.find(
+    (value) => value !== undefined && value !== null && value !== "",
+  ) || "";
 
 const EditProfilePage = () => {
   const [selectedImage, setSelectedImage] = useState(null);
+  const [selectedDocument, setSelectedDocument] = useState(null);
+
+  const [documentPreview, setDocumentPreview] = useState("");
   const [previewImage, setPreviewImage] = useState("");
   const [imageRemoved, setImageRemoved] = useState(false);
   const fileInputRef = useRef(null);
@@ -135,34 +131,53 @@ const EditProfilePage = () => {
       console.log("ADMIN DATA BY ID =>", response);
 
       if (response?.status === 200) {
-        const admin = getAdminFromResponse(response);
+        const profile = response?.data?.profile || {};
+
+        const personalDetails = response?.data?.personalDetails || {};
+
+        const security = response?.data?.security || {};
 
         setForm({
-          fullName: pickFirst(admin?.fullName, admin?.name, admin?.adminName),
-          email: pickFirst(admin?.email, admin?.adminEmail),
-          phone: pickFirst(admin?.phone, admin?.adminPhone),
-          address: pickFirst(admin?.address, admin?.adminAddress),
-          pinCode: pickFirst(admin?.pinCode, admin?.pincode),
-          country: pickFirst(admin?.country),
-          state: pickFirst(admin?.state),
-          city: pickFirst(admin?.city),
-          dateOfJoining: pickFirst(
-            admin?.dateOfJoining,
-            admin?.joiningDate,
-            admin?.dateOfBirth,
-          ),
-          adminId: pickFirst(admin?.id, admin?.adminId, admin?._id),
+          fullName: profile?.name || "",
+
+          email: personalDetails?.email || "",
+
+          phone: personalDetails?.phone || "",
+
+          address: personalDetails?.address || "",
+
+          pinCode: personalDetails?.pinCode || "",
+
+          country: personalDetails?.country || "",
+
+          state: personalDetails?.state || "",
+
+          city: personalDetails?.city || "",
+
+          dateOfJoining: personalDetails?.dateOfJoining || "",
+
+          adminId: personalDetails?.adminId || "",
+
+          role: profile?.role || "",
+
+          staffCount: profile?.staffCount || 0,
+
+          studentsCount: profile?.studentsCount || 0,
+
+          lastPasswordChange: security?.lastPasswordChange || "",
+
+          daysSincePasswordChange: security?.daysSincePasswordChange || "",
         });
 
-        setPreviewImage(
-          pickFirst(admin?.image, admin?.photo, admin?.profileImage),
-        );
+        setPreviewImage(profile?.photo || "");
+
         setImageRemoved(false);
       }
     } catch (error) {
       console.log(error);
     }
   }, []);
+
   useEffect(() => {
     queueMicrotask(AdminDataById);
   }, [AdminDataById]);
@@ -188,12 +203,7 @@ const EditProfilePage = () => {
 
       if (imageRemoved) {
         formData.append("removeProfileImage", "true");
-        formData.append("removeImage", "true");
-        formData.append("profileImageRemoved", "true");
-        formData.append("image", "");
-        formData.append("photo", "");
       }
-
       const response = await updateAdminPersonalDetailsApi(formData);
 
       console.log("UPDATE PROFILE =>", response);
@@ -275,7 +285,11 @@ const EditProfilePage = () => {
                   <Upload className="h-4 w-4" />
                   Upload New Photo
                 </Button>
-                <Button type="button" variant="outline" onClick={handleRemoveImage}>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={handleRemoveImage}
+                >
                   Remove
                 </Button>{" "}
               </div>

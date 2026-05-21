@@ -288,11 +288,11 @@ export default function QueriesDetails() {
           {/* PAGINATION */}
           <div className="flex justify-between items-center pt-4">
             <p className="text-sm text-muted-foreground">
-              Showing {(filters.page - 1) * filters.size + 1} to{" "}
+              {/* Showing {(filters.page - 1) * filters.size + 1} to{" "}
               {Math.min(filters.page * filters.size, totalElements)} of{" "}
               {totalElements} resultsto{" "}
               {Math.min((filters.page + 1) * filters.size, totalElements)} of{" "}
-              {totalElements} results
+              {totalElements} results */}
             </p>
 
             <div className="flex items-center gap-2">

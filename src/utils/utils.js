@@ -1609,11 +1609,9 @@ export const getAllStudentsApi = async (params) => {
 
 export const updateStudentApi = async (id, data) => {
   try {
-    axios.defaults.headers.common["Authorization"] = getToken();
-
     const res = await axios.put(`${Domain}/student/update/${id}`, data, {
       headers: {
-        "Content-Type": "multipart/form-data",
+        Authorization: getToken(),
       },
     });
 
@@ -1974,7 +1972,7 @@ export const getAllPackageData = async () => {
 
 export const getAdminByIdApi = async () => {
   try {
-    const res = await axios.get(`${Domain}/admin/`, {
+    const res = await axios.get(`${Domain}/admin/profile`, {
       headers: {
         Authorization: getToken(),
       },

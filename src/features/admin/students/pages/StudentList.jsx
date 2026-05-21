@@ -12,7 +12,7 @@ export default function StudentList() {
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
   const [totalPages, setTotalPages] = useState(1);
-  const [totalElements, setTotalElements] = useState(0);
+  const [totalItems, setTotalElements] = useState(0);
   // const [searchQuery, setSearchQuery] = useState("");
 
   // ================= API =================
@@ -38,7 +38,7 @@ export default function StudentList() {
 
         setTotalPages(data?.totalPages || 1);
 
-        setTotalElements(data?.totalElements || 0);
+        setTotalElements(data?.totalItems || 0);
       } else {
         setStudents([]);
       }
@@ -93,7 +93,7 @@ export default function StudentList() {
             Student Details
           </h1>
           <p className="text-sm text-muted-foreground mt-1">
-            Total {totalElements} residents{" "}
+            Total {totalItems} residents{" "}
           </p>
         </div>
 
@@ -120,7 +120,7 @@ export default function StudentList() {
           <Search className="w-4 h-4 absolute right-3 top-2.5 text-muted-foreground" />
         </div>
 
-        <button
+        {/* <button
           onClick={() => {
             setSearch("");
             setCurrentPage(1);
@@ -129,7 +129,7 @@ export default function StudentList() {
           className="ml-auto text-sm text-muted-foreground hover:text-foreground"
         >
           Clear all filters
-        </button>
+        </button> */}
       </div>
       {/* TABLE */}
       <StudentTable students={filteredStudents} />{" "}

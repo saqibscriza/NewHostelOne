@@ -202,13 +202,13 @@ const Topbar = ({ onMenuClick }) => {
             <Menu className="w-5 h-5" />
           </button>
 
-          <div className="relative w-full max-w-md">
+          {/* <div className="relative w-full max-w-md">
             <Search className="absolute left-2.5 top-2.5 w-4 h-4 text-muted-foreground" />
             <Input
               placeholder="Search..."
               className="pl-9 bg-muted border-none text-foreground"
             />
-          </div>
+          </div> */}
         </div>
 
         {showPackageBanner && (

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { Card, CardContent } from "../../../../components/ui/Card";
 import { Input } from "../../../../components/ui/input";
@@ -30,13 +30,22 @@ const Label = ({ children }) => (
   <p className="text-xs text-muted-foreground mb-1">{children}</p>
 );
 
-const UploadBox = ({ title, subtitle }) => (
+const UploadBox = ({ title, subtitle, file, onChange, accept }) => (
   <div className="space-y-2">
     <Label>{title}</Label>
-    <div className="border-2 border-dashed rounded-lg p-6 text-center text-sm text-muted-foreground cursor-pointer hover:bg-muted transition">
+
+    <label className="border-2 border-dashed rounded-lg p-6 text-center text-sm text-muted-foreground cursor-pointer hover:bg-muted transition block">
+      <input
+        type="file"
+        className="hidden"
+        accept={accept}
+        onChange={(e) => onChange(e.target.files?.[0])}
+      />
+
       <FileText className="mx-auto mb-2" size={20} />
-      <p>{subtitle}</p>
-    </div>
+
+      <p>{file?.name || subtitle}</p>
+    </label>
   </div>
 );
 
@@ -56,24 +65,31 @@ const EditStudent = () => {
 
   const [rooms, setRooms] = useState([]);
   const [form, setForm] = useState({});
-  const [originalData, setOriginalData] = useState({});
+  const [selectedPhoto, setSelectedPhoto] = useState(null);
+  const [idProof, setIdProof] = useState(null);
+
+  const [admissionLetter, setAdmissionLetter] = useState(null);
+  const [photoPreview, setPhotoPreview] = useState("");
   const [loading, setLoading] = useState(false);
 
-  const fetchRooms = async () => {
+  const fetchRooms = useCallback(async () => {
     const res = await getRoomAllData();
 
     if (res?.data?.data?.content) {
       setRooms(res.data.data.content);
     }
-  };
-
-  useEffect(() => {
-    fetchStudent();
-    fetchRooms(); // ✅ added
   }, []);
-  // ================= GET BY ID =================
 
-  const fetchStudent = async () => {
+  const getPhoto = (data) =>
+    data?.photo ||
+    data?.profileImage ||
+    data?.image ||
+    data?.documentUploads?.photo ||
+    data?.personalInformation?.photo ||
+    "";
+
+  // ================= GET BY ID =================
+  const fetchStudent = useCallback(async () => {
     const res = await getStudentByIdApi(id);
 
     if (res?.data?.status === "success") {
@@ -95,22 +111,108 @@ const EditStudent = () => {
         relation: d.guardianInformation?.relation || "",
         emergencyContact: d.guardianInformation?.emergencyContact || "",
 
-        roomId: d.roomAssignment?.roomId || "",
-        status: d.status || "active",
+        roomId:
+          d.roomAssignment?.roomId ||
+          d.roomAssignment?.roomDetails?.roomId ||
+          "",
+        status: d.status || "Active",
         block: d.roomAssignment?.roomDetails?.block || "",
         category: d.roomAssignment?.roomDetails?.category || "",
         roomType: d.roomAssignment?.roomDetails?.roomType || "",
       };
 
       setForm(formatted);
-      setOriginalData(formatted); // ✅ ADD THIS
+      setPhotoPreview(getPhoto(d));
     }
-  };
+  }, [id]);
+
+  useEffect(() => {
+    fetchStudent();
+    fetchRooms();
+  }, [fetchStudent, fetchRooms]);
 
   // ================= HANDLE =================
   const handleChange = (key, value) => {
     setForm((prev) => ({ ...prev, [key]: value }));
   };
+
+  const handlePhotoChange = (file) => {
+    if (!file) return;
+
+    setSelectedPhoto(file);
+    setPhotoPreview((previousPreview) => {
+      if (previousPreview?.startsWith("blob:")) {
+        URL.revokeObjectURL(previousPreview);
+      }
+      return URL.createObjectURL(file);
+    });
+  };
+
+  useEffect(() => {
+    return () => {
+      if (photoPreview?.startsWith("blob:")) {
+        URL.revokeObjectURL(photoPreview);
+      }
+    };
+  }, [photoPreview]);
+
+  const withCurrentOption = (options, currentValue) => {
+    const cleanOptions = options.filter(Boolean).map(String);
+    const cleanCurrent = currentValue ? String(currentValue) : "";
+    return cleanCurrent && !cleanOptions.includes(cleanCurrent)
+      ? [cleanCurrent, ...cleanOptions]
+      : cleanOptions;
+  };
+
+  const getRoomValue = (room) => String(room.roomId || room.id || "");
+  const roomOptions = useMemo(() => {
+    const mappedRooms = rooms
+      .map((room) => ({
+        value: getRoomValue(room),
+        label:
+          room.roomNameNumber ||
+          room.roomNumber ||
+          room.name ||
+          getRoomValue(room),
+      }))
+      .filter((room) => room.value);
+
+    if (
+      form.roomId &&
+      !mappedRooms.some((room) => room.value === form.roomId)
+    ) {
+      return [{ value: form.roomId, label: form.roomId }, ...mappedRooms];
+    }
+
+    return mappedRooms;
+  }, [rooms, form.roomId]);
+
+  const blockOptions = useMemo(
+    () =>
+      withCurrentOption(
+        rooms.map((room) => room.block || room.blockFloor),
+        form.block,
+      ),
+    [rooms, form.block],
+  );
+
+  const categoryOptions = useMemo(
+    () =>
+      withCurrentOption(
+        rooms.map((room) => room.category || room.roomCategory),
+        form.category,
+      ),
+    [rooms, form.category],
+  );
+
+  const roomTypeOptions = useMemo(
+    () =>
+      withCurrentOption(
+        rooms.map((room) => room.roomType || room.type),
+        form.roomType,
+      ),
+    [rooms, form.roomType],
+  );
 
   // ================= PUT =================
 
@@ -167,6 +269,19 @@ const EditStudent = () => {
       formData.append("emergencyContact", form.emergencyContact || "");
 
       formData.append("roomId", form.roomId || "");
+      formData.append("status", form.status || "");
+
+      if (selectedPhoto) {
+        formData.append("photo", selectedPhoto);
+      }
+
+      if (idProof) {
+        formData.append("idProof", idProof);
+      }
+
+      if (admissionLetter) {
+        formData.append("admissionLetter", admissionLetter);
+      }
 
       // ================= DEBUG =================
 
@@ -210,12 +325,34 @@ const EditStudent = () => {
       <Section icon={User} title="Personal Information">
         <div className="grid md:grid-cols-3 gap-6">
           <div className="border-2 border-dashed rounded-lg p-6 flex flex-col items-center justify-center text-center">
-            <div className="w-20 h-20 rounded-full bg-muted flex items-center justify-center mb-3">
-              <Camera />
-            </div>
-            <p className="text-sm font-medium">Upload Photo</p>
+            <input
+              id="edit-student-photo"
+              type="file"
+              accept="image/jpeg,image/jpg,image/png,image/webp"
+              className="hidden"
+              onChange={(e) => handlePhotoChange(e.target.files?.[0])}
+            />
+            <label
+              htmlFor="edit-student-photo"
+              className="flex w-full cursor-pointer flex-col items-center justify-center text-center"
+            >
+              <div className="w-24 h-24 rounded-full bg-muted flex items-center justify-center mb-3 overflow-hidden">
+                {photoPreview ? (
+                  <img
+                    src={photoPreview}
+                    alt="Student profile"
+                    className="h-full w-full object-cover"
+                  />
+                ) : (
+                  <Camera />
+                )}
+              </div>
+              <p className="text-sm font-medium">
+                {selectedPhoto ? selectedPhoto.name : "Upload Photo"}
+              </p>
+            </label>
             <p className="text-xs text-muted-foreground">
-              JPG, PNG or GIF. Max size 2MB
+              JPG, PNG or WEBP. Max size 2MB
             </p>
           </div>
 
@@ -239,15 +376,21 @@ const EditStudent = () => {
             <div>
               <Label>Gender</Label>
               <Select
-                value={form.gender}
+                value={form.gender || ""}
                 onValueChange={(v) => handleChange("gender", v)}
               >
                 <SelectTrigger>
-                  <SelectValue />
+                  <SelectValue placeholder="Select gender" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="Male">Male</SelectItem>
-                  <SelectItem value="Female">Female</SelectItem>
+                  {withCurrentOption(
+                    ["Male", "Female", "Other"],
+                    form.gender,
+                  ).map((option) => (
+                    <SelectItem key={option} value={option}>
+                      {option}
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
             </div>
@@ -255,15 +398,21 @@ const EditStudent = () => {
             <div>
               <Label>Blood Group</Label>
               <Select
-                value={form.bloodGroup}
+                value={form.bloodGroup || ""}
                 onValueChange={(v) => handleChange("bloodGroup", v)}
               >
                 <SelectTrigger>
-                  <SelectValue />
+                  <SelectValue placeholder="Select blood group" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="O+">O+ Positive</SelectItem>
-                  <SelectItem value="A+">A+</SelectItem>
+                  {withCurrentOption(
+                    ["A+", "A-", "B+", "B-", "O+", "O-", "AB+", "AB-", "Other"],
+                    form.bloodGroup,
+                  ).map((option) => (
+                    <SelectItem key={option} value={option}>
+                      {option}
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
             </div>
@@ -298,15 +447,20 @@ const EditStudent = () => {
           <div>
             <Label>Year of Study</Label>
             <Select
-              value={form.year}
+              value={form.year || ""}
               onValueChange={(v) => handleChange("year", v)}
             >
               <SelectTrigger>
-                <SelectValue />
+                <SelectValue placeholder="Select year" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="1">1st Year</SelectItem>
-                <SelectItem value="2">2nd Year</SelectItem>
+                {withCurrentOption(["1", "2", "3", "4", "5"], form.year).map(
+                  (option) => (
+                    <SelectItem key={option} value={option}>
+                      {option}
+                    </SelectItem>
+                  ),
+                )}
               </SelectContent>
             </Select>
           </div>
@@ -343,15 +497,21 @@ const EditStudent = () => {
           <div>
             <Label>Relationship</Label>
             <Select
-              value={form.relation}
+              value={form.relation || ""}
               onValueChange={(v) => handleChange("relation", v)}
             >
               <SelectTrigger>
-                <SelectValue />
+                <SelectValue placeholder="Select relationship" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="Father">Father</SelectItem>
-                <SelectItem value="Mother">Mother</SelectItem>
+                {withCurrentOption(
+                  ["Father", "Mother", "Guardian", "Other"],
+                  form.relation,
+                ).map((option) => (
+                  <SelectItem key={option} value={option}>
+                    {option}
+                  </SelectItem>
+                ))}
               </SelectContent>
             </Select>
           </div>
@@ -371,14 +531,18 @@ const EditStudent = () => {
           <div>
             <Label>Block / Wing</Label>
             <Select
-              value={form.block}
+              value={form.block || ""}
               onValueChange={(v) => handleChange("block", v)}
             >
               <SelectTrigger>
-                <SelectValue />
+                <SelectValue placeholder="Select block" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="A">Block A (Boys)</SelectItem>
+                {blockOptions.map((option) => (
+                  <SelectItem key={option} value={option}>
+                    {option}
+                  </SelectItem>
+                ))}
               </SelectContent>
             </Select>
           </div>
@@ -386,14 +550,18 @@ const EditStudent = () => {
           <div>
             <Label>Category</Label>
             <Select
-              value={form.category}
+              value={form.category || ""}
               onValueChange={(v) => handleChange("category", v)}
             >
               <SelectTrigger>
-                <SelectValue />
+                <SelectValue placeholder="Select category" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="Deluxe">Deluxe</SelectItem>
+                {categoryOptions.map((option) => (
+                  <SelectItem key={option} value={option}>
+                    {option}
+                  </SelectItem>
+                ))}
               </SelectContent>
             </Select>
           </div>
@@ -401,14 +569,18 @@ const EditStudent = () => {
           <div>
             <Label>Room Type</Label>
             <Select
-              value={form.roomType}
+              value={form.roomType || ""}
               onValueChange={(v) => handleChange("roomType", v)}
             >
               <SelectTrigger>
-                <SelectValue />
+                <SelectValue placeholder="Select room type" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="Single Bed">Single Bed</SelectItem>
+                {roomTypeOptions.map((option) => (
+                  <SelectItem key={option} value={option}>
+                    {option}
+                  </SelectItem>
+                ))}
               </SelectContent>
             </Select>
           </div>
@@ -416,16 +588,16 @@ const EditStudent = () => {
           <div>
             <Label>Available Room No.</Label>
             <Select
-              value={form.roomId}
+              value={form.roomId || ""}
               onValueChange={(v) => handleChange("roomId", v)}
             >
               <SelectTrigger>
-                <SelectValue />
+                <SelectValue placeholder="Select room" />
               </SelectTrigger>
               <SelectContent>
-                {rooms.map((room) => (
-                  <SelectItem key={room.roomId} value={room.roomId}>
-                    {room.roomNameNumber}
+                {roomOptions.map((room) => (
+                  <SelectItem key={room.value} value={room.value}>
+                    {room.label}
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -438,11 +610,18 @@ const EditStudent = () => {
         <div className="grid grid-cols-2 gap-6">
           <UploadBox
             title="ID Proof (Aadhar / Passport)"
-            subtitle="Click to upload or drag & drop PDF, JPG up to 5MB"
+            subtitle="Upload ID Proof"
+            file={idProof}
+            onChange={setIdProof}
+            accept=".pdf,.jpg,.jpeg,.png"
           />
+
           <UploadBox
             title="College Admission Letter"
-            subtitle="Click to upload or drag & drop PDF only up to 10MB"
+            subtitle="Upload Admission Letter"
+            file={admissionLetter}
+            onChange={setAdmissionLetter}
+            accept=".pdf,.doc,.docx"
           />
         </div>
       </Section>
@@ -450,15 +629,20 @@ const EditStudent = () => {
         <div className="w-64">
           <Label>Status</Label>
           <Select
-            value={form.status}
+            value={form.status || ""}
             onValueChange={(v) => handleChange("status", v)}
           >
             <SelectTrigger>
-              <SelectValue />
+              <SelectValue placeholder="Select status" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="Active">Active</SelectItem>
-              <SelectItem value="Inactive">Inactive</SelectItem>
+              {withCurrentOption(["Active", "Inactive"], form.status).map(
+                (option) => (
+                  <SelectItem key={option} value={option}>
+                    {option}
+                  </SelectItem>
+                ),
+              )}
             </SelectContent>
           </Select>
         </div>
