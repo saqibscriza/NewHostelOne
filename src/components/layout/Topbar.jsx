@@ -31,7 +31,8 @@ const getInitials = (name = "") => {
 };
 
 const Topbar = ({ onMenuClick }) => {
-  const { role, token, login, userName, userPhoto, updateUserProfile } = useAuth(); // get role from context
+  const { role, token, login, userName, userPhoto, updateUserProfile } =
+    useAuth(); // get role from context
   const [open, setOpen] = useState(false);
   const [showModal, setShowModal] = useState(false); // modal
   const [hostels, setHostels] = useState([]);
@@ -40,7 +41,10 @@ const Topbar = ({ onMenuClick }) => {
 
   const [user, setUser] = useState("");
   const [roleName, setRoleName] = useState("");
+  console.log("user role-------", roleName);
   const [userImage, setUserImage] = useState("");
+  const [hostelName, setHostelName] = useState("");
+
 
   const [hostelError, setHostelError] = useState("");
   const navigate = useNavigate();
@@ -69,13 +73,14 @@ const Topbar = ({ onMenuClick }) => {
 
       if (role === "admin") {
         const response = await getAdminProfileApi();
-         const data = response?.data
+        const data = response?.data;
 
-          console.log('my data in variableeeeeee',data)
-          setUser(data?.name)
-          setRoleName(data?.roleName)
-          setUserImage(data?.image)
-        console.log('my top bar data', response)
+        console.log("my data in variableeeeeee", data);
+        setUser(data?.name);
+        setRoleName(data?.roleName);
+        setUserImage(data?.image);
+        setHostelName(data?.hostelName);
+        console.log("my top bar data", response);
         displayName = getFirstValue(response?.data, [
           "profile.name",
           "profile.fullName",
@@ -120,7 +125,7 @@ const Topbar = ({ onMenuClick }) => {
           "data.chefName",
         ]);
       }
-      
+
       if (displayName || displayPhoto) {
         updateUserProfile({
           name: displayName,
@@ -249,6 +254,9 @@ const Topbar = ({ onMenuClick }) => {
             </p>
             <p className="text-xs text-muted-foreground uppercase tracking-wide whitespace-nowrap">
               {roleName?.replace("-", " ") || "USER"}
+            </p>
+            <p className="text-xs text-muted-foreground uppercase tracking-wide whitespace-nowrap">
+              {hostelName?.replace("-", " ") || "Hostel"}
             </p>
           </div>
 

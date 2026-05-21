@@ -8,6 +8,7 @@ import { toast } from "react-hot-toast";
 const RoomsAddCategoryModal = ({
   isOpen,
   onClose,
+  onCategoryAdded,
   occupancyList = [],
   amenitiesList = [],
   fetchAmenities,
@@ -112,6 +113,9 @@ const RoomsAddCategoryModal = ({
 
       if (response?.data?.status === "success") {
         toast.success(response.data.message);
+
+        await onCategoryAdded();
+
         onClose();
       } else {
         toast.error(response?.data?.message);
