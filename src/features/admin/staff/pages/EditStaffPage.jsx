@@ -159,8 +159,13 @@ const response = await updateStaffApi(id, formData);
         toast.error(response?.data?.message);
       }
     } catch (error) {
-      console.log(error);
-      toast.error("Update failed");
+      console.log("UPDATE STAFF ERROR 👉", error);
+      toast.error(
+        error?.response?.data?.message ||
+        error?.response?.data?.error ||
+        error?.message ||
+        "Update failed"
+      );
     } finally {
       setLoading(false);
     }

@@ -2,6 +2,13 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { AlertCircle, CreditCard, Download, WalletCards } from "lucide-react";
 import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "../../../../components/ui/select";
+import {
   getFeeStudentDetails,
   getStudentTransectionsApi,
   getCSV_Api,
@@ -13,6 +20,29 @@ export default function Fees() {
   const [totalItems, setTotalItems] = useState(0);
   const [loading, setLoading] = useState(true);
   const [feeData, setFeeData] = useState(null);
+
+    const [statusFilter, setStatusFilter] = useState("all");
+  const [daysFilter, setDaysFilter] = useState("all");
+
+  const filteredTransactions = transactions.filter((tx) => {
+    let matchesStatus = true;
+    let matchesDays = true;
+
+    if (statusFilter !== "all") {
+      matchesStatus = tx.status?.toLowerCase() === statusFilter;
+    }
+
+    if (daysFilter !== "all") {
+      const txDate = new Date(tx.date);
+      const currentDate = new Date();
+      const diffTime = Math.abs(currentDate - txDate);
+      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+      
+      matchesDays = diffDays <= parseInt(daysFilter);
+    }
+
+    return matchesStatus && matchesDays;
+  });
 
   const extractPayload = (response) => {
     if (response?.data?.data) return response.data.data;
@@ -225,15 +255,50 @@ export default function Fees() {
         </div>
       </div>
 
+
+      <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-3 px-5 flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div className="flex flex-col sm:flex-row sm:items-center gap-4">
+          <span className="text-[13px] font-bold text-gray-700">Filter by:</span>
+          <Select value={statusFilter} onValueChange={setStatusFilter}>
+            <SelectTrigger className="w-full sm:w-[160px] h-10 border-gray-200 shadow-none bg-transparent text-gray-900">
+              <SelectValue placeholder="All Status" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Status</SelectItem>
+              <SelectItem value="paid">Paid</SelectItem>
+              <SelectItem value="pending">Pending</SelectItem>
+              <SelectItem value="failed">Failed</SelectItem>
+            </SelectContent>
+          </Select>
+          <Select value={daysFilter} onValueChange={setDaysFilter}>
+            <SelectTrigger className="w-full sm:w-[160px] h-10 border-gray-200 shadow-none bg-transparent text-gray-900">
+              <SelectValue placeholder="All Time" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Time</SelectItem>
+              <SelectItem value="7">Last 7 Days</SelectItem>
+              <SelectItem value="30">Last 30 Days</SelectItem>
+              <SelectItem value="90">Last 3 Months</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+        <button 
+          onClick={() => {
+            setStatusFilter("all");
+            setDaysFilter("all");
+          }}
+          className="text-[13px] font-bold text-gray-900 hover:text-black"
+        >
+          Clear all filters
+        </button>
+      </div>
+
       <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
         <div className="p-6 md:p-8 flex items-center justify-between border-b border-gray-100">
           <h2 className="text-xl font-bold text-gray-900">
             Transaction History
           </h2>
           <div className="flex gap-3">
-            <button className="text-xs font-bold px-4 py-2 border border-gray-200 rounded-lg hover:bg-gray-50 uppercase tracking-wider text-gray-600">
-              Filter
-            </button>
             <button className="text-xs font-bold px-4 py-2 border border-gray-200 rounded-lg hover:bg-gray-50 uppercase tracking-wider text-gray-600">
               Export
             </button>
@@ -252,8 +317,8 @@ export default function Fees() {
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100 text-gray-600">
-              {transactions.length > 0 ? (
-                transactions.map((transaction) => (
+              {filteredTransactions.length > 0 ? (
+                filteredTransactions.map((transaction) => (
                   <tr key={transaction.transactionId}>
                     <td className="px-6 py-4">{formatDate(transaction.date)}</td>
                     <td className="px-6 py-4">
@@ -306,7 +371,7 @@ export default function Fees() {
         </div>
         <div className="p-4 border-t border-gray-100 flex items-center justify-between text-xs text-gray-500">
           <span>
-            Showing {transactions.length} of {totalItems} transactions
+            Showing {filteredTransactions.length} of {totalItems} transactions
           </span>
           <div className="flex gap-1">
             <button className="p-1 rounded border border-gray-200 hover:bg-gray-50">

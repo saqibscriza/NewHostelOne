@@ -55,7 +55,7 @@ export const logoutApi = async () => {
 
 export const getLocationByPincodeApi = async (pincode) => {
   try {
-    const res = await axios.get(`${Domain}/api/location/pincode/${pincode}`);
+    var res = await axios.get(`${Domain}/api/location/pincode/${pincode}`);
     return res.data;
   } catch (error) {
     console.log("PINCODE GET ERROR 👉", error);
@@ -396,13 +396,9 @@ export const addStaffApi = async (data) => {
   try {
     axios.defaults.headers.common["Authorization"] = getToken();
     var res = await axios.post(`${Domain}/staff/add`, data);
-    if (res) {
-      return res;
-    } else {
-      return [];
-    }
+    return res;
   } catch (error) {
-    return [];
+    throw error;
   }
 };
 
@@ -410,17 +406,9 @@ export const updateStaffApi = async (id, data) => {
   try {
     axios.defaults.headers.common["Authorization"] = getToken();
     var res = await axios.put(`${Domain}/staff/update/${id}`, data);
-    if (res) {
-      return res;
-    } else {
-      return [];
-    }
+    return res;
   } catch (error) {
-    return [];
-    // const res = await axios.put(`${Domain}/staff/update/${id}`, null, {
-    //   params: data, // 🔥 THIS is the correct way
-    // });
-    // return res;
+    throw error;
   }
 };
 

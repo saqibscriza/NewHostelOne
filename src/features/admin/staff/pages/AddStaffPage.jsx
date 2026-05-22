@@ -116,11 +116,18 @@ export default function AddStaff() {
         setLoaderCheck(false);
       }
     } catch (error) {
-      console.log(error);
-      toast.error("Server Error");
-      setLoaderCheck(false);
-    }
-  };
+    console.log("ADD STAFF ERROR 👉", error);
+
+    toast.error(
+      error?.response?.data?.message ||
+      error?.response?.data?.error ||
+      error?.message ||
+      "Server Error"
+    );
+  } finally {
+    setLoaderCheck(false);
+  }
+};
 
   return (
     <form onSubmit={handleSubmit(MyAddStaffApi)}>

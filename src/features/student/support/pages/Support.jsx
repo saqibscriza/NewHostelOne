@@ -20,6 +20,15 @@ export default function Support() {
   const [filteredTickets, setFilteredTickets] = useState([]);
   const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(false);
+  const [expandedTickets, setExpandedTickets] = useState({});
+
+  const toggleExpand = (e, ticketId) => {
+    e.stopPropagation();
+    setExpandedTickets((prev) => ({
+      ...prev,
+      [ticketId]: !prev[ticketId],
+    }));
+  };
 
     // GET ALL TICKETS
   const fetchAllTickets = async () => {
@@ -108,9 +117,9 @@ export default function Support() {
                 <TableHead className="text-xs font-bold text-muted-foreground uppercase tracking-widest px-6 py-4">
                   DESCRIPTION
                 </TableHead>
-                <TableHead className="text-xs font-bold text-muted-foreground uppercase tracking-widest px-6 py-4">
+                {/* <TableHead className="text-xs font-bold text-muted-foreground uppercase tracking-widest px-6 py-4">
                   Status
-                </TableHead>
+                </TableHead> */}
                 <TableHead className="text-xs font-bold text-muted-foreground uppercase tracking-widest px-6 py-4">
                   CREATED
                 </TableHead>
@@ -119,7 +128,7 @@ export default function Support() {
             <TableBody>
               {filteredTickets.map((ticket) => (
                 <TableRow
-                  key={ticket.id}
+                  key={ticket._id || ticket.id}
                   className="border-border hover:bg-muted/50 cursor-pointer transition-colors group"
                 >
                   <TableCell className="px-6 py-5 font-medium text-foreground whitespace-nowrap">
@@ -128,13 +137,16 @@ export default function Support() {
 <TableCell className="px-6 py-5 text-muted-foreground">
   {ticket.description ? (
     <>
-      {ticket.description.length > 60
-        ? `${ticket.description.slice(0, 60)}...`
-        : ticket.description}
+      {expandedTickets[ticket._id || ticket.id] || ticket.description.length <= 60
+        ? ticket.description
+        : `${ticket.description.slice(0, 60)}...`}
 
       {ticket.description.length > 60 && (
-        <span className="text-blue-500 font-medium group-hover:underline ml-1 cursor-pointer">
-          Read more
+        <span 
+          onClick={(e) => toggleExpand(e, ticket._id || ticket.id)}
+          className="text-blue-500 font-medium group-hover:underline ml-1 cursor-pointer"
+        >
+          {expandedTickets[ticket._id || ticket.id] ? "Show less" : "Read more"}
         </span>
       )}
     </>
@@ -142,9 +154,9 @@ export default function Support() {
     "N/A"
   )}
 </TableCell>
-                        <TableCell className="px-6 py-5 text-muted-foreground">
+                        {/* <TableCell className="px-6 py-5 text-muted-foreground">
         {ticket.status}
-      </TableCell>
+      </TableCell> */}
                   <TableCell className="px-6 py-5 text-muted-foreground whitespace-nowrap">
                     {new Date(ticket.createdAt).toLocaleDateString()}
 
