@@ -51,7 +51,7 @@ const RoomCard = ({ category, onEdit, onDelete }) => {
 
       {/* Description (optional static) */}
       <p className="text-sm text-muted-foreground mt-2">
-        {category.description}{" "}
+        {category.roomDescription}
       </p>
 
       {/* Amenities */}

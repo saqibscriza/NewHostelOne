@@ -208,17 +208,44 @@ export const addHostelApi = async (data) => {
   try {
     axios.defaults.headers.common["Authorization"] = getToken();
 
-    var res = await axios.post(`${Domain}/hostel/create`, data);
+    const formData = new FormData();
 
-    if (res) {
-      return res;
-    } else {
-      return [];
+    // ONLY IMAGE
+    if (data.hostelImage) {
+      formData.append("hostelImage", data.hostelImage);
     }
+
+    const res = await axios.post(`${Domain}/hostel/create`, formData, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+
+      params: {
+        hostelName: data.hostelName,
+        address: data.address,
+        contactNumber: data.contactNumber,
+        alternateContactNumber: data.alternateContactNumber,
+        city: data.city,
+        state: data.state,
+        country: data.country,
+        pinCode: data.pinCode,
+        hostelType: data.hostelType,
+        packageId: data.packageId,
+
+        adminName: data.adminName,
+        adminEmail: data.adminEmail,
+      },
+    });
+
+    return res;
   } catch (error) {
-    return [];
+    console.log("ADD HOSTEL ERROR", error?.response || error);
+
+    return error?.response;
   }
 };
+
+// i dont know below code
 
 const toHostelCreateParams = (data) => {
   const params = toCleanParams(data);
@@ -243,7 +270,6 @@ const toHostelCreateParams = (data) => {
   delete params.adminId;
   return params;
 };
-
 
 //********* Update Hostel********* */
 export const updateHostelApi = async (id, data) => {
@@ -1409,7 +1435,7 @@ export const updateRoomApi = async (roomId, data) => {
     const formData = new FormData();
 
     // TEXT FIELDS
-    formData.append("roomId", roomId);
+    // formData.append("roomId", roomId);
     formData.append("roomNameNumber", data.roomNameNumber || "");
     formData.append("blockFloor", data.blockFloor || "");
     formData.append("categoryId", data.categoryId || "");
@@ -1433,13 +1459,15 @@ export const updateRoomApi = async (roomId, data) => {
     for (let pair of formData.entries()) {
       console.log(pair[0], pair[1]);
     }
-
     const res = await axios.put(`${Domain}/room/update`, formData, {
       headers: {
         "Content-Type": "multipart/form-data",
       },
-    });
 
+      params: {
+        roomId,
+      },
+    });
     return res;
   } catch (error) {
     console.log("UPDATE ROOM API ERROR 👉", error?.response?.data || error);
@@ -1609,7 +1637,6 @@ export const updateStudentApi = async (id, data) => {
     );
   }
 };
-
 
 export const getAllQueriesApi = async (params = {}) => {
   try {
@@ -2046,15 +2073,11 @@ export const createNoticeApi = async (data) => {
     formData.append("category", data.category);
     formData.append("priority", data.priority);
 
-    const res = await axios.post(
-      `${Domain}/notice/create`,
-      formData,
-      {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-      }
-    );
+    const res = await axios.post(`${Domain}/notice/create`, formData, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    });
 
     return res;
   } catch (error) {
@@ -2108,11 +2131,10 @@ export const updateNoticeApi = async (noticeId, data) => {
         headers: {
           "Content-Type": "multipart/form-data",
         },
-      }
+      },
     );
 
     return res;
-
   } catch (error) {
     console.log("UPDATE NOTICE ERROR 👉", error);
     throw error;

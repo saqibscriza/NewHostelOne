@@ -9,30 +9,31 @@ import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 
-import {
-  addHostelApi,
-  getAllPackageApi,
-} from "../../../utils/utils";
+import { addHostelApi, getAllPackageApi } from "../../../utils/utils";
 
 export default function AddNewHostel() {
   const navigate = useNavigate();
   const role = sessionStorage.getItem("role");
 
   const [packages, setPackages] = useState([]);
+  const [previewImage, setPreviewImage] = useState(null);
 
   const {
     register,
     handleSubmit,
     formState: { errors },
-  } = useForm();
+  } = useForm({
+    mode: "onChange",
+  });
 
   useEffect(() => {
     const fetchPackages = async () => {
       try {
         const res = await getAllPackageApi();
+        console.log("data of package---", res);
 
-        if (res?.data) {
-          setPackages(res.data);
+        if (res?.status) {
+          setPackages(res.data.allPackages);
         }
       } catch (error) {
         console.log(error);
@@ -42,38 +43,64 @@ export default function AddNewHostel() {
     fetchPackages();
   }, []);
 
+  const handleImageUpload = (e) => {
+    const file = e.target.files[0];
+
+    if (!file) return;
+
+    const allowedTypes = ["image/jpeg", "image/jpg", "image/png"];
+
+    const allowedExtensions = ["jpg", "jpeg", "png"];
+
+    const fileExtension = file.name.split(".").pop().toLowerCase();
+
+    if (
+      !allowedTypes.includes(file.type) ||
+      !allowedExtensions.includes(fileExtension)
+    ) {
+      toast.error("Only JPG, JPEG and PNG files are allowed");
+      return;
+    }
+
+    if (file.size > 2 * 1024 * 1024) {
+      toast.error("Image size must be below 2MB");
+      return;
+    }
+
+    if (previewImage) {
+      URL.revokeObjectURL(previewImage);
+    }
+
+    setPreviewImage(URL.createObjectURL(file));
+  };
+  useEffect(() => {
+    return () => {
+      if (previewImage) {
+        URL.revokeObjectURL(previewImage);
+      }
+    };
+  }, [previewImage]);
+
   const AddNewHostelApi = async (data) => {
     try {
-      const payload = {};
+      const payload = {
+        hostelName: data.hostelName,
+        address: data.address,
+        contactNumber: data.contactNumber,
+        alternateContactNumber: data.alternateContactNumber,
+        city: data.city,
+        state: data.state,
+        country: data.country,
+        pinCode: data.pinCode,
+        hostelType: data.hostelType,
+        packageId: data.packageId,
+        hostelImage: data.hostelImage?.[0],
+      };
 
-      payload.hostelName = data.hostelName;
-      payload.address = data.address;
-      payload.contactNumber = data.contactNumber;
-      payload.alternateContactNumber =
-        data.alternateContactNumber;
-      payload.city = data.city;
-      payload.state = data.state;
-      payload.country = data.country;
-      payload.pinCode = data.pinCode;
-      payload.hostelType = data.hostelType;
-      payload.packageId = data.packageId;
-
-      const hasCompleteAdminDetails =
-        data.adminName?.trim() &&
-        data.adminEmail?.trim() &&
-        data.adminPassword?.trim() &&
-        data.adminPhone?.trim() &&
-        data.adminAddress?.trim();
-
-      if (role !== "admin" && hasCompleteAdminDetails) {
+      if (role !== "admin") {
         payload.adminName = data.adminName;
         payload.adminEmail = data.adminEmail;
-        payload.adminPassword = data.adminPassword;
-        payload.adminPhone = data.adminPhone;
-        payload.adminAddress = data.adminAddress;
       }
-
-      console.log(payload);
 
       const response = await addHostelApi(payload);
 
@@ -84,10 +111,7 @@ export default function AddNewHostel() {
           navigate("/admin");
         }, 1500);
       } else {
-        toast.error(
-          response?.data?.message ||
-            "Failed to create hostel"
-        );
+        toast.error(response?.data?.message || "Failed to create hostel");
       }
     } catch (error) {
       console.log(error);
@@ -108,8 +132,7 @@ export default function AddNewHostel() {
           </h1>
 
           <p className="mt-1 text-sm text-muted-foreground">
-            Manage and monitor all registered hostels across your
-            network
+            Manage and monitor all registered hostels across your network
           </p>
         </div>
 
@@ -133,18 +156,36 @@ export default function AddNewHostel() {
                   Hostel Logo
                 </label>
 
-                <div className="flex h-[210px] cursor-pointer flex-col items-center justify-center rounded-2xl border-2 border-dashed border-border bg-muted/30 transition hover:bg-muted/50">
-                  <div className="flex h-14 w-14 items-center justify-center rounded-full bg-background shadow-sm">
-                    <ImagePlus className="h-6 w-6 text-muted-foreground" />
-                  </div>
+                <label className="flex h-[210px] cursor-pointer flex-col items-center justify-center overflow-hidden rounded-2xl border-2 border-dashed border-border bg-muted/30 transition hover:bg-muted/50">
+                  <input
+                    type="file"
+                    accept=".jpeg, .jpg, .png"
+                    className="hidden"
+                    {...register("hostelImage")}
+                    onChange={handleImageUpload}
+                  />
 
-                  <p className="mt-4 text-xs font-bold tracking-wide text-muted-foreground">
-                    UPLOAD LOGO
-                  </p>
-                </div>
+                  {previewImage ? (
+                    <img
+                      src={previewImage}
+                      alt="Preview"
+                      className="h-full w-full object-cover"
+                    />
+                  ) : (
+                    <>
+                      <div className="flex h-14 w-14 items-center justify-center rounded-full bg-background shadow-sm">
+                        <ImagePlus className="h-6 w-6 text-muted-foreground" />
+                      </div>
+
+                      <p className="mt-4 text-xs font-bold tracking-wide text-muted-foreground">
+                        UPLOAD LOGO
+                      </p>
+                    </>
+                  )}
+                </label>
 
                 <p className="mt-3 text-xs leading-relaxed text-muted-foreground">
-                  Square format recommended. PNG or SVG preferred.
+                  Square format recommended. JPG, JPEG or PNG only.{" "}
                 </p>
               </div>
 
@@ -174,7 +215,7 @@ export default function AddNewHostel() {
                 {/* Hostel Type */}
                 <div>
                   <label className="mb-2 block text-sm font-semibold text-foreground">
-                    Hostel Type
+                   Hostel Type
                   </label>
 
                   <select
@@ -183,9 +224,7 @@ export default function AddNewHostel() {
                       required: true,
                     })}
                   >
-                    <option value="">
-                      Select property type
-                    </option>
+                    <option value="">Select Hostel Type</option>
 
                     <option value="BOYS">BOYS</option>
 
@@ -207,15 +246,10 @@ export default function AddNewHostel() {
                       required: "Package is required",
                     })}
                   >
-                    <option value="">
-                      Select Package
-                    </option>
+                    <option value="">Select Package</option>
 
                     {packages.map((pkg) => (
-                      <option
-                        key={pkg.id}
-                        value={pkg.packageId}
-                      >
+                      <option key={pkg.id} value={pkg.packageId}>
                         {pkg.packageName}
                       </option>
                     ))}
@@ -236,10 +270,38 @@ export default function AddNewHostel() {
                     </label>
 
                     <Input
+                      type="tel"
+                      inputMode="numeric"
+                      maxLength={10}
                       placeholder="Enter Contact Number"
                       className="h-11 rounded-xl border-border bg-background shadow-none"
-                      {...register("contactNumber")}
+                      onInput={(e) => {
+                        e.target.value = e.target.value
+                          .replace(/\D/g, "")
+                          .slice(0, 10);
+                      }}
+                      {...register("contactNumber", {
+                        required: "Contact number is required",
+                        minLength: {
+                          value: 10,
+                          message: "Number must be 10 digits",
+                        },
+                        maxLength: {
+                          value: 10,
+                          message: "Number must be 10 digits",
+                        },
+                        pattern: {
+                          value: /^[6-9]\d{9}$/,
+                          message:
+                            "Number must start with 6,7,8,9 and be 10 digits",
+                        },
+                      })}
                     />
+                    {errors.contactNumber && (
+                      <p className="mt-1 text-xs text-red-500">
+                        {errors.contactNumber.message}
+                      </p>
+                    )}
                   </div>
 
                   <div>
@@ -248,12 +310,37 @@ export default function AddNewHostel() {
                     </label>
 
                     <Input
+                      type="tel"
+                      inputMode="numeric"
+                      maxLength={10}
                       placeholder="Enter Alternate Contact Number"
                       className="h-11 rounded-xl border-border bg-background shadow-none"
-                      {...register(
-                        "alternateContactNumber"
-                      )}
+                      onInput={(e) => {
+                        e.target.value = e.target.value
+                          .replace(/\D/g, "")
+                          .slice(0, 10);
+                      }}
+                      {...register("alternateContactNumber", {
+                        minLength: {
+                          value: 10,
+                          message: "Number must be 10 digits",
+                        },
+                        maxLength: {
+                          value: 10,
+                          message: "Number must be 10 digits",
+                        },
+                        pattern: {
+                          value: /^[6-9]\d{9}$/,
+                          message:
+                            "Number must start with 6,7,8,9 and be 10 digits",
+                        },
+                      })}
                     />
+                    {errors.alternateContactNumber && (
+                      <p className="mt-1 text-xs text-red-500">
+                        {errors.alternateContactNumber.message}
+                      </p>
+                    )}
                   </div>
                 </div>
 
@@ -278,10 +365,37 @@ export default function AddNewHostel() {
                     </label>
 
                     <Input
+                      type="tel"
+                      inputMode="numeric"
+                      maxLength={6}
                       placeholder="Enter Pin Code"
                       className="h-11 rounded-xl border-border bg-background shadow-none"
-                      {...register("pinCode")}
+                      onInput={(e) => {
+                        e.target.value = e.target.value
+                          .replace(/\D/g, "")
+                          .slice(0, 6);
+                      }}
+                      {...register("pinCode", {
+                        required: "Pin code is required",
+                        minLength: {
+                          value: 6,
+                          message: "Pin code must be 6 digits",
+                        },
+                        maxLength: {
+                          value: 6,
+                          message: "Pin code must be 6 digits",
+                        },
+                        pattern: {
+                          value: /^[1-9][0-9]{5}$/,
+                          message: "Enter valid 6 digit pin code",
+                        },
+                      })}
                     />
+                    {errors.pinCode && (
+                      <p className="mt-1 text-xs text-red-500">
+                        {errors.pinCode.message}
+                      </p>
+                    )}
                   </div>
 
                   <div>
@@ -293,17 +407,11 @@ export default function AddNewHostel() {
                       className="h-11 w-full rounded-xl border border-border bg-background px-4 text-sm text-foreground outline-none"
                       {...register("country")}
                     >
-                      <option value="">
-                        Select Country
-                      </option>
+                      <option value="">Select Country</option>
 
-                      <option value="India">
-                        India
-                      </option>
+                      <option value="India">India</option>
 
-                      <option value="USA">
-                        USA
-                      </option>
+                      <option value="USA">USA</option>
                     </select>
                   </div>
                 </div>
@@ -336,7 +444,7 @@ export default function AddNewHostel() {
                 </div>
 
                 {/* Admin Fields */}
-                <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                {/* <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                   <div>
                     <label className="mb-2 block text-sm font-semibold text-foreground">
                       Admin Name
@@ -357,13 +465,23 @@ export default function AddNewHostel() {
                     <Input
                       placeholder="Enter Admin Email"
                       className="h-11 rounded-xl border-border bg-background shadow-none"
-                      {...register("adminEmail")}
+                      {...register("adminEmail", {
+                        pattern: {
+                          value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
+                          message: "Invalid email address",
+                        },
+                      })}
                     />
+                    {errors.adminEmail && (
+                      <p className="mt-1 text-xs text-red-500">
+                        {errors.adminEmail.message}
+                      </p>
+                    )}
                   </div>
-                </div>
+                </div> */}
 
                 {/* Password + Phone */}
-                <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                {/* <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                   <div>
                     <label className="mb-2 block text-sm font-semibold text-foreground">
                       Admin Password
@@ -373,25 +491,61 @@ export default function AddNewHostel() {
                       type="password"
                       placeholder="Enter Password"
                       className="h-11 rounded-xl border-border bg-background shadow-none"
-                      {...register("adminPassword")}
+                      {...register("adminPassword", {
+                        minLength: {
+                          value: 6,
+                          message: "Password must be at least 6 characters",
+                        },
+                      })}
                     />
+                    {errors.adminPassword && (
+                      <p className="mt-1 text-xs text-red-500">
+                        {errors.adminPassword.message}
+                      </p>
+                    )}
                   </div>
 
                   <div>
                     <label className="mb-2 block text-sm font-semibold text-foreground">
                       Admin Phone
                     </label>
-
                     <Input
+                      type="tel"
+                      inputMode="numeric"
+                      maxLength={10}
                       placeholder="Enter Admin Phone"
                       className="h-11 rounded-xl border-border bg-background shadow-none"
-                      {...register("adminPhone")}
+                      onInput={(e) => {
+                        e.target.value = e.target.value
+                          .replace(/\D/g, "")
+                          .slice(0, 10);
+                      }}
+                      {...register("adminPhone", {
+                        minLength: {
+                          value: 10,
+                          message: "Number must be 10 digits",
+                        },
+                        maxLength: {
+                          value: 10,
+                          message: "Number must be 10 digits",
+                        },
+                        pattern: {
+                          value: /^[6-9]\d{9}$/,
+                          message:
+                            "Number must start with 6,7,8,9 and be 10 digits",
+                        },
+                      })}
                     />
+                    {errors.adminPhone && (
+                      <p className="mt-1 text-xs text-red-500">
+                        {errors.adminPhone.message}
+                      </p>
+                    )}
                   </div>
-                </div>
+                </div> */}
 
                 {/* Admin Address */}
-                <div>
+                {/* <div>
                   <label className="mb-2 block text-sm font-semibold text-foreground">
                     Admin Address
                   </label>
@@ -401,7 +555,7 @@ export default function AddNewHostel() {
                     className="h-11 rounded-xl border-border bg-background shadow-none"
                     {...register("adminAddress")}
                   />
-                </div>
+                </div> */}
               </div>
             </div>
           </CardContent>

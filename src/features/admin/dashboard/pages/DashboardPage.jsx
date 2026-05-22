@@ -20,6 +20,9 @@ import {
 export default function DashboardPage() {
   const [dashboardData, setDashboardData] = useState(null);
   // const [filter, setFilter] = useState("7");
+  const [selectedHostel, setSelectedHostel] = useState(
+    sessionStorage.getItem("selectedHostel") || "",
+  );
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
@@ -42,7 +45,7 @@ export default function DashboardPage() {
 
   useEffect(() => {
     fetchDashboard();
-  }, []);
+  }, [selectedHostel]);
 
   if (loading) {
     return <div className="p-6">Loading...</div>;

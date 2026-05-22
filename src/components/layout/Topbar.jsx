@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Menu, Bell, Search, MapPin } from "lucide-react";
-import { Input } from "../ui/input";
+import { Menu, Bell, MapPin } from "lucide-react";
 import { Button } from "../ui/button";
 import { useAuth } from "../../context/AuthContext";
 import { useLocation, useNavigate } from "react-router-dom";
@@ -43,7 +42,16 @@ const Topbar = ({ onMenuClick }) => {
   const [roleName, setRoleName] = useState("");
   console.log("user role-------", roleName);
   // const [userImage, setUserImage] = useState("");
-  const [hostelName, setHostelName] = useState("");
+  const [hostelName, setHostelName] = useState(
+    sessionStorage.getItem("selectedHostelName") || "",
+  );
+  useEffect(() => {
+    const storedHostelName = sessionStorage.getItem("selectedHostelName");
+
+    if (storedHostelName) {
+      setHostelName(storedHostelName);
+    }
+  }, []);
 
   const [hostelError, setHostelError] = useState("");
   const navigate = useNavigate();
@@ -78,7 +86,9 @@ const Topbar = ({ onMenuClick }) => {
         setUser(data?.name);
         setRoleName(data?.roleName);
         // setUserImage(data?.image);
-        setHostelName(data?.hostelName);
+        const activeHostelName = sessionStorage.getItem("selectedHostelName");
+
+        setHostelName(activeHostelName || data?.hostelName);
         console.log("my top bar data", response);
         displayName = getFirstValue(response?.data, [
           "profile.name",
@@ -181,10 +191,28 @@ const Topbar = ({ onMenuClick }) => {
 
     if (response?.data?.status === "success") {
       const newToken = response?.data?.token;
+
+      const selectedHostelData = hostels.find(
+        (item) => String(item.hostelId) === String(hostelId),
+      );
+
       sessionStorage.setItem("hostelSelectionToken", selectionToken);
+
       sessionStorage.setItem("selectedHostel", String(hostelId));
+
+      if (selectedHostelData?.hostelName) {
+        sessionStorage.setItem(
+          "selectedHostelName",
+          selectedHostelData.hostelName,
+        );
+
+        setHostelName(selectedHostelData.hostelName);
+      }
+
       login(role, newToken, userName);
+
       setShowModal(false);
+
       navigate("/admin");
     } else {
       setHostelError(response?.data?.message || "Failed to switch hostel.");
@@ -233,7 +261,9 @@ const Topbar = ({ onMenuClick }) => {
 
         {/* RIGHT */}
         <div className="flex items-center gap-4">
-          <ThemeToggle />
+          {/* dark mode button */}
+
+          {/* <ThemeToggle /> */}
 
           {/* Notifications */}
           <Button
@@ -405,7 +435,7 @@ const Topbar = ({ onMenuClick }) => {
               className="mt-6"
               onClick={() => {
                 setShowModal(false);
-                navigate("/admin/hostel/add");
+                navigate("hostel/add");
               }}
             >
               + Add New Hostel

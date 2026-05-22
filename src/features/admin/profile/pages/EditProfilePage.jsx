@@ -154,8 +154,9 @@ const EditProfilePage = () => {
 
           city: personalDetails?.city || "",
 
-          dateOfJoining: personalDetails?.dateOfJoining || "",
-
+          dateOfJoining: personalDetails?.dateOfJoining
+            ? personalDetails.dateOfJoining.split("T")[0]
+            : "",
           adminId: personalDetails?.adminId || "",
 
           role: profile?.role || "",
@@ -422,7 +423,11 @@ const EditProfilePage = () => {
               <InfoBlock
                 icon={CalendarDays}
                 label="Date Of Joining"
-                value={form.dateOfJoining || "Not Available"}
+                value={
+                  form.dateOfJoining
+                    ? form.dateOfJoining.split("T")[0]
+                    : "Not Available"
+                }
                 helper="Non-editable field"
               />
               <InfoBlock
