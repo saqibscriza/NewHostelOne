@@ -1367,6 +1367,21 @@ export const getAllCategoryApi = async () => {
   }
 };
 
+export const getByIdCategory = async (id) => {
+  // Done getToken
+  try {
+    axios.defaults.headers.common["Authorization"] = getToken();
+
+    const res = await axios.get(`${Domain}/category/getById/${id}`);
+
+    return res;
+  } catch (error) {
+    console.log("GET CATEGORY ERROR 👉", error);
+
+    return error?.response || [];
+  }
+};
+
 // ===========Room Details==============
 
 // GET api for room details in category

@@ -9,6 +9,7 @@ import {
 import { toast } from "react-hot-toast";
 
 const EditCategoryModal = ({
+  updateCategory,
   isOpen,
   onClose,
   category,
@@ -17,27 +18,50 @@ const EditCategoryModal = ({
   amenitiesList = [],
   fetchAmenities,
 }) => {
+  console.log('category data in super childdd', updateCategory)
   const [selectedAmenities, setSelectedAmenities] = useState([]);
+  const [status, setStatus] = useState();
   const [openAmenityModal, setOpenAmenityModal] = useState(false);
   const [openUpdateModal, setOpenUpdateModal] = useState(false);
   const [editingAmenity, setEditingAmenity] = useState(null);
 
   const [categoryName, setCategoryName] = useState("");
-  const [occupancyId, setOccupancyId] = useState("");
   const [monthlyRent, setMonthlyRent] = useState("");
   const [description, setDescription] = useState("");
-
+  console.log('category list-----', category)
   // ================= PREFILL =================
-  useEffect(() => {
-    if (category) {
-      setCategoryName(category.name || "");
-      setOccupancyId(category.occupancyType || "");
-      setMonthlyRent(category.price?.replace("₹", "") || "");
-      setDescription(category.description || "");
-      setSelectedAmenities(category.amenities || []);
-    }
-  }, [category]);
+  const [occupancyId, setOccupancyId] = useState("");
 
+  // useEffect(() => {
+  //   if (updateCategory) {
+  //     setCategoryName(updateCategory.categoryName || "");
+  //     setOccupancyId(updateCategory.occupancyId || "");
+  //     setMonthlyRent(updateCategory.monthlyRentPerBed || "");
+  //     setDescription(updateCategory.description || "");
+  //     setStatus(updateCategory.status || false);
+  //     // setSelectedAmenities(updateCategory.amenities || []);
+  //     const isSelected = selectedAmenities?.some(
+  //       (amenity) =>
+  //         amenity?.toLowerCase()?.trim() === item?.name?.toLowerCase()?.trim()
+  //     );
+  //   }
+  // }, [updateCategory]);
+useEffect(() => {
+  if (updateCategory) {
+    setCategoryName(updateCategory.categoryName || "");
+    setOccupancyId(updateCategory.occupancyId || "");
+    setMonthlyRent(updateCategory.monthlyRentPerBed || "");
+    setDescription(updateCategory.description || "");
+    setStatus(updateCategory.status || false);
+
+    // selected amenities set
+    setSelectedAmenities(
+      updateCategory?.amenities?.map(
+        (item) => item.amenitiesName
+      ) || []
+    );
+  }
+}, [updateCategory]);
   if (!isOpen) return null;
 
   const toggleAmenity = (name) => {
@@ -142,7 +166,6 @@ const EditCategoryModal = ({
               <label className="text-sm text-muted-foreground">
                 Occupancy Type
               </label>
-
               <select
                 value={occupancyId}
                 onChange={(e) => setOccupancyId(e.target.value)}
@@ -175,8 +198,10 @@ const EditCategoryModal = ({
               <span className="text-sm text-muted-foreground">
                 Active Status
               </span>
-
-              <input type="checkbox" className="w-5 h-5" />
+              <input type="checkbox" select className="w-5 h-5"
+                checked={status}
+                onChange={(e) => setStatus(e.target.checked)}
+              />
             </div>
           </div>
 
@@ -197,20 +222,20 @@ const EditCategoryModal = ({
               </button>
             </div>
 
-            <div className="flex flex-wrap gap-3 mt-4">
-              {amenitiesList.map((item) => {
+            {/* <div className="flex flex-wrap gap-3 mt-4">
+              {amenitiesList?.map((item) => {
                 const isSelected = selectedAmenities.includes(item.name);
 
                 return (
                   <div
                     key={item.id}
                     onClick={() => toggleAmenity(item.name)}
-                    className={`cursor-pointer flex flex-col items-center justify-center w-28 h-20 rounded-xl transition relative
-                    ${
-                      isSelected
-                        ? "bg-muted border-2 border-black"
-                        : "bg-background border border-transparent hover:bg-muted"
-                    }`}
+                    className={`cursor-pointer flex flex-col items-center justify-center 
+  w-28 h-20 rounded-3xl transition-all duration-200 relative
+  ${isSelected
+                        ? "bg-[#f5f7fb] border-[3px] border-black shadow-sm"
+                        : "bg-background border border-gray-200 hover:bg-muted"
+                      }`}
                   >
                     <button
                       onClick={(e) => {
@@ -247,7 +272,72 @@ const EditCategoryModal = ({
                   </div>
                 );
               })}
-            </div>
+            </div> */}
+            <div className="flex flex-wrap gap-3 mt-4">
+  {amenitiesList?.map((item) => {
+
+    const amenityName = item?.name || item?.amenitiesName;
+
+    // MATCH BOTH AMENITIES
+    const isSelected = selectedAmenities?.some(
+      (amenity) =>
+        amenity?.toLowerCase()?.trim() ===
+        amenityName?.toLowerCase()?.trim()
+    );
+
+    return (
+      <div
+        key={item.id}
+        onClick={() => toggleAmenity(amenityName)}
+        className={`cursor-pointer flex flex-col items-center justify-center 
+        w-28 h-20 rounded-3xl transition-all duration-200 relative
+        ${
+          isSelected
+            ? "bg-[#f5f7fb] border-[3px] border-black shadow-md"
+            : "bg-background border border-gray-200 hover:bg-muted"
+        }`}
+      >
+        {/* DELETE */}
+        <button
+          onClick={(e) => {
+            e.stopPropagation();
+            handleDeleteAmenity(item.id);
+          }}
+          className="absolute top-1 right-1 text-xs m-2"
+        >
+          ✕
+        </button>
+
+        {/* EDIT */}
+        <button
+          onClick={(e) => {
+            e.stopPropagation();
+            setEditingAmenity(item);
+            setOpenUpdateModal(true);
+          }}
+          className="absolute bottom-1 right-1 m-2"
+        >
+          <Pencil className="w-3 h-3" />
+        </button>
+
+        {/* ICON */}
+        <div className="text-muted-foreground">
+          <img
+            src={item.icon || item.amenitiesIconUrl}
+            onError={(e) => (e.target.style.display = "none")}
+            className="w-5 h-5"
+          />
+        </div>
+
+        {/* NAME */}
+        <span className="text-xs mt-1 text-muted-foreground">
+          {amenityName}
+        </span>
+      </div>
+    );
+  })}
+</div>
+
           </div>
 
           <div className="mt-6">

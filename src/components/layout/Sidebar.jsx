@@ -31,9 +31,13 @@ const Sidebar = ({ menu = [], onItemClick }) => {
     <div className="flex h-full w-64 flex-col border-r border-border bg-background">
       {/* Logo */}
       <div className="flex h-16 items-center border-b border-border px-4">
-        <img src={Logo} alt="Logo" className="w-44 mt-3 object-contain" />
+        <img
+          src={Logo}
+          alt="Logo"
+          className="w-44 mt-3 object-contain cursor-pointer"
+          onClick={() => navigate(`/${role}`)}
+        />
       </div>
-
       {/* Menu */}
       <nav className="flex-1 p-3 space-y-1">
         {menu.map((item) => {
@@ -63,10 +67,9 @@ const Sidebar = ({ menu = [], onItemClick }) => {
                   navigate(fullPath);
                 }}
                 className={`flex items-center justify-between gap-3 rounded-lg px-3 py-2.5 text-sm font-medium cursor-pointer transition
-                  ${
-                    isActive
-                      ? "bg-primary text-primary-foreground"
-                      : "text-muted-foreground hover:bg-muted"
+                  ${isActive
+                    ? "bg-primary text-primary-foreground"
+                    : "text-muted-foreground hover:bg-muted"
                   }`}
               >
                 <div className="flex items-center gap-3">
@@ -76,9 +79,8 @@ const Sidebar = ({ menu = [], onItemClick }) => {
 
                 {hasChildren && (
                   <ChevronDown
-                    className={`w-4 h-4 transition-transform ${
-                      openMenu === item.name ? "rotate-180" : ""
-                    }`}
+                    className={`w-4 h-4 transition-transform ${openMenu === item.name ? "rotate-180" : ""
+                      }`}
                   />
                 )}
               </div>
@@ -96,10 +98,9 @@ const Sidebar = ({ menu = [], onItemClick }) => {
                         to={childPath}
                         onClick={onItemClick}
                         className={`block text-sm px-3 py-2 rounded-md transition
-                          ${
-                            isChildActive
-                              ? "text-primary font-semibold"
-                              : "text-muted-foreground hover:text-foreground"
+                          ${isChildActive
+                            ? "text-primary font-semibold"
+                            : "text-muted-foreground hover:text-foreground"
                           }`}
                       >
                         • {child.name}

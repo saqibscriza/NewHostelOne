@@ -23,11 +23,15 @@ const Rooms = () => {
   const [loading, setLoading] = useState(true);
   const [occupancyList, setOccupancyList] = useState([]);
   const [amenitiesList, setAmenitiesList] = useState([]);
+  const [updateCheck, setUpdateCheck] = useState();
+  const [updateCategory, setUpdateCategory] = useState('');
+  // console.log('my occupancy value-0', updateCheck)
 
   // ================= FETCH CATEGORY =================
   const fetchOccupancy = async () => {
     try {
       const res = await getAllOccupancyApi();
+      // console.log('fetch occupancyyy listtt', res)
       setOccupancyList(res?.data?.Occupancy || []);
     } catch (error) {
       console.log(error);
@@ -38,7 +42,7 @@ const Rooms = () => {
   const fetchAmenities = async () => {
     try {
       const res = await getAllAmenitiesApi();
-
+       console.log('my aminitess get all...........',res)
       const list = Array.isArray(res?.data) ? res.data : [];
 
       const formatted = list.map((item) => ({
@@ -103,6 +107,10 @@ const Rooms = () => {
     }
   };
 
+  const GetDataFromChild = (value) => {
+    setUpdateCategory(value)
+    console.log('value in data from childdd', value)
+  }
   // delete
 
   const handleDeleteCategory = async (id) => {
@@ -125,11 +133,16 @@ const Rooms = () => {
     }
   };
 
+  const UpdateOccupency = (value) => {
+
+    setUpdateCheck(value)
+  }
+
   useEffect(() => {
     fetchCategories();
     fetchOccupancy();
     fetchAmenities();
-  }, []);
+  }, [updateCheck]);
 
   return (
     <div className="max-w-7xl mx-auto space-y-8 pb-12 p-6">
@@ -187,34 +200,37 @@ const Rooms = () => {
                 setEditModal(true);
               }}
               onDelete={() => handleDeleteCategory(category.id)}
+              GetDataFromChild={GetDataFromChild}
             />
           ))}
       </div>
 
       {/* MODALS */}
-  <RoomsAddCategoryModal
-  isOpen={openModal}
-  onClose={() => setOpenModal(false)}
-  onCategoryAdded={fetchCategories}
-  occupancyList={occupancyList}
-  amenitiesList={amenitiesList}
-  fetchAmenities={fetchAmenities}
-/>
+      <RoomsAddCategoryModal
+        isOpen={openModal}
+        onClose={() => setOpenModal(false)}
+        onCategoryAdded={fetchCategories}
+        occupancyList={occupancyList}
+        amenitiesList={amenitiesList}
+        fetchAmenities={fetchAmenities}
+      />
 
       <AddOccupancyModal
         isOpen={openOccupancyModal}
         onClose={() => setOpenOccupancyModal(false)}
+        UpdateOccupency={UpdateOccupency}
       />
 
-  <EditCategoryModal
-  isOpen={editModal}
-  onClose={() => setEditModal(false)}
-  category={selectedCategory}
-  onCategoryUpdated={fetchCategories}
-  occupancyList={occupancyList}
-  amenitiesList={amenitiesList}
-  fetchAmenities={fetchAmenities}
-/>
+      <EditCategoryModal
+        isOpen={editModal}
+        onClose={() => setEditModal(false)}
+        category={selectedCategory}
+        onCategoryUpdated={fetchCategories}
+        occupancyList={occupancyList}
+        amenitiesList={amenitiesList}
+        fetchAmenities={fetchAmenities}
+        updateCategory={updateCategory}
+      />
     </div>
   );
 };

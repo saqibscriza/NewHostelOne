@@ -8,6 +8,9 @@ import {
   Pencil,
   Trash2,
 } from "lucide-react";
+import {
+ getByIdCategory
+} from "../../../../utils/utils";
 
 export const getAmenityIcon = (amenity) => {
   switch (amenity) {
@@ -27,7 +30,29 @@ export const getAmenityIcon = (amenity) => {
 };
 
 // const RoomCard = ({ category }) => {
-const RoomCard = ({ category, onEdit, onDelete }) => {
+const RoomCard = ({ category, onEdit, onDelete,GetDataFromChild }) => {
+
+    console.log('category all dataa is here',category)
+
+  const MyGetCategoryById = async (id) => {
+    // console.log('category by id======',id)
+    try {
+      const response = await getByIdCategory(id);
+      console.log("get by id category apiiii", response);
+      if (response?.data?.status === "success") {
+        GetDataFromChild(response?.data?.Category)
+        // toast.success(response?.data?.message);
+        // refresh categories
+      } else {
+        // toast.error(response?.data?.message);
+      }
+    } catch (error) {
+      console.log(error);
+      toast.error("Delete failed");
+    }
+  };
+  
+  console.log('data of category get all',category)
   return (
     <div className="bg-card border border-border rounded-xl p-5 shadow-sm hover:shadow-md transition">
       {/* Top */}
@@ -80,7 +105,7 @@ const RoomCard = ({ category, onEdit, onDelete }) => {
 
         <div className="flex gap-3 text-muted-foreground">
           <button onClick={onEdit} className="hover:text-primary text-sm">
-            <Pencil className="w-4 h-4" />
+            <Pencil className="w-4 h-4" onClick={()=> MyGetCategoryById(category.id)}/>
           </button>
           <button onClick={onDelete} className="hover:text-destructive text-sm">
             <Trash2 className="w-4 h-4" />

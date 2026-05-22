@@ -8,12 +8,13 @@ import {
 } from "../../../../../utils/utils";
 import { toast } from "react-hot-toast";
 
-const AddOccupancyModal = ({ isOpen, onClose }) => {
+const AddOccupancyModal = ({ isOpen, onClose,UpdateOccupency }) => {
   const [occupancyName, setOccupancyName] = useState("");
   const [occupancies, setOccupancies] = useState([]); // always array
   const [editIndex, setEditIndex] = useState(null);
   const [editValue, setEditValue] = useState("");
   const [error, setError] = useState("");
+  const [updateState, setUpdateState] = useState(false);
 
   const fetchOccupancy = async () => {
     try {
@@ -50,10 +51,11 @@ const AddOccupancyModal = ({ isOpen, onClose }) => {
 
     try {
       const res = await AddOccupancyApi(formData);
-
       if (res?.data?.status === "success") {
+        fetchOccupancy()
         toast.success(res.data.message);
-        fetchOccupancy();
+        setUpdateState(prev => !prev)
+        UpdateOccupency(updateState)
         setOccupancyName("");
       } else {
         toast.error(res?.data?.message || "Failed");
