@@ -256,23 +256,62 @@ const onSubmit = async (data) => {
             <Contact2 className="w-5 h-5" />
             <h3 className="text-xs font-bold tracking-widest uppercase text-gray-500">Contact Details</h3>
           </div>
-          <div className="space-y-6">
-            <div className="space-y-2">
-              <Label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Phone Number</Label>
-              <div className="flex">
-                <span className="inline-flex items-center px-4 rounded-l-lg border-none bg-slate-50 text-gray-400 sm:text-sm">
-                  +91
-                </span>
-                <Input {...register("phone", { required: "Phone is required", pattern: { value: /^[0-9]{10}$/, message: "Valid 10 digit number required" } })} className={`h-11 rounded-none rounded-r-lg flex-1 bg-slate-50 border-none shadow-none text-gray-900 ${errors.phone ? "ring-1 ring-red-500" : ""}`} />
-              </div>
-              {errors.phone && <p className="text-xs text-red-500">{errors.phone.message}</p>}
-            </div>
-            <div className="space-y-2">
-              <Label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Personal Email</Label>
-              <Input {...register("email", { required: "Email is required", pattern: { value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i, message: "Invalid email" } })} type="email" className={`h-11 rounded-lg bg-slate-50 border-none shadow-none text-gray-900 ${errors.email ? "ring-1 ring-red-500" : ""}`} />
-              {errors.email && <p className="text-xs text-red-500">{errors.email.message}</p>}
-            </div>
-          </div>
+<div className="space-y-6">
+  <div className="space-y-2">
+    <Label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">
+      Phone Number
+    </Label>
+
+    <div className="flex">
+      <span className="inline-flex items-center px-4 rounded-l-lg border-none bg-slate-50 text-gray-400 sm:text-sm">
+        +91
+      </span>
+
+      <Input
+        {...register("phone", {
+          required: "Phone is required",
+          pattern: {
+            value: /^[6-9][0-9]{9}$/,
+            message:
+              "Phone number must start with 6, 7, 8, or 9 and contain 10 digits",
+          },
+        })}
+        className={`h-11 rounded-none rounded-r-lg flex-1 bg-slate-50 border-none shadow-none text-gray-900 ${
+          errors.phone ? "ring-1 ring-red-500" : ""
+        }`}
+      />
+    </div>
+
+    {errors.phone && (
+      <p className="text-xs text-red-500">{errors.phone.message}</p>
+    )}
+  </div>
+
+  <div className="space-y-2">
+    <Label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">
+      Personal Email
+    </Label>
+
+    <Input
+      {...register("email", {
+        required: "Email is required",
+        pattern: {
+          value:
+            /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
+          message: "Please enter a valid email address",
+        },
+      })}
+      type="email"
+      className={`h-11 rounded-lg bg-slate-50 border-none shadow-none text-gray-900 ${
+        errors.email ? "ring-1 ring-red-500" : ""
+      }`}
+    />
+
+    {errors.email && (
+      <p className="text-xs text-red-500">{errors.email.message}</p>
+    )}
+  </div>
+</div>
         </div>
 
         {/* Emergency Contact */}
@@ -297,16 +336,37 @@ const onSubmit = async (data) => {
                 {errors.emergencyRelation && <p className="text-xs text-red-500">{errors.emergencyRelation.message}</p>}
               </div>
             </div>
-            <div className="space-y-2">
-              <Label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Emergency Phone</Label>
-              <div className="flex">
-                <span className="inline-flex items-center px-4 rounded-l-lg border-none bg-slate-50 text-gray-400 sm:text-sm">
-                  +91
-                </span>
-                <Input {...register("emergencyPhone", { required: "Required", pattern: { value: /^[0-9]{10}$/, message: "Valid 10 digit number required" } })} className={`h-11 rounded-none rounded-r-lg flex-1 bg-slate-50 border-none shadow-none text-gray-900 ${errors.emergencyPhone ? "ring-1 ring-red-500" : ""}`} />
-              </div>
-              {errors.emergencyPhone && <p className="text-xs text-red-500">{errors.emergencyPhone.message}</p>}
-            </div>
+<div className="space-y-2">
+  <Label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">
+    Emergency Phone
+  </Label>
+
+  <div className="flex">
+    <span className="inline-flex items-center px-4 rounded-l-lg border-none bg-slate-50 text-gray-400 sm:text-sm">
+      +91
+    </span>
+
+    <Input
+      {...register("emergencyPhone", {
+        required: "Required",
+        pattern: {
+          value: /^[6-9][0-9]{9}$/,
+          message:
+            "Phone number must start with 6, 7, 8, or 9 and contain 10 digits",
+        },
+      })}
+      className={`h-11 rounded-none rounded-r-lg flex-1 bg-slate-50 border-none shadow-none text-gray-900 ${
+        errors.emergencyPhone ? "ring-1 ring-red-500" : ""
+      }`}
+    />
+  </div>
+
+  {errors.emergencyPhone && (
+    <p className="text-xs text-red-500">
+      {errors.emergencyPhone.message}
+    </p>
+  )}
+</div>
           </div>
         </div>
       </div>

@@ -609,6 +609,17 @@ export const getAllStudentApi = async ({ page = 0, size = 10 }) => {
   }
 };
 
+// export const getFeeCSV = async (data) => {
+//   try {
+//     axios.defaults.headers.common["Authorization"] = getToken();
+//     const res = await axios.get(`${Domain}/fee/export-csv`);
+//     return res?.data;
+//   } catch (error) {
+//     console.log("GET FEE CSV ERROR 👉", error);
+//     return null;
+//   }
+// };
+
 export const getFeeCSV = async (data) => {
   try {
     axios.defaults.headers.common["Authorization"] = getToken();
@@ -616,7 +627,7 @@ export const getFeeCSV = async (data) => {
     return res?.data;
   } catch (error) {
     console.log("GET FEE CSV ERROR 👉", error);
-    return null;
+    return error?.response?.data || null;
   }
 };
 

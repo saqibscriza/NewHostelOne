@@ -21,7 +21,7 @@ export default function Fees() {
   const [loading, setLoading] = useState(true);
   const [feeData, setFeeData] = useState(null);
 
-    const [statusFilter, setStatusFilter] = useState("all");
+  const [statusFilter, setStatusFilter] = useState("all");
   const [daysFilter, setDaysFilter] = useState("all");
 
   const filteredTransactions = transactions.filter((tx) => {
@@ -260,7 +260,7 @@ export default function Fees() {
         <div className="flex flex-col sm:flex-row sm:items-center gap-4">
           <span className="text-[13px] font-bold text-gray-700">Filter by:</span>
           <Select value={statusFilter} onValueChange={setStatusFilter}>
-            <SelectTrigger className="w-full sm:w-[160px] h-10 border-gray-200 shadow-none bg-transparent text-gray-900">
+            <SelectTrigger className="w-full sm:w-[160px] h-10 border-gray-200 shadow-none bg-transparent text-gray-900 pr-3">
               <SelectValue placeholder="All Status" />
             </SelectTrigger>
             <SelectContent>
@@ -271,7 +271,7 @@ export default function Fees() {
             </SelectContent>
           </Select>
           <Select value={daysFilter} onValueChange={setDaysFilter}>
-            <SelectTrigger className="w-full sm:w-[160px] h-10 border-gray-200 shadow-none bg-transparent text-gray-900">
+            <SelectTrigger className="w-full sm:w-[160px] h-10 border-gray-200 shadow-none bg-transparent text-gray-900 pr-3">
               <SelectValue placeholder="All Time" />
             </SelectTrigger>
             <SelectContent>
