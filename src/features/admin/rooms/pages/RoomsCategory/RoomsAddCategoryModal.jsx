@@ -160,16 +160,22 @@ const RoomsAddCategoryModal = ({
               <input
                 value={categoryName}
                 onChange={(e) => {
-                  setCategoryName(e.target.value);
-                  setErrors((prev) => ({
-                    ...prev,
-                    categoryName: "",
-                  }));
+                  const value = e.target.value;
+
+                  if (value.length <= 30) {
+                    setCategoryName(value);
+
+                    setErrors((prev) => ({
+                      ...prev,
+                      categoryName: "",
+                    }));
+                  }
                 }}
                 className={`mt-1 w-full rounded-md px-3 py-2 border ${
                   errors.categoryName ? "border-red-500" : "border-border"
                 } bg-background`}
                 placeholder="e.g. Deluxe Room"
+                maxLength={30}
               />
             </div>
 
@@ -224,20 +230,17 @@ const RoomsAddCategoryModal = ({
                 onChange={(e) => {
                   const value = e.target.value;
 
-                  setMonthlyRent(value);
+                  // allow only numbers + max 8 digits
+                  if (/^\d*$/.test(value) && value.length <= 8) {
+                    setMonthlyRent(value);
 
-                  if (/^\d*$/.test(value)) {
                     setErrors((prev) => ({
                       ...prev,
                       monthlyRent: "",
                     }));
-                  } else {
-                    setErrors((prev) => ({
-                      ...prev,
-                      monthlyRent: "Only numbers are allowed",
-                    }));
                   }
                 }}
+                maxLength={8}
                 className={`mt-1 w-full rounded-md px-3 py-2 border ${
                   errors.monthlyRent ? "border-red-500" : "border-border"
                 } bg-background`}

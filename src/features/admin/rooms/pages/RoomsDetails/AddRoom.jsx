@@ -299,13 +299,14 @@ const AddRoom = () => {
           variant="outline"
           onClick={() => navigate(-1)}
           disabled={loading}
+          className="cursor-pointer"
         >
           <ArrowLeft className="mr-2 h-4 w-4" />
           Back
         </Button>
       </div>
 
-      <Card>
+      <Card className="transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
         <CardContent className="p-5 space-y-4">
           <div className="flex items-center gap-2 font-medium">
             <Info className="h-4 w-4" />
@@ -338,10 +339,28 @@ const AddRoom = () => {
             <Field label="Category" error={errors.categoryId} required>
               <Select
                 value={form.categoryId}
-                onValueChange={(value) => setField("categoryId", value)}
+                onValueChange={(value) => {
+                  const selected = categoryList.find(
+                    (item) => String(item.id) === String(value),
+                  );
+
+                  setForm((prev) => ({
+                    ...prev,
+                    categoryId: value,
+                    totalRoomPrice: selected?.monthlyRentPerBed
+                      ? String(selected.monthlyRentPerBed)
+                      : "",
+                  }));
+
+                  setErrors((prev) => ({
+                    ...prev,
+                    categoryId: "",
+                    totalRoomPrice: "",
+                  }));
+                }}
               >
                 <SelectTrigger
-                  className={`h-10 w-full ${errors.categoryId ? "border-destructive" : ""}`}
+                  className={`h-10 w-full cursor-pointer ${errors.categoryId ? "border-destructive" : ""}`}
                 >
                   <SelectValue placeholder="Select Category" />
                 </SelectTrigger>
@@ -366,7 +385,7 @@ const AddRoom = () => {
         </CardContent>
       </Card>
 
-      <Card>
+      <Card className="transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
         <CardContent className="p-5 space-y-4">
           <div className="flex items-center gap-2 font-medium">
             <BedDouble className="h-4 w-4" />
@@ -392,9 +411,11 @@ const AddRoom = () => {
               <Input
                 inputMode="numeric"
                 value={form.totalRoomPrice}
-                onChange={(e) => setField("totalRoomPrice", e.target.value)}
-                placeholder="₹ 0.00"
-                className={errors.totalRoomPrice ? "border-destructive" : ""}
+                disabled
+                placeholder="Auto filled from category"
+                className={`cursor-not-allowed bg-muted ${
+                  errors.totalRoomPrice ? "border-destructive" : ""
+                }`}
               />
             </Field>
 
@@ -424,7 +445,7 @@ const AddRoom = () => {
         </CardContent>
       </Card>
 
-      <Card>
+      <Card className="transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
         <CardContent className="p-5 space-y-6">
           <div className="flex items-center gap-2 font-medium">
             <Image className="h-4 w-4" />
@@ -487,7 +508,7 @@ const AddRoom = () => {
         </CardContent>
       </Card>
 
-      <Card>
+      <Card className="transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
         <CardContent className="p-5 space-y-4">
           <div className="flex items-center gap-2 font-medium">
             <Settings className="h-4 w-4" />
@@ -499,7 +520,7 @@ const AddRoom = () => {
               value={form.status}
               onValueChange={(value) => setField("status", value)}
             >
-              <SelectTrigger className="h-10 w-full">
+              <SelectTrigger className="h-10 w-full cursor-pointer">
                 <SelectValue placeholder="Select Status" />
               </SelectTrigger>
               <SelectContent>
@@ -517,10 +538,15 @@ const AddRoom = () => {
           variant="outline"
           onClick={() => navigate(-1)}
           disabled={loading}
+          className="cursor-pointer"
         >
           Cancel
         </Button>
-        <Button onClick={handleSubmit} disabled={loading} className="min-w-36">
+        <Button
+          onClick={handleSubmit}
+          disabled={loading}
+          className="cursor-pointer min-w-36"
+        >
           {loading ? (
             <span className="flex items-center gap-2">
               <Loader2 className="h-4 w-4 animate-spin" />

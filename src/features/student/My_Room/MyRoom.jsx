@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-
+import { useNavigate } from "react-router-dom";
 import { Card, CardContent } from "../../../components/ui/Card";
 import { Button } from "../../../components/ui/button";
 
@@ -8,6 +8,7 @@ import { Wifi, MapPin, Circle } from "lucide-react";
 import { getStudentMyRoomApi } from "../../../utils/utils";
 
 export default function MyRoom() {
+  const navigate = useNavigate();
   const [loaderCheck, setLoaderCheck] = useState(false);
 
   const [roomData, setRoomData] = useState(null);
@@ -74,7 +75,10 @@ export default function MyRoom() {
           </p>
         </div>
 
-        <Button className="bg-primary text-primary-foreground">
+        <Button
+          onClick={() => navigate("/student/support/add")}
+          className="bg-primary text-primary-foreground cursor-pointer hover:scale-105 transition-all duration-300"
+        >
           Raise Ticket
         </Button>
       </div>

@@ -199,6 +199,7 @@ const Topbar = ({ onMenuClick }) => {
       sessionStorage.setItem("hostelSelectionToken", selectionToken);
 
       sessionStorage.setItem("selectedHostel", String(hostelId));
+      window.dispatchEvent(new Event("hostelChanged"));
 
       if (selectedHostelData?.hostelName) {
         sessionStorage.setItem(

@@ -39,13 +39,21 @@ export default function DashboardPage() {
     setLoading(false);
   };
 
-  // useEffect(() => {
-  //   fetchDashboard();
-  // }, []);
-
   useEffect(() => {
     fetchDashboard();
   }, [selectedHostel]);
+
+  useEffect(() => {
+    const handleHostelChange = () => {
+      setSelectedHostel(sessionStorage.getItem("selectedHostel") || "");
+    };
+
+    window.addEventListener("hostelChanged", handleHostelChange);
+
+    return () => {
+      window.removeEventListener("hostelChanged", handleHostelChange);
+    };
+  }, []);
 
   if (loading) {
     return <div className="p-6">Loading...</div>;

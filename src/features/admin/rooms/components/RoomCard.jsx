@@ -54,7 +54,7 @@ const RoomCard = ({ category, onEdit, onDelete,GetDataFromChild }) => {
   
   console.log('data of category get all',category)
   return (
-    <div className="bg-card border border-border rounded-xl p-5 shadow-sm hover:shadow-md transition">
+    <div className="group relative bg-card border border-border rounded-xl p-5 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
       {/* Top */}
       <div className="flex justify-between items-start">
         <span className="text-xs px-2 py-1 rounded-md bg-muted text-muted-foreground">
@@ -75,9 +75,23 @@ const RoomCard = ({ category, onEdit, onDelete,GetDataFromChild }) => {
       </h3>
 
       {/* Description (optional static) */}
-      <p className="text-sm text-muted-foreground mt-2">
-        {category.roomDescription}
-      </p>
+      <div className="relative mt-2">
+        <p className="text-sm text-muted-foreground cursor-pointer">
+          {category.description?.length > 37
+            ? `${category.description.substring(0, 37)}.....`
+            : category.description}
+        </p>
+
+        {/* Custom Tooltip */}
+        <div className="absolute left-0 top-8 z-50 hidden w-72 rounded-lg bg-black text-white text-xs p-3 shadow-2xl group-hover:block">
+          <p className="font-semibold mb-1 text-gray-300">Room Description</p>
+
+          <p className="leading-relaxed">{category.description}</p>
+
+          {/* Arrow */}
+          <div className="absolute -top-2 left-4 w-4 h-4 bg-black rotate-45"></div>
+        </div>
+      </div>
 
       {/* Amenities */}
       <div className="flex flex-wrap gap-2 mt-4">
