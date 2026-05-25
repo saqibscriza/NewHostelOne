@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { Star, ShieldCheck, Truck, Headphones, X } from "lucide-react";
+import { useLocation } from "react-router-dom";
+import { Star, X } from "lucide-react";
 import { toast } from "react-hot-toast";
 import {
   addMessFeedbackApi,
@@ -14,13 +15,13 @@ const mealTypes = [
   { key: "dinner", label: "DINNER", timeKey: "dinnerTime" },
 ];
 
-const dayFilterOptions = [1, 2, 3, 4, 5, 6, 7];
-const localFeedbackKey = "studentMessLocalFeedbacks";
-
 export default function Mess() {
+  const location = useLocation();
   const [openModal, setOpenModal] = useState(false);
   const [selectedMeal, setSelectedMeal] = useState(null);
-  const [activeTab, setActiveTab] = useState("today");
+  const [activeTab, setActiveTab] = useState(
+    location.state?.defaultTab || "today",
+  );
   const [menus, setMenus] = useState([]);
   const [rating, setRating] = useState(0);
   const [hoverRating, setHoverRating] = useState(0);
@@ -41,18 +42,17 @@ export default function Mess() {
   const getAllFeedbackApiData = async () => {
     try {
       const response = await getAllMessFeedbackApi();
-      const localFeedbacks = getLocalFeedbacks();
+
       if (response?.data?.status === "success" || response?.status === 200) {
-        setFeedbacks(mergeFeedbacks(localFeedbacks, normalizeFeedbacks(response.data)));
+        setFeedbacks(normalizeFeedbacks(response.data));
       } else {
-        setFeedbacks(localFeedbacks);
+        setFeedbacks([]);
       }
     } catch (error) {
       console.log(error);
-      setFeedbacks(getLocalFeedbacks());
+      setFeedbacks([]);
     }
   };
-
   const getMenuByOffset = async (offset) => {
     setLoadingMenu(true);
     try {
@@ -83,64 +83,49 @@ export default function Mess() {
 
   const getFullWeekMenuApi = async () => {
     setLoadingMenu(true);
+
     try {
       const response = await getFullWeekMessMenuApi();
+
       if (response?.data?.status === "success") {
         const list =
           response?.data?.menus ||
           response?.data?.data ||
           response?.data?.menu ||
           [];
+
         const normalizedList = Array.isArray(list)
           ? list
               .map((item, index) => {
                 const date = new Date();
                 date.setDate(date.getDate() + index);
+
                 return normalizeMenu(item, date);
               })
               .filter(Boolean)
           : [];
 
-        if (normalizedList.length > 0) {
-          setMenus(normalizedList);
-        } else {
-          setMenus(await fetchNextSevenDaysByDate());
-        }
+        setMenus(normalizedList);
       } else {
-        setMenus(await fetchNextSevenDaysByDate());
+        setMenus([]);
       }
     } catch (error) {
       console.log(error);
-      setMenus(await fetchNextSevenDaysByDate());
+      setMenus([]);
     } finally {
       setLoadingMenu(false);
     }
   };
 
-  const fetchNextSevenDaysByDate = async () => {
-    const requests = Array.from({ length: 7 }, (_, index) => {
-      const date = new Date();
-      date.setDate(date.getDate() + index);
-
-      return getMessMenuByDateApi(toDateInputValue(date)).then((response) => {
-        if (response?.data?.status !== "success") return null;
-
-        return normalizeMenu(
-          response.data.menu ||
-            response.data.data ||
-            response.data.planner ||
-            response.data.messMenu,
-          date,
-        );
-      });
-    });
-
-    const results = await Promise.all(requests);
-    return results.filter(Boolean);
-  };
-
   useEffect(() => {
-    getMenuByOffset(0);
+    if (activeTab === "week") {
+      getFullWeekMenuApi();
+    } else if (activeTab === "tomorrow") {
+      getMenuByOffset(1);
+    } else {
+      getMenuByOffset(0);
+    }
+
     getAllFeedbackApiData();
   }, []);
 
@@ -165,6 +150,16 @@ export default function Mess() {
       window.removeEventListener("storage", handleRefresh);
     };
   }, [activeTab]);
+
+  const isMealRated = (meal) => {
+    return feedbacks.some(
+      (item) =>
+        item.mealName === meal.mealName &&
+        item.mealType === meal.mealType &&
+        item.mealDate === meal.mealDate &&
+        item.isRated,
+    );
+  };
 
   const filteredFeedbacks = useMemo(() => {
     const days = Number(dayFilter);
@@ -212,23 +207,18 @@ export default function Mess() {
 
       if (response?.data?.status === "success") {
         toast.success(response?.data?.message || "Meal rated successfully");
-        const localFeedback = buildFeedbackFromRating(payload);
-        saveLocalFeedback(localFeedback);
-        setFeedbacks((prev) => [localFeedback, ...prev]);
+
         await getAllFeedbackApiData();
-        setOpenModal(false);
-      } else if (response?.status === 404) {
-        const localFeedback = buildFeedbackFromRating(payload);
-        saveLocalFeedback(localFeedback);
-        setFeedbacks((prev) => [localFeedback, ...prev]);
-        toast.success("Meal rated successfully");
         setOpenModal(false);
       } else {
         toast.error(response?.data?.message || "Failed to submit rating");
       }
     } catch (error) {
-      console.log(error);
-      toast.error("Something went wrong");
+      console.log("FULL ERROR 👉", error);
+      console.log("ERROR RESPONSE 👉", error?.response);
+      console.log("ERROR DATA 👉", error?.response?.data);
+
+      return error?.response || null;
     }
   };
 
@@ -405,13 +395,19 @@ export default function Mess() {
                     <p className="text-foreground text-[15px]">
                       {item.mealName}
                     </p>
-                    <button
-                      type="button"
-                      onClick={() => handleOpenModal(item)}
-                      className="px-5 py-2 bg-primary hover:bg-primary/90 text-primary-foreground text-xs font-bold rounded-lg shadow-sm shrink-0 uppercase tracking-wide"
-                    >
-                      Rate Meal
-                    </button>
+                    {isMealRated(item) ? (
+                      <div className="px-5 py-2 bg-green-100 text-green-700 text-xs font-bold rounded-lg shrink-0 uppercase tracking-wide">
+                        Rated
+                      </div>
+                    ) : (
+                      <button
+                        type="button"
+                        onClick={() => handleOpenModal(item)}
+                        className="px-5 py-2 bg-primary hover:bg-primary/90 text-primary-foreground text-xs font-bold rounded-lg shadow-sm shrink-0 uppercase tracking-wide"
+                      >
+                        Rate Meal
+                      </button>
+                    )}
                   </div>
                 </div>
               ))
@@ -442,7 +438,7 @@ export default function Mess() {
               onChange={(e) => setDayFilter(e.target.value)}
               className="h-12 rounded-xl border border-border bg-background px-5 text-sm text-foreground outline-none"
             >
-              {dayFilterOptions.map((day) => (
+              {[1, 2, 3, 4, 5, 6, 7].map((day) => (
                 <option key={day} value={day}>
                   Last {day} {day === 1 ? "Day" : "Days"}
                 </option>
@@ -535,24 +531,6 @@ export default function Mess() {
             </table>
           </div>
         </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <InfoCard
-            icon={ShieldCheck}
-            title="Quality Certified"
-            text="ISO 22000 Food Safety Standards"
-          />
-          <InfoCard
-            icon={Truck}
-            title="Supply Update"
-            text="Fresh organic produce arriving daily at 05:00"
-          />
-          <InfoCard
-            icon={Headphones}
-            title="Support Desk"
-            text="Immediate assistance"
-          />
-        </div>
       </div>
     </>
   );
@@ -604,50 +582,6 @@ const normalizeFeedbacks = (data) => {
     : [];
 };
 
-const buildFeedbackFromRating = (payload) => ({
-  id: `local-${Date.now()}`,
-  mealName: payload.mealName,
-  mealType: payload.mealType,
-  mealDate: payload.mealDate,
-  mealTime: "",
-  rating: payload.rating,
-  comment: payload.comment,
-  timeAgo: "Just now",
-  isRated: true,
-});
-
-const getLocalFeedbacks = () => {
-  try {
-    return JSON.parse(sessionStorage.getItem(localFeedbackKey) || "[]");
-  } catch {
-    return [];
-  }
-};
-
-const saveLocalFeedback = (feedback) => {
-  const existing = getLocalFeedbacks();
-  sessionStorage.setItem(
-    localFeedbackKey,
-    JSON.stringify([feedback, ...existing].slice(0, 50)),
-  );
-};
-
-const mergeFeedbacks = (...groups) => {
-  const seen = new Set();
-  return groups.flat().filter((item) => {
-    const key = [
-      item.mealName,
-      item.mealType,
-      item.mealDate,
-      item.rating,
-      item.comment,
-    ].join("|");
-    if (seen.has(key)) return false;
-    seen.add(key);
-    return true;
-  });
-};
-
 const ReadOnlyField = ({ label, value }) => (
   <div>
     <label className="block text-sm font-semibold text-foreground mb-2">
@@ -680,18 +614,6 @@ const TableHead = ({ children }) => (
   <th className="text-left px-6 py-4 text-sm font-semibold text-muted-foreground">
     {children}
   </th>
-);
-
-const InfoCard = ({ icon: Icon, title, text }) => (
-  <div className="bg-card p-5 rounded-xl shadow-sm border border-border flex items-start gap-4">
-    <div className="bg-muted p-2.5 rounded-lg text-foreground">
-      <Icon className="w-5 h-5" />
-    </div>
-    <div>
-      <h4 className="font-bold text-foreground text-[13px]">{title}</h4>
-      <p className="text-muted-foreground text-xs mt-0.5">{text}</p>
-    </div>
-  </div>
 );
 
 const formatHeaderDate = (date) =>

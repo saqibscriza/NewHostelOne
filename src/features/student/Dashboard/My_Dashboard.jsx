@@ -100,9 +100,16 @@ export default function My_Dashboard() {
                 </p>
               </div>
 
-              {/* <Button className="bg-primary text-primary-foreground">
+              <Button
+                className="bg-primary text-primary-foreground"
+                onClick={() =>
+                  navigate("/student/mess", {
+                    state: { defaultTab: "week" },
+                  })
+                }
+              >
                 View Weekly Menu
-              </Button> */}
+              </Button>
             </CardHeader>
 
             <CardContent className="space-y-4">
@@ -184,49 +191,40 @@ export default function My_Dashboard() {
             <CardHeader>
               <CardTitle>Notices</CardTitle>
             </CardHeader>
-            {/* <CardContent className="space-y-3 text-sm">
-              {dashboardData?.notices?.map((notice, index) => (
-                <p key={index}>
-                  {notice?.message ||
-                    notice?.description ||
-                    notice?.title ||
-                    String(notice)}
-                </p>
-              ))}
-            </CardContent> */}
-            <CardContent className="space-y-3 text-sm">
+
+            <CardContent className="space-y-5">
               {dashboardData?.notices?.length > 0 ? (
                 dashboardData.notices.map((notice, index) => (
-                  <div
-                    key={index}
-                    className="border-b pb-2 last:border-0 space-y-1"
-                  >
-                    {/* TITLE */}
-                    <p
-                      className="font-medium truncate cursor-pointer max-w-full"
-                      title={
-                        typeof notice?.title === "string" ? notice.title : ""
-                      }
-                    >
+                  <div key={index} className="relative group pb-3 last:pb-0">
+                    {/* NOTICE TITLE */}
+                    <p className="font-semibold text-base leading-snug line-clamp-2 cursor-pointer">
                       {typeof notice?.title === "string" ? notice.title : ""}
                     </p>
 
-                    {/* DESCRIPTION */}
-                    <p
-                      className="text-muted-foreground truncate cursor-pointer max-w-full"
-                      title={
-                        typeof notice?.description === "string"
-                          ? notice.description
-                          : ""
-                      }
-                    >
-                      {typeof notice?.description === "string"
-                        ? notice.description
-                        : ""}
-                    </p>
+                    {/* CUSTOM TOOLTIP */}
+                    <div className="absolute left-0 top-[110%] z-50 hidden w-72 rounded-xl border border-border bg-card/95 backdrop-blur p-3 shadow-2xl group-hover:block">
+                      <div className="space-y-2">
+                        <p className="font-semibold text-sm break-words text-foreground">
+                          {typeof notice?.title === "string"
+                            ? notice.title
+                            : ""}
+                        </p>
+
+                        {notice?.description && (
+                          <p className="text-sm text-muted-foreground break-words">
+                            {notice.description}
+                          </p>
+                        )}
+
+                        <p className="text-xs text-muted-foreground pt-1 border-t border-border">
+                          Posted {notice?.timeAgo}
+                        </p>
+                      </div>
+                    </div>
 
                     {/* TIME */}
-                    <p className="text-xs text-muted-foreground mt-1">
+                    <p className="text-sm text-muted-foreground mt-1">
+                      Posted{" "}
                       {typeof notice?.timeAgo === "string"
                         ? notice.timeAgo
                         : ""}
@@ -236,7 +234,7 @@ export default function My_Dashboard() {
               ) : (
                 <p className="text-muted-foreground">No notices available</p>
               )}
-            </CardContent>{" "}
+            </CardContent>
           </Card>
 
           {/* ACTIONS */}

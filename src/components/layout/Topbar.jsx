@@ -7,16 +7,14 @@ import { ThemeToggle } from "../../theme/ThemeToggle";
 import {
   Getadminswitchaccount,
   getAdminProfileApi,
-  getStudentDashboardApi,
   selectHostelApi,
-  getChefDashboardApi,
 } from "../../utils/utils";
 
 const getFirstValue = (source, keys) => {
   for (const key of keys) {
     const value = key.split(".").reduce((acc, part) => acc?.[part], source);
-    if (value !== undefined && value !== null && String(value).trim()) {
-      return String(value).trim();
+    if (value !== undefined && value !== null && String(value).trim() !== "") {
+      return value;
     }
   }
   return "";
@@ -75,74 +73,73 @@ const Topbar = ({ onMenuClick }) => {
     const fetchProfileName = async () => {
       if (!role || !sessionStorage.getItem("token")) return;
 
-      let displayName = "";
-      let displayPhoto = undefined;
-
-      if (role === "admin") {
+      try {
         const response = await getAdminProfileApi();
+
         const data = response?.data;
 
-        console.log("my data in variableeeeeee", data);
-        setUser(data?.name);
-        setRoleName(data?.roleName);
-        // setUserImage(data?.image);
+        console.log("TOPBAR PROFILE DATA", data);
+
         const activeHostelName = sessionStorage.getItem("selectedHostelName");
 
         setHostelName(activeHostelName || data?.hostelName);
-        console.log("my top bar data", response);
-        displayName = getFirstValue(response?.data, [
+
+        const displayName = getFirstValue(data, [
           "profile.name",
           "profile.fullName",
           "profile.adminName",
+          "profile.studentName",
+          "profile.chefName",
           "data.name",
           "data.fullName",
+          "data.studentName",
           "data.adminName",
+          "data.chefName",
           "name",
           "fullName",
+          "studentName",
           "adminName",
+          "chefName",
         ]);
-        displayPhoto = getFirstValue(response?.data, [
+
+        const displayPhoto = getFirstValue(data, [
           "profile.photo",
           "profile.image",
           "profile.profileImage",
+          "profile.avatar",
+
           "data.photo",
           "data.image",
           "data.profileImage",
+          "data.avatar",
+
           "photo",
           "image",
           "profileImage",
+          "avatar",
         ]);
-      }
 
-      if (role === "student") {
-        const response = await getStudentDashboardApi();
-        displayName = getFirstValue(response?.data, [
-          "data.studentName",
-          "data.fullName",
-          "studentName",
-          "fullName",
-          "name",
-        ]);
-      }
+        setUser(displayName || "User");
 
-      if (role === "chef") {
-        const response = await getChefDashboardApi();
+        // ROLE LABEL
+        if (role === "admin") {
+          setRoleName("ADMIN");
+        } else if (role === "student") {
+          setRoleName("STUDENT");
+        } else if (role === "chef") {
+          setRoleName("CHEF");
+        } else {
+          setRoleName("USER");
+        }
 
-        displayName = getFirstValue(response?.data, [
-          "dashboard.chefName",
-          "chefName",
-          "data.chefName",
-        ]);
-      }
-
-      if (displayName || displayPhoto) {
         updateUserProfile({
           name: displayName,
           ...(displayPhoto ? { photo: displayPhoto } : {}),
         });
+      } catch (error) {
+        console.log("PROFILE FETCH ERROR", error);
       }
     };
-
     fetchProfileName();
   }, [role, token, updateUserProfile]);
 
@@ -278,16 +275,20 @@ const Topbar = ({ onMenuClick }) => {
           </Button>
 
           {/* TEXT */}
-          <div className="text-right min-w-[120px]">
+          <div className="text-right min-w-[140px]">
             <p className="text-sm font-semibold text-foreground leading-tight whitespace-nowrap">
               {user || "User"}
             </p>
-            <p className="text-xs text-muted-foreground uppercase tracking-wide whitespace-nowrap">
-              {roleName?.replace("-", " ") || "USER"}
+
+            <p className="text-[11px] text-muted-foreground uppercase tracking-wider font-medium whitespace-nowrap">
+              {roleName || "USER"}
             </p>
-            <p className="text-xs text-muted-foreground uppercase tracking-wide whitespace-nowrap">
-              {hostelName?.replace("-", " ") || "Hostel"}
-            </p>
+
+            {role === "admin" && (
+              <p className="text-[11px] text-muted-foreground whitespace-nowrap truncate max-w-[140px]">
+                {hostelName || "Hostel"}
+              </p>
+            )}
           </div>
 
           {/* USER */}

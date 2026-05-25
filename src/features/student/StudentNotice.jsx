@@ -53,9 +53,8 @@ export default function StudentNotice() {
     activeFilter === "ALL"
       ? noticeData
       : noticeData.filter(
-          (item) => (item?.priority || "LOW").toUpperCase() === activeFilter,
+          (item) => (item?.category || "LOW").toUpperCase() === activeFilter,
         );
-
   return (
     <div className="min-h-screen bg-background p-6">
       {/* HEADER */}
@@ -100,7 +99,7 @@ export default function StudentNotice() {
           filteredNotices.map((notice, index) => (
             <Card
               key={index}
-              className="rounded-3xl border border-border bg-card shadow-sm transition-all hover:-translate-y-1 hover:shadow-lg"
+              className="relative overflow-hidden rounded-3xl border border-border bg-card shadow-sm transition-all hover:-translate-y-1 hover:shadow-lg"
             >
               <CardContent className="space-y-5 p-6">
                 {/* PRIORITY */}
@@ -108,27 +107,64 @@ export default function StudentNotice() {
                 <div>
                   <span
                     className={`rounded-md px-3 py-1 text-xs font-semibold ${
-                      (notice?.priority || "LOW").toUpperCase() === "HIGH"
+                      (notice?.category || "LOW").toUpperCase() === "HIGH"
                         ? "bg-red-100 text-red-600"
-                        : (notice?.priority || "LOW").toUpperCase() === "MEDIUM"
+                        : (notice?.category || "LOW").toUpperCase() === "MEDIUM"
                           ? "bg-yellow-100 text-yellow-700"
                           : "bg-slate-100 text-slate-600"
                     }`}
                   >
-                    {(notice?.priority || "LOW").toUpperCase()}
+                    {(notice?.category || "LOW").toUpperCase()}
                   </span>
                 </div>
 
                 {/* CONTENT */}
 
-                <div className="space-y-3">
-                  <h2 className="text-2xl font-bold text-foreground">
+                <div className="relative group space-y-3 min-h-[140px]">
+                  {" "}
+                  {/* TITLE */}
+                  <h2 className="text-2xl font-bold text-foreground line-clamp-2 cursor-pointer">
                     {notice?.title || notice?.noticeTitle || "No Title"}
                   </h2>
-
-                  <p className="text-sm leading-7 text-muted-foreground">
+                  {/* DESCRIPTION */}
+                  <p className="text-sm leading-7 text-muted-foreground line-clamp-3 cursor-pointer">
                     {notice?.description || notice?.message || "No Description"}
                   </p>
+                  {/* TOOLTIP */}
+                  {/* BEAUTIFUL INLINE EXPAND CARD */}
+                  {/* MINI POP TOOLTIP */}
+                  <div className="absolute inset-x-4 top-6 z-30 hidden group-hover:block">
+                    {" "}
+                    <div className="rounded-2xl border border-border/60 bg-background/95 p-4 shadow-2xl backdrop-blur-xl transition-all duration-200">
+                      {" "}
+                      {/* ARROW */}
+                      <div className="relative flex h-full flex-col space-y-3">
+                        {/* TITLE */}
+                        <h3 className="text-sm font-semibold text-foreground break-words leading-5">
+                          {notice?.title || notice?.noticeTitle || "No Title"}
+                        </h3>
+
+                        {/* DESCRIPTION */}
+                        <div className="max-h-[120px] overflow-y-auto pr-1 custom-scrollbar">
+                          <p className="text-xs leading-5 text-muted-foreground break-words">
+                            {notice?.description ||
+                              notice?.message ||
+                              "No Description"}
+                          </p>
+                        </div>
+                        {/* FOOTER */}
+                        <div className="flex items-center justify-between border-t border-border/50 pt-2">
+                          <span className="rounded-full bg-primary/10 px-2 py-1 text-[10px] font-semibold text-primary">
+                            {(notice?.priority || "LOW").toUpperCase()}
+                          </span>
+
+                          <span className="text-[10px] text-muted-foreground">
+                            {notice?.createdAt || notice?.date || "No Date"}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
                 </div>
 
                 {/* DATE */}

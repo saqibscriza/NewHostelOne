@@ -88,7 +88,10 @@ export default function MyRoom() {
         <Card className="lg:col-span-2 overflow-hidden rounded-xl border-border shadow-sm">
           <div className="relative h-80 overflow-hidden">
             <img
-              src="https://images.unsplash.com/photo-1595526114035-0d45ed16cfbf?auto=format&fit=crop&w=1200&q=80"
+              src={
+                roomData?.student?.photo ||
+                "https://images.unsplash.com/photo-1595526114035-0d45ed16cfbf?auto=format&fit=crop&w=1200&q=80"
+              }
               alt="Hostel room"
               className="h-full w-full object-cover"
             />
@@ -102,7 +105,7 @@ export default function MyRoom() {
               </h2>
               <p className="mt-2 flex items-center gap-1 text-sm font-medium text-white/90">
                 <MapPin className="h-4 w-4" />
-                {roomData?.roomDetails?.category || "Category N/A"}
+                {roomData?.roomDetails?.category || "Standard Room"}
                 {roomData?.roomDetails?.blockFloor
                   ? `, ${roomData.roomDetails.blockFloor}`
                   : ""}
@@ -132,7 +135,13 @@ export default function MyRoom() {
               label="Status"
               value={
                 <span className="inline-flex items-center gap-2">
-                  <Circle className="h-2.5 w-2.5 fill-slate-950 text-slate-950" />
+                  <Circle
+                    className={`h-2.5 w-2.5 ${
+                      roomData?.roomDetails?.status === "AVAILABLE"
+                        ? "fill-green-500 text-green-500"
+                        : "fill-red-500 text-red-500"
+                    }`}
+                  />{" "}
                   {formatStatus(roomData?.roomDetails?.status)}
                 </span>
               }
@@ -194,7 +203,11 @@ export default function MyRoom() {
               <Amenity key={index} icon={Wifi} text={item} />
             ))
           ) : (
-            <p className="text-muted-foreground">No amenities available</p>
+            <>
+              <Amenity icon={Wifi} text="WiFi Available" />
+              <Amenity icon={MapPin} text="Attached Washroom" />
+              <Amenity icon={Circle} text="Study Area" />
+            </>
           )}
         </div>
       </div>
@@ -215,9 +228,15 @@ export default function MyRoom() {
                 />
               ))
             ) : (
-              <p className="text-muted-foreground">
-                No maintenance history available
-              </p>
+              <div className="rounded-lg border border-dashed border-border p-5 text-center">
+                <p className="text-sm font-medium text-foreground">
+                  No Maintenance Requests
+                </p>
+
+                <p className="mt-1 text-xs text-muted-foreground">
+                  Your room maintenance history will appear here.
+                </p>
+              </div>
             )}
           </CardContent>
         </Card>

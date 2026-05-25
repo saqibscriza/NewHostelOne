@@ -46,11 +46,16 @@ const RoomDetails = () => {
   const [pageSize, setPageSize] = useState(10);
   const [totalPages, setTotalPages] = useState(1);
   const [totalElements, setTotalElements] = useState(0);
+  const [dashboardStats, setDashboardStats] = useState({
+    totalRooms: 0,
+    occupied: 0,
+    available: 0,
+    maintenance: 0,
+  });
   const [categoryFilter, setCategoryFilter] = useState("all");
   const [statusFilter, setStatusFilter] = useState("all");
   const [searchFilter, setSearchFilter] = useState("");
   const [locationFilter, setLocationFilter] = useState("all");
-
   const navigate = useNavigate();
 
   const RoomGetAllApi = async () => {
@@ -79,6 +84,12 @@ const RoomDetails = () => {
       setTotalPages(response?.data?.data?.totalPages || 1);
 
       setTotalElements(response?.data?.data?.totalElements || 0);
+      setDashboardStats({
+        totalRooms: response?.data?.data?.totalRooms || 0,
+        occupied: response?.data?.data?.occupied || 0,
+        available: response?.data?.data?.available || 0,
+        maintenance: response?.data?.data?.maintenance || 0,
+      });
     } catch (error) {
       console.log("ROOM FETCH ERROR =>", error);
     } finally {
@@ -89,6 +100,10 @@ const RoomDetails = () => {
   useEffect(() => {
     RoomGetAllApi();
   }, [currentPage, pageSize]);
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [categoryFilter, statusFilter, locationFilter, searchFilter]);
 
   const filteredRooms = roomData.filter((room) => {
     const matchesLocation =
@@ -125,8 +140,16 @@ const RoomDetails = () => {
         </div>
 
         <Button
-          onClick={() => navigate("/admin/rooms/add")}
-          className="bg-primary text-primary-foreground"
+          onClick={() => {
+            setCategoryFilter("all");
+            setStatusFilter("all");
+            setSearchFilter("");
+            setLocationFilter("all");
+            setCurrentPage(1);
+
+            navigate("/admin/rooms/add");
+          }}
+          className="cursor-pointer bg-primary text-primary-foreground"
         >
           + Add New Room
         </Button>
@@ -139,7 +162,7 @@ const RoomDetails = () => {
             <BedDouble className="w-6 h-6 text-muted-foreground" />
             <div>
               <p className="text-xs text-muted-foreground">TOTAL ROOMS</p>
-              <h3 className="text-xl font-semibold">{totalElements}</h3>
+              <h3 className="text-xl font-semibold">{dashboardStats?.totalRooms}</h3>
             </div>
           </CardContent>
         </Card>
@@ -150,7 +173,7 @@ const RoomDetails = () => {
             <div>
               <p className="text-xs text-muted-foreground">OCCUPIED</p>
               <h3 className="text-xl font-semibold">
-                {roomData.filter((r) => r.status === "OCCUPIED").length}
+                {dashboardStats?.occupied}
               </h3>
             </div>
           </CardContent>
@@ -162,7 +185,7 @@ const RoomDetails = () => {
             <div>
               <p className="text-xs text-muted-foreground">AVAILABLE</p>
               <h3 className="text-xl font-semibold">
-                {roomData.filter((r) => r.status === "AVAILABLE").length}
+                {dashboardStats?.available}
               </h3>
             </div>
           </CardContent>
@@ -174,7 +197,7 @@ const RoomDetails = () => {
             <div>
               <p className="text-xs text-muted-foreground">MAINTENANCE</p>
               <h3 className="text-xl font-semibold">
-                {roomData.filter((r) => r.status === "MAINTENANCE").length}
+                {dashboardStats?.maintenance}
               </h3>
             </div>
           </CardContent>
@@ -189,7 +212,8 @@ const RoomDetails = () => {
 
             <Select value={locationFilter} onValueChange={setLocationFilter}>
               {" "}
-              <SelectTrigger className="w-[160px]">
+              <SelectTrigger className="w-[160px] cursor-pointer">
+                {" "}
                 <SelectValue placeholder="All Location" />
               </SelectTrigger>
               <SelectContent>
@@ -210,7 +234,8 @@ const RoomDetails = () => {
             </Select>
 
             <Select value={categoryFilter} onValueChange={setCategoryFilter}>
-              <SelectTrigger className="w-[160px]">
+              <SelectTrigger className="w-[160px] cursor-pointer">
+                {" "}
                 <SelectValue placeholder="All Category" />
               </SelectTrigger>
               <SelectContent>
@@ -227,7 +252,8 @@ const RoomDetails = () => {
             </Select>
 
             <Select value={statusFilter} onValueChange={setStatusFilter}>
-              <SelectTrigger className="w-[160px]">
+              <SelectTrigger className="w-[160px] cursor-pointer">
+                {" "}
                 <SelectValue placeholder="All Status" />
               </SelectTrigger>
               <SelectContent>
@@ -250,7 +276,7 @@ const RoomDetails = () => {
           /> */}
 
           <button
-            className="text-sm text-muted-foreground hover:underline"
+            className="cursor-pointer text-sm text-muted-foreground hover:underline"
             onClick={() => {
               setCategoryFilter("all");
               setStatusFilter("all");
@@ -322,8 +348,9 @@ const RoomDetails = () => {
                     </div>
                   </TableCell>
 
-                  <TableCell>{room?.roomType || "-"}</TableCell>
-
+                  <TableCell>
+                    {room?.occupancyName || room?.roomType || "-"}
+                  </TableCell>
                   <TableCell>
                     {room?.categoryName || room?.categoryId || "-"}
                   </TableCell>
@@ -344,7 +371,7 @@ const RoomDetails = () => {
                     <div className="flex gap-3 text-muted-foreground">
                       <button
                         type="button"
-                        className="rounded-md p-1 hover:bg-muted hover:text-foreground"
+                        className="cursor-pointer rounded-md p-1 hover:bg-muted hover:text-foreground"
                         onClick={() =>
                           navigate(`/admin/rooms/view/${room?.roomId}`)
                         }
@@ -354,7 +381,7 @@ const RoomDetails = () => {
                       </button>
                       <button
                         type="button"
-                        className="rounded-md p-1 hover:bg-muted hover:text-foreground"
+                        className="cursor-pointer rounded-md p-1 hover:bg-muted hover:text-foreground"
                         onClick={() =>
                           navigate(`/admin/rooms/edit/${room?.roomId}`)
                         }
@@ -376,7 +403,7 @@ const RoomDetails = () => {
 
             <div className="flex gap-2 items-center">
               <button
-                className="px-2 disabled:opacity-50"
+                className="cursor-pointer px-2 disabled:opacity-50"
                 disabled={currentPage === 1}
                 onClick={() => setCurrentPage((prev) => prev - 1)}
               >
@@ -387,7 +414,7 @@ const RoomDetails = () => {
                 <button
                   key={index}
                   onClick={() => setCurrentPage(index + 1)}
-                  className={`px-3 py-1 rounded ${
+                  className={`cursor-pointer px-3 py-1 rounded ${
                     currentPage === index + 1
                       ? "bg-primary text-white"
                       : "bg-muted"
@@ -398,7 +425,7 @@ const RoomDetails = () => {
               ))}
 
               <button
-                className="px-2 disabled:opacity-50"
+                className="cursor-pointer px-2 disabled:opacity-50"
                 disabled={currentPage === totalPages}
                 onClick={() => setCurrentPage((prev) => prev + 1)}
               >

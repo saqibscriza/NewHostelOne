@@ -1900,6 +1900,9 @@ export const getAdminDetailsApi = async () => {
     return [];
   }
 };
+
+// topbar name and categoru api
+
 export const getAdminProfileApi = async () => {
   try {
     axios.defaults.headers.common["Authorization"] = getToken();
@@ -2410,41 +2413,6 @@ export const getAllMessFeedbackApi = async () => {
   }
 };
 
-export const addMessFeedbackApi = async (data) => {
-  const endpoints = [
-    "/messDetails/addFeedback",
-    "/messDetails/add",
-    "/messDetails/feedback/add",
-    "/messDetails/createFeedback",
-    "/messDetails/rateMeal",
-    "/messDetails/addRating",
-    "/messFeedback/addFeedback",
-    "/messFeedback/add",
-  ];
-
-  let lastError = null;
-
-  for (const endpoint of endpoints) {
-    try {
-      const res = await axios.post(`${Domain}${endpoint}`, null, {
-        headers: { Authorization: getToken() },
-        params: data,
-      });
-
-      return res;
-    } catch (error) {
-      lastError = error;
-      if (error?.response?.status !== 404) {
-        console.log("ADD MESS FEEDBACK ERROR 👉", error);
-        return error?.response || [];
-      }
-    }
-  }
-
-  console.log("ADD MESS FEEDBACK ERROR 👉", lastError);
-  return lastError?.response || [];
-};
-
 // forget password api
 
 export const changePasswordApi = async (data) => {
@@ -2465,5 +2433,37 @@ export const changePasswordApi = async (data) => {
     console.log("CHANGE PASSWORD ERROR 👉", error?.response?.data || error);
 
     return error?.response || [];
+  }
+};
+
+// rating mess of student
+
+export const addMessFeedbackApi = async (data) => {
+  try {
+    axios.defaults.headers.common["Authorization"] = getToken();
+
+    const formData = new FormData();
+
+    formData.append("mealName", data.mealName);
+    formData.append("mealType", data.mealType);
+    formData.append("mealDate", data.mealDate);
+    formData.append("rating", data.rating);
+    formData.append("comment", data.comment || "");
+
+    const res = await axios.post(
+      `${Domain}/messDetails/submitRating`,
+      formData,
+      {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      },
+    );
+
+    return res;
+  } catch (error) {
+    console.log("ADD MESS FEEDBACK ERROR 👉", error?.response?.data || error);
+
+    return error?.response || null;
   }
 };
