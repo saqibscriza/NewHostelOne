@@ -56,12 +56,12 @@ export default function Profile() {
         password: passwordForm.password,
       });
 
-      if (res?.data?.status === "success" || res?.status === 200) {
+      if (res?.data?.status === "success" || (res?.status === 200 && res?.data?.status !== "error" && res?.data?.status !== "failure")) {
         toast.success(res?.data?.message || res?.data || "Password changed successfully");
         setIsPasswordModalOpen(false);
         setPasswordForm({ oldPassword: "", password: "", confirmPassword: "" });
       } else {
-        toast.error(res?.data?.message || "Something went wrong");
+        toast.error(res?.data?.message || res?.data?.error || "Something went wrong");
       }
     } catch (error) {
       toast.error(
@@ -117,7 +117,7 @@ export default function Profile() {
               state: { studentId: profile.studentId },
             })
           }
-          className="bg-[#0f172a] hover:bg-[#1e293b] text-white px-6 py-2.5 rounded-xl text-sm font-medium transition-colors flex items-center gap-2"
+          className="bg-[#0f172a] hover:bg-[#1e293b] text-white px-6 py-2.5 rounded-xl text-sm font-medium transition-colors flex items-center gap-2 cursor-pointer"
         >
           <Edit2 className="w-4 h-4" /> Edit Profile
         </Button>
@@ -345,7 +345,7 @@ export default function Profile() {
             </div>
 
             {/* Option 2 */}
-            <div className="flex items-center justify-between cursor-pointer group">
+            <div className="flex items-center justify-between group">
               <div className="flex items-center gap-4">
                 <div className="bg-gray-50 group-hover:bg-gray-100 transition-colors p-3 rounded-full text-slate-500">
                   <MonitorSmartphone className="w-5 h-5" />
@@ -463,12 +463,12 @@ export default function Profile() {
               <Button
                 type="button"
                 variant="outline"
-                className="flex-1 h-11"
+                className="flex-1 h-11 cursor-pointer"
                 onClick={() => setIsPasswordModalOpen(false)}
               >
                 Cancel
               </Button>
-              <Button type="submit" disabled={passwordLoading} className="flex-1 h-11 bg-black hover:bg-gray-900 text-white font-medium">
+              <Button type="submit" disabled={passwordLoading} className="flex-1 h-11 bg-black hover:bg-gray-900 text-white font-medium cursor-pointer">
                 {passwordLoading ? "Saving..." : "Update Password"}
               </Button>
             </div>

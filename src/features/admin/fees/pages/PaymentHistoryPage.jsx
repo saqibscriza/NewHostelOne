@@ -245,22 +245,22 @@ useEffect(() => {
 
     {/* Payment Method */}
     <Select value={method} onValueChange={setMethod}>
-      <SelectTrigger className="w-full sm:w-[200px] bg-muted/30 border-border">
+      <SelectTrigger className="w-full sm:w-[200px] bg-muted/30 border-border cursor-pointer">
         <SelectValue placeholder="All Payment Method" />
       </SelectTrigger>
 
       <SelectContent>
         <SelectItem value="ALL">All Payment Method</SelectItem>
         <SelectItem value="ONLINE">Online</SelectItem>
-        <SelectItem value="UPI">UPI</SelectItem>
+        <SelectItem value="CARD">Card</SelectItem>
         <SelectItem value="CASH">Cash</SelectItem>
-        <SelectItem value="BANK_TRANSFER">Bank Transfer</SelectItem>
+        <SelectItem value="CHEQUE">Cheque</SelectItem>
       </SelectContent>
     </Select>
 
     {/* Status */}
     <Select value={status} onValueChange={setStatus}>
-      <SelectTrigger className="w-full sm:w-[160px] bg-muted/30 border-border">
+      <SelectTrigger className="w-full sm:w-[160px] bg-muted/30 border-border cursor-pointer">
         <SelectValue placeholder="All Status" />
       </SelectTrigger>
 
@@ -291,7 +291,7 @@ useEffect(() => {
         setStatus("ALL");
         setSearchTxn("");
       }}
-      className="text-sm font-medium text-foreground hover:underline sm:ml-auto mt-2 sm:mt-0"
+      className="text-sm font-medium text-foreground hover:underline sm:ml-auto mt-2 sm:mt-0 cursor-pointer"
     >
       Clear all filters
     </button>
@@ -314,7 +314,7 @@ useEffect(() => {
             <Button
             onClick={handleExportCSV}
               variant="outline"
-              className="text-sm border-border text-foreground"
+              className="text-sm border-border text-foreground cursor-pointer"
             >
               Export CSV
             </Button>

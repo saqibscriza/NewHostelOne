@@ -287,7 +287,7 @@ const response = await updateStaffApi(id, formData);
                 </span>
                  <Button
                   variant="secondary"
-                  className="h-11 bg-slate-100 hover:bg-slate-200 text-slate-700 whitespace-nowrap"
+                  className="h-11 bg-slate-100 hover:bg-slate-200 text-slate-700 whitespace-nowrap cursor-pointer"
                   type="button"
                   onClick={() =>
                     document.getElementById("profileUpload").click()
@@ -357,7 +357,7 @@ const response = await updateStaffApi(id, formData);
               <Label className="text-sm font-medium text-slate-700">Role <span className="text-red-500">*</span></Label>
               <select
                 {...register("roleId", { required: "Role is required" })}
-                className="flex h-11 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                className="flex h-11 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 cursor-pointer"
               >
                 <option value="">Select Role</option>
                 {roles.map((role) => (
@@ -655,7 +655,7 @@ className={`h-11 ${sameAddress ? "bg-slate-100 cursor-not-allowed text-slate-500
             <Label className="text-sm font-medium text-slate-700">Status</Label>
             <select
               {...register("status")}
-              className="flex h-11 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+              className="flex h-11 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 cursor-pointer"
             >
               <option value="true">Active</option>
               <option value="false">Inactive</option>
@@ -669,14 +669,14 @@ className={`h-11 ${sameAddress ? "bg-slate-100 cursor-not-allowed text-slate-500
             type="button"
             onClick={() => navigate("/admin/staff")}
             variant="secondary"
-            className="h-11 px-8 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold"
+            className="h-11 px-8 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold cursor-pointer"
           >
             Cancel
           </Button>
           <Button
             type="submit"
             disabled={loading}
-            className="h-11 px-8 bg-[#0f172a] hover:bg-slate-800 text-white font-semibold"
+            className="h-11 px-8 bg-[#0f172a] hover:bg-slate-800 text-white font-semibold cursor-pointer"
           >
             {loading ? "Updating..." : "Update"}
           </Button>

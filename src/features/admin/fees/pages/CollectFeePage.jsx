@@ -211,7 +211,7 @@ export default function CollectFeePage() {
                   value={searchTerm}
                   onChange={(e) => handleSearch(e.target.value)}
                   placeholder="Search student by name or ID..."
-                  className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-slate-900"
+                  className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-slate-900 cursor-pointer"
                 />
               </div>
 
@@ -248,7 +248,7 @@ export default function CollectFeePage() {
                             }}
                             className={`w-full rounded-xl p-4 flex items-center justify-between gap-4 text-left border transition-colors ${
                               isSelected
-                                ? "bg-slate-100 border-slate-900"
+                                ? "bg-slate-100 border-slate-900 cursor-pointer"
                                 : "bg-white border-slate-200 hover:bg-slate-50"
                             }`}
                           >
@@ -413,13 +413,13 @@ export default function CollectFeePage() {
 
               <div className="space-y-2">
                 <label className="text-sm font-medium text-slate-700">Payment Method</label>
-                <div className="grid grid-cols-2 gap-3">
+                <div className="grid grid-cols-2 gap-3 ">
                   {["ONLINE", "CASH", "CARD", "CHEQUE"].map((method) => (
                     <button
                       type="button"
                       key={method}
                       onClick={() => setPaymentMethod(method)}
-                      className={`py-2.5 rounded-lg text-xs font-bold tracking-wide border transition-colors ${
+                      className={`py-2.5 rounded-lg text-xs font-bold cursor-pointer tracking-wide border transition-colors ${
                         paymentMethod === method
                           ? "bg-slate-100 border-slate-900 text-slate-900"
                           : "bg-white border-slate-200 text-slate-600 hover:bg-slate-50"
@@ -440,7 +440,7 @@ export default function CollectFeePage() {
               </div>
 
               <div className="space-y-3 pt-2">
-                <Button className="w-full bg-[#0f172a] hover:bg-[#1e293b] text-white h-12 rounded-xl flex items-center justify-center gap-2 text-sm font-bold disabled:opacity-50 disabled:cursor-not-allowed"
+                <Button className="w-full bg-[#0f172a] hover:bg-[#1e293b] text-white h-12 rounded-xl flex items-center justify-center gap-2 text-sm font-bold disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
                 disabled={!selectedStudent}
 onClick={async () => {
   const res = await postCollectFeeApi({
@@ -465,7 +465,7 @@ onClick={async () => {
                   <Receipt className="w-4 h-4" />
   Generate Receipt
 </Button>
-                <Button variant="outline" className="w-full h-12 rounded-xl flex items-center justify-center font-bold text-slate-700 bg-slate-50 hover:bg-slate-100 border-none" onClick={() => {
+                <Button variant="outline" className="w-full h-12 rounded-xl flex items-center justify-center font-bold text-slate-700 bg-slate-50 hover:bg-slate-100 border-none cursor-pointer" onClick={() => {
                   setSelectedStudent(null);
                   setSearchTerm("");
                   setAmountPaid("");

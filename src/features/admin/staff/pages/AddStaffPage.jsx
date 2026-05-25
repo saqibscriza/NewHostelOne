@@ -232,7 +232,7 @@ export default function AddStaff() {
                     : "No file chosen"}
                 </span>
                 <Button
-                  className="h-11 bg-slate-100 hover:bg-slate-200 text-slate-700 whitespace-nowrap"
+                  className="h-11 bg-slate-100 hover:bg-slate-200 text-slate-700 whitespace-nowrap cursor-pointer"
                   type="button"
                   onClick={() =>
                     document.getElementById("profileUpload").click()
@@ -280,7 +280,7 @@ export default function AddStaff() {
                 {...register("gender",{
                   required: "Gender is required",
                 })}
-                className="flex h-11 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                className="flex h-11 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 cursor-pointer"
               >
                 <option value="">Select Gender</option>
                 <option value="MALE">Male</option>
@@ -305,7 +305,7 @@ export default function AddStaff() {
               <Label className="text-sm font-medium text-slate-700">Role<span className="text-red-500">*</span></Label>
               <select
                 {...register("roleId", { required: "Role is required" })}
-                className="flex h-11 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                className="flex h-11 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 cursor-pointer"
               >
                 <option value="">Select Role</option>
                 {roles.map((role) => (
@@ -612,7 +612,7 @@ export default function AddStaff() {
             <Label className="text-sm font-medium text-slate-700">Status</Label>
             <select
               {...register("status")}
-              className="flex h-11 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+              className="flex h-11 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 cursor-pointer"
             >
               <option value="true">Active</option>
               <option value="false">Inactive</option>
@@ -625,14 +625,14 @@ export default function AddStaff() {
           <Button
           type="button"
             variant="secondary"
-            className="h-11 px-8 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold"
+            className="h-11 px-8 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold cursor-pointer"
             onClick={() => navigate("/admin/staff")}
           >
             Cancel
           </Button>
           <Button
             type="submit"
-            className="h-11 px-8 bg-[#0f172a] hover:bg-slate-800 text-white font-semibold"
+            className="h-11 px-8 bg-[#0f172a] hover:bg-slate-800 text-white font-semibold cursor-pointer"
           >
             Add New Staff
           </Button>

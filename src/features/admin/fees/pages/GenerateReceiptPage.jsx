@@ -45,7 +45,7 @@ console.log("Receipt Data =>", receiptData);
           Generate receipt for completed booking or payment
         </p>
       </div>
-      <Button className="bg-foreground hover:bg-foreground/90 text-background flex items-center gap-2 h-11 px-6 rounded-lg">
+      <Button className="bg-foreground hover:bg-foreground/90 text-background flex items-center gap-2 h-11 px-6 rounded-lg cursor-pointer">
         <Download className="w-4 h-4" />
         Download
       </Button>
@@ -177,7 +177,7 @@ console.log("Receipt Data =>", receiptData);
             </div>
           </div>
           <Link to={`/admin/fees/history?studentId=${receiptData?.studentId}`} className="block w-full">
-            <Button variant="outline" className="w-full bg-muted/50 hover:bg-muted border-none text-foreground font-bold flex items-center justify-center gap-2 h-11">
+            <Button variant="outline" className="w-full bg-muted/50 hover:bg-muted border-none text-foreground font-bold flex items-center justify-center gap-2 h-11 cursor-pointer">
               <Clock className="w-4 h-4" />
               View Payment History
             </Button>

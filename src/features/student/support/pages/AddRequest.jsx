@@ -78,7 +78,7 @@ const createSupportTicket = async (data) => {
             ></textarea>
           </div>
 
-          <Button type="submit" className="w-full bg-[#0f1419] dark:bg-white dark:text-black hover:bg-[#272c30] dark:hover:bg-gray-100 text-white rounded-xl h-12 flex items-center justify-center gap-2 font-medium">
+          <Button type="submit" className="w-full bg-[#0f1419] dark:bg-white dark:text-black hover:bg-[#272c30] dark:hover:bg-gray-100 text-white rounded-xl h-12 flex items-center justify-center gap-2 font-medium cursor-pointer">
             Submit Request <Send className="w-4 h-4 ml-2" />
           </Button>
         </form>

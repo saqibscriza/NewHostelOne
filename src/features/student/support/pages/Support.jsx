@@ -94,7 +94,7 @@ export default function Support() {
         </div>
         <Button
           onClick={() => navigate("/student/support/add")}
-          className="bg-[#0f1419] dark:bg-white dark:text-black hover:bg-[#272c30] dark:hover:bg-gray-100 text-white rounded-xl h-12 px-6 shadow-sm w-full sm:w-auto font-medium"
+          className="bg-[#0f1419] dark:bg-white dark:text-black hover:bg-[#272c30] dark:hover:bg-gray-100 text-white rounded-xl h-12 px-6 shadow-sm w-full sm:w-auto font-medium cursor-pointer"
         >
           + Add Request
         </Button>
@@ -157,16 +157,17 @@ export default function Support() {
                         {/* <TableCell className="px-6 py-5 text-muted-foreground">
         {ticket.status}
       </TableCell> */}
-                  <TableCell className="px-6 py-5 text-muted-foreground whitespace-nowrap">
-                    {new Date(ticket.createdAt).toLocaleDateString()}
-
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </div>
-      </div>
+      
+            {/* Created */}
+            <TableCell className="px-6 py-5 text-sm text-muted-foreground whitespace-nowrap">
+              {new Date(ticket.createdAt).toLocaleDateString()}
+            </TableCell>
+          </TableRow>
+        ))}
+      </TableBody>
+    </Table>
+  </div>
+</div>
     </div>
   );
 }

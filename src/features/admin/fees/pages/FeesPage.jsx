@@ -205,7 +205,7 @@ const methods = [
           </p>
         </div>
         <Link to="/admin/fees/collect">
-          <Button className="bg-slate-900 hover:bg-slate-800 text-white flex items-center gap-2">
+          <Button className="bg-slate-900 hover:bg-slate-800 text-white flex items-center gap-2 cursor-pointer">
             <Wallet className="w-4 h-4" />
             Collect Fee
           </Button>
@@ -288,7 +288,7 @@ const methods = [
 
         <button 
           onClick={clearFilters}
-          className="text-sm font-medium text-slate-900 hover:underline whitespace-nowrap">
+          className="text-sm font-medium text-slate-900 hover:underline whitespace-nowrap cursor-pointer">
           Clear all filters
         </button>
       </CardContent>
@@ -300,7 +300,7 @@ const methods = [
             <CardTitle className="text-lg font-bold text-slate-900">Recent Transactions</CardTitle>
             <div className="flex gap-2">
               {/* <Button variant="outline" className="text-sm border-slate-200 text-slate-600">Filter</Button> */}
-              <Button onClick={handleExportCSV} variant="outline" className="text-sm border-slate-200 text-slate-600">Export CSV</Button>
+              <Button onClick={handleExportCSV} variant="outline" className="text-sm border-slate-200 text-slate-600 cursor-pointer">Export CSV</Button>
             </div>
           </CardHeader>
           <div className="overflow-x-auto">
@@ -356,7 +356,7 @@ const methods = [
                         onClick={() =>
     navigate(`/admin/fees/history?studentId=${tx.studentId}`)
   }className="text-slate-400 hover:text-slate-600">
-                          <Eye className="w-4 h-4" />
+                          <Eye className="w-4 h-4 cursor-pointer" />
                         </button>
                       </td>
                     </tr>

@@ -25,6 +25,16 @@ export default function SupportPage() {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [selectedTicket, setSelectedTicket] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
+  const [expandedTickets, setExpandedTickets] = useState({});
+
+  const toggleExpand = (e, ticketId) => {
+  e.stopPropagation();
+
+  setExpandedTickets((prev) => ({
+    ...prev,
+    [ticketId]: !prev[ticketId],
+  }));
+};
 
 const filteredTickets = tickets.filter((ticket) => {
   const name = ticket.studentName || ticket.userName || "";
@@ -152,7 +162,7 @@ const fetchSupportTickets = async () => {
         {/* Table Container */}
         <div className="bg-card border border-border rounded-xl shadow-sm overflow-x-auto">
           <table className="w-full text-sm text-left">
-            <thead className="bg-muted/50 text-muted-foreground text-xs font-semibold uppercase tracking-wider border-b border-border">
+             <thead className="bg-muted/50 text-muted-foreground text-sm font-semibold border-b border-border">
               <tr>
                 <th className="px-6 py-4 whitespace-nowrap">Student Name</th>
                 <th className="px-6 py-4 whitespace-nowrap">Room No.</th>
@@ -163,7 +173,7 @@ const fetchSupportTickets = async () => {
                 {/* <th className="px-6 py-4 whitespace-nowrap text-right">Actions</th> */}
               </tr>
             </thead>
-            <tbody className="divide-y divide-border">
+            <tbody className="divide-y divide-border text-sm">
   {currentTickets.map((ticket) => (
     <tr
       key={ticket.id || ticket._id}
@@ -200,11 +210,31 @@ const fetchSupportTickets = async () => {
         {ticket.subject}
       </td>
 
-      <td className="px-6 py-4 whitespace-nowrap">
-        <span className="px-3 py-1 bg-muted text-foreground text-xs font-medium rounded-full">
-          {ticket.description}
-        </span>
-      </td>
+<td className="px-6 py-4">
+  <span className="px-3 py-1 text-foreground font-medium inline-block max-w-[300px] break-words">
+    {ticket.description ? (
+      <>
+        {expandedTickets[ticket._id || ticket.id] ||
+        ticket.description.length <= 60
+          ? ticket.description
+          : `${ticket.description.slice(0, 60)}...`}
+
+        {ticket.description.length > 60 && (
+          <span
+            onClick={(e) => toggleExpand(e, ticket._id || ticket.id)}
+            className="text-blue-500 ml-1 cursor-pointer font-medium"
+          >
+            {expandedTickets[ticket._id || ticket.id]
+              ? "Show less"
+              : "Read more"}
+          </span>
+        )}
+      </>
+    ) : (
+      "N/A"
+    )}
+  </span>
+</td>
 
       {/* <td className="px-6 py-4 whitespace-nowrap">
         <span className="px-3 py-1 bg-muted text-foreground text-xs font-medium rounded-full">

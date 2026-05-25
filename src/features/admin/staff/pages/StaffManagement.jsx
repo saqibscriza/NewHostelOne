@@ -152,13 +152,13 @@ export default function StaffManagement() {
         <div className="flex gap-3">
           <Button
             onClick={() => setIsRoleModalOpen(true)}
-            className="bg-[#0f172a] text-white hover:bg-slate-800 gap-2 h-10 px-4 rounded-lg"
+            className="bg-[#0f172a] text-white hover:bg-slate-800 gap-2 h-10 px-4 rounded-lg cursor-pointer"
           >
             <Plus className="w-4 h-4" /> Add Role
           </Button>
           <Button
             onClick={() => navigate("/admin/staff/add")}
-            className="bg-[#0f172a] text-white hover:bg-slate-800 gap-2 h-10 px-4 rounded-lg"
+            className="bg-[#0f172a] text-white hover:bg-slate-800 gap-2 h-10 px-4 rounded-lg cursor-pointer"
           >
             <Plus className="w-4 h-4" /> Add Staff
           </Button>
@@ -341,7 +341,7 @@ export default function StaffManagement() {
                         <td className="px-6 py-4 text-right">
                           <div className="flex items-center justify-end gap-3">
                             <button
-                              className="text-muted-foreground hover:text-foreground transition-colors"
+                              className="text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
                               onClick={() =>
                                 navigate(`/admin/staff/edit/${staff.staffId}`)
                               }
@@ -349,7 +349,7 @@ export default function StaffManagement() {
                               <Edit2 className="w-4 h-4" />
                             </button>
                             <button
-                              className="text-muted-foreground hover:text-destructive transition-colors"
+                              className="text-muted-foreground hover:text-destructive transition-colors cursor-pointer"
                               onClick={() => MyDeleteStaffApi(staff.staffId)}
                             >
                               <Trash2 className="w-4 h-4" />

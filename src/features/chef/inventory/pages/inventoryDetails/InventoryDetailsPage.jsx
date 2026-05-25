@@ -46,6 +46,7 @@ export default function InventoryDetailsPage() {
   const [stocks, setStocks] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState("all-category");
 
   const fetchInventoryDashboard = async () => {
     try {
@@ -98,6 +99,10 @@ export default function InventoryDetailsPage() {
     console.log(error);
   }
 };
+
+ const uniqueCategories = Array.from(new Set(stocks.map((item) => item.categoryName).filter(Boolean)));
+ const filteredStocks = selectedCategory === "all-category" ? stocks : stocks.filter((item) => item.categoryName === selectedCategory);
+
 
   return (
     <div className="max-w-7xl mx-auto space-y-6 pb-10">
@@ -202,16 +207,25 @@ export default function InventoryDetailsPage() {
             Filter by:
           </span>
 
-          <Select defaultValue="all-category">
-            <SelectTrigger className="w-full sm:w-[150px] bg-muted/30 border-border rounded-md">
+                    <Select value={selectedCategory} onValueChange={setSelectedCategory}>
+            <SelectTrigger className="w-full sm:w-[150px] bg-muted/30 border-border rounded-md px-3 flex justify-between font-medium">
               <SelectValue placeholder="All Category" />
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all-category">All Category</SelectItem>
+              {uniqueCategories.map((cat) => (
+                <SelectItem key={cat} value={cat}>
+                  {cat}
+                </SelectItem>
+              ))}
             </SelectContent>
           </Select>
 
-          <button className="text-sm font-medium text-foreground hover:underline sm:ml-auto mt-2 sm:mt-0">
+          <button
+            type="button"
+            onClick={() => setSelectedCategory("all-category")}
+            className="text-sm font-medium text-foreground hover:underline sm:ml-auto mt-2 sm:mt-0"
+          >
             Clear all filters
           </button>
         </CardContent>
@@ -270,8 +284,8 @@ export default function InventoryDetailsPage() {
                     Loading inventory...
                   </TableCell>
                 </TableRow>
-              ) : stocks.length > 0 ? (
-                stocks.map((item) => (
+              ) : filteredStocks.length > 0 ? (
+                filteredStocks.map((item) => (
                   <TableRow
                     key={item.stockId}
                     className="hover:bg-muted/30 transition-colors border-b border-border"
@@ -360,7 +374,7 @@ export default function InventoryDetailsPage() {
 
         <div className="flex items-center justify-between px-6 py-5 border-t border-border bg-transparent">
           <span className="text-sm font-medium text-muted-foreground">
-            Showing {stocks.length > 0 ? 1 : 0} to {stocks.length} of {stocks.length} items
+            Showing {filteredStocks.length > 0 ? 1 : 0} to {filteredStocks.length} of {filteredStocks.length} items
           </span>
           <div className="flex items-center gap-1.5">
             <button type="button" className="p-1.5 text-muted-foreground hover:text-foreground rounded-lg transition-colors">

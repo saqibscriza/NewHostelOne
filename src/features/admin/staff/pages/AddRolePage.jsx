@@ -139,7 +139,7 @@ const handleDeleteRole = async (id) => {
               />
               <Button
                 type="submit"
-                className="h-12 px-6 bg-black hover:bg-slate-800 text-white font-semibold rounded-lg"
+                className="h-12 px-6 bg-black hover:bg-slate-800 text-white font-semibold rounded-lg cursor-pointer"
               >
                 Add New Role
               </Button>
@@ -147,7 +147,7 @@ const handleDeleteRole = async (id) => {
               type="button"
                 variant="secondary"
                 onClick={onClose}
-                className="h-12 px-6 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold rounded-lg"
+                className="h-12 px-6 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold rounded-lg cursor-pointer"
               >
                 Cancel
               </Button>
@@ -191,7 +191,7 @@ const handleDeleteRole = async (id) => {
                           <Button
                             type="button"
                             onClick={() => handleUpdateRole(role.id)}
-                            className="h-9 px-4 bg-black hover:bg-slate-800 text-white text-xs font-bold rounded-md uppercase tracking-wider"
+                            className="h-9 px-4 bg-black hover:bg-slate-800 text-white text-xs font-bold rounded-md uppercase tracking-wider cursor-pointer"
                           >
                             Update
                           </Button>
@@ -199,14 +199,14 @@ const handleDeleteRole = async (id) => {
                           <div className="flex items-center justify-end gap-4">
                             <button
                               onClick={() => handleEditClick(role)}
-                              className="text-slate-400 hover:text-slate-900 transition-colors"
+                              className="text-slate-400 hover:text-slate-900 transition-colors cursor-pointer"
                             >
                               <Edit2 className="w-[18px] h-[18px]" />
                             </button>
                             <button
                               type="button"
                               onClick={() => handleDeleteRole(role.id)}
-                              className="text-slate-400 hover:text-red-600 transition-colors"
+                              className="text-slate-400 hover:text-red-600 transition-colors cursor-pointer"
                             >
                               <Trash2 className="w-[18px] h-[18px]" />
                             </button>

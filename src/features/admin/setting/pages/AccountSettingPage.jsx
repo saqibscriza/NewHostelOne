@@ -324,7 +324,7 @@ export default function AccountSettingPage() {
           <Button
             type="button"
             variant="secondary"
-            className="h-11 px-8 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold"
+            className="h-11 px-8 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold cursor-pointer"
             onClick={() => navigate("/admin/staff")}
           >
             Cancel
@@ -332,7 +332,7 @@ export default function AccountSettingPage() {
           <Button
             type="submit"
             disabled={loading}
-            className="h-11 px-8 bg-[#0f172a] hover:bg-slate-800 text-white font-semibold"
+            className="h-11 px-8 bg-[#0f172a] hover:bg-slate-800 text-white font-semibold cursor-pointer"
           >
             Update
           </Button>
