@@ -197,6 +197,7 @@ export default function AddCategoryPage() {
                   <div className="space-y-3">
                     <Label className="text-xs font-bold text-muted-foreground uppercase tracking-wider">SKU ID</Label>
                     <Input 
+                      disabled
                       placeholder="SKU"
                       className="bg-transparent border-border rounded-xl h-11"
                     {...register(`items.${index}.sku`, {

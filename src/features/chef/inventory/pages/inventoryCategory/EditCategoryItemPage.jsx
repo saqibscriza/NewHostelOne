@@ -200,6 +200,7 @@ const updateItem = async () => {
                     SKU ID
                   </Label>
                   <Input
+                  disabled
                     value={formData.skuId}
                     onChange={(e) =>
                       setFormData((prev) => ({

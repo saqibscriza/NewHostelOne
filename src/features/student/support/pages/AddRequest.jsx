@@ -56,7 +56,7 @@ const createSupportTicket = async (data) => {
             <Label className="text-xs font-bold text-muted-foreground tracking-widest uppercase">Subject</Label>
             <Input 
               type="text" 
-              {...register("subject", { required: "Subject is required" })}
+              {...register("subject", { required: "Subject is required", minLength: { value: 5, message: "Subject must be at least 5 characters" }})}
               placeholder="Enter Subject Details"
               className="w-full h-12 rounded-lg border-border focus-visible:ring-1 focus-visible:ring-ring"
             />
@@ -65,8 +65,14 @@ const createSupportTicket = async (data) => {
           <div className="space-y-2">
             <Label className="text-xs font-bold text-muted-foreground tracking-widest uppercase">Description</Label>
             <textarea 
-              rows={5}
-              {...register("description", { required: "Description is required" })}
+    rows={5}
+    {...register("description", {
+      required: "Description is required",
+      minLength: {
+        value: 10,
+        message: "Description must be at least 10 characters",
+      }
+    })}
               placeholder="Describe the issue in detail..."
               className="w-full p-4 rounded-lg border border-border bg-transparent text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring resize-none"
             ></textarea>

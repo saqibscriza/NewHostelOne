@@ -1,4 +1,4 @@
-import React, { use, useEffect, useState } from "react";
+import React, {useEffect, useState } from "react";
 import { 
   Plus,
   Wheat,
@@ -14,6 +14,15 @@ import {
   Trash2,
   Edit2
 } from 'lucide-react';
+import {
+  Pagination,
+  PaginationContent,
+  PaginationEllipsis,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from "../../../../../components/ui/pagination";
 import { Link } from 'react-router-dom';
 import { Card, CardContent } from '../../../../../components/ui/Card';
 import { Button } from '../../../../../components/ui/button';
@@ -24,6 +33,8 @@ import { deleteInventoryCategoryApi } from "../../../../../utils/utils";
 export default function InventoryCategoryPage() {
 
 const [categories, setCategories] = useState([]);
+const [currentPage, setCurrentPage] = useState(1);
+const itemsPerPage = 12;
 
 // Get all categories from the API
 const getAllCategories = async () => {
@@ -52,6 +63,12 @@ const deleteCategory = async (id) => {
 };
 
 
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const currentCategories = categories.slice(indexOfFirstItem, indexOfLastItem);
+  const totalPages = Math.ceil(categories.length / itemsPerPage);
+
+
   return (
     <div className="max-w-7xl mx-auto space-y-8 pb-10">
       
@@ -71,7 +88,7 @@ const deleteCategory = async (id) => {
 
       {/* Grid Section */}
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-6">
-        {categories.map((catObj) => {
+        {currentCategories.map((catObj) => {
             const category = catObj.category;
             const items = catObj.items;
 
@@ -121,22 +138,64 @@ const deleteCategory = async (id) => {
       </div>
 
       {/* Pagination */}
-      <div className="flex items-center justify-between pt-4 border-t border-border mt-8">
-        <span className="text-sm font-medium text-muted-foreground">Showing 1 to 12 of 24 categories</span>
-        <div className="flex items-center gap-1.5">
-          <button className="p-1.5 text-muted-foreground hover:text-foreground rounded-lg transition-colors">
-            <ChevronLeft className="w-4 h-4" />
-          </button>
-          <button className="w-8 h-8 flex items-center justify-center rounded-lg bg-[#0f1419] dark:bg-white text-white dark:text-black text-sm font-bold shadow-sm">1</button>
-          <button className="w-8 h-8 flex items-center justify-center rounded-lg text-foreground hover:bg-muted text-sm font-medium">2</button>
-          <button className="w-8 h-8 flex items-center justify-center rounded-lg text-foreground hover:bg-muted text-sm font-medium">3</button>
-          <span className="px-2 text-muted-foreground">...</span>
-          <button className="w-8 h-8 flex items-center justify-center rounded-lg text-foreground hover:bg-muted text-sm font-medium">6</button>
-          <button className="p-1.5 text-muted-foreground hover:text-foreground rounded-lg transition-colors">
-            <ChevronRight className="w-4 h-4" />
-          </button>
+      {totalPages > 0 && (
+        <div className="flex flex-col sm:flex-row items-center justify-between pt-4 border-t border-border mt-8 gap-4">
+          <span className="text-sm font-medium text-muted-foreground">
+            Showing {indexOfFirstItem + 1} to {Math.min(indexOfLastItem, categories.length)} of {categories.length} categories
+          </span>
+          <Pagination className="mx-0 w-auto">
+            <PaginationContent>
+              <PaginationItem>
+                <PaginationPrevious 
+                  onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                  className={currentPage === 1 ? "pointer-events-none opacity-50" : "cursor-pointer"}
+                />
+              </PaginationItem>
+              
+              {/* Logic for page numbers */}
+              {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => {
+                if (
+                  page === 1 ||
+                  page === totalPages ||
+                  (page >= currentPage - 1 && page <= currentPage + 1)
+                ) {
+                  return (
+                    <PaginationItem key={page}>
+                      <PaginationLink 
+                        onClick={() => setCurrentPage(page)}
+                        isActive={currentPage === page}
+                        className="cursor-pointer"
+                      >
+                        {page}
+                      </PaginationLink>
+                    </PaginationItem>
+                  );
+                }
+                
+                if (
+                  page === currentPage - 2 ||
+                  page === currentPage + 2
+                ) {
+                  return (
+                    <PaginationItem key={`ellipsis-${page}`}>
+                      <PaginationEllipsis />
+                    </PaginationItem>
+                  );
+                }
+                
+                return null;
+              })}
+
+              <PaginationItem>
+                <PaginationNext 
+                  onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+                  className={currentPage === totalPages ? "pointer-events-none opacity-50" : "cursor-pointer"}
+                />
+              </PaginationItem>
+            </PaginationContent>
+          </Pagination>
         </div>
-      </div>
+      )}
     </div>
   );
 }
