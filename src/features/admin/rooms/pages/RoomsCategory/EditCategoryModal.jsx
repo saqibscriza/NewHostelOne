@@ -18,7 +18,7 @@ const EditCategoryModal = ({
   amenitiesList = [],
   fetchAmenities,
 }) => {
-  console.log('category data in super childdd', updateCategory)
+  console.log("category data in super childdd", updateCategory);
   const [selectedAmenities, setSelectedAmenities] = useState([]);
   const [status, setStatus] = useState();
   const [openAmenityModal, setOpenAmenityModal] = useState(false);
@@ -28,7 +28,7 @@ const EditCategoryModal = ({
   const [categoryName, setCategoryName] = useState("");
   const [monthlyRent, setMonthlyRent] = useState("");
   const [description, setDescription] = useState("");
-  console.log('category list-----', category)
+  console.log("category list-----", category);
   // ================= PREFILL =================
   const [occupancyId, setOccupancyId] = useState("");
 
@@ -46,22 +46,21 @@ const EditCategoryModal = ({
   //     );
   //   }
   // }, [updateCategory]);
-useEffect(() => {
-  if (updateCategory) {
-    setCategoryName(updateCategory.categoryName || "");
-    setOccupancyId(updateCategory.occupancyId || "");
-    setMonthlyRent(updateCategory.monthlyRentPerBed || "");
-    setDescription(updateCategory.description || "");
-    setStatus(updateCategory.status || false);
 
-    // selected amenities set
-    setSelectedAmenities(
-      updateCategory?.amenities?.map(
-        (item) => item.amenitiesName
-      ) || []
-    );
-  }
-}, [updateCategory]);
+  useEffect(() => {
+    if (updateCategory) {
+      setCategoryName(updateCategory.categoryName || "");
+      setOccupancyId(updateCategory.occupancyId || "");
+      setMonthlyRent(updateCategory.monthlyRentPerBed || "");
+      setDescription(updateCategory.description || "");
+      setStatus(updateCategory.status || false);
+
+      // selected amenities set
+      setSelectedAmenities(
+        updateCategory?.amenities?.map((item) => item.amenitiesName) || [],
+      );
+    }
+  }, [updateCategory]);
   if (!isOpen) return null;
 
   const toggleAmenity = (name) => {
@@ -198,10 +197,36 @@ useEffect(() => {
               <span className="text-sm text-muted-foreground">
                 Active Status
               </span>
-              <input type="checkbox" select className="w-5 h-5"
-                checked={status}
-                onChange={(e) => setStatus(e.target.checked)}
-              />
+              <label className="relative inline-flex items-center cursor-pointer">
+                <input
+                  type="checkbox"
+                  className="sr-only peer"
+                  checked={status}
+                  onChange={(e) => setStatus(e.target.checked)}
+                />
+
+                {/* Background */}
+                <div
+                  className="
+      w-12 h-6 rounded-full
+      bg-gray-300
+      peer-checked:bg-green-500
+      transition-all duration-300
+      shadow-inner
+    "
+                ></div>
+
+                {/* Circle */}
+                <div
+                  className="
+      absolute left-1 top-1
+      w-4 h-4 rounded-full bg-white
+      transition-all duration-300
+      peer-checked:translate-x-6
+      shadow-md
+    "
+                ></div>
+              </label>
             </div>
           </div>
 
@@ -274,70 +299,68 @@ useEffect(() => {
               })}
             </div> */}
             <div className="flex flex-wrap gap-3 mt-4">
-  {amenitiesList?.map((item) => {
+              {amenitiesList?.map((item) => {
+                const amenityName = item?.name || item?.amenitiesName;
 
-    const amenityName = item?.name || item?.amenitiesName;
+                // MATCH BOTH AMENITIES
+                const isSelected = selectedAmenities?.some(
+                  (amenity) =>
+                    amenity?.toLowerCase()?.trim() ===
+                    amenityName?.toLowerCase()?.trim(),
+                );
 
-    // MATCH BOTH AMENITIES
-    const isSelected = selectedAmenities?.some(
-      (amenity) =>
-        amenity?.toLowerCase()?.trim() ===
-        amenityName?.toLowerCase()?.trim()
-    );
-
-    return (
-      <div
-        key={item.id}
-        onClick={() => toggleAmenity(amenityName)}
-        className={`cursor-pointer flex flex-col items-center justify-center 
+                return (
+                  <div
+                    key={item.id}
+                    onClick={() => toggleAmenity(amenityName)}
+                    className={`cursor-pointer flex flex-col items-center justify-center 
         w-28 h-20 rounded-3xl transition-all duration-200 relative
         ${
           isSelected
             ? "bg-[#f5f7fb] border-[3px] border-black shadow-md"
             : "bg-background border border-gray-200 hover:bg-muted"
         }`}
-      >
-        {/* DELETE */}
-        <button
-          onClick={(e) => {
-            e.stopPropagation();
-            handleDeleteAmenity(item.id);
-          }}
-          className="absolute top-1 right-1 text-xs m-2"
-        >
-          ✕
-        </button>
+                  >
+                    {/* DELETE */}
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleDeleteAmenity(item.id);
+                      }}
+                      className="absolute top-1 right-1 text-xs m-2"
+                    >
+                      ✕
+                    </button>
 
-        {/* EDIT */}
-        <button
-          onClick={(e) => {
-            e.stopPropagation();
-            setEditingAmenity(item);
-            setOpenUpdateModal(true);
-          }}
-          className="absolute bottom-1 right-1 m-2"
-        >
-          <Pencil className="w-3 h-3" />
-        </button>
+                    {/* EDIT */}
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setEditingAmenity(item);
+                        setOpenUpdateModal(true);
+                      }}
+                      className="absolute bottom-1 right-1 m-2"
+                    >
+                      <Pencil className="w-3 h-3" />
+                    </button>
 
-        {/* ICON */}
-        <div className="text-muted-foreground">
-          <img
-            src={item.icon || item.amenitiesIconUrl}
-            onError={(e) => (e.target.style.display = "none")}
-            className="w-5 h-5"
-          />
-        </div>
+                    {/* ICON */}
+                    <div className="text-muted-foreground">
+                      <img
+                        src={item.icon || item.amenitiesIconUrl}
+                        onError={(e) => (e.target.style.display = "none")}
+                        className="w-5 h-5"
+                      />
+                    </div>
 
-        {/* NAME */}
-        <span className="text-xs mt-1 text-muted-foreground">
-          {amenityName}
-        </span>
-      </div>
-    );
-  })}
-</div>
-
+                    {/* NAME */}
+                    <span className="text-xs mt-1 text-muted-foreground">
+                      {amenityName}
+                    </span>
+                  </div>
+                );
+              })}
+            </div>
           </div>
 
           <div className="mt-6">

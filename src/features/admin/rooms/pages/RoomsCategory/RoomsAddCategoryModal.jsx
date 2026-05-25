@@ -21,6 +21,7 @@ const RoomsAddCategoryModal = ({
   const [categoryName, setCategoryName] = useState("");
   const [occupancyId, setOccupancyId] = useState("");
   const [monthlyRent, setMonthlyRent] = useState("");
+  const [status, setStatus] = useState(true);
   const [description, setDescription] = useState("");
   const [errors, setErrors] = useState({
     categoryName: "",
@@ -73,6 +74,8 @@ const RoomsAddCategoryModal = ({
       newErrors.monthlyRent = "Monthly rent is required";
     } else if (!/^\d+$/.test(monthlyRent)) {
       newErrors.monthlyRent = "Only numbers are allowed";
+    } else if (Number(monthlyRent) <= 0) {
+      newErrors.monthlyRent = "Rent must be greater than 0";
     }
 
     // Description
@@ -94,8 +97,7 @@ const RoomsAddCategoryModal = ({
       occupancyId: Number(occupancyId),
       monthlyRentPerBed: Number(monthlyRent),
       description: description,
-      status: true,
-
+      status,
       amenitiesIds: selectedAmenities
         .map((name) => {
           const found = amenitiesList.find((a) => a.name === name);
@@ -130,7 +132,7 @@ const RoomsAddCategoryModal = ({
     <>
       {/* UI unchanged */}
       <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm">
-        <div className="bg-card w-full max-w-5xl rounded-xl border border-border shadow-lg p-6 relative">
+        <div className="bg-card w-full max-w-5xl max-h-[90vh] overflow-y-auto rounded-xl border border-border shadow-lg p-6 relative">
           <button
             onClick={onClose}
             className="absolute top-4 right-4 text-muted-foreground"
@@ -251,7 +253,17 @@ const RoomsAddCategoryModal = ({
               <span className="text-sm text-muted-foreground">
                 Active Status
               </span>
-              <input type="checkbox" className="w-5 h-5" />
+              <label className="relative inline-flex items-center cursor-pointer">
+                <input
+                  type="checkbox"
+                  className="sr-only peer"
+                  checked={status}
+                  onChange={(e) => setStatus(e.target.checked)}
+                />
+                <div className="w-11 h-6 bg-gray-300 rounded-full peer peer-checked:bg-green-500 transition-all"></div>
+
+                <div className="absolute left-1 top-1 w-4 h-4 bg-white rounded-full transition-all peer-checked:translate-x-5"></div>
+              </label>{" "}
             </div>
           </div>
 
@@ -340,8 +352,9 @@ const RoomsAddCategoryModal = ({
             <textarea
               value={description}
               onChange={(e) => {
-                setDescription(e.target.value);
-
+                if (e.target.value.length <= 200) {
+                  setDescription(e.target.value);
+                }
                 setErrors((prev) => ({
                   ...prev,
                   description: "",

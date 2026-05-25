@@ -24,7 +24,7 @@ const Rooms = () => {
   const [occupancyList, setOccupancyList] = useState([]);
   const [amenitiesList, setAmenitiesList] = useState([]);
   const [updateCheck, setUpdateCheck] = useState();
-  const [updateCategory, setUpdateCategory] = useState('');
+  const [updateCategory, setUpdateCategory] = useState("");
   // console.log('my occupancy value-0', updateCheck)
 
   // ================= FETCH CATEGORY =================
@@ -42,7 +42,7 @@ const Rooms = () => {
   const fetchAmenities = async () => {
     try {
       const res = await getAllAmenitiesApi();
-       console.log('my aminitess get all...........',res)
+      console.log("my aminitess get all...........", res);
       const list = Array.isArray(res?.data) ? res.data : [];
 
       const formatted = list.map((item) => ({
@@ -108,9 +108,9 @@ const Rooms = () => {
   };
 
   const GetDataFromChild = (value) => {
-    setUpdateCategory(value)
-    console.log('value in data from childdd', value)
-  }
+    setUpdateCategory(value);
+    console.log("value in data from childdd", value);
+  };
   // delete
 
   const handleDeleteCategory = async (id) => {
@@ -134,9 +134,8 @@ const Rooms = () => {
   };
 
   const UpdateOccupency = (value) => {
-
-    setUpdateCheck(value)
-  }
+    setUpdateCheck(value);
+  };
 
   useEffect(() => {
     fetchCategories();
@@ -170,14 +169,14 @@ const Rooms = () => {
 
       {/* ================= UI STATES ================= */}
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-16">
+        {" "}
         {/* 🔄 LOADING */}
         {loading && (
           <div className="col-span-full text-center py-10 text-muted-foreground">
             Loading categories...
           </div>
         )}
-
         {/* ❌ NO DATA */}
         {!loading && categories.length === 0 && (
           <div className="col-span-full text-center py-10">
@@ -187,12 +186,12 @@ const Rooms = () => {
             </p>
           </div>
         )}
-
         {/* ✅ DATA */}
         {!loading &&
           categories.length > 0 &&
-          categories.map((category) => (
+          categories.map((category, index) => (
             <RoomCard
+              index={index}
               key={category.id}
               category={category}
               onEdit={() => {

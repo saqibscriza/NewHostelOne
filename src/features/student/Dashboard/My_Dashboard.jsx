@@ -184,7 +184,6 @@ export default function My_Dashboard() {
             <CardHeader>
               <CardTitle>Notices</CardTitle>
             </CardHeader>
-
             {/* <CardContent className="space-y-3 text-sm">
               {dashboardData?.notices?.map((notice, index) => (
                 <p key={index}>
@@ -198,15 +197,35 @@ export default function My_Dashboard() {
             <CardContent className="space-y-3 text-sm">
               {dashboardData?.notices?.length > 0 ? (
                 dashboardData.notices.map((notice, index) => (
-                  <div key={index} className="border-b pb-2 last:border-0">
-                    <p className="font-medium">
+                  <div
+                    key={index}
+                    className="border-b pb-2 last:border-0 space-y-1"
+                  >
+                    {/* TITLE */}
+                    <p
+                      className="font-medium truncate cursor-pointer max-w-full"
+                      title={
+                        typeof notice?.title === "string" ? notice.title : ""
+                      }
+                    >
                       {typeof notice?.title === "string" ? notice.title : ""}
                     </p>
-                    <p className="text-muted-foreground">
+
+                    {/* DESCRIPTION */}
+                    <p
+                      className="text-muted-foreground truncate cursor-pointer max-w-full"
+                      title={
+                        typeof notice?.description === "string"
+                          ? notice.description
+                          : ""
+                      }
+                    >
                       {typeof notice?.description === "string"
                         ? notice.description
                         : ""}
                     </p>
+
+                    {/* TIME */}
                     <p className="text-xs text-muted-foreground mt-1">
                       {typeof notice?.timeAgo === "string"
                         ? notice.timeAgo
@@ -217,7 +236,7 @@ export default function My_Dashboard() {
               ) : (
                 <p className="text-muted-foreground">No notices available</p>
               )}
-            </CardContent>
+            </CardContent>{" "}
           </Card>
 
           {/* ACTIONS */}
