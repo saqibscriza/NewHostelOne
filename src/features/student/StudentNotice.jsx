@@ -2,8 +2,7 @@ import React, { useEffect, useState } from "react";
 
 import { Card, CardContent } from "../../components/ui/Card";
 
-import { CalendarDays } from "lucide-react";
-
+import { CalendarDays, AlertCircle } from "lucide-react";
 import { toast } from "react-toastify";
 
 import { getAllNoticesApi } from "../../utils/utils";
@@ -75,7 +74,7 @@ export default function StudentNotice() {
           <button
             key={item}
             onClick={() => setActiveFilter(item)}
-            className={`rounded-full border px-6 py-2 text-sm font-medium transition-all ${
+            className={`rounded-full border px-6 py-2 text-sm font-medium cursor-pointer transition-all duration-300 hover:scale-105 ${
               activeFilter === item
                 ? "bg-primary text-primary-foreground border-primary"
                 : "bg-card text-foreground border-border hover:bg-muted"
@@ -99,80 +98,110 @@ export default function StudentNotice() {
           filteredNotices.map((notice, index) => (
             <Card
               key={index}
-              className="relative overflow-hidden rounded-3xl border border-border bg-card shadow-sm transition-all hover:-translate-y-1 hover:shadow-lg"
+              className="
+relative rounded-3xl border border-border/50
+bg-gradient-to-br from-background to-muted/30
+shadow-sm
+backdrop-blur
+transition-all duration-300
+hover:-translate-y-2
+hover:shadow-2xl
+hover:border-primary/30
+group
+cursor-pointer
+"
             >
-              <CardContent className="space-y-5 p-6">
-                {/* PRIORITY */}
-
-                <div>
+              <CardContent className="p-6 flex flex-col h-full">
+                {/* TOP */}
+                <div className="flex items-start justify-between">
                   <span
-                    className={`rounded-md px-3 py-1 text-xs font-semibold ${
-                      (notice?.category || "LOW").toUpperCase() === "HIGH"
-                        ? "bg-red-100 text-red-600"
-                        : (notice?.category || "LOW").toUpperCase() === "MEDIUM"
-                          ? "bg-yellow-100 text-yellow-700"
-                          : "bg-slate-100 text-slate-600"
-                    }`}
+                    className={`
+px-3 py-1 rounded-full text-[11px]
+font-semibold uppercase tracking-wider border
+${
+  (notice?.category || "LOW").toUpperCase() === "HIGH"
+    ? "bg-red-500/10 text-red-500 border-red-500/20"
+    : (notice?.category || "LOW").toUpperCase() === "MEDIUM"
+      ? "bg-yellow-500/10 text-yellow-600 border-yellow-500/20"
+      : "bg-primary/10 text-primary border-primary/20"
+}
+`}
                   >
                     {(notice?.category || "LOW").toUpperCase()}
                   </span>
                 </div>
 
                 {/* CONTENT */}
-
-                <div className="relative group space-y-3 min-h-[140px]">
-                  {" "}
-                  {/* TITLE */}
-                  <h2 className="text-2xl font-bold text-foreground line-clamp-2 cursor-pointer">
+                <div className="mt-6 flex-1">
+                  <h2 className="text-2xl font-bold tracking-tight text-foreground line-clamp-2">
                     {notice?.title || notice?.noticeTitle || "No Title"}
                   </h2>
-                  {/* DESCRIPTION */}
-                  <p className="text-sm leading-7 text-muted-foreground line-clamp-3 cursor-pointer">
-                    {notice?.description || notice?.message || "No Description"}
-                  </p>
-                  {/* TOOLTIP */}
-                  {/* BEAUTIFUL INLINE EXPAND CARD */}
-                  {/* MINI POP TOOLTIP */}
-                  <div className="absolute inset-x-4 top-6 z-30 hidden group-hover:block">
-                    {" "}
-                    <div className="rounded-2xl border border-border/60 bg-background/95 p-4 shadow-2xl backdrop-blur-xl transition-all duration-200">
-                      {" "}
-                      {/* ARROW */}
-                      <div className="relative flex h-full flex-col space-y-3">
-                        {/* TITLE */}
-                        <h3 className="text-sm font-semibold text-foreground break-words leading-5">
-                          {notice?.title || notice?.noticeTitle || "No Title"}
-                        </h3>
 
-                        {/* DESCRIPTION */}
-                        <div className="max-h-[120px] overflow-y-auto pr-1 custom-scrollbar">
-                          <p className="text-xs leading-5 text-muted-foreground break-words">
+                  <div className="mt-3 flex items-start justify-between gap-2 w-full">
+                    {/* DESCRIPTION */}
+                    <div className="mt-3 flex items-start gap-2 w-full">
+                      {/* DESCRIPTION */}
+                      <div className="flex-1 min-w-0">
+                        <p
+                          className="
+      text-sm leading-7 text-muted-foreground
+
+      overflow-hidden
+      text-ellipsis
+      whitespace-nowrap
+      "
+                        >
+                          {notice?.description ||
+                            notice?.message ||
+                            "No Description"}
+                        </p>
+                      </div>
+
+                      {/* TOOLTIP ICON */}
+                      <div className="relative group/tooltip shrink-0 mt-1">
+                        <AlertCircle className="w-5 h-5 text-slate-700 cursor-pointer" />
+
+                        {/* TOOLTIP */}
+                        <div
+                          className="
+                                        absolute bottom-full right-0 mb-4
+                                        hidden group-hover/tooltip:block
+
+                                        w-[340px]
+                                        max-h-[260px]
+                                        overflow-y-auto
+
+                                        rounded-2xl
+                                        bg-black text-white
+
+                                        p-5
+
+                                        text-sm leading-7
+                                        break-all
+
+                                        shadow-2xl
+                                        z-[9999]
+                                        "
+                        >
+                          <p className="whitespace-pre-wrap">
                             {notice?.description ||
                               notice?.message ||
                               "No Description"}
                           </p>
                         </div>
-                        {/* FOOTER */}
-                        <div className="flex items-center justify-between border-t border-border/50 pt-2">
-                          <span className="rounded-full bg-primary/10 px-2 py-1 text-[10px] font-semibold text-primary">
-                            {(notice?.priority || "LOW").toUpperCase()}
-                          </span>
-
-                          <span className="text-[10px] text-muted-foreground">
-                            {notice?.createdAt || notice?.date || "No Date"}
-                          </span>
-                        </div>
                       </div>
                     </div>
+
+                    {/* TOOLTIP ICON */}
                   </div>
-                </div>
+                  {/* DATE */}
+                  <div className="mt-6 flex items-center gap-2 text-xs text-muted-foreground">
+                    <CalendarDays className="w-4 h-4" />
 
-                {/* DATE */}
-
-                <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                  <CalendarDays className="h-4 w-4" />
-
-                  <span>{notice?.createdAt || notice?.date || "No Date"}</span>
+                    <span>
+                      {formatNoticeDate(notice?.createdAt || notice?.date)}
+                    </span>
+                  </div>
                 </div>
               </CardContent>
             </Card>
@@ -186,3 +215,19 @@ export default function StudentNotice() {
     </div>
   );
 }
+
+const formatNoticeDate = (date) => {
+  if (!date) return "No Date";
+
+  const parsed = new Date(date);
+
+  if (Number.isNaN(parsed.getTime())) {
+    return String(date).slice(0, 12);
+  }
+
+  return parsed.toLocaleDateString("en-US", {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+  });
+};

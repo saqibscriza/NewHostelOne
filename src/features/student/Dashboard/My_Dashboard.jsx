@@ -101,7 +101,7 @@ export default function My_Dashboard() {
               </div>
 
               <Button
-                className="bg-primary text-primary-foreground"
+                className="bg-primary text-primary-foreground cursor-pointer"
                 onClick={() =>
                   navigate("/student/mess", {
                     state: { defaultTab: "week" },
@@ -149,7 +149,7 @@ export default function My_Dashboard() {
                   Due: {dashboardData?.nextPayment?.dueDate || "N/A"}
                 </p>
 
-                <Button onClick={() => navigate("/student/fees/pay")}>
+                <Button className="cursor-pointer" onClick={() => navigate("/student/fees/pay")}>
                   Pay Now
                 </Button>
               </CardContent>

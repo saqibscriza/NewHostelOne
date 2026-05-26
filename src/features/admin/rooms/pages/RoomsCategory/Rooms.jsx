@@ -155,12 +155,17 @@ const Rooms = () => {
         </div>
 
         <div className="flex gap-3">
-          <Button onClick={() => setOpenOccupancyModal(true)}>
+          <Button
+            onClick={() => setOpenOccupancyModal(true)}
+            className="cursor-pointer"
+          >
+            {" "}
             <Plus className="w-4 h-4 mr-2" />
             Add Occupancy
           </Button>
 
-          <Button onClick={() => setOpenModal(true)}>
+          <Button onClick={() => setOpenModal(true)} className="cursor-pointer">
+            {" "}
             <Plus className="w-4 h-4 mr-2" />
             Add Category
           </Button>

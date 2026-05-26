@@ -30,13 +30,18 @@ import {
   Pencil,
 } from "lucide-react";
 
+const DUMMY_ROOM_IMAGE =
+  "https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?q=80&w=1200&auto=format&fit=crop";
+
 const getRoomImage = (room) =>
+  room?.photos?.[0]?.url ||
+  room?.photos?.[0] ||
   room?.roomImage ||
   room?.roomImages ||
   room?.image ||
   room?.imageUrl ||
   room?.photo ||
-  "";
+  DUMMY_ROOM_IMAGE;
 
 const RoomDetails = () => {
   const [roomData, setRoomData] = useState([]);
@@ -162,7 +167,9 @@ const RoomDetails = () => {
             <BedDouble className="w-6 h-6 text-muted-foreground" />
             <div>
               <p className="text-xs text-muted-foreground">TOTAL ROOMS</p>
-              <h3 className="text-xl font-semibold">{dashboardStats?.totalRooms}</h3>
+              <h3 className="text-xl font-semibold">
+                {dashboardStats?.totalRooms}
+              </h3>
             </div>
           </CardContent>
         </Card>
@@ -326,17 +333,15 @@ const RoomDetails = () => {
                 <TableRow key={room?.id || index}>
                   <TableCell>
                     <div className="flex items-center gap-3">
-                      {getRoomImage(room) ? (
-                        <img
-                          src={getRoomImage(room)}
-                          alt={room?.roomNameNumber || "Room"}
-                          className="h-12 w-14 rounded-md object-cover"
-                        />
-                      ) : (
-                        <div className="flex h-12 w-14 items-center justify-center rounded-md bg-muted text-xs text-muted-foreground">
-                          No image
-                        </div>
-                      )}
+                      <img
+                        src={getRoomImage(room)}
+                        alt={room?.roomNameNumber || "Room"}
+                        className="h-12 w-14 rounded-md object-cover border border-border"
+                        onError={(e) => {
+                          e.target.src =
+                            "https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?q=80&w=1200&auto=format&fit=crop";
+                        }}
+                      />
                       <div>
                         <p className="font-medium">
                           {room?.roomNameNumber || room?.roomNumber}
@@ -359,8 +364,9 @@ const RoomDetails = () => {
                     {room?.blockFloor || room?.block || "-"}
                   </TableCell>
 
-                  <TableCell>-</TableCell>
-
+                  <TableCell>
+                    <span className="text-muted-foreground">N/A</span>
+                  </TableCell>
                   <TableCell>
                     <Badge className="bg-muted text-foreground">
                       {room?.status}
@@ -410,20 +416,19 @@ const RoomDetails = () => {
                 ‹
               </button>
 
-              {Array.from({ length: Math.max(totalPages, 5) }, (_, index) => (
+              {Array.from({ length: totalPages }, (_, index) => (
                 <button
                   key={index}
                   onClick={() => setCurrentPage(index + 1)}
-                  className={`cursor-pointer px-3 py-1 rounded ${
+                  className={`cursor-pointer px-3 py-1 rounded transition-all ${
                     currentPage === index + 1
                       ? "bg-primary text-white"
-                      : "bg-muted"
+                      : "bg-muted hover:bg-muted/70"
                   }`}
                 >
                   {index + 1}
                 </button>
               ))}
-
               <button
                 className="cursor-pointer px-2 disabled:opacity-50"
                 disabled={currentPage === totalPages}

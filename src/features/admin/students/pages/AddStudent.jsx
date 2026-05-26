@@ -34,6 +34,13 @@ const numberOnlyFields = {
 
 const isTextOnly = (value) => /^[A-Za-z\s.]+$/.test(value);
 const isNumberOnly = (value) => /^\d+$/.test(value);
+const normalizeRoom = (room) => ({
+  roomId: room?.roomId || room?.room?.roomId || "",
+  blockFloor: room?.blockFloor || room?.room?.blockFloor || "",
+  categoryName: room?.categoryName || "",
+  occupancyName: room?.occupancyName || "",
+  roomNameNumber: room?.roomNameNumber || room?.room?.roomNameNumber || "",
+});
 
 export default function AddStudent() {
   const navigate = useNavigate();
@@ -46,16 +53,23 @@ export default function AddStudent() {
   const [errors, setErrors] = useState({});
 
   // ✅ added
-  const [roomOptions, setRoomOptions] = useState([]);
+  const [roomData, setRoomData] = useState([]);
 
   // ✅ added
   useEffect(() => {
-    fetchRooms();
+    const initialize = async () => {
+      await fetchRooms();
+    };
 
-    if (id) {
+    initialize();
+  }, []);
+
+  useEffect(() => {
+    if (id && roomData.length > 0) {
       fetchStudentById();
     }
-  }, [id]);
+  }, [id, roomData]);
+
   const fetchRooms = async () => {
     try {
       const res = await getRoomAllData();
@@ -64,12 +78,11 @@ export default function AddStudent() {
         // const rooms = res.data.rooms || res.data.data || res.data.content || [];
         const rooms = res?.data?.data?.content || [];
 
-        const formatted = rooms.map((room) => ({
-          label: room.roomNameNumber,
-          value: room.roomId,
-        }));
+        const normalizedRooms = rooms.map(normalizeRoom);
 
-        setRoomOptions(formatted);
+        setRoomData(normalizedRooms);
+
+        // UNIQUE BLOCKS
       }
     } catch (err) {
       console.log(err);
@@ -164,6 +177,7 @@ export default function AddStudent() {
       };
     });
   };
+
   const formatDateForInput = (date) => {
     if (!date || !date.includes("/")) return date;
 
@@ -181,6 +195,9 @@ export default function AddStudent() {
       if (res?.data?.status === "success") {
         const student = res?.data?.data || {};
 
+        const selectedRoom = roomData.find(
+          (room) => String(room.roomId) === String(student.roomId),
+        );
         setForm({
           fullName: student.fullName || "",
           dob: formatDateForInput(student.dob) || "",
@@ -196,6 +213,11 @@ export default function AddStudent() {
           emergencyContact: student.emergencyContact || "",
           roomId: student.roomId || "",
           address: student.address || "",
+
+          // IMPORTANT
+          block: selectedRoom?.blockFloor || "",
+          category: selectedRoom?.categoryName || "",
+          roomType: selectedRoom?.occupancyName || "",
         });
       }
     } catch (error) {
@@ -248,14 +270,26 @@ export default function AddStudent() {
     } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) {
       nextErrors.email = "Enter a valid email address";
     }
-    if (!/^\d{10}$/.test(form.phone || "")) {
-      nextErrors.phone = "Enter a valid 10 digit phone number";
+    if (!/^[6-9]\d{9}$/.test(form.phone || "")) {
+      nextErrors.phone = "Phone number must start with 6, 7, 8 or 9";
     }
     if (!form.guardianName?.trim()) {
       nextErrors.guardianName = "Guardian name is required";
     }
-    if (!/^\d{10}$/.test(form.emergencyContact || "")) {
-      nextErrors.emergencyContact = "Enter a valid 10 digit contact number";
+    if (!/^[6-9]\d{9}$/.test(form.emergencyContact || "")) {
+      nextErrors.emergencyContact =
+        "Contact number must start with 6, 7, 8 or 9";
+    }
+    if (!form.block?.trim()) {
+      nextErrors.block = "Block / Wing is required";
+    }
+
+    if (!form.category?.trim()) {
+      nextErrors.category = "Category is required";
+    }
+
+    if (!form.roomType?.trim()) {
+      nextErrors.roomType = "Room type is required";
     }
     if (!form.roomId) nextErrors.roomId = "Please select room";
 
@@ -281,7 +315,7 @@ export default function AddStudent() {
     formData.append("emergencyContact", form.emergencyContact);
     formData.append("roomId", form.roomId);
     formData.append("status", form.status);
-    
+
     // formData.append("address", form.address || "");
     if (files.photo) formData.append("photo", files.photo);
     if (files.idProof) formData.append("idProof", files.idProof);
@@ -675,55 +709,124 @@ export default function AddStudent() {
 
       <Section title="Room Assignment">
         <div className="grid grid-cols-3 gap-4">
-          <Field label="Block / Wing">
+          <Field label="Block / Wing" required>
             <StyledSelect
+              value={form.block}
               placeholder="Select Block"
-              onValueChange={(v) => handleChange("block", v)}
-              options={["Block A (Boys)", "Block B (Girls)"]}
+              onValueChange={(v) => {
+                setForm((prev) => ({
+                  ...prev,
+                  block: v,
+                  category: "",
+                  roomType: "",
+                  roomId: "",
+                }));
+              }}
+              options={[
+                ...new Set(
+                  roomData.map((room) => room.blockFloor).filter(Boolean),
+                ),
+              ]}
             />
+
+            {errors.block && (
+              <p className="text-xs text-destructive">{errors.block}</p>
+            )}
           </Field>
 
-          <Field label="Category">
+          <Field label="Category" required>
             <StyledSelect
+              value={form.category}
               placeholder="Select Category"
-              onValueChange={(v) => handleChange("category", v)}
-              options={["Deluxe", "Standard", "Premium"]}
+              onValueChange={(v) => {
+                setForm((prev) => ({
+                  ...prev,
+                  category: v,
+                  roomType: "",
+                  roomId: "",
+                }));
+              }}
+              options={[
+                ...new Set(
+                  roomData
+                    .filter((room) => room.blockFloor === form.block)
+                    .map((room) => room.categoryName)
+                    .filter(Boolean),
+                ),
+              ]}
             />
+
+            {errors.category && (
+              <p className="text-xs text-destructive">{errors.category}</p>
+            )}
           </Field>
 
-          <Field label="Room Type">
+          <Field label="Room Type" required>
             <StyledSelect
-              placeholder="Select Type"
-              onValueChange={(v) => handleChange("roomType", v)}
-              options={["Single Bed", "Double Sharing", "Triple Sharing"]}
+              value={form.roomType}
+              placeholder="Select Room Type"
+              onValueChange={(v) => {
+                setForm((prev) => ({
+                  ...prev,
+                  roomType: v,
+                  roomId: "",
+                }));
+              }}
+              options={[
+                ...new Set(
+                  roomData
+                    .filter(
+                      (room) =>
+                        room.blockFloor === form.block &&
+                        room.categoryName === form.category,
+                    )
+                    .map((room) => room.occupancyName)
+                    .filter(Boolean),
+                ),
+              ]}
             />
+
+            {errors.roomType && (
+              <p className="text-xs text-destructive">{errors.roomType}</p>
+            )}
           </Field>
 
-          <Field label="Available Room No." className="col-span-1" required>
-            {" "}
-            {/* <Select onValueChange={(v) => handleChange("roomId", v)}> */}
+          <Field label="Available Room No." required>
             <Select
               value={form.roomId || ""}
-              onValueChange={(v) => handleChange("roomId", v)}
+              onValueChange={(v) => handleChange("roomId", String(v))}
             >
-              <SelectTrigger className="h-11 w-full rounded-lg border border-border bg-background px-4 text-sm">
+              <SelectTrigger className="h-11 w-full rounded-lg border border-border bg-background px-4 text-sm shadow-sm">
                 <SelectValue placeholder="Select Room" />
               </SelectTrigger>
 
-              <SelectContent>
-                {roomOptions.map((room) => (
-                  <SelectItem key={room.value} value={room.value}>
-                    {room.label}
-                  </SelectItem>
-                ))}
+              <SelectContent className="rounded-lg border border-border bg-popover p-2 shadow-md">
+                {roomData
+                  .filter(
+                    (room) =>
+                      room.blockFloor === form.block &&
+                      room.categoryName === form.category &&
+                      room.occupancyName === form.roomType,
+                  )
+                  .map((room) => (
+                    <SelectItem
+                      key={String(room.roomId)}
+                      value={String(room.roomId)}
+                      className="px-3 py-2 text-sm"
+                    >
+                      {room.roomNameNumber}
+                    </SelectItem>
+                  ))}
               </SelectContent>
             </Select>
+
             {errors.roomId && (
               <p className="text-xs text-destructive">{errors.roomId}</p>
             )}
           </Field>
         </div>
       </Section>
+
       <Section title="Document Uploads">
         <div className="grid grid-cols-2 gap-6">
           {/* ID Proof */}
@@ -775,8 +878,6 @@ export default function AddStudent() {
               </label>
             </div>
           </div>
-
-      
 
           {/* Admission Letter */}
           <div>
@@ -844,26 +945,24 @@ export default function AddStudent() {
             />
           </Field> */}
           <Select
-  value={
-    form.status === true
-      ? "Active"
-      : form.status === false
-        ? "Inactive"
-        : ""
-  }
-  onValueChange={(v) =>
-    handleChange("status", v === "Active")
-  }
->
-  <SelectTrigger className="h-11 w-full rounded-lg border border-border bg-background px-4 text-sm">
-    <SelectValue placeholder="Select Status" />
-  </SelectTrigger>
+            value={
+              form.status === true
+                ? "Active"
+                : form.status === false
+                  ? "Inactive"
+                  : ""
+            }
+            onValueChange={(v) => handleChange("status", v === "Active")}
+          >
+            <SelectTrigger className="h-11 w-full rounded-lg border border-border bg-background px-4 text-sm">
+              <SelectValue placeholder="Select Status" />
+            </SelectTrigger>
 
-  <SelectContent>
-    <SelectItem value="Active">Active</SelectItem>
-    <SelectItem value="Inactive">Inactive</SelectItem>
-  </SelectContent>
-</Select>
+            <SelectContent>
+              <SelectItem value="Active">Active</SelectItem>
+              <SelectItem value="Inactive">Inactive</SelectItem>
+            </SelectContent>
+          </Select>
 
           <p className="text-xs text-muted-foreground">
             Sets the status of the room immediately after creation.

@@ -1,4 +1,10 @@
-import { CalendarDays, ChevronDown, Pencil, Trash2 } from "lucide-react";
+import {
+  AlertCircle,
+  CalendarDays,
+  ChevronDown,
+  Pencil,
+  Trash2,
+} from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Card, CardContent } from "../../../../components/ui/Card";
 import { Button } from "../../../../components/ui/button";
@@ -110,7 +116,10 @@ export default function NoticesPage() {
           </p>
         </div>
 
-        <Button onClick={() => navigate("/admin/notices/create")}>
+        <Button
+          className="cursor-pointer"
+          onClick={() => navigate("/admin/notices/create")}
+        >
           + Add New Notice
         </Button>
       </div>
@@ -125,7 +134,7 @@ export default function NoticesPage() {
                 key={filter}
                 type="button"
                 onClick={() => setActiveFilter(filter)}
-                className={`rounded-full border px-5 py-2 text-sm font-medium transition ${
+                className={`cursor-pointer rounded-full border px-5 py-2 text-sm font-medium transition ${
                   active
                     ? "border-slate-900 bg-slate-900 text-white"
                     : "border-border bg-card text-muted-foreground hover:bg-muted"
@@ -142,7 +151,7 @@ export default function NoticesPage() {
         {filteredNotices?.map((notice) => (
           <Card
             key={notice.noticeId}
-            className="overflow-hidden rounded-2xl border-border bg-card shadow-sm"
+            className="overflow-visible rounded-2xl border-border bg-card shadow-sm"
           >
             <CardContent className="p-0">
               <div className="space-y-4 p-5">
@@ -156,9 +165,62 @@ export default function NoticesPage() {
                   <h2 className="text-2xl font-semibold leading-8 text-foreground">
                     {notice.title}
                   </h2>
-                  <p className="mt-2 line-clamp-4 text-sm leading-6 text-muted-foreground">
-                    {notice.description}
-                  </p>
+                  <div className="mt-3 relative">
+                    {/* DESCRIPTION */}
+                    <p
+                      className="
+    text-sm leading-6 text-muted-foreground
+
+    overflow-hidden
+    pr-8
+
+    [display:-webkit-box]
+    [-webkit-line-clamp:3]
+    [-webkit-box-orient:vertical]
+
+    break-all
+    "
+                    >
+                      {notice?.description || "No Description"}
+                    </p>
+
+                    {/* TOOLTIP ICON */}
+                    <div className="absolute bottom-0 right-0 group/tooltip bg-card pl-1">
+                      <AlertCircle className="w-5 h-5 text-slate-700 cursor-pointer" />
+
+                      {/* TOOLTIP */}
+                      <div
+                        className="
+absolute bottom-full right-0 mb-4
+
+opacity-0 invisible
+group-hover/tooltip:visible
+group-hover/tooltip:opacity-100
+
+transition-all duration-200
+
+w-[340px]
+max-h-[260px]
+overflow-y-auto
+
+rounded-2xl
+bg-black text-white
+
+p-5
+
+text-sm leading-7
+break-all
+
+shadow-2xl
+z-[9999]
+"
+                      >
+                        <p className="whitespace-pre-wrap">
+                          {notice?.description || "No Description"}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
                 </div>
 
                 {(() => {
@@ -182,14 +244,14 @@ export default function NoticesPage() {
                   onClick={() =>
                     navigate(`/admin/notices/edit/${notice.noticeId}`)
                   }
-                  className="transition hover:text-foreground"
+                  className="cursor-pointer transition hover:text-foreground"
                 >
                   <Pencil className="h-4 w-4" />
                 </button>
                 <button
                   type="button"
                   onClick={() => handleDeleteNotice(notice.noticeId)}
-                  className="transition hover:text-red-500"
+                  className="cursor-pointer transition hover:text-red-500"
                 >
                   <Trash2 className="h-4 w-4" />
                 </button>

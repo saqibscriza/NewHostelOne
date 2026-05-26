@@ -21,6 +21,11 @@ const categoryOptions = [
     icon: <BellRing className="h-5 w-5" />,
   },
 ];
+const TITLE_MAX_WORDS = 5;
+const TITLE_MAX_CHARS = 30;
+
+const DESCRIPTION_MAX_WORDS = 50;
+const DESCRIPTION_MAX_CHARS = 300;
 
 const Label = ({ children }) => (
   <p className="text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">
@@ -32,7 +37,8 @@ export default function CreateNoticePage() {
   const [loaderCheck, setLoaderCheck] = useState(false);
   const [form, setForm] = useState({
     title: "",
-category: "MEDIUM",    priority: "MEDIUM",
+    category: "MEDIUM",
+    priority: "MEDIUM",
     description: "",
     scheduleLater: false,
     scheduleDate: "",
@@ -41,53 +47,76 @@ category: "MEDIUM",    priority: "MEDIUM",
   const [errors, setErrors] = useState({});
 
   const handleChange = (key, value) => {
-    setForm((prev) => ({ ...prev, [key]: value }));
-    setErrors((prev) => ({ ...prev, [key]: "" }));
-  };
+    // TITLE LIMIT
+    if (key === "title") {
+      const wordCount = value.trim().split(/\s+/).filter(Boolean).length;
 
-
-const CreateNoticeApi = async () => {
-
-  const nextErrors = {};
-
-  if (!form.title.trim()) {
-    nextErrors.title = "Notice title is required";
-  }
-
-  if (!form.description.trim()) {
-    nextErrors.description = "Notice description is required";
-  }
-
-  setErrors(nextErrors);
-
-  if (Object.keys(nextErrors).length > 0) return;
-
-  setLoaderCheck(true);
-
-  try {
-    const response = await createNoticeApi(form);
-
-    console.log("CREATE NOTICE =>", response);
-
-    if (response?.status === 200) {
-
-      toast.success("Notice Created Successfully");
-
-      setTimeout(() => {
-        navigate("/admin/notices");
-      }, 500);
-
-    } else {
-      toast.error("Failed to create notice");
+      if (wordCount > TITLE_MAX_WORDS || value.length > TITLE_MAX_CHARS) {
+        return;
+      }
     }
 
-  } catch (error) {
-    console.log(error);
-    toast.error("Something went wrong");
-  } finally {
-    setLoaderCheck(false);
-  }
-};
+    // DESCRIPTION LIMIT
+    if (key === "description") {
+      const wordCount = value.trim().split(/\s+/).filter(Boolean).length;
+
+      if (
+        wordCount > DESCRIPTION_MAX_WORDS ||
+        value.length > DESCRIPTION_MAX_CHARS
+      ) {
+        return;
+      }
+    }
+
+    setForm((prev) => ({
+      ...prev,
+      [key]: value,
+    }));
+
+    setErrors((prev) => ({
+      ...prev,
+      [key]: "",
+    }));
+  };
+
+  const CreateNoticeApi = async () => {
+    const nextErrors = {};
+
+    if (!form.title.trim()) {
+      nextErrors.title = "Notice title is required";
+    }
+
+    if (!form.description.trim()) {
+      nextErrors.description = "Notice description is required";
+    }
+
+    setErrors(nextErrors);
+
+    if (Object.keys(nextErrors).length > 0) return;
+
+    setLoaderCheck(true);
+
+    try {
+      const response = await createNoticeApi(form);
+
+      console.log("CREATE NOTICE =>", response);
+
+      if (response?.status === 200) {
+        toast.success("Notice Created Successfully");
+
+        setTimeout(() => {
+          navigate("/admin/notices");
+        }, 500);
+      } else {
+        toast.error("Failed to create notice");
+      }
+    } catch (error) {
+      console.log(error);
+      toast.error("Something went wrong");
+    } finally {
+      setLoaderCheck(false);
+    }
+  };
   // const CreateNoticeApi = async () => {
   //   const nextErrors = {};
   //   if (!form.title.trim()) nextErrors.title = "Notice title is required";
@@ -141,10 +170,15 @@ const CreateNoticeApi = async () => {
             <Label>Notice Title</Label>
             <Input
               value={form.title}
-              placeholder="e.g. Annual Maintenance Scheduled"
+              maxLength={TITLE_MAX_CHARS}
+              placeholder="Max 5 words or 30 characters"
               className={`h-12 ${errors.title ? "border-destructive" : ""}`}
               onChange={(e) => handleChange("title", e.target.value)}
             />
+            <p className="text-xs text-muted-foreground">
+              {form.title.trim().split(/\s+/).filter(Boolean).length}
+              /5 words • {form.title.length}/30 characters
+            </p>
             {errors.title && (
               <p className="text-xs text-destructive">{errors.title}</p>
             )}
@@ -161,7 +195,7 @@ const CreateNoticeApi = async () => {
                     key={label}
                     type="button"
                     onClick={() => handleChange("category", label)}
-                    className={`flex h-24 w-28 flex-col items-center justify-center rounded-xl border transition ${
+                    className={`cursor-pointer flex h-24 w-28 flex-col items-center justify-center rounded-xl border transition ${
                       active
                         ? "border-foreground bg-background text-foreground"
                         : "border-border bg-background text-muted-foreground hover:bg-muted/40"
@@ -176,15 +210,55 @@ const CreateNoticeApi = async () => {
           </div>
 
           <div className="space-y-3">
-            <Label>Notice Description</Label>
+            <div className="flex items-center justify-between">
+              <Label>Notice Description</Label>
+
+              {form.description && (
+                <div className="relative group/tooltip">
+                  <AlertCircle className="h-5 w-5 text-slate-700 cursor-pointer" />
+
+                  <div
+                    className="
+absolute bottom-full right-0 mb-4
+hidden group-hover/tooltip:block
+
+w-[340px]
+max-h-[260px]
+overflow-y-auto
+
+rounded-2xl
+bg-black text-white
+
+p-5
+
+text-sm leading-7
+break-all
+
+shadow-2xl
+z-[9999]
+"
+                  >
+                    <p className="whitespace-pre-wrap">{form.description}</p>
+                  </div>
+                </div>
+              )}
+            </div>
+
             <textarea
               value={form.description}
-              placeholder="Write the details of the notice here..."
+              maxLength={DESCRIPTION_MAX_CHARS}
+              placeholder="Max 50 words or 300 characters"
               onChange={(e) => handleChange("description", e.target.value)}
               className={`min-h-[180px] w-full rounded-xl border bg-background px-4 py-3 text-sm text-foreground outline-none transition placeholder:text-muted-foreground focus:ring-2 focus:ring-ring ${
                 errors.description ? "border-destructive" : "border-input"
               }`}
             />
+
+            <p className="text-xs text-muted-foreground">
+              {form.description.trim().split(/\s+/).filter(Boolean).length}
+              /50 words • {form.description.length}/300 characters
+            </p>
+
             {errors.description && (
               <p className="text-xs text-destructive">{errors.description}</p>
             )}
@@ -241,10 +315,18 @@ const CreateNoticeApi = async () => {
         </CardContent>
 
         <div className="flex justify-end gap-4 border-t border-border bg-card px-6 py-5 sm:px-8">
-          <Button variant="outline" onClick={() => navigate("/admin/notices")}>
+          <Button
+            variant="outline"
+            className="cursor-pointer"
+            onClick={() => navigate("/admin/notices")}
+          >
             Cancel
           </Button>
-          <Button disabled={loaderCheck} onClick={CreateNoticeApi}>
+          <Button
+            disabled={loaderCheck}
+            className="cursor-pointer"
+            onClick={CreateNoticeApi}
+          >
             {loaderCheck ? "Publishing..." : "Publish Notice"}
           </Button>
         </div>

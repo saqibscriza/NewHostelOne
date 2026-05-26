@@ -93,7 +93,7 @@ const EditCategoryModal = ({
       occupancyId: Number(occupancyId),
       monthlyRentPerBed: Number(monthlyRent),
       description: description,
-      status: true,
+      status,
 
       amenitiesIds: selectedAmenities
         .map((name) => {
@@ -103,7 +103,6 @@ const EditCategoryModal = ({
         })
         .filter(Boolean),
     };
-
     console.log("UPDATE PAYLOAD 👉", payload);
 
     try {

@@ -334,6 +334,7 @@ export default function Mess() {
 
             <div className="flex bg-muted p-1 rounded-lg">
               <TabButton
+                // className="cursor-pointer"
                 active={activeTab === "today"}
                 label="TODAY"
                 onClick={() => {
@@ -419,42 +420,49 @@ export default function Mess() {
           </div>
         </div>
 
-        <div className="bg-card border border-border rounded-xl p-5 flex flex-col md:flex-row md:items-center justify-between gap-4">
-          <div className="flex flex-col sm:flex-row gap-3 sm:items-center">
-            <p className="text-base font-semibold text-muted-foreground">
-              Filter by:
-            </p>
-            <select
-              value={statusFilter}
-              onChange={(e) => setStatusFilter(e.target.value)}
-              className="h-12 rounded-xl border border-border bg-background px-5 text-sm text-foreground outline-none"
+        <div className="bg-card border border-border rounded-2xl p-5 md:p-6 shadow-sm">
+          <div className="flex flex-col xl:flex-row xl:items-center xl:justify-between gap-4">
+            <div className="flex flex-wrap items-center gap-3">
+              <p className="text-sm font-semibold text-muted-foreground mr-1">
+                Filter by:
+              </p>
+
+              {/* STATUS FILTER */}
+              <select
+                value={statusFilter}
+                onChange={(e) => setStatusFilter(e.target.value)}
+                className="h-12 min-w-[170px] rounded-xl border border-border bg-background px-5 pr-12 text-sm font-medium text-foreground outline-none cursor-pointer transition-all hover:border-primary focus:border-primary"
+              >
+                <option value="all">All Status</option>
+                <option value="rated">Rated</option>
+                <option value="unrated">Unrated</option>
+              </select>
+
+              {/* DATE FILTER */}
+              <select
+                value={dayFilter}
+                onChange={(e) => setDayFilter(e.target.value)}
+                className="h-12 min-w-[170px] rounded-xl border border-border bg-background px-5 pr-12 text-sm font-medium text-foreground outline-none cursor-pointer transition-all hover:border-primary focus:border-primary"
+              >
+                <option value="1">Today</option>
+                <option value="2">Tomorrow</option>
+                <option value="7">Full Week</option>
+                <option value="5">Last 5 Days</option>
+              </select>
+            </div>
+
+            {/* CLEAR FILTER */}
+            <button
+              type="button"
+              onClick={() => {
+                setStatusFilter("all");
+                setDayFilter("7");
+              }}
+              className="h-12 px-5 rounded-xl border border-border bg-background text-sm font-medium text-foreground cursor-pointer hover:border-primary hover:text-primary transition-all"
             >
-              <option value="all">All Status</option>
-              <option value="rated">Rated</option>
-              <option value="unrated">Unrated</option>
-            </select>
-            <select
-              value={dayFilter}
-              onChange={(e) => setDayFilter(e.target.value)}
-              className="h-12 rounded-xl border border-border bg-background px-5 text-sm text-foreground outline-none"
-            >
-              {[1, 2, 3, 4, 5, 6, 7].map((day) => (
-                <option key={day} value={day}>
-                  Last {day} {day === 1 ? "Day" : "Days"}
-                </option>
-              ))}
-            </select>
+              Clear Filters
+            </button>
           </div>
-          <button
-            type="button"
-            onClick={() => {
-              setStatusFilter("all");
-              setDayFilter("7");
-            }}
-            className="text-sm font-medium text-foreground hover:text-primary"
-          >
-            Clear all filters
-          </button>
         </div>
 
         <div className="bg-card border border-border rounded-xl overflow-hidden">
@@ -600,7 +608,7 @@ const TabButton = ({ active, label, onClick }) => (
   <button
     type="button"
     onClick={onClick}
-    className={`px-4 py-2 text-sm rounded-md transition-all ${
+    className={`px-6 py-3 text-sm rounded-xl transition-all cursor-pointer ${
       active
         ? "bg-card shadow-sm text-primary font-semibold"
         : "text-muted-foreground hover:text-foreground"

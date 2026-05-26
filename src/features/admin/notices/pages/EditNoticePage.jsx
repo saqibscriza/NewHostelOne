@@ -14,6 +14,12 @@ const categoryOptions = [
   { label: "LOW", icon: BellRing },
 ];
 
+const TITLE_MAX_WORDS = 5;
+const TITLE_MAX_CHARS = 30;
+
+const DESCRIPTION_MAX_WORDS = 50;
+const DESCRIPTION_MAX_CHARS = 300;
+
 const Label = ({ children }) => (
   <p className="text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">
     {children}
@@ -35,13 +41,41 @@ export default function EditNoticePage() {
     scheduleDate: "",
     scheduleTime: "",
   });
-    const [errors, setErrors] = useState({});
-  
+  const [errors, setErrors] = useState({});
+
   const handleChange = (key, value) => {
-    setForm((prev) => ({ ...prev, [key]: value }));
-    setErrors((prev) => ({ ...prev, [key]: "" }));
+    // TITLE LIMIT
+    if (key === "title") {
+      const wordCount = value.trim().split(/\s+/).filter(Boolean).length;
+
+      if (wordCount > TITLE_MAX_WORDS || value.length > TITLE_MAX_CHARS) {
+        return;
+      }
+    }
+
+    // DESCRIPTION LIMIT
+    if (key === "description") {
+      const wordCount = value.trim().split(/\s+/).filter(Boolean).length;
+
+      if (
+        wordCount > DESCRIPTION_MAX_WORDS ||
+        value.length > DESCRIPTION_MAX_CHARS
+      ) {
+        return;
+      }
+    }
+
+    setForm((prev) => ({
+      ...prev,
+      [key]: value,
+    }));
+
+    setErrors((prev) => ({
+      ...prev,
+      [key]: "",
+    }));
   };
- 
+
   const getNoticeDetails = async () => {
     try {
       const response = await getAllNoticesApi();
@@ -91,53 +125,44 @@ export default function EditNoticePage() {
   //   }
   // }
 
-const handleUpdateNotice = async () => {
+  const handleUpdateNotice = async () => {
+    const nextErrors = {};
 
-  const nextErrors = {};
-
-  if (!form.title.trim()) {
-    nextErrors.title = "Notice title is required";
-  }
-
-  if (!form.description.trim()) {
-    nextErrors.description = "Notice description is required";
-  }
-
-  setErrors(nextErrors);
-
-  if (Object.keys(nextErrors).length > 0) return;
-
-  setLoaderCheck(true);
-
-  try {
-
-    const response = await updateNoticeApi(id, form);
-
-    console.log("UPDATE NOTICE =>", response);
-
-    if (response?.status === 200) {
-
-      toast.success("Notice updated successfully");
-
-      setTimeout(() => {
-        navigate("/admin/notices");
-      }, 1500);
-
-    } else {
-      toast.error("Failed to update notice");
+    if (!form.title.trim()) {
+      nextErrors.title = "Notice title is required";
     }
 
-  } catch (error) {
+    if (!form.description.trim()) {
+      nextErrors.description = "Notice description is required";
+    }
 
-    console.log(error);
-    toast.error("Something went wrong");
+    setErrors(nextErrors);
 
-  } finally {
+    if (Object.keys(nextErrors).length > 0) return;
 
-    setLoaderCheck(false);
+    setLoaderCheck(true);
 
-  }
-};
+    try {
+      const response = await updateNoticeApi(id, form);
+
+      console.log("UPDATE NOTICE =>", response);
+
+      if (response?.status === 200) {
+        toast.success("Notice updated successfully");
+
+        setTimeout(() => {
+          navigate("/admin/notices");
+        }, 1500);
+      } else {
+        toast.error("Failed to update notice");
+      }
+    } catch (error) {
+      console.log(error);
+      toast.error("Something went wrong");
+    } finally {
+      setLoaderCheck(false);
+    }
+  };
   useEffect(() => {
     getNoticeDetails();
   }, []);
@@ -159,9 +184,16 @@ const handleUpdateNotice = async () => {
             <Label>Notice Title</Label>
             <Input
               value={form.title}
-              className="h-12"
+              maxLength={TITLE_MAX_CHARS}
+              placeholder="Max 5 words or 30 characters"
+              className={`h-12 ${errors.title ? "border-destructive" : ""}`}
               onChange={(e) => handleChange("title", e.target.value)}
             />
+
+            <p className="text-xs text-muted-foreground">
+              {form.title.trim().split(/\s+/).filter(Boolean).length}
+              /5 words • {form.title.length}/30 characters
+            </p>
           </div>
 
           <div className="space-y-3">
@@ -193,9 +225,15 @@ const handleUpdateNotice = async () => {
             <Label>Notice Description</Label>
             <textarea
               value={form.description}
+              maxLength={DESCRIPTION_MAX_CHARS}
+              placeholder="Max 50 words or 300 characters"
               onChange={(e) => handleChange("description", e.target.value)}
               className="min-h-[180px] w-full rounded-xl border border-input bg-background px-4 py-3 text-sm text-foreground outline-none transition placeholder:text-muted-foreground focus:ring-2 focus:ring-ring"
             />
+            <p className="text-xs text-muted-foreground">
+              {form.description.trim().split(/\s+/).filter(Boolean).length}
+              /50 words • {form.description.length}/300 characters
+            </p>
           </div>
 
           {/* <div className="rounded-2xl border border-border bg-muted/30 p-4">
@@ -247,10 +285,18 @@ const handleUpdateNotice = async () => {
         </CardContent>
 
         <div className="flex justify-end gap-4 border-t border-border bg-card px-6 py-5 sm:px-8">
-          <Button variant="outline" onClick={() => navigate("/admin/notices")}>
+          <Button
+            className="cursor-pointer"
+            variant="outline"
+            onClick={() => navigate("/admin/notices")}
+          >
             Cancel
           </Button>
-          <Button disabled={loaderCheck} onClick={handleUpdateNotice}>
+          <Button
+            className="cursor-pointer"
+            disabled={loaderCheck}
+            onClick={handleUpdateNotice}
+          >
             {loaderCheck ? "Updating..." : "Update and Publish"}
           </Button>
         </div>

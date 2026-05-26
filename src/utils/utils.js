@@ -1442,46 +1442,44 @@ export const addRoomApi = async (data) => {
   }
 };
 
+// Admin room details edit api
+
 export const updateRoomApi = async (roomId, data) => {
   try {
     axios.defaults.headers.common["Authorization"] = getToken();
 
     const formData = new FormData();
 
-    // TEXT FIELDS
-    // formData.append("roomId", roomId);
-    formData.append("roomNameNumber", data.roomNameNumber || "");
-    formData.append("blockFloor", data.blockFloor || "");
-    formData.append("categoryId", data.categoryId || "");
-    formData.append("availableBeds", data.availableBeds || 0);
-    formData.append("totalBeds", data.totalBeds || 0);
-    formData.append("totalRoomPrice", data.totalRoomPrice || 0);
-    formData.append("securityDeposit", data.securityDeposit || 0);
-
-    // IMPORTANT
-    formData.append("roomDescription", data.roomDescription || "");
-
-    formData.append("status", data.status || "AVAILABLE");
-
     // IMAGE
     if (data.roomImage instanceof File) {
       formData.append("roomImage", data.roomImage);
     }
 
-    console.log("FORM DATA:");
+    const res = await axios.put(
+      `${Domain}/room/updateRoom/${roomId}`,
+      formData,
+      {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
 
-    for (let pair of formData.entries()) {
-      console.log(pair[0], pair[1]);
-    }
-    const res = await axios.put(`${Domain}/room/update`, formData, {
-      headers: {
-        "Content-Type": "multipart/form-data",
-      },
+        params: {
+          roomNameNumber: data.roomNameNumber || "",
+          blockFloor: data.blockFloor || "",
+          categoryId: data.categoryId || "",
+          totalBeds: data.totalBeds || 0,
+          availableBeds: data.availableBeds || 0,
+          totalRoomPrice: data.totalRoomPrice || 0,
+          securityDeposit: data.securityDeposit || 0,
 
-      params: {
-        roomId,
+          // IMPORTANT
+          roomDescription: data.roomDescription || "",
+
+          status: data.status || "AVAILABLE",
+        },
       },
-    });
+    );
+
     return res;
   } catch (error) {
     console.log("UPDATE ROOM API ERROR 👉", error?.response?.data || error);
@@ -1496,6 +1494,7 @@ export const updateRoomApi = async (roomId, data) => {
     );
   }
 };
+
 // GET API Room details
 // Done getToken
 

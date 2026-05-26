@@ -150,45 +150,60 @@ export default function MyRoom() {
         </Card>
 
         {/* STUDENT CARD */}
-        <Card className="rounded-xl border-border shadow-sm">
-          <CardContent className="p-6 flex flex-col items-center text-center gap-3">
-            <img
-              src={
-                roomData?.student?.photo ||
-                "https://randomuser.me/api/portraits/men/32.jpg"
-              }
-              alt={roomData?.student?.studentName || "Student"}
-              className="w-24 h-24 rounded-full object-cover border border-border"
-            />
+        <Card className="rounded-3xl border border-border shadow-sm bg-card overflow-hidden">
+          <CardContent className="p-8 flex flex-col items-center text-center">
+            {/* TOP LABEL */}
+            <p className="self-start text-xs font-bold tracking-[0.2em] uppercase text-slate-400">
+              Roommate
+            </p>
 
-            <h3 className="font-semibold text-lg">
+            {/* PROFILE IMAGE */}
+            <div className="relative mt-8">
+              <img
+                src={
+                  roomData?.student?.photo ||
+                  "https://randomuser.me/api/portraits/men/32.jpg"
+                }
+                alt={roomData?.student?.studentName || "Student"}
+                className="w-32 h-32 rounded-full object-cover border-[5px] border-slate-900"
+              />
+
+              {/* ACTIVE DOT */}
+              <div className="absolute bottom-2 right-2 w-5 h-5 rounded-full bg-slate-900 border-4 border-white"></div>
+            </div>
+
+            {/* NAME */}
+            <h3 className="mt-8 text-4xl font-bold tracking-tight text-foreground">
               {roomData?.student?.studentName || "N/A"}
             </h3>
 
-            <p className="text-sm text-muted-foreground">
+            {/* COURSE */}
+            <p className="mt-2 text-lg font-medium text-muted-foreground">
               {roomData?.student?.course || "N/A"}
+              {roomData?.student?.year ? `, ${roomData.student.year} Year` : ""}
             </p>
 
-            <div className="grid w-full grid-cols-2 gap-3 pt-3 text-left">
-              <Info
-                label="Student ID"
-                value={roomData?.student?.studentId || "N/A"}
-              />
-              <Info label="Year" value={roomData?.student?.year || "N/A"} />
-              <Info label="Phone" value={roomData?.student?.phone || "N/A"} />
-              <Info
-                label="Room ID"
-                value={roomData?.roomDetails?.roomId || "N/A"}
-              />
-              <Info
-                label="Total Beds"
-                value={roomData?.roomDetails?.totalBeds ?? 0}
-              />
-              <Info
-                label="Available Beds"
-                value={roomData?.roomDetails?.availableBeds ?? 0}
-              />
-            </div>
+            {/* BUTTON */}
+            <button
+              onClick={() => navigate("/student/profile")}
+              className="mt-10 w-full h-14 rounded-2xl bg-muted hover:bg-muted/80 transition-all duration-300 flex items-center justify-center gap-3 text-xl font-semibold text-foreground cursor-pointer"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="w-6 h-6"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                strokeWidth={2}
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M15 19l-7-7 7-7"
+                />
+              </svg>
+              View Profile
+            </button>
           </CardContent>
         </Card>
       </div>

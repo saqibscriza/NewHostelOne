@@ -7,6 +7,7 @@ import {
   WashingMachine,
   Pencil,
   Trash2,
+  AlertCircle,
 } from "lucide-react";
 import { getByIdCategory } from "../../../../utils/utils";
 
@@ -94,27 +95,50 @@ border border-primary/20
         {category.name}
       </h3>
       {/* Description (optional static) */}
-      <div className="relative mt-2 group/tooltip">
-        <p className="text-sm text-muted-foreground cursor-pointer">
-          {category.description?.length > 37
-            ? `${category.description.substring(0, 37)}.....`
-            : category.description}
-        </p>
+      <div className="mt-3 flex items-start gap-2 w-full">
+        {/* DESCRIPTION */}
+        <div className="flex-1 min-w-0">
+          <p
+            className="
+      text-sm text-muted-foreground
 
-        <div
-          className="
-absolute bottom-full left-1/2 -translate-x-1/2 mb-4
-z-[9999] w-72 rounded-xl bg-black text-white
-text-xs p-4 shadow-2xl
-opacity-0 invisible
-group-hover/tooltip:visible
-group-hover/tooltip:opacity-100
-transition-all duration-300
+      overflow-hidden
+      text-ellipsis
+      whitespace-nowrap
+      "
+          >
+            {category.description}
+          </p>
+        </div>
+
+        {/* TOOLTIP ICON */}
+        <div className="relative group/tooltip shrink-0">
+          <AlertCircle className="w-5 h-5 text-slate-700 cursor-pointer" />
+
+          {/* TOOLTIP */}
+          <div
+            className="
+absolute bottom-full right-0 mb-4
+hidden group-hover/tooltip:block
+
+w-[340px]
+max-h-[260px]
+overflow-y-auto
+
+rounded-2xl
+bg-black text-white
+
+p-5
+
+text-sm leading-7
+break-all
+
+shadow-2xl
+z-[9999]
 "
-        >
-          <p className="font-semibold mb-2 text-gray-300">Room Description</p>
-
-          <p className="leading-relaxed break-words">{category.description}</p>
+          >
+            <p className="whitespace-pre-wrap">{category.description}</p>
+          </div>
         </div>
       </div>
       {/* Amenities */}
@@ -169,6 +193,7 @@ hover:text-primary
   hover:bg-primary/10
   hover:text-primary
   hover:scale-110
+  cursor-pointer
 "
           >
             <Pencil
@@ -189,6 +214,7 @@ hover:text-primary
   hover:bg-red-500/10
   hover:text-red-500
   hover:scale-110
+  cursor-pointer
 "
           >
             <Trash2 className="w-4 h-4" />
