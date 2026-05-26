@@ -1452,16 +1452,18 @@ export const updateRoomApi = async (roomId, data) => {
 
     // IMAGE
     if (data.roomImage instanceof File) {
-      formData.append("roomImage", data.roomImage);
+      formData.append("photos", data.roomImage);
     }
 
-    const res = await axios.put(
-      `${Domain}/room/updateRoom/${roomId}`,
-      formData,
-      {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
+    console.log("FORM DATA:");
+
+    for (let pair of formData.entries()) {
+      console.log(pair[0], pair[1]);
+    }
+    const res = await axios.put(`${Domain}/room/updateRoom`, formData, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
 
         params: {
           roomNameNumber: data.roomNameNumber || "",

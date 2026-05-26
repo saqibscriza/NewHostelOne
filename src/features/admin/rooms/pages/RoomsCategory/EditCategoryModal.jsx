@@ -21,6 +21,7 @@ const EditCategoryModal = ({
   console.log("category data in super childdd", updateCategory);
   const [selectedAmenities, setSelectedAmenities] = useState([]);
   const [status, setStatus] = useState();
+  console.log('checkkk status on toggle',status)
   const [openAmenityModal, setOpenAmenityModal] = useState(false);
   const [openUpdateModal, setOpenUpdateModal] = useState(false);
   const [editingAmenity, setEditingAmenity] = useState(null);
@@ -93,7 +94,7 @@ const EditCategoryModal = ({
       occupancyId: Number(occupancyId),
       monthlyRentPerBed: Number(monthlyRent),
       description: description,
-      status,
+      status: status,
 
       amenitiesIds: selectedAmenities
         .map((name) => {

@@ -65,6 +65,8 @@ const EditStudent = () => {
 
   const [rooms, setRooms] = useState([]);
   const [form, setForm] = useState({});
+  const [myStatus, setMyStatus] = useState(true);
+  console.log('my form data statussss----------', form)
   const [selectedPhoto, setSelectedPhoto] = useState(null);
   const [idProof, setIdProof] = useState(null);
 
@@ -91,9 +93,12 @@ const EditStudent = () => {
   // ================= GET BY ID =================
   const fetchStudent = useCallback(async () => {
     const res = await getStudentByIdApi(id);
+    console.log('my get by id response----0', res);
 
     if (res?.data?.status === "success") {
       const d = res.data.data;
+      console.log('my get by id response----0000 status', res.data.status);
+      setMyStatus(res.data.data?.personalInformation?.status)
       const formatted = {
         fullName: d.personalInformation?.fullName || "",
         dob: d.personalInformation?.dob || "",
@@ -115,7 +120,7 @@ const EditStudent = () => {
           d.roomAssignment?.roomId ||
           d.roomAssignment?.roomDetails?.roomId ||
           "",
-        status: d.status || "Active",
+        status: d.status || "",
         block: d.roomAssignment?.roomDetails?.block || "",
         category: d.roomAssignment?.roomDetails?.category || "",
         roomType: d.roomAssignment?.roomDetails?.roomType || "",
@@ -133,7 +138,8 @@ const EditStudent = () => {
 
   // ================= HANDLE =================
   const handleChange = (key, value) => {
-    setForm((prev) => ({ ...prev, [key]: value }));
+    setMyStatus((prev) => ({ ...prev, [key]: value }));
+    // setForm((prev) => ({ ...prev, [key]: value }));
   };
 
   const handlePhotoChange = (file) => {
@@ -269,7 +275,8 @@ const EditStudent = () => {
       formData.append("emergencyContact", form.emergencyContact || "");
 
       formData.append("roomId", form.roomId || "");
-      formData.append("status", form.status || "");
+      // formData.append("status", myStatus || "");
+      formData.append("status", myStatus);
 
       if (selectedPhoto) {
         formData.append("photo", selectedPhoto);
@@ -628,28 +635,71 @@ const EditStudent = () => {
       <Section icon={User} title="Student Status">
         <div className="w-64">
           <Label>Status</Label>
-                <Select
+          {/* <Select
   value={
-    form.status === true
+    myStatus === true
       ? "Active"
-      : form.status === false
+      : myStatus === false
         ? "Inactive"
         : ""
   }
   onValueChange={(v) =>
     handleChange("status", v === "Active")
   }
+> */}
+          {/* <Select
+            value={
+              myStatus === true
+                ? "Active"
+                : myStatus === false
+                  ? "Inactive"
+                  : ""
+            }
+            onValueChange={(v) => {
+              const booleanValue = v === "Active";
+              setMyStatus(booleanValue); // boolean true/false
+              handleChange("status", booleanValue); // send boolean
+            }}
+          >
+            <SelectTrigger className="w-full">
+              <SelectValue placeholder="Select Status" />
+            </SelectTrigger>
+
+            <SelectContent>
+              <SelectItem value="Active">Active</SelectItem>
+              <SelectItem value="Inactive">Inactive</SelectItem>
+            </SelectContent>
+          </Select>
+          <SelectTrigger className="h-11 w-full rounded-lg border border-border bg-background px-4 text-sm">
+            <SelectValue placeholder="Select Status" />
+          </SelectTrigger>
+
+          <SelectContent>
+            <SelectItem value="Active">Active</SelectItem>
+            <SelectItem value="Inactive">Inactive</SelectItem>
+          </SelectContent>
+        </Select> */}
+
+<Select
+  value={
+    myStatus === true
+      ? "true"
+      : myStatus === false
+      ? "false"
+      : ""
+  }
+  onValueChange={(v) => setMyStatus(v === "true")}
 >
-  <SelectTrigger className="h-11 w-full rounded-lg border border-border bg-background px-4 text-sm">
+  <SelectTrigger className="w-full">
     <SelectValue placeholder="Select Status" />
   </SelectTrigger>
 
   <SelectContent>
-    <SelectItem value="Active">Active</SelectItem>
-    <SelectItem value="Inactive">Inactive</SelectItem>
+    <SelectItem value="true">Active</SelectItem>
+    <SelectItem value="false">Inactive</SelectItem>
   </SelectContent>
 </Select>
-          {/* <Select
+        {/* <Select
             value={form.status || ""}
             onValueChange={(v) => handleChange("status", v)}
           >
@@ -666,19 +716,19 @@ const EditStudent = () => {
               )}
             </SelectContent>
           </Select> */}
-        </div>
-      </Section>
+    </div>
+      </Section >
 
-      {/* Footer */}
-      <div className="flex justify-end gap-3">
+  {/* Footer */ }
+  <div div className = "flex justify-end gap-3" >
         <Button variant="outline" onClick={() => navigate(-1)}>
           Cancel
         </Button>
         <Button onClick={handleUpdate} disabled={loading}>
           {loading ? "Updating..." : "Update"}
         </Button>
-      </div>
-    </div>
+      </div >
+    </div >
   );
 };
 

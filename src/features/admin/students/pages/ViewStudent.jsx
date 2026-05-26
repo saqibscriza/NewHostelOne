@@ -10,6 +10,11 @@ const ViewStudent = () => {
   const navigate = useNavigate();
 
   const [student, setStudent] = useState(null);
+  const [imagePopup, setImagePopup] = useState('');
+  const [documentPopup, setDocumentPopup] = useState('');
+  const [previewImage, setPreviewImage] = useState(null);
+  console.log('id proof', documentPopup)
+  console.log('phtoo', imagePopup)
 
   // ================= GET API =================
   useEffect(() => {
@@ -18,10 +23,11 @@ const ViewStudent = () => {
 
   const fetchStudent = async () => {
     const res = await getStudentByIdApi(id);
-
+    console.log('get data by id of student onveiw', res)
     if (res?.data?.status === "success") {
       const d = res.data.data;
-
+      setImagePopup(res?.data.data?.documentUploads?.photo);
+      setDocumentPopup(res?.data.data?.documentUploads?.idProof);
       setStudent({
         name: d.personalInformation?.fullName,
         enrollment: d.personalInformation?.studentId,
@@ -220,7 +226,7 @@ const ViewStudent = () => {
           <CardContent className="p-6 space-y-4 text-sm">
             <h3 className="font-semibold">Document Uploads</h3>
 
-            {["ID Proof", "Admission Letter"].map((doc, i) => (
+            {/* {["ID Proof", "Admission Letter"].map((doc, i) => (
               <div
                 key={i}
                 className="flex justify-between items-center border rounded-lg px-3 py-2"
@@ -231,7 +237,51 @@ const ViewStudent = () => {
                 </div>
                 <Eye size={16} />
               </div>
+            ))} */}
+            {[
+              {
+                name: "ID Proof",
+                image: imagePopup,
+              },
+              {
+                name: "Admission Letter",
+                image: documentPopup,
+              },
+            ].map((doc, i) => (
+              <div
+                key={i}
+                className="flex justify-between items-center border rounded-lg px-3 py-2"
+              >
+                <div className="flex items-center gap-2">
+                  <FileText size={16} />
+                  <span>{doc.name}</span>
+                </div>
+
+                <Eye
+                  size={16}
+                  className="cursor-pointer"
+                  onClick={() => setPreviewImage(doc.image)}
+                />
+              </div>
             ))}
+            {previewImage && (
+              <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50">
+                <div className="relative bg-white p-2 rounded-xl">
+                  <button
+                    className="absolute top-2 right-2 text-black"
+                    onClick={() => setPreviewImage(null)}
+                  >
+                    ✕
+                  </button>
+
+                  <img
+                    src={previewImage}
+                    alt="preview"
+                    className="max-w-[90vw] max-h-[80vh] rounded-lg"
+                  />
+                </div>
+              </div>
+            )}
           </CardContent>
         </Card>
       </div>

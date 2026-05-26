@@ -483,7 +483,7 @@ const AddRoom = () => {
                         <Camera className="h-6 w-6 text-muted-foreground" />
                       </div>
 
-                      <p className="text-sm font-medium">Upload Logo</p>
+                      <p className="text-sm font-medium">Upload Photo</p>
                     </div>
                   )}
                 </label>
