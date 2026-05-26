@@ -345,7 +345,7 @@ export default function Profile() {
             </div>
 
             {/* Option 2 */}
-            <div className="flex items-center justify-between group">
+            {/* <div className="flex items-center justify-between group">
               <div className="flex items-center gap-4">
                 <div className="bg-gray-50 group-hover:bg-gray-100 transition-colors p-3 rounded-full text-slate-500">
                   <MonitorSmartphone className="w-5 h-5" />
@@ -372,7 +372,7 @@ export default function Profile() {
                   d="M9 5l7 7-7 7"
                 />
               </svg>
-            </div>
+            </div> */}
           </div>
         </div>
       </div>

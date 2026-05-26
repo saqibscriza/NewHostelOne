@@ -16,6 +16,7 @@ import {
 import { useAuth } from "../../../../context/AuthContext";
 import {
   getStudentProfileByIdApi,
+  getAdminProfileApi,
   updateStudentProfileApi,
 } from "../../../../utils/utils";
 
@@ -123,6 +124,9 @@ export default function ProfileEdit() {
 
       if (res?.status === "success") {
         toast.success(res?.message || "Profile updated successfully");
+
+        await getAdminProfileApi();
+        window.location.reload();
         setTimeout(() => {
           navigate("/student/profile");
         }, 1500);

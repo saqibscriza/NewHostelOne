@@ -1,6 +1,6 @@
 import React from "react";
 import {useState,useEffect} from "react";
-import { Search, Ticket } from "lucide-react";
+import { Search, Ticket, AlertCircle } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "../../../../components/ui/button";
 import { Input } from "../../../../components/ui/input";
@@ -12,6 +12,12 @@ import {
   TableHeader,
   TableRow,
 } from "../../../../components/ui/Table";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "../../../../components/ui/tooltip";
 import {getAllSupportTicketsApi} from "../../../../utils/utils"
 
 export default function Support() {
@@ -134,27 +140,67 @@ export default function Support() {
                   <TableCell className="px-6 py-5 font-medium text-foreground whitespace-nowrap">
                     {ticket.subject}
                   </TableCell>
-<TableCell className="px-6 py-5 text-muted-foreground">
-  {ticket.description ? (
-    <>
-      {expandedTickets[ticket._id || ticket.id] || ticket.description.length <= 60
-        ? ticket.description
-        : `${ticket.description.slice(0, 60)}...`}
+{/* <TableCell className="px-6 py-5 text-muted-foreground align-top">
+  <span className="inline-block max-w-[300px] break-words whitespace-normal">
+    {ticket.description ? (
+      <>
+        {expandedTickets[ticket._id || ticket.id] || ticket.description.length <= 60
+          ? ticket.description
+          : `${ticket.description.slice(0, 60)}...`}
 
+        {ticket.description.length > 60 && (
+          <span 
+            onClick={(e) => toggleExpand(e, ticket._id || ticket.id)}
+            className="text-blue-500 font-medium hover:no-underline ml-1 cursor-pointer"
+          >
+            {expandedTickets[ticket._id || ticket.id] ? "Show less" : "Read more"}
+          </span>
+        )}
+      </>
+    ) : (
+      "N/A"
+    )}
+  </span>
+</TableCell> */}
+
+<TableCell className="px-6 py-5 text-muted-foreground align-top">
+  {ticket.description ? (
+    <div className="flex items-start gap-2">
+      {/* Short Description */}
+      <span className="inline-block max-w-[300px] break-words whitespace-normal">
+        {ticket.description.length > 60
+          ? `${ticket.description.slice(0, 60)}...`
+          : ticket.description}
+      </span>
+
+      {/* Tooltip Icon */}
       {ticket.description.length > 60 && (
-        <span 
-          onClick={(e) => toggleExpand(e, ticket._id || ticket.id)}
-          className="text-blue-500 font-medium group-hover:underline ml-1 cursor-pointer"
-        >
-          {expandedTickets[ticket._id || ticket.id] ? "Show less" : "Read more"}
-        </span>
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <AlertCircle className="w-5 h-5 text-slate-700 hover:text-slate-900 cursor-pointer flex-shrink-0" />
+            </TooltipTrigger>
+            <TooltipContent 
+              side="top" 
+              className="w-72 max-w-[300px] rounded-xl bg-black text-white text-xs p-4 shadow-2xl break-words whitespace-normal"
+            >
+              <p className="font-semibold mb-2 text-gray-300">
+                Ticket Description
+              </p>
+              <p className="leading-relaxed break-words whitespace-pre-wrap">
+                {ticket.description}
+              </p>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
       )}
-    </>
+    </div>
   ) : (
     "N/A"
   )}
 </TableCell>
-                        {/* <TableCell className="px-6 py-5 text-muted-foreground">
+
+{/* <TableCell className="px-6 py-5 text-muted-foreground">
         {ticket.status}
       </TableCell> */}
       

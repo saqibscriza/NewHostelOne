@@ -1,10 +1,16 @@
 import React, { useState, useEffect } from "react";
-import { Search, Ticket, Edit2, Eye } from "lucide-react";
+import { Search, Ticket, Edit2, Eye, AlertCircle } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "../../../../components/ui/dialog";
 import { Input } from "../../../../components/ui/input";
 import { Button } from "../../../../components/ui/button";
 import { Label } from "../../../../components/ui/label";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "../../../../components/ui/tooltip";
 import {
   Pagination,
   PaginationContent,
@@ -27,14 +33,14 @@ export default function SupportPage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [expandedTickets, setExpandedTickets] = useState({});
 
-  const toggleExpand = (e, ticketId) => {
-  e.stopPropagation();
+//   const toggleExpand = (e, ticketId) => {
+//   e.stopPropagation();
 
-  setExpandedTickets((prev) => ({
-    ...prev,
-    [ticketId]: !prev[ticketId],
-  }));
-};
+//   setExpandedTickets((prev) => ({
+//     ...prev,
+//     [ticketId]: !prev[ticketId],
+//   }));
+// };
 
 const filteredTickets = tickets.filter((ticket) => {
   const name = ticket.studentName || ticket.userName || "";
@@ -209,32 +215,42 @@ const fetchSupportTickets = async () => {
       <td className="px-6 py-4 text-foreground min-w-[250px]">
         {ticket.subject}
       </td>
+      <td className="px-6 py-4 align-top">
+        {ticket.description ? (
+          <div className="flex items-start gap-2">
+            {/* Short Description */}
+            <span className="text-foreground font-medium inline-block max-w-[250px] break-words whitespace-normal">
+              {ticket.description.length > 60
+                ? `${ticket.description.slice(0, 60)}...`
+                : ticket.description}
+            </span>
 
-<td className="px-6 py-4">
-  <span className="px-3 py-1 text-foreground font-medium inline-block max-w-[300px] break-words">
-    {ticket.description ? (
-      <>
-        {expandedTickets[ticket._id || ticket.id] ||
-        ticket.description.length <= 60
-          ? ticket.description
-          : `${ticket.description.slice(0, 60)}...`}
-
-        {ticket.description.length > 60 && (
-          <span
-            onClick={(e) => toggleExpand(e, ticket._id || ticket.id)}
-            className="text-blue-500 ml-1 cursor-pointer font-medium"
-          >
-            {expandedTickets[ticket._id || ticket.id]
-              ? "Show less"
-              : "Read more"}
-          </span>
+            {/* Tooltip Icon */}
+            {ticket.description.length > 60 && (
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <AlertCircle className="w-5 h-5 text-slate-700 hover:text-slate-900 cursor-pointer flex-shrink-0 mt-0.5" />
+                  </TooltipTrigger>
+                  <TooltipContent 
+                    side="top" 
+                    className="w-72 max-w-[300px] rounded-xl bg-black text-white text-xs p-4 shadow-2xl break-words whitespace-normal"
+                  >
+                    <p className="font-semibold mb-2 text-gray-300">
+                      Ticket Description
+                    </p>
+                    <p className="leading-relaxed break-words whitespace-pre-wrap">
+                      {ticket.description}
+                    </p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            )}
+          </div>
+        ) : (
+          "N/A"
         )}
-      </>
-    ) : (
-      "N/A"
-    )}
-  </span>
-</td>
+      </td>
 
       {/* <td className="px-6 py-4 whitespace-nowrap">
         <span className="px-3 py-1 bg-muted text-foreground text-xs font-medium rounded-full">

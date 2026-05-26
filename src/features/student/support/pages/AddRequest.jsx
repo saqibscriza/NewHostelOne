@@ -6,6 +6,7 @@ import { Input } from '../../../../components/ui/input';
 import { Label } from '../../../../components/ui/label';
 import { useForm } from "react-hook-form";
 import {createSupportTicketApi} from '../../../../utils/utils';
+import { toast } from "react-hot-toast";
 
 export default function AddRequest() {
 const navigate = useNavigate();
@@ -18,15 +19,28 @@ const createSupportTicket = async (data) => {
     description: data.description,
   };
 
-  const res = await createSupportTicketApi(payload);
+  try {
+    const res = await createSupportTicketApi(payload);
 
-  if (res?.status === "success") {
-    
-    navigate("/student/support");
-  } else {
-    
+    if (res?.status === "success" || res?.statusCode === 200 || res?.status === 200) {
+      toast.success(res?.message || "Ticket raised successfully");
+      navigate("/student/support");
+    } else {
+      let errorMsg = res?.message || res?.data?.message || res?.data?.error || "Failed to create support ticket";
+      if (errorMsg.includes("value too long for type character varying(255)")) {
+        errorMsg = "Input is too long! Please keep it under 255 characters.";
+      }
+      toast.error(errorMsg);
+    }
+  } catch (error) {
+    let errorMsg = error.response?.data?.message || error.response?.data?.error || error.message || "An error occurred";
+    if (errorMsg.includes("value too long for type character varying(255)")) {
+        errorMsg = "Input is too long! Please keep it under 255 characters.";
+    }
+    toast.error(errorMsg);
   }
 };
+
     const {
       register,
       handleSubmit,
@@ -62,21 +76,31 @@ const createSupportTicket = async (data) => {
             />
           </div>
 
-          <div className="space-y-2">
-            <Label className="text-xs font-bold text-muted-foreground tracking-widest uppercase">Description</Label>
-            <textarea 
+<div className="space-y-2">
+  <Label className="text-xs font-bold text-muted-foreground tracking-widest uppercase">
+    Description
+  </Label>
+
+  <textarea
     rows={5}
+    maxLength={255}
     {...register("description", {
       required: "Description is required",
       minLength: {
         value: 10,
         message: "Description must be at least 10 characters",
-      }
+      },
     })}
-              placeholder="Describe the issue in detail..."
-              className="w-full p-4 rounded-lg border border-border bg-transparent text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring resize-none"
-            ></textarea>
-          </div>
+    placeholder="Describe the issue in detail..."
+    className="w-full p-4 rounded-lg border border-border bg-transparent text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring resize-none"
+  ></textarea>
+
+  {errors.description && (
+    <p className="text-xs text-red-500 mt-1">
+      {errors.description.message}
+    </p>
+  )}
+</div>
 
           <Button type="submit" className="w-full bg-[#0f1419] dark:bg-white dark:text-black hover:bg-[#272c30] dark:hover:bg-gray-100 text-white rounded-xl h-12 flex items-center justify-center gap-2 font-medium cursor-pointer">
             Submit Request <Send className="w-4 h-4 ml-2" />

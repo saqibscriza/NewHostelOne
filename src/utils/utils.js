@@ -849,7 +849,7 @@ export const createSupportTicketApi = async (data) => {
     return res.data;
   } catch (error) {
     console.log("CREATE SUPPORT TICKET ERROR 👉", error);
-    return null;
+    return error.response?.data || { message: "Something went wrong" };
   }
 };
 
