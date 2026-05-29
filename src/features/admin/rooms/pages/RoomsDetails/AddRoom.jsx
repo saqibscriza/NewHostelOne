@@ -243,14 +243,35 @@ const AddRoom = () => {
     roomDescription: form.roomDescription.trim(),
     status: form.status,
     roomImage: roomImages[0] || null,
+    roomImages,
   });
+
+  const buildRoomFormData = () => {
+    const formData = new FormData();
+
+    formData.append("roomNameNumber", form.roomNameNumber.trim());
+    formData.append("blockFloor", form.blockFloor.trim());
+    formData.append("categoryId", Number(form.categoryId));
+    formData.append("availableBeds", Number(form.totalBeds));
+    formData.append("totalBeds", Number(form.totalBeds));
+    formData.append("totalRoomPrice", Number(form.totalRoomPrice));
+    formData.append("securityDeposit", Number(form.securityDeposit));
+    formData.append("roomDescription", form.roomDescription.trim());
+    formData.append("status", form.status);
+
+    roomImages.forEach((image) => {
+      formData.append("photos", image);
+    });
+
+    return formData;
+  };
 
   const handleSubmit = async () => {
     if (!validateForm() || loading) return;
 
     setLoading(true);
     try {
-      const payload = buildPayload();
+      const payload = buildRoomFormData();
       const response = isEditMode
         ? await updateRoomApi(id, payload)
         : await addRoomApi(payload);

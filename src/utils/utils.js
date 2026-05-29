@@ -378,6 +378,7 @@ export const getAllAdminApi = async () => {
 
 //********* Get All Staff Details********* */
 
+
 export const getAllStaffApi = async () => {
   try {
     axios.defaults.headers.common["Authorization"] = getToken();
@@ -1402,43 +1403,10 @@ export const getByIdCategory = async (id) => {
 export const addRoomApi = async (data) => {
   try {
     axios.defaults.headers.common["Authorization"] = getToken();
-
-    const formData = new FormData();
-
-    if (data.roomImage) {
-      formData.append("roomImage", data.roomImage);
-    }
-
-    const res = await axios.post(`${Domain}/room/add`, formData, {
-      headers: {
-        ...(data.roomImage ? { "Content-Type": "multipart/form-data" } : {}),
-      },
-
-      params: {
-        roomNameNumber: data.roomNameNumber,
-        blockFloor: data.blockFloor,
-        categoryId: data.categoryId,
-        availableBeds: data.availableBeds,
-        totalBeds: data.totalBeds,
-        totalRoomPrice: data.totalRoomPrice,
-        securityDeposit: data.securityDeposit,
-        description: data.description || "",
-        status: data.status || "AVAILABLE",
-      },
-    });
-
+    var res = await axios.post(`${Domain}/room/add`, data);
     return res;
   } catch (error) {
-    console.log("Add Room Error:", error?.response?.data || error);
-
-    return (
-      error?.response || {
-        data: {
-          status: "failure",
-          message: "Failed to add room",
-        },
-      }
-    );
+    throw error;
   }
 };
 
@@ -1448,40 +1416,10 @@ export const updateRoomApi = async (roomId, data) => {
   try {
     axios.defaults.headers.common["Authorization"] = getToken();
 
-    const formData = new FormData();
-
-    // IMAGE
-    if (data.roomImage instanceof File) {
-      formData.append("photos", data.roomImage);
-    }
-
-    console.log("FORM DATA:");
-
-    for (let pair of formData.entries()) {
-      console.log(pair[0], pair[1]);
-    }
-    const res = await axios.put(`${Domain}/room/updateRoom`, formData, {
-      headers: {
-        "Content-Type": "multipart/form-data",
-      },
-
-        params: {
-          roomNameNumber: data.roomNameNumber || "",
-          blockFloor: data.blockFloor || "",
-          categoryId: data.categoryId || "",
-          totalBeds: data.totalBeds || 0,
-          availableBeds: data.availableBeds || 0,
-          totalRoomPrice: data.totalRoomPrice || 0,
-          securityDeposit: data.securityDeposit || 0,
-
-          // IMPORTANT
-          roomDescription: data.roomDescription || "",
-
-          status: data.status || "AVAILABLE",
-        },
-      },
+    const res = await axios.put(
+      `${Domain}/room/updateRoom/${encodeURIComponent(roomId)}`,
+      data,
     );
-
     return res;
   } catch (error) {
     console.log("UPDATE ROOM API ERROR 👉", error?.response?.data || error);

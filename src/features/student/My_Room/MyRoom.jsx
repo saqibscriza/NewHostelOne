@@ -3,15 +3,28 @@ import { useNavigate } from "react-router-dom";
 import { Card, CardContent } from "../../../components/ui/Card";
 import { Button } from "../../../components/ui/button";
 
-import { Wifi, MapPin, Circle } from "lucide-react";
+import { Wifi, MapPin, Circle, ChevronLeft, ChevronRight, User } from "lucide-react";
 
 import { getStudentMyRoomApi } from "../../../utils/utils";
 
 export default function MyRoom() {
   const navigate = useNavigate();
+  const [currentImage, setCurrentImage] = useState(0);
   const [loaderCheck, setLoaderCheck] = useState(false);
 
   const [roomData, setRoomData] = useState(null);
+
+  const photos = roomData?.roomDetails?.photos || [];
+
+useEffect(() => {
+  if (photos.length <= 1) return;
+
+  const interval = setInterval(() => {
+    setCurrentImage((prev) => (prev + 1) % photos.length);
+  }, 5000);
+
+  return () => clearInterval(interval);
+}, [photos.length]);
 
   // ================= API CALL =================
 
@@ -86,32 +99,60 @@ export default function MyRoom() {
       <div className="grid lg:grid-cols-3 gap-6">
         {/* ROOM DETAILS CARD */}
         <Card className="lg:col-span-2 overflow-hidden rounded-xl border-border shadow-sm">
-          <div className="relative h-80 overflow-hidden">
-            <img
-              src={
-                roomData?.student?.photo ||
-                "https://images.unsplash.com/photo-1595526114035-0d45ed16cfbf?auto=format&fit=crop&w=1200&q=80"
-              }
-              alt="Hostel room"
-              className="h-full w-full object-cover"
-            />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent" />
-            <div className="absolute left-6 top-5 rounded-full bg-slate-950 px-4 py-1.5 text-xs font-bold uppercase tracking-wide text-white">
-              Active Stay
-            </div>
-            <div className="absolute bottom-6 left-6 text-white">
-              <h2 className="text-4xl font-bold tracking-tight">
-                {roomData?.roomDetails?.roomNumber || "Room N/A"}
-              </h2>
-              <p className="mt-2 flex items-center gap-1 text-sm font-medium text-white/90">
-                <MapPin className="h-4 w-4" />
-                {roomData?.roomDetails?.category || "Standard Room"}
-                {roomData?.roomDetails?.blockFloor
-                  ? `, ${roomData.roomDetails.blockFloor}`
-                  : ""}
-              </p>
-            </div>
-          </div>
+<div className="relative h-80 overflow-hidden">
+  <img
+    src={
+      photos[currentImage] ||
+      "https://images.unsplash.com/photo-1595526114035-0d45ed16cfbf?auto=format&fit=crop&w=1200&q=80"
+    }
+    alt="Room"
+    className="h-full w-full object-cover"
+  />
+
+  <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent" />
+
+  {/* Left Arrow */}
+  {photos.length > 1 && (
+    <button
+      onClick={() =>
+        setCurrentImage((prev) =>
+          prev === 0 ? photos.length - 1 : prev - 1
+        )
+      }
+      className="absolute left-4 top-1/2 -translate-y-1/2 rounded-full bg-black/40 p-2 text-white backdrop-blur-sm"
+    >
+      <ChevronLeft className="h-5 w-5" />
+    </button>
+  )}
+
+  {/* Right Arrow */}
+  {photos.length > 1 && (
+    <button
+      onClick={() =>
+        setCurrentImage((prev) => (prev + 1) % photos.length)
+      }
+      className="absolute right-4 top-1/2 -translate-y-1/2 rounded-full bg-black/40 p-2 text-white backdrop-blur-sm"
+    >
+      <ChevronRight className="h-5 w-5" />
+    </button>
+  )}
+  <div className="absolute left-6 top-5 rounded-full bg-slate-950 px-4 py-1.5 text-xs font-bold uppercase tracking-wide text-white">
+    Active Stay
+  </div>
+
+  <div className="absolute bottom-6 left-6 text-white">
+    <h2 className="text-4xl font-bold tracking-tight">
+      {roomData?.roomDetails?.roomNumber || "Room N/A"}
+    </h2>
+    <p className="mt-2 flex items-center gap-1 text-sm font-medium text-white/90">
+      <MapPin className="h-4 w-4" />
+      {roomData?.roomDetails?.category || "Standard Room"}
+      {roomData?.roomDetails?.blockFloor
+        ? `, ${roomData.roomDetails.blockFloor}`
+        : ""}
+    </p>
+  </div>
+</div>
 
           <CardContent className="grid grid-cols-2 gap-6 p-6 md:grid-cols-4">
             <Info
@@ -150,60 +191,50 @@ export default function MyRoom() {
         </Card>
 
         {/* STUDENT CARD */}
-        <Card className="rounded-3xl border border-border shadow-sm bg-card overflow-hidden">
-          <CardContent className="p-8 flex flex-col items-center text-center">
-            {/* TOP LABEL */}
-            <p className="self-start text-xs font-bold tracking-[0.2em] uppercase text-slate-400">
+        <Card className="h-full rounded-[14px] border-white bg-white shadow-[0_2px_8px_rgba(15,23,42,0.06)]">
+          <CardContent className="flex h-full min-h-[25.5rem] flex-col p-7">
+            <p className="text-xs font-bold uppercase tracking-[0.16em] text-[#94a0b7]">
               Roommate
             </p>
 
-            {/* PROFILE IMAGE */}
-            <div className="relative mt-8">
-              <img
-                src={
-                  roomData?.student?.photo ||
-                  "https://randomuser.me/api/portraits/men/32.jpg"
-                }
-                alt={roomData?.student?.studentName || "Student"}
-                className="w-32 h-32 rounded-full object-cover border-[5px] border-slate-900"
-              />
+            <div className="flex flex-1 flex-col items-center justify-center text-center">
+              <div className="relative">
+                <div className="rounded-full border-[4px] border-[#10182b] bg-white p-1">
+                  <img
+                    src={
+                      roomData?.student?.photo ||
+                      "https://randomuser.me/api/portraits/men/32.jpg"
+                    }
+                    alt={roomData?.student?.studentName || "Student"}
+                    className="h-28 w-28 rounded-full object-cover"
+                  />
+                </div>
+                <span className="absolute bottom-4 right-0 h-6 w-6 rounded-full border-[4px] border-white bg-[#10182b]" />
+              </div>
 
-              {/* ACTIVE DOT */}
-              <div className="absolute bottom-2 right-2 w-5 h-5 rounded-full bg-slate-900 border-4 border-white"></div>
-            </div>
+              <h3 className="mt-8 text-2xl font-extrabold leading-tight tracking-normal text-[#171b22]">
+                {roomData?.student?.studentName || "N/A"}
+              </h3>
 
-            {/* NAME */}
-            <h3 className="mt-8 text-4xl font-bold tracking-tight text-foreground">
-              {roomData?.student?.studentName || "N/A"}
-            </h3>
+              <p className="mt-2 text-base font-semibold tracking-normal text-[#50515e]">
+                {[
+                  roomData?.student?.course,
+                  roomData?.student?.year,
+                ]
+                  .filter(Boolean)
+                  .join(", ") || "N/A"}
+              </p>
 
-            {/* COURSE */}
-            <p className="mt-2 text-lg font-medium text-muted-foreground">
-              {roomData?.student?.course || "N/A"}
-              {roomData?.student?.year ? `, ${roomData.student.year} Year` : ""}
-            </p>
-
-            {/* BUTTON */}
-            <button
-              onClick={() => navigate("/student/profile")}
-              className="mt-10 w-full h-14 rounded-2xl bg-muted hover:bg-muted/80 transition-all duration-300 flex items-center justify-center gap-3 text-xl font-semibold text-foreground cursor-pointer"
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="w-6 h-6"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-                strokeWidth={2}
+              <Button
+                type="button"
+                variant="secondary"
+                onClick={() => navigate("/student/profile")}
+                className="mt-8 h-12 w-full rounded-[10px] bg-[#eef0f2] text-base font-bold text-[#202124] hover:bg-[#e3e5e8]"
               >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M15 19l-7-7 7-7"
-                />
-              </svg>
-              View Profile
-            </button>
+                <User className="mr-2 h-5 w-5" />
+                View Profile
+              </Button>
+            </div>
           </CardContent>
         </Card>
       </div>

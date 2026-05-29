@@ -197,6 +197,15 @@ const onNextStep = async (data) => {
                   className="hidden"
                   accept=".jpg,.jpeg,.png"
                   {...register("profilePhoto")}
+                  onChange={(e) => {
+    const file = e.target.files?.[0];
+
+    if (file && file.size > 5 * 1024 * 1024) {
+      toast.error("Profile photo size must be less than 5MB");
+      e.target.value = "";
+      return;
+    }
+  }}
                   // {...register("profilePhoto", { required: savedAdminInfo?.profilePhoto ? false : "Profile photo is required" })}
                 />
                 <label
@@ -275,8 +284,8 @@ const onNextStep = async (data) => {
       required: "Phone is required",
       pattern: {
         value: /^[6-9]\d{9}$/,
-        // message:
-        //   "Phone number must be 10 digits and start with 6, 7, 8, or 9",
+        message:
+          "Phone number must be 10 digits and start with 6, 7, 8, or 9",
       },
     })}
     onInput={(e) => {

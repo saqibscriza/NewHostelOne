@@ -103,6 +103,20 @@ useEffect(() => {
   // }, []);
 
   const MySignUp = async (data) => {
+
+      // Profile Photo Size Check
+  if (adminInfo?.profilePhoto?.[0]?.size > 5 * 1024 * 1024) {
+    toast.error("Profile photo size must be less than 5MB");
+    return;
+  }
+
+  // Property Logo Size Check
+  if (data?.propertyLogo?.[0]?.size > 5 * 1024 * 1024) {
+    toast.error("Property logo size must be less than 5MB");
+    return;
+  }
+
+
     const formData = new FormData();
 
     // Step 1 mapping (Admin Info) - map to what signUpApi expects
@@ -203,13 +217,22 @@ useEffect(() => {
               <p className="text-sm font-semibold text-[#111827]">Upload your Property Logo</p>
               <p className="text-xs text-gray-500 mt-1 mb-2">JPG, PNG or JPEG. Max size 5MB</p>
               <div className="relative">
-                <Input
-                  type="file"
-                  id="propertyLogo"
-                  className="hidden"
-                  accept=".jpg,.jpeg,.png"
-                  {...register("propertyLogo")}
-                />
+<Input
+  type="file"
+  id="propertyLogo"
+  className="hidden"
+  accept=".jpg,.jpeg,.png"
+  {...register("propertyLogo")}
+  onChange={(e) => {
+    const file = e.target.files?.[0];
+
+    if (file && file.size > 5 * 1024 * 1024) {
+      toast.error("Property logo size must be less than 5MB");
+      e.target.value = "";
+      return;
+    }
+  }}
+/>
                 <label
                   htmlFor="propertyLogo"
                   className="text-sm text-blue-600 font-medium cursor-pointer hover:underline"
@@ -330,11 +353,13 @@ useEffect(() => {
     {...register("hostelAddress", {
       required: "Address is required",
       minLength: {
-        value: 5,
-        message: "Address must be at least 5 characters",
+        value: 3,
+        message: "Address must be at least 3 characters",
       },
     })}
-    className={errors.hostelAddress ? "border-red-500" : ""}
+      className={`w-full p-2.5 rounded-xl border bg-white focus:outline-none focus:ring-1 focus:ring-gray-300 text-sm ${
+    errors.hostelAddress ? "border-red-500" : "border-gray-200"
+  }`}
   />
 
   {errors.hostelAddress && (

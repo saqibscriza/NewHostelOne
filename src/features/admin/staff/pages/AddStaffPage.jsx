@@ -468,6 +468,11 @@ export default function AddStaff() {
                 placeholder="Street name, City, State, ZIP"
                 className="h-11"
               />
+                {errors.currentAddress && (
+    <p className="text-red-500 text-xs mt-1">
+      {errors.currentAddress.message}
+    </p>
+  )}
             </div>
 
             <div className="space-y-2">
@@ -509,6 +514,11 @@ export default function AddStaff() {
                 placeholder="Street name, City, State, ZIP"
                 className={`h-11 ${sameAddress ? "bg-slate-100 cursor-not-allowed text-slate-500" : ""}`}
               />
+                {errors.permanentAddress && (
+    <p className="text-red-500 text-xs mt-1">
+      {errors.permanentAddress.message}
+    </p>
+  )}
             </div>
           </div>
         </Card>

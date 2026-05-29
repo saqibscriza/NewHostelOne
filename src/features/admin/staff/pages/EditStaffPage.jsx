@@ -508,6 +508,7 @@ const response = await updateStaffApi(id, formData);
               </Label>
               <Input
                 placeholder="Current Address"
+                required
                 {...register("currentAddress")}
                 className="h-11"
               />
@@ -529,8 +530,9 @@ const response = await updateStaffApi(id, formData);
                       if (checked) {
                         setValue("permanentAddress", watch("currentAddress"));
                       } else {
-                        setValue("permanentAddress", "");
-                      }
+    setValue("permanentAddress", "", {
+      shouldValidate: true,
+    });}
                     }}
                     id="same-address"
                     className="rounded border-slate-300 text-slate-900 focus:ring-slate-900"
@@ -546,7 +548,14 @@ const response = await updateStaffApi(id, formData);
               <Input
                 placeholder="Permanent Address"
                 disabled={sameAddress}
-                {...register("permanentAddress")}
+                  {...register("permanentAddress", {
+    validate: (value) => {
+      if (!sameAddress && !value?.trim()) {
+        return "Permanent Address is required";
+      }
+      return true;
+    },
+  })}
 className={`h-11 ${sameAddress ? "bg-slate-100 cursor-not-allowed text-slate-500" : ""}`}              />
             </div>
           </div>
