@@ -7,9 +7,14 @@ import { Input } from "../../../components/ui/input";
 
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
+
 import toast from "react-hot-toast";
 
-import { addHostelApi, getAllPackageApi } from "../../../utils/utils";
+import {
+  addHostelApi,
+  getAllPackageApi,
+  getLocationByPincodeApi,
+} from "../../../utils/utils";
 
 export default function AddNewHostel() {
   const navigate = useNavigate();
@@ -21,10 +26,36 @@ export default function AddNewHostel() {
   const {
     register,
     handleSubmit,
+    watch,
+    setValue,
     formState: { errors },
   } = useForm({
     mode: "onChange",
   });
+
+  const pinCode = watch("pinCode");
+
+  useEffect(() => {
+    const fetchLocation = async () => {
+      if (pinCode?.length !== 6) return;
+
+      try {
+        const res = await getLocationByPincodeApi(pinCode);
+
+        console.log("PINCODE DATA", res);
+
+        if (res) {
+          setValue("country", res?.country || "");
+          setValue("state", res?.state || "");
+          setValue("city", res?.district || "");
+        }
+      } catch (error) {
+        console.log(error);
+      }
+    };
+
+    fetchLocation();
+  }, [pinCode, setValue]);
 
   useEffect(() => {
     const fetchPackages = async () => {
@@ -215,7 +246,7 @@ export default function AddNewHostel() {
                 {/* Hostel Type */}
                 <div>
                   <label className="mb-2 block text-sm font-semibold text-foreground">
-                   Hostel Type
+                    Hostel Type
                   </label>
 
                   <select
@@ -403,16 +434,12 @@ export default function AddNewHostel() {
                       Country
                     </label>
 
-                    <select
-                      className="h-11 w-full rounded-xl border border-border bg-background px-4 text-sm text-foreground outline-none"
+                    <Input
+                      readOnly
+                      placeholder="Country"
+                      className="h-11 rounded-xl border-border bg-muted shadow-none"
                       {...register("country")}
-                    >
-                      <option value="">Select Country</option>
-
-                      <option value="India">India</option>
-
-                      <option value="USA">USA</option>
-                    </select>
+                    />
                   </div>
                 </div>
 
@@ -424,7 +451,8 @@ export default function AddNewHostel() {
                     </label>
 
                     <Input
-                      placeholder="Enter State"
+                      readOnly
+                      placeholder="State"
                       className="h-11 rounded-xl border-border bg-background shadow-none"
                       {...register("state")}
                     />
@@ -436,126 +464,13 @@ export default function AddNewHostel() {
                     </label>
 
                     <Input
-                      placeholder="Enter City"
+                      readOnly
+                      placeholder="City"
                       className="h-11 rounded-xl border-border bg-background shadow-none"
                       {...register("city")}
                     />
                   </div>
                 </div>
-
-                {/* Admin Fields */}
-                {/* <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                  <div>
-                    <label className="mb-2 block text-sm font-semibold text-foreground">
-                      Admin Name
-                    </label>
-
-                    <Input
-                      placeholder="Enter Admin Name"
-                      className="h-11 rounded-xl border-border bg-background shadow-none"
-                      {...register("adminName")}
-                    />
-                  </div>
-
-                  <div>
-                    <label className="mb-2 block text-sm font-semibold text-foreground">
-                      Admin Email
-                    </label>
-
-                    <Input
-                      placeholder="Enter Admin Email"
-                      className="h-11 rounded-xl border-border bg-background shadow-none"
-                      {...register("adminEmail", {
-                        pattern: {
-                          value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
-                          message: "Invalid email address",
-                        },
-                      })}
-                    />
-                    {errors.adminEmail && (
-                      <p className="mt-1 text-xs text-red-500">
-                        {errors.adminEmail.message}
-                      </p>
-                    )}
-                  </div>
-                </div> */}
-
-                {/* Password + Phone */}
-                {/* <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                  <div>
-                    <label className="mb-2 block text-sm font-semibold text-foreground">
-                      Admin Password
-                    </label>
-
-                    <Input
-                      type="password"
-                      placeholder="Enter Password"
-                      className="h-11 rounded-xl border-border bg-background shadow-none"
-                      {...register("adminPassword", {
-                        minLength: {
-                          value: 6,
-                          message: "Password must be at least 6 characters",
-                        },
-                      })}
-                    />
-                    {errors.adminPassword && (
-                      <p className="mt-1 text-xs text-red-500">
-                        {errors.adminPassword.message}
-                      </p>
-                    )}
-                  </div>
-
-                  <div>
-                    <label className="mb-2 block text-sm font-semibold text-foreground">
-                      Admin Phone
-                    </label>
-                    <Input
-                      type="tel"
-                      inputMode="numeric"
-                      maxLength={10}
-                      placeholder="Enter Admin Phone"
-                      className="h-11 rounded-xl border-border bg-background shadow-none"
-                      onInput={(e) => {
-                        e.target.value = e.target.value
-                          .replace(/\D/g, "")
-                          .slice(0, 10);
-                      }}
-                      {...register("adminPhone", {
-                        minLength: {
-                          value: 10,
-                          message: "Number must be 10 digits",
-                        },
-                        maxLength: {
-                          value: 10,
-                          message: "Number must be 10 digits",
-                        },
-                        pattern: {
-                          value: /^[6-9]\d{9}$/,
-                          message:
-                            "Number must start with 6,7,8,9 and be 10 digits",
-                        },
-                      })}
-                    />
-                    {errors.adminPhone && (
-                      <p className="mt-1 text-xs text-red-500">
-                        {errors.adminPhone.message}
-                      </p>
-                    )}
-                  </div>
-                </div> */}
-
-                {/* Admin Address */}
-                {/* <div>
-                  <label className="mb-2 block text-sm font-semibold text-foreground">
-                    Admin Address
-                  </label>
-
-                  <Input
-                    placeholder="Enter Admin Address"
-                    className="h-11 rounded-xl border-border bg-background shadow-none"
-                    {...register("adminAddress")}
-                  />
-                </div> */}
               </div>
             </div>
           </CardContent>
