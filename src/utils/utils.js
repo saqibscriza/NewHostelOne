@@ -204,48 +204,56 @@ export const selectHostelApi = async (hostelId, userToken) => {
 
 //********* Add Hostel********* */
 
+// export const addHostelApi = async (data) => {
+//   try {
+//     axios.defaults.headers.common["Authorization"] = getToken();
+
+//     const formData = new FormData();
+
+//     // ONLY IMAGE
+//     if (data.hostelImage) {
+//       formData.append("hostelImage", data.hostelImage);
+//     }
+
+//     const res = await axios.post(`${Domain}/hostel/create`, formData, {
+//       headers: {
+//         "Content-Type": "multipart/form-data",
+//       },
+
+//       params: {
+//         hostelName: data.hostelName,
+//         address: data.address,
+//         contactNumber: data.contactNumber,
+//         alternateContactNumber: data.alternateContactNumber,
+//         city: data.city,
+//         state: data.state,
+//         country: data.country,
+//         pinCode: data.pinCode,
+//         hostelType: data.hostelType,
+//         packageId: data.packageId,
+
+//         adminName: data.adminName,
+//         adminEmail: data.adminEmail,
+//       },
+//     });
+
+//     return res;
+//   } catch (error) {
+//     console.log("ADD HOSTEL ERROR", error?.response || error);
+
+//     return error?.response;
+//   }
+// };
 export const addHostelApi = async (data) => {
   try {
     axios.defaults.headers.common["Authorization"] = getToken();
-
-    const formData = new FormData();
-
-    // ONLY IMAGE
-    if (data.hostelImage) {
-      formData.append("hostelImage", data.hostelImage);
-    }
-
-    const res = await axios.post(`${Domain}/hostel/create`, formData, {
-      headers: {
-        "Content-Type": "multipart/form-data",
-      },
-
-      params: {
-        hostelName: data.hostelName,
-        address: data.address,
-        contactNumber: data.contactNumber,
-        alternateContactNumber: data.alternateContactNumber,
-        city: data.city,
-        state: data.state,
-        country: data.country,
-        pinCode: data.pinCode,
-        hostelType: data.hostelType,
-        packageId: data.packageId,
-
-        adminName: data.adminName,
-        adminEmail: data.adminEmail,
-      },
-    });
-
+    var res = await axios.post(`${Domain}/hostel/create`, data);
     return res;
   } catch (error) {
-    console.log("ADD HOSTEL ERROR", error?.response || error);
-
-    return error?.response;
+    throw error;
   }
 };
 
-// i dont know below code
 
 const toHostelCreateParams = (data) => {
   const params = toCleanParams(data);

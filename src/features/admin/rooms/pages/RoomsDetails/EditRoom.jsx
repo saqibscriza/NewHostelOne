@@ -206,32 +206,51 @@ const EditRoom = () => {
 
       {/* Gallery + Activity */}
       <div className="grid grid-cols-3 gap-4">
-        <div className="col-span-2 space-y-3">
-          <h3 className="text-sm text-muted-foreground">ROOM GALLERY</h3>
+<div className="col-span-2 space-y-3">
+  <h3 className="text-sm text-muted-foreground">ROOM GALLERY</h3>
 
-          <div className="grid grid-cols-2 gap-4">
-            {getRoomImage(roomData) ? (
-              <img
-                src={getRoomImage(roomData)}
-                alt={roomData?.roomNameNumber || "Room"}
-                className="h-[250px] w-full rounded-xl object-cover"
-              />
-            ) : (
-              <div className="flex h-[250px] w-full items-center justify-center rounded-xl bg-muted text-sm text-muted-foreground">
-                No room image uploaded
-              </div>
-            )}
+  <div className="grid grid-cols-2 gap-4">
+    {/* Main Image */}
+    {roomData?.photos?.[0] ? (
+      <img
+        src={roomData.photos[0]}
+        alt="Room Main"
+        className="h-[250px] w-full rounded-xl object-cover"
+      />
+    ) : (
+      <div className="flex h-[250px] w-full items-center justify-center rounded-xl bg-muted text-sm text-muted-foreground">
+        No room image uploaded
+      </div>
+    )}
 
-            <div className="grid gap-4">
-              <div className="flex h-[120px] items-center justify-center rounded-xl bg-muted text-sm text-muted-foreground">
-                Additional images
-              </div>
-              <div className="flex h-[120px] items-center justify-center rounded-xl bg-muted text-sm text-muted-foreground">
-                Add more from edit page
-              </div>
-            </div>
-          </div>
+    {/* Additional Images */}
+    <div className="grid gap-4">
+      {roomData?.photos?.[1] ? (
+        <img
+          src={roomData.photos[1]}
+          alt="Room 2"
+          className="h-[120px] w-full rounded-xl object-cover"
+        />
+      ) : (
+        <div className="flex h-[120px] items-center justify-center rounded-xl bg-muted text-sm text-muted-foreground">
+          No Image
         </div>
+      )}
+
+      {roomData?.photos?.[2] ? (
+        <img
+          src={roomData.photos[2]}
+          alt="Room 3"
+          className="h-[120px] w-full rounded-xl object-cover"
+        />
+      ) : (
+        <div className="flex h-[120px] items-center justify-center rounded-xl bg-muted text-sm text-muted-foreground">
+          No Image
+        </div>
+      )}
+    </div>
+  </div>
+</div>
 
         <Card>
           <CardContent className="p-5 space-y-4">

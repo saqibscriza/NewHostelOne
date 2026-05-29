@@ -386,17 +386,17 @@ const Topbar = ({ onMenuClick }) => {
                         } ${isSwitching ? "opacity-70" : ""}`}
                       >
                         <div className="h-14 w-14 shrink-0 overflow-hidden rounded-xl bg-muted">
-                          {hostel.hostelImage ? (
-                            <img
-                              src={hostel.hostelImage}
-                              alt={hostel.hostelName || hostel.name || "Hostel"}
-                              className="h-full w-full object-cover"
-                            />
-                          ) : (
-                            <div className="flex h-full w-full items-center justify-center text-muted-foreground">
-                              <MapPin className="h-5 w-5" />
-                            </div>
-                          )}
+{hostel.hostelImages ? (
+  <img
+    src={hostel.hostelImages}
+    alt={hostel.hostelName || hostel.name || "Hostel"}
+    className="h-full w-full object-cover"
+  />
+) : (
+  <div className="flex h-full w-full items-center justify-center text-muted-foreground">
+    <MapPin className="h-5 w-5" />
+  </div>
+)}
                         </div>
                         <div className="min-w-0">
                           <div className="flex items-center gap-2">

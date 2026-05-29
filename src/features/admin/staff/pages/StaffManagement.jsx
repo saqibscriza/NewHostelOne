@@ -177,9 +177,9 @@ export default function StaffManagement() {
               <span className="text-3xl font-bold text-foreground">
                 {staffData.length}
               </span>
-              <span className="bg-muted text-foreground text-xs font-bold px-2.5 py-1 rounded-full">
+              {/* <span className="bg-muted text-foreground text-xs font-bold px-2.5 py-1 rounded-full">
                 +2 this month
-              </span>
+              </span> */}
             </div>
           </CardContent>
         </Card>

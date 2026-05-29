@@ -301,7 +301,6 @@ const EditStudent = () => {
       console.log("UPDATE RESPONSE 👉", response);
 
       if (response?.data?.status === "success") {
-        alert(response?.data?.message || "Student Updated Successfully");
 
         setTimeout(() => {
           navigate("/admin/students");

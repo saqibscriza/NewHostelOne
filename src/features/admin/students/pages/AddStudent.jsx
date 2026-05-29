@@ -10,7 +10,7 @@ import {
   SelectItem,
 } from "../../../../components/ui/select";
 import { useNavigate, useParams } from "react-router-dom";
-import { ArrowLeft, Camera, FileText, Loader2, Upload } from "lucide-react";
+import { ArrowLeft, Camera, FileText, Loader2, Upload, CalendarDays } from "lucide-react";
 import { useState, useEffect } from "react";
 import {
   addStudentApi,
@@ -478,43 +478,57 @@ export default function AddStudent() {
             </Field>
 
             <div className="grid grid-cols-2 gap-4">
-              <Field label="Date of Birth" required>
-                {" "}
-                <Input
-                  type="date"
-                  max={new Date().toISOString().split("T")[0]}
-                  value={form.dob || ""}
-                  onChange={(e) => {
-                    const selectedDate = e.target.value;
-                    const today = new Date().toISOString().split("T")[0];
+<Field label="Date of Birth" required>
+  <div className="relative">
+    <CalendarDays className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-500 pointer-events-none z-10" />
 
-                    if (new Date(selectedDate) >= new Date(today)) {
-                      setErrors((prev) => ({
-                        ...prev,
-                        dob: "DOB must be a previous date",
-                      }));
+    <Input
+      type="date"
+      max={new Date().toISOString().split("T")[0]}
+      value={form.dob || ""}
+      onChange={(e) => {
+        const selectedDate = e.target.value;
+        const today = new Date().toISOString().split("T")[0];
 
-                      setForm((prev) => ({
-                        ...prev,
-                        dob: "",
-                      }));
+        if (new Date(selectedDate) >= new Date(today)) {
+          setErrors((prev) => ({
+            ...prev,
+            dob: "DOB must be a previous date",
+          }));
 
-                      return;
-                    }
+          setForm((prev) => ({
+            ...prev,
+            dob: "",
+          }));
 
-                    setErrors((prev) => ({
-                      ...prev,
-                      dob: "",
-                    }));
+          return;
+        }
 
-                    handleChange("dob", selectedDate);
-                  }}
-                  className={errors.dob ? "border-destructive" : ""}
-                />
-                {errors.dob && (
-                  <p className="text-xs text-destructive">{errors.dob}</p>
-                )}
-              </Field>
+        setErrors((prev) => ({
+          ...prev,
+          dob: "",
+        }));
+
+        handleChange("dob", selectedDate);
+      }}
+      className={`h-11 w-full pl-10 text-slate-500 
+        [&::-webkit-calendar-picker-indicator]:opacity-0
+        [&::-webkit-calendar-picker-indicator]:absolute
+        [&::-webkit-calendar-picker-indicator]:left-0
+        [&::-webkit-calendar-picker-indicator]:w-full
+        [&::-webkit-calendar-picker-indicator]:h-full
+        [&::-webkit-calendar-picker-indicator]:cursor-pointer
+        ${errors.dob ? "border-destructive" : ""}
+      `}
+    />
+  </div>
+
+  {errors.dob && (
+    <p className="text-xs text-destructive mt-1">
+      {errors.dob}
+    </p>
+  )}
+</Field>
 
               <Field label="Gender" required>
                 {" "}
@@ -546,22 +560,34 @@ export default function AddStudent() {
                 />
               </Field>
 
-              <Field label="Date of Joining" required>
-                <Input
-                  type="date"
-                  value={form.dateOfJoining || ""}
-                  onChange={(e) =>
-                    handleChange("dateOfJoining", e.target.value)
-                  }
-                  className={errors.dateOfJoining ? "border-destructive" : ""}
-                />
+<Field label="Date of Joining" required>
+  <div className="relative">
+    <CalendarDays className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-500 pointer-events-none z-10" />
 
-                {errors.dateOfJoining && (
-                  <p className="text-xs text-destructive">
-                    {errors.dateOfJoining}
-                  </p>
-                )}
-              </Field>
+    <Input
+      type="date"
+      value={form.dateOfJoining || ""}
+      onChange={(e) =>
+        handleChange("dateOfJoining", e.target.value)
+      }
+      className={`h-11 w-full pl-10 text-slate-500
+        [&::-webkit-calendar-picker-indicator]:opacity-0
+        [&::-webkit-calendar-picker-indicator]:absolute
+        [&::-webkit-calendar-picker-indicator]:left-0
+        [&::-webkit-calendar-picker-indicator]:w-full
+        [&::-webkit-calendar-picker-indicator]:h-full
+        [&::-webkit-calendar-picker-indicator]:cursor-pointer
+        ${errors.dateOfJoining ? "border-destructive" : ""}
+      `}
+    />
+  </div>
+
+  {errors.dateOfJoining && (
+    <p className="text-xs text-destructive mt-1">
+      {errors.dateOfJoining}
+    </p>
+  )}
+</Field>
             </div>
           </div>
         </div>

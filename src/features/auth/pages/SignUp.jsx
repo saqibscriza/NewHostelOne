@@ -196,17 +196,15 @@ const onNextStep = async (data) => {
                   id="profilePhoto"
                   className="hidden"
                   accept=".jpg,.jpeg,.png"
-                  {...register("profilePhoto")}
-                  onChange={(e) => {
-    const file = e.target.files?.[0];
-
-    if (file && file.size > 5 * 1024 * 1024) {
-      toast.error("Profile photo size must be less than 5MB");
-      e.target.value = "";
-      return;
-    }
-  }}
-                  // {...register("profilePhoto", { required: savedAdminInfo?.profilePhoto ? false : "Profile photo is required" })}
+                                    {...register("profilePhoto", {
+                    onChange: (e) => {
+                      const file = e.target.files?.[0];
+                      if (file && file.size > 5 * 1024 * 1024) {
+                        toast.error("Profile photo size must be less than 5MB");
+                        e.target.value = "";
+                      }
+                    }
+                  })}
                 />
                 <label
                   htmlFor="profilePhoto"

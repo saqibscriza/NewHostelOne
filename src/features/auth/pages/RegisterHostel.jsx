@@ -222,16 +222,16 @@ useEffect(() => {
   id="propertyLogo"
   className="hidden"
   accept=".jpg,.jpeg,.png"
-  {...register("propertyLogo")}
-  onChange={(e) => {
-    const file = e.target.files?.[0];
+  {...register("propertyLogo", {
+    onChange: (e) => {
+      const file = e.target.files?.[0];
 
-    if (file && file.size > 5 * 1024 * 1024) {
-      toast.error("Property logo size must be less than 5MB");
-      e.target.value = "";
-      return;
+      if (file && file.size > 5 * 1024 * 1024) {
+        toast.error("Property logo size must be less than 5MB");
+        e.target.value = "";
+      }
     }
-  }}
+  })}
 />
                 <label
                   htmlFor="propertyLogo"

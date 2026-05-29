@@ -10,11 +10,8 @@ import { useNavigate } from "react-router-dom";
 
 import toast from "react-hot-toast";
 
-import {
-  addHostelApi,
-  getAllPackageApi,
-  getLocationByPincodeApi,
-} from "../../../utils/utils";
+// import { addHostelApi, getAllPackageApi } from "../../../utils/utils";
+import { addHostelApi } from "../../../utils/utils";
 
 export default function AddNewHostel() {
   const navigate = useNavigate();
@@ -31,48 +28,29 @@ export default function AddNewHostel() {
     formState: { errors },
   } = useForm({
     mode: "onChange",
+       defaultValues: {
+      packageId: "FREE_TIER",
+    },
   });
 
-  const pinCode = watch("pinCode");
+  const hostelImageRegister = register("hostelImage");
 
-  useEffect(() => {
-    const fetchLocation = async () => {
-      if (pinCode?.length !== 6) return;
+  // useEffect(() => {
+  //   const fetchPackages = async () => {
+  //     try {
+  //       const res = await getAllPackageApi();
+  //       console.log("data of package---", res);
 
-      try {
-        const res = await getLocationByPincodeApi(pinCode);
+  //       if (res?.status) {
+  //         setPackages(res.data.allPackages);
+  //       }
+  //     } catch (error) {
+  //       console.log(error);
+  //     }
+  //   };
 
-        console.log("PINCODE DATA", res);
-
-        if (res) {
-          setValue("country", res?.country || "");
-          setValue("state", res?.state || "");
-          setValue("city", res?.district || "");
-        }
-      } catch (error) {
-        console.log(error);
-      }
-    };
-
-    fetchLocation();
-  }, [pinCode, setValue]);
-
-  useEffect(() => {
-    const fetchPackages = async () => {
-      try {
-        const res = await getAllPackageApi();
-        console.log("data of package---", res);
-
-        if (res?.status) {
-          setPackages(res.data.allPackages);
-        }
-      } catch (error) {
-        console.log(error);
-      }
-    };
-
-    fetchPackages();
-  }, []);
+  //   fetchPackages();
+  // }, []);
 
   const handleImageUpload = (e) => {
     const file = e.target.files[0];
@@ -114,23 +92,29 @@ export default function AddNewHostel() {
 
   const AddNewHostelApi = async (data) => {
     try {
-      const payload = {
-        hostelName: data.hostelName,
-        address: data.address,
-        contactNumber: data.contactNumber,
-        alternateContactNumber: data.alternateContactNumber,
-        city: data.city,
-        state: data.state,
-        country: data.country,
-        pinCode: data.pinCode,
-        hostelType: data.hostelType,
-        packageId: data.packageId,
-        hostelImage: data.hostelImage?.[0],
-      };
+      const payload = new FormData();
+
+      payload.append("hostelName", data.hostelName || "");
+      payload.append("address", data.address || "");
+      payload.append("contactNumber", data.contactNumber || "");
+      payload.append(
+        "alternateContactNumber",
+        data.alternateContactNumber || "",
+      );
+      payload.append("city", data.city || "");
+      payload.append("state", data.state || "");
+      payload.append("country", data.country || "");
+      payload.append("pinCode", data.pinCode || "");
+      payload.append("hostelType", data.hostelType || "");
+      payload.append("packageId", data.packageId || "FREE_TIER");
+
+      if (data.hostelImage?.[0]) {
+        payload.append("hostelImage", data.hostelImage[0]);
+      }
 
       if (role !== "admin") {
-        payload.adminName = data.adminName;
-        payload.adminEmail = data.adminEmail;
+        payload.append("adminName", data.adminName || "");
+        payload.append("adminEmail", data.adminEmail || "");
       }
 
       const response = await addHostelApi(payload);
@@ -192,8 +176,11 @@ export default function AddNewHostel() {
                     type="file"
                     accept=".jpeg, .jpg, .png"
                     className="hidden"
-                    {...register("hostelImage")}
-                    onChange={handleImageUpload}
+                    {...hostelImageRegister}
+                    onChange={(event) => {
+                      hostelImageRegister.onChange(event);
+                      handleImageUpload(event);
+                    }}
                   />
 
                   {previewImage ? (
@@ -266,7 +253,7 @@ export default function AddNewHostel() {
                 </div>
 
                 {/* Package */}
-                <div>
+                {/* <div>
                   <label className="mb-2 block text-sm font-semibold text-foreground">
                     Package
                   </label>
@@ -284,6 +271,7 @@ export default function AddNewHostel() {
                         {pkg.packageName}
                       </option>
                     ))}
+
                   </select>
 
                   {errors.packageId && (
@@ -291,6 +279,24 @@ export default function AddNewHostel() {
                       {errors.packageId.message}
                     </p>
                   )}
+                </div> */}
+
+
+                {/* Package */}
+                <div>
+                  <label className="mb-2 block text-sm font-semibold text-foreground">
+                    Package
+                  </label>
+
+                  <input type="hidden" {...register("packageId")} />
+
+                  <select
+                    value="FREE_TIER"
+                    disabled
+                    className="h-11 w-full cursor-not-allowed rounded-xl border border-border bg-muted px-4 text-sm text-muted-foreground outline-none"
+                  >
+                    <option value="FREE_TIER">Free Tier</option>
+                  </select>
                 </div>
 
                 {/* Contact Row */}
