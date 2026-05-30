@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "../../../../components/ui/dialog";
 import { Input } from "../../../../components/ui/input";
 import { Button } from "../../../../components/ui/button";
+import DefaultTable from "../../../../components/DefaultTable/DefaultTable";
 import { Label } from "../../../../components/ui/label";
 import {
   Tooltip,
@@ -179,12 +180,23 @@ const fetchSupportTickets = async () => {
                 {/* <th className="px-6 py-4 whitespace-nowrap text-right">Actions</th> */}
               </tr>
             </thead>
-            <tbody className="divide-y divide-border text-sm">
-  {currentTickets.map((ticket) => (
-    <tr
-      key={ticket.id || ticket._id}
-      className="hover:bg-muted/30 transition-colors"
-    >
+<tbody className="divide-y divide-border text-sm">
+  {currentTickets.length === 0 ? (
+    <tr>
+      <td colSpan={5}>
+        <DefaultTable
+          title="No Tickets Found"
+          description="There are currently no support tickets available."
+          height="400px"
+        />
+      </td>
+    </tr>
+  ) : (
+    currentTickets.map((ticket) => (
+      <tr
+        key={ticket.id || ticket._id}
+        className="hover:bg-muted/30 transition-colors"
+      >
       <td className="px-6 py-4 whitespace-nowrap">
         <div className="flex items-center gap-3">
 {ticket.imagePath ? (
@@ -281,8 +293,9 @@ const fetchSupportTickets = async () => {
           </button>
         </div>
       </td> */}
-    </tr>
-  ))}
+      </tr>
+    ))
+  )}
 </tbody>
 
           </table>

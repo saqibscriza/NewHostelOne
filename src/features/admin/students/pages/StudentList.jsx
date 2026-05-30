@@ -2,6 +2,7 @@ import { Plus, Search, Eye, Pencil } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { getAllStudentsApi } from "../../../../utils/utils";
+import DefaultTable from "../../../../components/DefaultTable/DefaultTable";
 
 export default function StudentList() {
   const navigate = useNavigate();
@@ -175,6 +176,7 @@ export default function StudentList() {
 /* ================= TABLE ================= */
 
 function StudentTable({ students }) {
+  const navigate = useNavigate();
   return (
     <div className="bg-card border border-border rounded-xl overflow-hidden shadow-sm">
       <div className="grid grid-cols-6 px-6 py-3 text-xs font-medium text-muted-foreground bg-muted">
@@ -186,12 +188,16 @@ function StudentTable({ students }) {
         <div>ACTION</div>
       </div>
 
-      {students.length === 0 ? (
-        <div className="p-6 text-center text-muted-foreground text-sm">
-          No students found
-        </div>
-      ) : (
-        students.map((s, i) => (
+{students.length === 0 ? (
+  <DefaultTable
+    title="No Students Found"
+    description="There are currently no students available. Add a new student to get started."
+    buttonText="Add Student"
+    onButtonClick={() => navigate("/admin/students/add")}
+    height="400px"
+  />
+) : (
+  students.map((s, i) => (
           <Row
             key={i}
             id={s.studentId || s.id}

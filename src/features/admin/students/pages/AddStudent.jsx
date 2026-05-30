@@ -400,7 +400,7 @@ export default function AddStudent() {
       <div className="flex justify-between items-start">
         <div>
           <h1 className="text-2xl font-semibold text-foreground">
-            {id ? "Edit Student" : "Student Details"}
+            {id ? "Edit Student" : "Add Student"}
           </h1>
           <p className="text-sm text-muted-foreground">
             Total 1,248 residents across 4 blocks / Location

@@ -14,8 +14,8 @@ import {
   SelectContent,
   SelectItem,
 } from "../../../components/ui/select";
-// import { Input } from "../../../components/ui/input";
 import { CheckCircle, XCircle, Clock, ClipboardList } from "lucide-react";
+import DefaultTable from "../../../components/DefaultTable/DefaultTable";
 
 export default function QueriesDetails() {
   const [queries, setQueries] = useState([]);
@@ -40,28 +40,21 @@ export default function QueriesDetails() {
     size: 10,
   });
 
-  // GET api
-
   const getQueriesData = async () => {
     setLoading(true);
-
     try {
       const response = await getAllQueriesApi(filters);
-
       if (response?.data) {
         setQueries(response?.data?.requests || []);
-
         setSummary(
           response?.data?.summary || {
             totalQueries: 0,
             pendingQueries: 0,
             acceptedQueries: 0,
             rejectedQueries: 0,
-          },
+          }
         );
-
         setTotalPages(response?.data?.totalPages || 1);
-
         setTotalElements(response?.data?.totalElements || 0);
       }
     } catch (error) {
@@ -71,18 +64,12 @@ export default function QueriesDetails() {
     }
   };
 
-  // accept api
   const handleAccept = async (item) => {
     try {
       const res = await approveRequestApi(item?.requestId);
-
-      console.log("APPROVE RESPONSE 👉", res);
-
       if (res?.status === 200 || res?.data?.status === "success") {
         setSelectedStudent(item);
-
         setSuccessModal(true);
-
         await getQueriesData();
       }
     } catch (error) {
@@ -90,19 +77,12 @@ export default function QueriesDetails() {
     }
   };
 
-  // Reject api
-
   const handleReject = async (item) => {
     try {
       const res = await rejectRequestApi(item?.requestId);
-
-      console.log("REJECT RESPONSE 👉", res);
-
       if (res?.status === 200 || res?.data?.status === "success") {
         setSelectedStudent(item);
-
         setRejectModal(true);
-
         await getQueriesData();
       }
     } catch (error) {
@@ -126,26 +106,10 @@ export default function QueriesDetails() {
 
       {/* STATS */}
       <div className="grid grid-cols-4 gap-4">
-        <StatCard
-          title="Total Queries"
-          value={summary.totalQueries}
-          icon={<ClipboardList />}
-        />
-        <StatCard
-          title="Pending"
-          value={summary.pendingQueries}
-          icon={<Clock />}
-        />
-        <StatCard
-          title="Accepted"
-          value={summary.acceptedQueries}
-          icon={<CheckCircle />}
-        />
-        <StatCard
-          title="Rejected"
-          value={summary.rejectedQueries}
-          icon={<XCircle />}
-        />
+        <StatCard title="Total Queries" value={summary.totalQueries} icon={<ClipboardList />} />
+        <StatCard title="Pending" value={summary.pendingQueries} icon={<Clock />} />
+        <StatCard title="Accepted" value={summary.acceptedQueries} icon={<CheckCircle />} />
+        <StatCard title="Rejected" value={summary.rejectedQueries} icon={<XCircle />} />
       </div>
 
       {/* TABLE CARD */}
@@ -159,7 +123,7 @@ export default function QueriesDetails() {
                   setFilters((prev) => ({
                     ...prev,
                     status: v === "all" ? "" : v.toUpperCase(),
-                    page: 1, // reset page
+                    page: 1,
                   }))
                 }
               >
@@ -169,7 +133,7 @@ export default function QueriesDetails() {
                 <SelectContent>
                   <SelectItem value="all">All Statuses</SelectItem>
                   <SelectItem value="pending">Pending</SelectItem>
-                  <SelectItem value="approved">Accepted</SelectItem>{" "}
+                  <SelectItem value="approved">Accepted</SelectItem>
                   <SelectItem value="rejected">Rejected</SelectItem>
                 </SelectContent>
               </Select>
@@ -191,10 +155,6 @@ export default function QueriesDetails() {
                 </SelectContent>
               </Select>
             </div>
-
-            {/* <p className="text-sm text-muted-foreground">
-              Showing 1 - 10 of 1,284 results
-            </p> */}
           </div>
 
           {/* TABLE HEADER */}
@@ -208,59 +168,52 @@ export default function QueriesDetails() {
           </div>
 
           {/* ROWS */}
-
           <div className="space-y-2">
             {loading ? (
               <p className="text-center py-6">Loading...</p>
             ) : queries.length === 0 ? (
-              <p className="text-center py-6 text-muted-foreground">
-                No queries found
-              </p>
+              <DefaultTable
+                title="No Queries Found"
+                description="There are currently no room queries available."
+                height="400px"
+              />
             ) : (
               queries.map((item, i) => (
                 <div
                   key={i}
                   className="grid grid-cols-6 items-center bg-muted/40 p-3 rounded-lg"
                 >
-                  {/* STUDENT */}
                   <div>
-                    <p className="font-medium">{item?.fullName}</p>{" "}
+                    <p className="font-medium">{item?.fullName}</p>
                     <p className="text-xs text-muted-foreground">
                       Reg ID: {item?.userId || "-"}
                     </p>
                   </div>
 
-                  {/* ROOM */}
                   <p>{item?.roomType}</p>
 
-                  {/* CONTACT */}
                   <div className="text-sm">
                     <p>{item?.phone}</p>
                     <p className="text-muted-foreground">{item?.email}</p>
                   </div>
 
-                  {/* HOSTEL */}
                   <div>
                     <p>{item?.hostelName}</p>
-                    <p className="text-xs text-muted-foreground">
-                      Campus North
-                    </p>
+                    <p className="text-xs text-muted-foreground">Campus North</p>
                   </div>
 
-                  {/* STATUS */}
                   <Badge
                     variant={
                       item?.status === "REJECTED"
                         ? "destructive"
                         : item?.status === "APPROVED"
-                          ? "default"
-                          : "secondary"
+                        ? "default"
+                        : "secondary"
                     }
                   >
                     {item?.status}
                   </Badge>
 
-                  {/* ACTIONS */}
                   <div className="flex justify-end gap-2">
                     <Button
                       size="sm"
@@ -270,7 +223,6 @@ export default function QueriesDetails() {
                     >
                       Accept
                     </Button>
-
                     <Button
                       size="sm"
                       variant="destructive"
@@ -287,31 +239,19 @@ export default function QueriesDetails() {
 
           {/* PAGINATION */}
           <div className="flex justify-between items-center pt-4">
-            <p className="text-sm text-muted-foreground">
-              {/* Showing {(filters.page - 1) * filters.size + 1} to{" "}
-              {Math.min(filters.page * filters.size, totalElements)} of{" "}
-              {totalElements} resultsto{" "}
-              {Math.min((filters.page + 1) * filters.size, totalElements)} of{" "}
-              {totalElements} results */}
-            </p>
-
+            <p className="text-sm text-muted-foreground"></p>
             <div className="flex items-center gap-2">
-              {/* PREV */}
               <Button
                 variant="outline"
                 size="sm"
                 disabled={filters.page === 1}
                 onClick={() =>
-                  setFilters((prev) => ({
-                    ...prev,
-                    page: prev.page - 1,
-                  }))
+                  setFilters((prev) => ({ ...prev, page: prev.page - 1 }))
                 }
               >
                 Prev
               </Button>
 
-              {/* PAGE NUMBERS */}
               {Array.from({ length: totalPages }, (_, i) => i + 1)
                 .slice(0, 5)
                 .map((pageNum) => (
@@ -320,31 +260,21 @@ export default function QueriesDetails() {
                     size="sm"
                     variant={filters.page === pageNum ? "default" : "outline"}
                     onClick={() =>
-                      setFilters((prev) => ({
-                        ...prev,
-                        page: pageNum,
-                      }))
+                      setFilters((prev) => ({ ...prev, page: pageNum }))
                     }
                   >
                     {pageNum}
                   </Button>
                 ))}
 
-              {/* DOTS */}
               {totalPages > 5 && (
                 <>
                   <span className="px-2">...</span>
-
                   <Button
                     size="sm"
-                    variant={
-                      filters.page === totalPages ? "default" : "outline"
-                    }
+                    variant={filters.page === totalPages ? "default" : "outline"}
                     onClick={() =>
-                      setFilters((prev) => ({
-                        ...prev,
-                        page: totalPages,
-                      }))
+                      setFilters((prev) => ({ ...prev, page: totalPages }))
                     }
                   >
                     {totalPages}
@@ -352,16 +282,12 @@ export default function QueriesDetails() {
                 </>
               )}
 
-              {/* NEXT */}
               <Button
                 variant="outline"
                 size="sm"
                 disabled={filters.page >= totalPages}
                 onClick={() =>
-                  setFilters((prev) => ({
-                    ...prev,
-                    page: prev.page + 1,
-                  }))
+                  setFilters((prev) => ({ ...prev, page: prev.page + 1 }))
                 }
               >
                 Next
@@ -370,50 +296,42 @@ export default function QueriesDetails() {
           </div>
         </CardContent>
       </Card>
+
+      {/* SUCCESS MODAL */}
       {successModal && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
           <div className="bg-white rounded-3xl p-10 w-[500px] text-center">
             <div className="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mx-auto">
               <CheckCircle className="w-10 h-10 text-black" />
             </div>
-
             <h2 className="text-3xl font-semibold mt-6">Booking Confirmed</h2>
-
             <p className="text-muted-foreground mt-4 text-lg">
               Success! The room for{" "}
               <span className="font-semibold">{selectedStudent?.fullName}</span>{" "}
               at{" "}
-              <span className="font-semibold">
-                {selectedStudent?.hostelName}
-              </span>{" "}
+              <span className="font-semibold">{selectedStudent?.hostelName}</span>{" "}
               has been successfully confirmed.
             </p>
-
-            <Button
-              className="w-full mt-8 h-12 text-lg"
-              onClick={() => setSuccessModal(false)}
-            >
+            <Button className="w-full mt-8 h-12 text-lg" onClick={() => setSuccessModal(false)}>
               Done
             </Button>
           </div>
         </div>
       )}
 
+      {/* REJECT MODAL */}
       {rejectModal && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
           <div className="bg-white rounded-3xl p-10 w-[500px] text-center">
             <div className="w-20 h-20 bg-red-100 rounded-full flex items-center justify-center mx-auto">
               <XCircle className="w-10 h-10 text-red-600" />
             </div>
-
             <h2 className="text-3xl font-semibold mt-6">Booking Rejected</h2>
-
             <p className="text-muted-foreground mt-4 text-lg">
               Request for{" "}
               <span className="font-semibold">{selectedStudent?.fullName}</span>{" "}
               has been rejected.
             </p>
-
             <Button
               variant="destructive"
               className="w-full mt-8 h-12 text-lg"

@@ -7,6 +7,7 @@ import { ChevronDown } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "../../../../../src/components/ui/Card";
 import { Eye, CreditCard, Banknote, Building, ChevronLeft, ChevronRight } from "lucide-react";
 import { AlertCircle, Mail } from "lucide-react";
+import DefaultTable from "../../../../components/DefaultTable/DefaultTable";
 import {
   Pagination,
   PaginationContent,
@@ -316,13 +317,17 @@ const methods = [
                 </tr>
               </thead>
               <tbody>
-               {currentItems.length === 0 ? (
-                  <tr>
-                    <td colSpan="6" className="text-center py-10">
-                      No transactions found
-                    </td>
-                  </tr>
-                ) : (
+{currentItems.length === 0 ? (
+  <tr>
+    <td colSpan="6">
+      <DefaultTable
+        title="No Transactions Found"
+        description="There are currently no fee transactions available."
+        height="400px"
+      />
+    </td>
+  </tr>
+) : (
                   currentItems.map((tx, index) => {
                   const MethodIcon = tx.methodIcon;
                   return (
