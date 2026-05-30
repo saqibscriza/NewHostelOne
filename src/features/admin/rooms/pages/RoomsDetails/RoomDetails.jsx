@@ -4,6 +4,7 @@ import { Card, CardContent } from "../../../../../components/ui/Card";
 import { Badge } from "../../../../../components/ui/Badge";
 import { useNavigate } from "react-router-dom";
 import { getRoomAllData } from "../../../../../utils/utils";
+import DefaultTable from "../../../../../components/DefaultTable/DefaultTable";
 import {
   Table,
   TableBody,
@@ -322,8 +323,12 @@ const RoomDetails = () => {
               {/* ✅ FIX */}
               {filteredRooms?.length === 0 && !loaderCheck && (
                 <TableRow>
-                  <TableCell colSpan={7} className="text-center py-6">
-                    No rooms found
+                  <TableCell colSpan={7} className="p-0">
+                    <DefaultTable
+                      height="320px"
+                      title="No Rooms Found"
+                      description="Room details will appear here once rooms are added."
+                    />
                   </TableCell>
                 </TableRow>
               )}
