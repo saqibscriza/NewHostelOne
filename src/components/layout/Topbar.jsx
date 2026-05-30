@@ -242,7 +242,7 @@ const Topbar = ({ onMenuClick }) => {
         </div>
 
         {showPackageBanner && (
-          <div className="absolute left-1/2 hidden -translate-x-1/2 md:block">
+          <div className="absolute left-1/2 hidden -translate-x-1/2 md:block" style={{cursor:'pointer'}}>
             <div className="flex items-center gap-3 rounded-xl border border-border bg-background/90 px-4 py-2 shadow-sm backdrop-blur">
               <p className="text-sm text-foreground">
                 Package - <span className="font-semibold">Free Tier</span>
@@ -250,6 +250,7 @@ const Topbar = ({ onMenuClick }) => {
               <button
                 className="text-sm font-medium text-primary transition hover:opacity-80"
                 onClick={() => navigate("/admin/packages")}
+                style={{cursor:'pointer'}}
               >
                 Upgrade
               </button>
@@ -265,6 +266,7 @@ const Topbar = ({ onMenuClick }) => {
 
           {/* Notifications */}
           <Button
+            style={{cursor:'pointer'}}
             variant="ghost"
             size="icon"
             className="relative text-muted-foreground hover:text-foreground"

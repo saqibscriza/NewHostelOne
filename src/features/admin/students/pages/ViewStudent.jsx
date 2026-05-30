@@ -23,7 +23,7 @@ const ViewStudent = () => {
 
   const fetchStudent = async () => {
     const res = await getStudentByIdApi(id);
-    console.log('get data by id of student onveiw', res)
+    console.log('get data by id of student on view', res)
     if (res?.data?.status === "success") {
       const d = res.data.data;
       setImagePopup(res?.data.data?.documentUploads?.photo);

@@ -151,9 +151,8 @@ export default function AddStudent() {
     if (file.size > maxSize) {
       setErrors((prev) => ({
         ...prev,
-        [key]: `File size exceeded ${
-          key === "admissionLetter" ? "10MB" : key === "photo" ? "2MB" : "5MB"
-        }`,
+        [key]: `File size exceeded ${key === "admissionLetter" ? "10MB" : key === "photo" ? "2MB" : "5MB"
+          }`,
       }));
       return;
     }
@@ -241,8 +240,15 @@ export default function AddStudent() {
       nextErrors.dob = "DOB must be a previous date";
     }
     if (!form.fullName?.trim()) nextErrors.fullName = "Full name is required";
+    // if (!form.relation?.trim()) {
+    //   nextErrors.relation = "Relationship is required";
+    // }
     if (!form.relation?.trim()) {
       nextErrors.relation = "Relationship is required";
+    } else if (form.relation.trim().length < 3) {
+      nextErrors.relation = "Minimum 3 characters required";
+    } else if (!/^[A-Za-z\s.'-]+$/.test(form.relation)) {
+      nextErrors.relation = "Invalid relationship";
     }
     if (!form.dateOfJoining) {
       nextErrors.dateOfJoining = "Date of joining is required";
@@ -273,8 +279,15 @@ export default function AddStudent() {
     if (!/^[6-9]\d{9}$/.test(form.phone || "")) {
       nextErrors.phone = "Phone number must start with 6, 7, 8 or 9";
     }
+    // if (!form.guardianName?.trim()) {
+    //   nextErrors.guardianName = "Guardian name is required";
+    // }
     if (!form.guardianName?.trim()) {
       nextErrors.guardianName = "Guardian name is required";
+    } else if (form.guardianName.trim().length < 3) {
+      nextErrors.guardianName = "Minimum 3 characters required";
+    } else if (!/^[A-Za-z\s.'-]+$/.test(form.guardianName)) {
+      nextErrors.guardianName = "Invalid guardian name";
     }
     if (!/^[6-9]\d{9}$/.test(form.emergencyContact || "")) {
       nextErrors.emergencyContact =
@@ -360,6 +373,7 @@ export default function AddStudent() {
       } else {
         // ADD
         res = await addStudentApi(formData);
+        console.log('add student console messageeeee====', res);
       }
       const isSuccess =
         res?.data?.status === "success" &&
@@ -367,7 +381,8 @@ export default function AddStudent() {
 
       if (isSuccess) {
         toast.success(
-          id ? "Student Updated Successfully" : "Student Added Successfully",
+          res?.data?.message
+          // id ? res?.data?.message : "Student Added Successfully"
         );
         navigate("/admin/students");
       } else {
@@ -531,7 +546,7 @@ export default function AddStudent() {
 </Field>
 
               <Field label="Gender" required>
-                {" "}
+                {""}
                 <StyledSelect
                   value={form.gender}
                   onValueChange={(v) => handleChange("gender", v)}
@@ -608,7 +623,7 @@ export default function AddStudent() {
             )}
           </Field>
 
-          <Field label="Year" required>
+          {/* <Field label="Year" required>
             {" "}
             <Input
               type="text"
@@ -632,6 +647,38 @@ export default function AddStudent() {
               }}
               className={errors.year ? "border-destructive" : ""}
             />
+            {errors.year && (
+              <p className="text-xs text-destructive">{errors.year}</p>
+            )}
+          </Field> */}
+          <Field label="Year" required>
+            <select
+              value={form.year || ""}
+              onChange={(e) => {
+                let value = e.target.value;
+
+                if (value && !isNumberOnly(value)) {
+                  handleChange("year", value);
+                  return;
+                }
+
+                if (Number(value) > 5) {
+                  value = "5";
+                }
+
+                handleChange("year", value);
+              }}
+              className={`w-full rounded-md border px-3 py-2 ${errors.year ? "border-destructive" : ""
+                }`}
+            >
+              <option value="">Select Year</option>
+              <option value="1">1</option>
+              <option value="2">2</option>
+              <option value="3">3</option>
+              <option value="4">4</option>
+              <option value="5">5</option>
+            </select>
+
             {errors.year && (
               <p className="text-xs text-destructive">{errors.year}</p>
             )}
