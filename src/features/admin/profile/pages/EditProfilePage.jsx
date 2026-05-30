@@ -21,6 +21,7 @@ import { toast } from "react-hot-toast";
 import {
   updateAdminPersonalDetailsApi,
   getAdminByIdApi,
+  getLocationByPincodeApi
 } from "../../../../utils/utils";
 import { useAuth } from "../../../../context/AuthContext";
 
@@ -76,6 +77,7 @@ const EditProfilePage = () => {
   const [imageRemoved, setImageRemoved] = useState(false);
   const fileInputRef = useRef(null);
   const { updateUserProfile } = useAuth();
+
 
   const handleImageUpload = (e) => {
     const file = e.target.files[0];
@@ -238,6 +240,63 @@ const EditProfilePage = () => {
     }
   };
 
+
+  useEffect(() => {
+  const fetchLocation = async () => {
+    if (!form.pinCode || form.pinCode.length !== 6) return;
+
+    try {
+      const res = await getLocationByPincodeApi(form.pinCode);
+
+      const locationData = res?.data || res;
+
+      if (
+        !locationData ||
+        locationData?.status === "failure" ||
+        locationData?.statusCode === 400 ||
+        locationData?.statusCode === 404
+      ) {
+        toast.error(locationData?.message || "Invalid PinCode");
+
+        setForm((prev) => ({
+          ...prev,
+          country: "",
+          state: "",
+          city: "",
+        }));
+
+        return;
+      }
+
+      setForm((prev) => ({
+        ...prev,
+        country: locationData.country || "",
+        state: locationData.state || "",
+        city:
+          locationData.district ||
+          locationData.city ||
+          locationData.region ||
+          "",
+      }));
+    } catch (error) {
+      console.log(error);
+
+      toast.error(
+        error?.response?.data?.message || "Invalid PinCode"
+      );
+
+      setForm((prev) => ({
+        ...prev,
+        country: "",
+        state: "",
+        city: "",
+      }));
+    }
+  };
+
+  fetchLocation();
+}, [form.pinCode]);
+
   return (
     <div className="min-h-screen bg-background">
       <div className="mx-auto max-w-7xl space-y-6 p-4 sm:p-6">
@@ -280,7 +339,7 @@ const EditProfilePage = () => {
               <div className="mt-5 flex flex-wrap gap-3">
                 <Button
                   type="button"
-                  className="gap-2"
+                  className="gap-2 cursor-pointer"
                   onClick={() => fileInputRef.current?.click()}
                 >
                   <Upload className="h-4 w-4" />
@@ -289,6 +348,7 @@ const EditProfilePage = () => {
                 <Button
                   type="button"
                   variant="outline"
+                  className="gap-2 cursor-pointer"
                   onClick={handleRemoveImage}
                 >
                   Remove
@@ -351,60 +411,50 @@ const EditProfilePage = () => {
                   />
                 </div>
 
-                <div className="space-y-2">
-                  <Label>Pin Code</Label>
-                  <Input
-                    value={form.pinCode}
-                    onChange={(e) => handleChange("pinCode", e.target.value)}
-                  />
-                </div>
+<div className="space-y-2">
+  <Label>Pin Code</Label>
+  <Input
+    value={form.pinCode}
+    maxLength={6}
+    onChange={(e) =>
+      handleChange(
+        "pinCode",
+        e.target.value.replace(/\D/g, "").slice(0, 6)
+      )
+    }
+    placeholder="Enter Pin Code"
+  />
+</div>
 
-                <div className="space-y-2">
-                  <Label>Country</Label>
-                  <Select
-                    value={form.country}
-                    onValueChange={(value) => handleChange("country", value)}
-                  >
-                    <SelectTrigger className="h-10 w-full">
-                      <SelectValue placeholder="Select Country" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="India">India</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
+<div className="space-y-2">
+  <Label>Country</Label>
+  <Input
+    value={form.country}
+    readOnly
+    placeholder="Country"
+    className="bg-muted/30"
+  />
+</div>
 
-                <div className="space-y-2">
-                  <Label>State</Label>
-                  <Select
-                    value={form.state}
-                    onValueChange={(value) => handleChange("state", value)}
-                  >
-                    <SelectTrigger className="h-10 w-full">
-                      <SelectValue placeholder="Select State" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="Uttar Pradesh">
-                        Uttar Pradesh
-                      </SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
+<div className="space-y-2">
+  <Label>State</Label>
+  <Input
+    value={form.state}
+    readOnly
+    placeholder="State"
+    className="bg-muted/30"
+  />
+</div>
 
-                <div className="space-y-2">
-                  <Label>City</Label>
-                  <Select
-                    value={form.city}
-                    onValueChange={(value) => handleChange("city", value)}
-                  >
-                    <SelectTrigger className="h-10 w-full">
-                      <SelectValue placeholder="Select City" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="Noida">Noida</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
+<div className="space-y-2">
+  <Label>City</Label>
+  <Input
+    value={form.city}
+    readOnly
+    placeholder="City"
+    className="bg-muted/30"
+  />
+</div>
               </div>
             </CardContent>
           </Card>
@@ -455,12 +505,13 @@ const EditProfilePage = () => {
 
             <div className="flex flex-col gap-3 sm:flex-row">
               <Button
+              className="cursor-pointer"
                 variant="outline"
                 onClick={() => navigate("/admin/profile")}
               >
                 Cancel
               </Button>
-              <Button onClick={UpdateAdminProfileApi}>Save Changes</Button>
+              <Button className="cursor-pointer" onClick={UpdateAdminProfileApi}>Save Changes</Button>
             </div>
           </CardContent>
         </Card>

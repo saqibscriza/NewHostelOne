@@ -99,7 +99,7 @@ export default function StudentList() {
 
         <button
           onClick={() => navigate("/admin/students/add")}
-          className="flex items-center gap-2 bg-foreground text-background px-4 py-2 rounded-lg text-sm font-medium"
+          className="flex items-center gap-2 bg-foreground text-background px-4 py-2 rounded-lg text-sm font-medium cursor-pointer"
         >
           <Plus className="w-4 h-4" />
           Add Student

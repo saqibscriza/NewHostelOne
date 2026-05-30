@@ -216,7 +216,7 @@ const ProfilePage = () => {
           </div>
 
           <Button
-            className="gap-2 self-start sm:self-auto"
+            className="gap-2 self-start sm:self-auto cursor-pointer"
             onClick={() => navigate("/admin/profile/edit")}
           >
             <Edit3 className="h-4 w-4" />
@@ -406,6 +406,7 @@ const ProfilePage = () => {
                     </div>
                   </div>
                   <Button
+                  className="gap-2 self-start sm:self-auto cursor-pointer"
                     variant="outline"
                     onClick={() => setOpenPasswordModal(true)}
                   >
@@ -420,7 +421,7 @@ const ProfilePage = () => {
       <Dialog open={openPasswordModal} onOpenChange={setOpenPasswordModal}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle className="text-2xl font-semibold">
+            <DialogTitle className="text-2xl font-semibold ">
               Change Password
             </DialogTitle>
           </DialogHeader>

@@ -16,23 +16,21 @@ const RoomStudentList = () => {
     setLoading(true);
     try {
       const response = await getStudentsByRoomId(roomId);
-      // Handle both array response and nested data
+      console.log("FETCH STUDENTS BY ROOM RESPONSE 👉", response);
       const list =
-        Array.isArray(response?.data)
-          ? response.data
-          : Array.isArray(response?.data?.data)
-          ? response.data.data
-          : Array.isArray(response?.data?.data?.content)
-          ? response.data.data.content
-          : [];
+        response?.data?.data?.students ||
+        response?.data?.students ||
+        [];
+      console.log("Students List 👉", list);
       setStudents(list);
     } catch (error) {
       console.log("FETCH STUDENTS BY ROOM ERROR 👉", error);
+      setStudents([]);
     } finally {
       setLoading(false);
     }
   };
- 
+
   useEffect(() => {
     if (roomId) fetchStudents();
   }, [roomId]);
@@ -77,63 +75,96 @@ const RoomStudentList = () => {
             <Card key={student?.studentId || student?.id || index}>
               <CardContent className="p-5 space-y-4">
                 {/* Student Header */}
-                <div className="flex items-center gap-3">
-                  {student?.photo || student?.studentPhoto || student?.profileImage ? (
-                    <img
-                      src={student?.photo || student?.studentPhoto || student?.profileImage}
-                      alt={student?.name || student?.studentName}
-                      className="w-12 h-12 rounded-xl object-cover border border-slate-100"
-                    />
-                  ) : (
-                    <div className="w-12 h-12 rounded-xl bg-muted flex items-center justify-center">
-                      <User className="w-5 h-5 text-muted-foreground" />
-                    </div>
-                  )}
-                  <div>
-                    <h4 className="font-semibold text-slate-800 text-sm">
-                      {student?.name || student?.studentName || "—"}
-                    </h4>
-                    <p className="text-xs text-muted-foreground">
-                      {student?.role || student?.courseName || "Student"}
-                    </p>
-                  </div>
-                </div>
+<div className="flex items-center gap-3">
+  {student?.photo ? (
+    <img
+      src={student.photo}
+      alt={student?.fullName || "Student"}
+      className="w-12 h-12 rounded-xl object-cover border border-slate-100"
+      onError={(e) => {
+        e.target.onerror = null;
+        e.target.src =
+          "https://ui-avatars.com/api/?name=" +
+          encodeURIComponent(student?.fullName || "Student");
+      }}
+    />
+  ) : (
+    <div className="w-12 h-12 rounded-xl bg-muted flex items-center justify-center">
+      <User className="w-5 h-5 text-muted-foreground" />
+    </div>
+  )}
+
+  <div>
+    <h4 className="font-semibold text-slate-800 text-sm">
+      {student?.fullName || "N/A"}
+    </h4>
+
+    <p className="text-xs text-muted-foreground">
+      {student?.room?.roomNameNumber
+        ? `Room ${student.room.roomNameNumber}`
+        : "Student"}
+    </p>
+  </div>
+</div>
  
                 {/* Details */}
-                <div className="space-y-2 border-t border-slate-100 pt-3 text-sm">
-                  {(student?.email || student?.studentEmail) && (
-                    <div className="flex items-center gap-2 text-muted-foreground">
-                      <Mail className="w-3.5 h-3.5 shrink-0" />
-                      <span className="truncate text-xs">
-                        {student?.email || student?.studentEmail}
-                      </span>
-                    </div>
-                  )}
-                  {(student?.phone || student?.mobileNumber || student?.contactNumber) && (
-                    <div className="flex items-center gap-2 text-muted-foreground">
-                      <Phone className="w-3.5 h-3.5 shrink-0" />
-                      <span className="text-xs">
-                        {student?.phone || student?.mobileNumber || student?.contactNumber}
-                      </span>
-                    </div>
-                  )}
- 
-                  <div className="flex justify-between items-center pt-1">
-                    <span className="text-xs text-slate-400">Status</span>
-                    <Badge className="bg-emerald-50 text-emerald-700 hover:bg-emerald-50 border-none font-semibold text-[10px] px-2 py-0.5 rounded-full">
-                      {student?.status || "Active"}
-                    </Badge>
-                  </div>
- 
-                  {(student?.moveInDate || student?.joiningDate) && (
-                    <div className="flex justify-between items-center">
-                      <span className="text-xs text-slate-400">Move-in</span>
-                      <span className="text-xs font-semibold text-slate-700">
-                        {student?.moveInDate || student?.joiningDate}
-                      </span>
-                    </div>
-                  )}
-                </div>
+<div className="space-y-3 border-t border-slate-100 pt-3 text-sm">
+  {/* Email */}
+  <div className="flex items-center gap-2 text-muted-foreground">
+    <Mail className="w-3.5 h-3.5 shrink-0" />
+    <span className="truncate text-xs">
+      {student?.contact?.email || "N/A"}
+    </span>
+  </div>
+
+  {/* Phone */}
+  <div className="flex items-center gap-2 text-muted-foreground">
+    <Phone className="w-3.5 h-3.5 shrink-0" />
+    <span className="text-xs">
+      {student?.contact?.phone || "N/A"}
+    </span>
+  </div>
+
+  {/* Status */}
+  <div className="flex justify-between items-center">
+    <span className="text-xs text-slate-400">Status</span>
+    <Badge className="bg-emerald-50 text-emerald-700 border-none font-semibold text-[10px] px-2 py-0.5 rounded-full">
+      {student?.occupancyStatus || "N/A"}
+    </Badge>
+  </div>
+
+  {/* Payment */}
+  <div className="flex justify-between items-center">
+    <span className="text-xs text-slate-400">Payment</span>
+    <span className="text-xs font-semibold text-slate-700">
+      {student?.paymentStatus || "N/A"}
+    </span>
+  </div>
+
+  {/* Joining Date */}
+  <div className="flex justify-between items-center">
+    <span className="text-xs text-slate-400">Joining Date</span>
+    <span className="text-xs font-semibold text-slate-700">
+      {student?.dateOfJoining || "N/A"}
+    </span>
+  </div>
+
+  {/* Room */}
+  <div className="flex justify-between items-center">
+    <span className="text-xs text-slate-400">Room</span>
+    <span className="text-xs font-semibold text-slate-700">
+      {student?.room?.roomNameNumber || "N/A"}
+    </span>
+  </div>
+
+  {/* Block */}
+  <div className="flex justify-between items-center">
+    <span className="text-xs text-slate-400">Block</span>
+    <span className="text-xs font-semibold text-slate-700">
+      {student?.room?.blockFloor || "N/A"}
+    </span>
+  </div>
+</div>
  
                 {/* View Profile Button */}
                 <Button
