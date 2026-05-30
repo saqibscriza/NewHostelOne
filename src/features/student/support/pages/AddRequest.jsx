@@ -56,25 +56,51 @@ const createSupportTicket = async (data) => {
 
       <div className="bg-card rounded-xl border border-border p-6 sm:p-8">
         <form onSubmit={handleSubmit(createSupportTicket)} className="space-y-6">
-          <div className="space-y-2">
-            <Label className="text-xs font-bold text-muted-foreground tracking-widest uppercase">Room/Location</Label>
-            <Input 
-              type="text" 
-              {...register("room", { required: "Room is required" })}
-              placeholder="Enter Room/Location"
-              className="w-full h-12 rounded-lg border-border focus-visible:ring-1 focus-visible:ring-ring"
-            />
-          </div>
+<div className="space-y-2">
+  <Label className="text-xs font-bold text-muted-foreground tracking-widest uppercase">
+    Room/Location
+  </Label>
 
-          <div className="space-y-2">
-            <Label className="text-xs font-bold text-muted-foreground tracking-widest uppercase">Subject</Label>
-            <Input 
-              type="text" 
-              {...register("subject", { required: "Subject is required", minLength: { value: 5, message: "Subject must be at least 5 characters" }})}
-              placeholder="Enter Subject Details"
-              className="w-full h-12 rounded-lg border-border focus-visible:ring-1 focus-visible:ring-ring"
-            />
-          </div>
+  <Input
+    type="text"
+    {...register("room", {
+      required: "Room is required",
+    })}
+    placeholder="Enter Room/Location"
+    className="w-full h-12 rounded-lg border-border focus-visible:ring-1 focus-visible:ring-ring"
+  />
+
+  {errors.room && (
+    <p className="text-xs text-red-500 mt-1">
+      {errors.room.message}
+    </p>
+  )}
+</div>
+
+<div className="space-y-2">
+  <Label className="text-xs font-bold text-muted-foreground tracking-widest uppercase">
+    Subject
+  </Label>
+
+  <Input
+    type="text"
+    {...register("subject", {
+      required: "Subject is required",
+      minLength: {
+        value: 5,
+        message: "Subject must be at least 5 characters",
+      },
+    })}
+    placeholder="Enter Subject Details"
+    className="w-full h-12 rounded-lg border-border focus-visible:ring-1 focus-visible:ring-ring"
+  />
+
+  {errors.subject && (
+    <p className="text-xs text-red-500 mt-1">
+      {errors.subject.message}
+    </p>
+  )}
+</div>
 
 <div className="space-y-2">
   <Label className="text-xs font-bold text-muted-foreground tracking-widest uppercase">

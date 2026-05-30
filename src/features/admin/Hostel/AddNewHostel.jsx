@@ -7,17 +7,19 @@ import { Input } from "../../../components/ui/input";
 
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
-
 import toast from "react-hot-toast";
 
-// import { addHostelApi, getAllPackageApi } from "../../../utils/utils";
-import { addHostelApi } from "../../../utils/utils";
+import {
+  addHostelApi,
+  getAllPackageApi,
+  getLocationByPincodeApi,
+} from "../../../utils/utils";
 
 export default function AddNewHostel() {
   const navigate = useNavigate();
   const role = sessionStorage.getItem("role");
 
-  const [packages, setPackages] = useState([]);
+  const [freeTierPackage, setFreeTierPackage] = useState(null);
   const [previewImage, setPreviewImage] = useState(null);
 
   const {
@@ -28,29 +30,73 @@ export default function AddNewHostel() {
     formState: { errors },
   } = useForm({
     mode: "onChange",
-       defaultValues: {
-      packageId: "FREE_TIER",
+    defaultValues: {
+      packageId: "",
     },
   });
 
   const hostelImageRegister = register("hostelImage");
+  const pinCode = watch("pinCode");
 
-  // useEffect(() => {
-  //   const fetchPackages = async () => {
-  //     try {
-  //       const res = await getAllPackageApi();
-  //       console.log("data of package---", res);
+  useEffect(() => {
+    const fetchFreeTierPackage = async () => {
+      try {
+        const res = await getAllPackageApi();
+        const packageList = res?.data?.allPackages || [];
+        const freeTier = packageList.find(
+          (pkg) => pkg?.packageName === "Free Tier",
+        );
 
-  //       if (res?.status) {
-  //         setPackages(res.data.allPackages);
-  //       }
-  //     } catch (error) {
-  //       console.log(error);
-  //     }
-  //   };
+        if (freeTier?.packageId) {
+          setFreeTierPackage(freeTier);
+          setValue("packageId", freeTier.packageId);
+        }
+      } catch (error) {
+        console.log(error);
+      }
+    };
 
-  //   fetchPackages();
-  // }, []);
+    fetchFreeTierPackage();
+  }, [setValue]);
+
+  useEffect(() => {
+    const fetchLocation = async () => {
+      if (pinCode?.length !== 6) return;
+
+      try {
+        const res = await getLocationByPincodeApi(pinCode);
+        const locationData = res?.data || res;
+
+        if (
+          !locationData ||
+          locationData?.status === "failure" ||
+          locationData?.statusCode === 400 ||
+          locationData?.statusCode === 404
+        ) {
+          toast.error(locationData?.message || "Invalid PinCode");
+          setValue("country", "");
+          setValue("state", "");
+          setValue("city", "");
+          return;
+        }
+
+        setValue("country", locationData.country || "");
+        setValue("state", locationData.state || "");
+        setValue(
+          "city",
+          locationData.district || locationData.city || locationData.region || "",
+        );
+      } catch (error) {
+        console.log(error);
+        toast.error(error?.response?.data?.message || "Invalid PinCode");
+        setValue("country", "");
+        setValue("state", "");
+        setValue("city", "");
+      }
+    };
+
+    fetchLocation();
+  }, [pinCode, setValue]);
 
   const handleImageUpload = (e) => {
     const file = e.target.files[0];
@@ -106,7 +152,14 @@ export default function AddNewHostel() {
       payload.append("country", data.country || "");
       payload.append("pinCode", data.pinCode || "");
       payload.append("hostelType", data.hostelType || "");
-      payload.append("packageId", data.packageId || "FREE_TIER");
+      const packageId = data.packageId || freeTierPackage?.packageId || "";
+
+      if (!packageId) {
+        toast.error("Free Tier package not found");
+        return;
+      }
+
+      payload.append("packageId", packageId);
 
       if (data.hostelImage?.[0]) {
         payload.append("hostelImage", data.hostelImage[0]);
@@ -233,7 +286,7 @@ export default function AddNewHostel() {
                 {/* Hostel Type */}
                 <div>
                   <label className="mb-2 block text-sm font-semibold text-foreground">
-                    Hostel Type
+                   Hostel Type
                   </label>
 
                   <select
@@ -253,36 +306,6 @@ export default function AddNewHostel() {
                 </div>
 
                 {/* Package */}
-                {/* <div>
-                  <label className="mb-2 block text-sm font-semibold text-foreground">
-                    Package
-                  </label>
-
-                  <select
-                    className="h-11 w-full rounded-xl border border-border bg-background px-4 text-sm text-foreground outline-none"
-                    {...register("packageId", {
-                      required: "Package is required",
-                    })}
-                  >
-                    <option value="">Select Package</option>
-
-                    {packages.map((pkg) => (
-                      <option key={pkg.id} value={pkg.packageId}>
-                        {pkg.packageName}
-                      </option>
-                    ))}
-
-                  </select>
-
-                  {errors.packageId && (
-                    <p className="mt-1 text-xs text-red-500">
-                      {errors.packageId.message}
-                    </p>
-                  )}
-                </div> */}
-
-
-                {/* Package */}
                 <div>
                   <label className="mb-2 block text-sm font-semibold text-foreground">
                     Package
@@ -291,11 +314,13 @@ export default function AddNewHostel() {
                   <input type="hidden" {...register("packageId")} />
 
                   <select
-                    value="FREE_TIER"
+                    value={freeTierPackage?.packageId || ""}
                     disabled
                     className="h-11 w-full cursor-not-allowed rounded-xl border border-border bg-muted px-4 text-sm text-muted-foreground outline-none"
                   >
-                    <option value="FREE_TIER">Free Tier</option>
+                    <option value={freeTierPackage?.packageId || ""}>
+                      {freeTierPackage?.packageName || "Free Tier"}
+                    </option>
                   </select>
                 </div>
 
@@ -458,8 +483,8 @@ export default function AddNewHostel() {
 
                     <Input
                       readOnly
-                      placeholder="State"
-                      className="h-11 rounded-xl border-border bg-background shadow-none"
+                      placeholder="Enter State"
+                      className="h-11 rounded-xl border-border bg-muted shadow-none"
                       {...register("state")}
                     />
                   </div>
@@ -471,12 +496,126 @@ export default function AddNewHostel() {
 
                     <Input
                       readOnly
-                      placeholder="City"
-                      className="h-11 rounded-xl border-border bg-background shadow-none"
+                      placeholder="Enter City"
+                      className="h-11 rounded-xl border-border bg-muted shadow-none"
                       {...register("city")}
                     />
                   </div>
                 </div>
+
+                {/* Admin Fields */}
+                {/* <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                  <div>
+                    <label className="mb-2 block text-sm font-semibold text-foreground">
+                      Admin Name
+                    </label>
+
+                    <Input
+                      placeholder="Enter Admin Name"
+                      className="h-11 rounded-xl border-border bg-background shadow-none"
+                      {...register("adminName")}
+                    />
+                  </div>
+
+                  <div>
+                    <label className="mb-2 block text-sm font-semibold text-foreground">
+                      Admin Email
+                    </label>
+
+                    <Input
+                      placeholder="Enter Admin Email"
+                      className="h-11 rounded-xl border-border bg-background shadow-none"
+                      {...register("adminEmail", {
+                        pattern: {
+                          value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
+                          message: "Invalid email address",
+                        },
+                      })}
+                    />
+                    {errors.adminEmail && (
+                      <p className="mt-1 text-xs text-red-500">
+                        {errors.adminEmail.message}
+                      </p>
+                    )}
+                  </div>
+                </div> */}
+
+                {/* Password + Phone */}
+                {/* <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                  <div>
+                    <label className="mb-2 block text-sm font-semibold text-foreground">
+                      Admin Password
+                    </label>
+
+                    <Input
+                      type="password"
+                      placeholder="Enter Password"
+                      className="h-11 rounded-xl border-border bg-background shadow-none"
+                      {...register("adminPassword", {
+                        minLength: {
+                          value: 6,
+                          message: "Password must be at least 6 characters",
+                        },
+                      })}
+                    />
+                    {errors.adminPassword && (
+                      <p className="mt-1 text-xs text-red-500">
+                        {errors.adminPassword.message}
+                      </p>
+                    )}
+                  </div>
+
+                  <div>
+                    <label className="mb-2 block text-sm font-semibold text-foreground">
+                      Admin Phone
+                    </label>
+                    <Input
+                      type="tel"
+                      inputMode="numeric"
+                      maxLength={10}
+                      placeholder="Enter Admin Phone"
+                      className="h-11 rounded-xl border-border bg-background shadow-none"
+                      onInput={(e) => {
+                        e.target.value = e.target.value
+                          .replace(/\D/g, "")
+                          .slice(0, 10);
+                      }}
+                      {...register("adminPhone", {
+                        minLength: {
+                          value: 10,
+                          message: "Number must be 10 digits",
+                        },
+                        maxLength: {
+                          value: 10,
+                          message: "Number must be 10 digits",
+                        },
+                        pattern: {
+                          value: /^[6-9]\d{9}$/,
+                          message:
+                            "Number must start with 6,7,8,9 and be 10 digits",
+                        },
+                      })}
+                    />
+                    {errors.adminPhone && (
+                      <p className="mt-1 text-xs text-red-500">
+                        {errors.adminPhone.message}
+                      </p>
+                    )}
+                  </div>
+                </div> */}
+
+                {/* Admin Address */}
+                {/* <div>
+                  <label className="mb-2 block text-sm font-semibold text-foreground">
+                    Admin Address
+                  </label>
+
+                  <Input
+                    placeholder="Enter Admin Address"
+                    className="h-11 rounded-xl border-border bg-background shadow-none"
+                    {...register("adminAddress")}
+                  />
+                </div> */}
               </div>
             </div>
           </CardContent>

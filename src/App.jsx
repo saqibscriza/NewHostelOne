@@ -20,6 +20,7 @@ import Rooms from "./features/admin/rooms/pages/RoomsCategory/Rooms";
 import RoomDetails from "./features/admin/rooms/pages/RoomsDetails/RoomDetails";
 import AddRoom from "./features/admin/rooms/pages/RoomsDetails/AddRoom";
 import EditRoom from "./features/admin/rooms/pages/RoomsDetails/EditRoom";
+import RoomStudentList from "./features/admin/rooms/pages/RoomsDetails/RoomStudentList";
 
 import FeesPage from "./features/admin/fees/pages/FeesPage";
 import CollectFeePage from "./features/admin/fees/pages/CollectFeePage";
@@ -135,6 +136,8 @@ export default function AppRoutes() {
               <Route path="rooms/add" element={<AddRoom />} />
               <Route path="rooms/view/:id" element={<EditRoom />} />
               <Route path="rooms/edit/:id" element={<AddRoom />} />
+              <Route path="rooms/:id/students" element={<RoomStudentList />} />
+
 
               <Route path="fees" element={<FeesPage />} />
               <Route path="fees/collect" element={<CollectFeePage />} />

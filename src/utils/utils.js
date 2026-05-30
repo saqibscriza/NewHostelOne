@@ -2414,3 +2414,24 @@ export const addMessFeedbackApi = async (data) => {
     return error?.response || null;
   }
 };
+
+
+
+
+// Ishwar Singh
+// ================= GET STUDENTS BY ROOM ID =================
+ 
+export const getStudentsByRoomId = async (roomId) => {
+  try {
+    axios.defaults.headers.common["Authorization"] = getToken();
+    const res = await axios.get(`${Domain}/student/by-room/${roomId}`);
+    if (res) {
+      return res;
+    } else {
+      return [];
+    }
+  } catch (error) {
+    console.log("GET STUDENTS BY ROOM ERROR 👉", error);
+    return error?.response || [];
+  }
+};
