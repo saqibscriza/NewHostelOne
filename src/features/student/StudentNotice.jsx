@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 
 import { Card, CardContent } from "../../components/ui/Card";
+import DefaultTable from "../../components/DefaultTable/DefaultTable";
 
 import { CalendarDays, AlertCircle } from "lucide-react";
 import { toast } from "react-toastify";
@@ -207,8 +208,12 @@ ${
             </Card>
           ))
         ) : (
-          <div className="col-span-3 flex justify-center py-20 text-muted-foreground">
-            No notices found
+          <div className="col-span-3">
+            <DefaultTable
+              height="300px"
+              title="No Notices Found"
+              description="New hostel notices and announcements will appear here."
+            />
           </div>
         )}
       </div>

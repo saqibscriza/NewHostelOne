@@ -3,6 +3,7 @@ import {useState,useEffect} from "react";
 import { Search, Ticket, AlertCircle } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "../../../../components/ui/button";
+import DefaultTable from "../../../../components/DefaultTable/DefaultTable";
 import { Input } from "../../../../components/ui/input";
 import {
   Table,
@@ -26,15 +27,6 @@ export default function Support() {
   const [filteredTickets, setFilteredTickets] = useState([]);
   const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(false);
-  const [expandedTickets, setExpandedTickets] = useState({});
-
-  const toggleExpand = (e, ticketId) => {
-    e.stopPropagation();
-    setExpandedTickets((prev) => ({
-      ...prev,
-      [ticketId]: !prev[ticketId],
-    }));
-  };
 
     // GET ALL TICKETS
   const fetchAllTickets = async () => {
@@ -114,25 +106,27 @@ export default function Support() {
           </h2>
         </div>
         <div className="p-0 overflow-x-auto">
-          <Table>
-            <TableHeader>
-              <TableRow className="border-border hover:bg-transparent">
-                <TableHead className="text-xs font-bold text-muted-foreground uppercase tracking-widest px-6 py-4">
-                  SUBJECT
-                </TableHead>
-                <TableHead className="text-xs font-bold text-muted-foreground uppercase tracking-widest px-6 py-4">
-                  DESCRIPTION
-                </TableHead>
-                {/* <TableHead className="text-xs font-bold text-muted-foreground uppercase tracking-widest px-6 py-4">
-                  Status
-                </TableHead> */}
-                <TableHead className="text-xs font-bold text-muted-foreground uppercase tracking-widest px-6 py-4">
-                  CREATED
-                </TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {filteredTickets.map((ticket) => (
+          {loading ? (
+            <div className="p-10 text-center text-muted-foreground">
+              Loading tickets...
+            </div>
+          ) : filteredTickets.length > 0 ? (
+            <Table>
+              <TableHeader>
+                <TableRow className="border-border hover:bg-transparent">
+                  <TableHead className="text-xs font-bold text-muted-foreground uppercase tracking-widest px-6 py-4">
+                    SUBJECT
+                  </TableHead>
+                  <TableHead className="text-xs font-bold text-muted-foreground uppercase tracking-widest px-6 py-4">
+                    DESCRIPTION
+                  </TableHead>
+                  <TableHead className="text-xs font-bold text-muted-foreground uppercase tracking-widest px-6 py-4">
+                    CREATED
+                  </TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {filteredTickets.map((ticket) => (
                 <TableRow
                   key={ticket._id || ticket.id}
                   className="border-border hover:bg-muted/50 cursor-pointer transition-colors group"
@@ -210,8 +204,19 @@ export default function Support() {
             </TableCell>
           </TableRow>
         ))}
-      </TableBody>
-    </Table>
+              </TableBody>
+            </Table>
+          ) : (
+            <DefaultTable
+              height="260px"
+              title="No Support Tickets Found"
+              description={
+                search
+                  ? "No tickets match your search."
+                  : "Support tickets will appear here after you add a request."
+              }
+            />
+          )}
   </div>
 </div>
     </div>

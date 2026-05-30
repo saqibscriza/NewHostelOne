@@ -13,7 +13,6 @@ import {
   Users,
   Calendar,
   Wifi,
-  Snowflake,
   Wrench,
   CreditCard,
   MessageSquare,
@@ -51,6 +50,10 @@ export default function My_Dashboard() {
   useEffect(() => {
     StudentDashboardApi();
   }, []);
+
+  if (loaderCheck) {
+    return <div className="p-6 text-muted-foreground">Loading dashboard...</div>;
+  }
 
   return (
     <div className="p-6 space-y-6">
@@ -271,7 +274,7 @@ export default function My_Dashboard() {
 
 /* ================= COMPONENTS ================= */
 
-const StatCard = ({ title, value, icon: Icon }) => {
+const StatCard = ({ title, value, icon }) => {
   let formattedValue = value;
 
   if (value === null || value === undefined) {
@@ -292,7 +295,7 @@ const StatCard = ({ title, value, icon: Icon }) => {
           <h2 className="text-xl font-bold">{formattedValue}</h2>
         </div>
 
-        <Icon className="w-6 h-6 text-primary" />
+        {React.createElement(icon, { className: "w-6 h-6 text-primary" })}
       </CardContent>
     </Card>
   );
@@ -310,12 +313,12 @@ const MenuItem = ({ label, time, text }) => (
   </div>
 );
 
-const ActionBtn = ({ icon: Icon, text, onClick }) => (
+const ActionBtn = ({ icon, text, onClick }) => (
   <div
     onClick={onClick}
     className="flex items-center gap-3 p-3 bg-muted rounded-lg cursor-pointer hover:bg-accent transition"
   >
-    <Icon className="w-5 h-5" />
+    {React.createElement(icon, { className: "w-5 h-5" })}
 
     <span>{text}</span>
   </div>

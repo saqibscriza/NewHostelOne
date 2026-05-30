@@ -58,13 +58,17 @@ const createSupportTicket = async (data) => {
         <form onSubmit={handleSubmit(createSupportTicket)} className="space-y-6">
 <div className="space-y-2">
   <Label className="text-xs font-bold text-muted-foreground tracking-widest uppercase">
-    Room/Location
+    Room/Location <span className="text-destructive">*</span>
   </Label>
 
   <Input
     type="text"
     {...register("room", {
       required: "Room is required",
+      maxLength: {
+        value: 50,
+        message: "Room/location must be under 50 characters",
+      },
     })}
     placeholder="Enter Room/Location"
     className="w-full h-12 rounded-lg border-border focus-visible:ring-1 focus-visible:ring-ring"
@@ -79,7 +83,7 @@ const createSupportTicket = async (data) => {
 
 <div className="space-y-2">
   <Label className="text-xs font-bold text-muted-foreground tracking-widest uppercase">
-    Subject
+    Subject <span className="text-destructive">*</span>
   </Label>
 
   <Input
@@ -89,6 +93,10 @@ const createSupportTicket = async (data) => {
       minLength: {
         value: 5,
         message: "Subject must be at least 5 characters",
+      },
+      maxLength: {
+        value: 80,
+        message: "Subject must be under 80 characters",
       },
     })}
     placeholder="Enter Subject Details"
@@ -104,7 +112,7 @@ const createSupportTicket = async (data) => {
 
 <div className="space-y-2">
   <Label className="text-xs font-bold text-muted-foreground tracking-widest uppercase">
-    Description
+    Description <span className="text-destructive">*</span>
   </Label>
 
   <textarea
@@ -115,6 +123,10 @@ const createSupportTicket = async (data) => {
       minLength: {
         value: 10,
         message: "Description must be at least 10 characters",
+      },
+      maxLength: {
+        value: 255,
+        message: "Description must be under 255 characters",
       },
     })}
     placeholder="Describe the issue in detail..."

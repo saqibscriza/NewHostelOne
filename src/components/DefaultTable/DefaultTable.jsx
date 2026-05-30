@@ -15,8 +15,10 @@ const DefaultTable = ({
                 display: "flex",
                 justifyContent: "center",
                 alignItems: "center",
-                background: "#f8f9fb",
-                borderRadius: "12px",
+                background: "var(--card)",
+                color: "var(--card-foreground)",
+                border: "1px dashed var(--border)",
+                borderRadius: "var(--radius)",
                 padding: "20px",
             }}
         >
@@ -32,14 +34,14 @@ const DefaultTable = ({
                     style={{
                         width: "100px",
                         height: "100px",
-                        border: "2px dashed #d1d5db",
+                        border: "2px dashed var(--border)",
                         borderRadius: "50%",
                         margin: "0 auto 24px",
                         display: "flex",
                         justifyContent: "center",
                         alignItems: "center",
                         position: "relative",
-                        background: "#fff",
+                        background: "var(--background)",
                     }}
                 >
                     {/* FILE ICON */}
@@ -74,7 +76,7 @@ const DefaultTable = ({
                             width: "34px",
                             height: "34px",
                             borderRadius: "50%",
-                            background: "#fff",
+                            background: "var(--background)",
                             display: "flex",
                             justifyContent: "center",
                             alignItems: "center",
@@ -110,7 +112,7 @@ const DefaultTable = ({
                     style={{
                         fontSize: "32px",
                         fontWeight: "700",
-                        color: "#111827",
+                        color: "var(--foreground)",
                         marginBottom: "12px",
                     }}
                 >
@@ -122,7 +124,7 @@ const DefaultTable = ({
                     style={{
                         fontSize: "18px",
                         lineHeight: "30px",
-                        color: "#6b7280",
+                        color: "var(--muted-foreground)",
                         marginBottom: buttonText ? "35px" : "0px",
                     }}
                 >
@@ -134,8 +136,8 @@ const DefaultTable = ({
                     <button
                         onClick={onButtonClick}
                         style={{
-                            background: "#d90429",
-                            color: "#fff",
+                            background: "var(--primary)",
+                            color: "var(--primary-foreground)",
                             border: "none",
                             borderRadius: "14px",
                             padding: "10px 20px",

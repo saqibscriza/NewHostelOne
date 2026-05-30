@@ -97,7 +97,7 @@ const Sidebar = ({ menu = [], onItemClick }) => {
                         key={child.name}
                         to={childPath}
                         onClick={onItemClick}
-                        className={`block text-sm px-3 py-2 rounded-md transition
+                        className={`block text-sm px-3 py-2 rounded-md cursor-pointer transition
                           ${isChildActive
                             ? "text-primary font-semibold"
                             : "text-muted-foreground hover:text-foreground"
@@ -151,7 +151,7 @@ const Sidebar = ({ menu = [], onItemClick }) => {
             logout();
             navigate("/");
           }}
-          className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm text-muted-foreground hover:bg-muted transition"
+          className="flex w-full cursor-pointer items-center gap-3 rounded-lg px-3 py-2.5 text-sm text-muted-foreground hover:bg-muted transition"
         >
           <LogOut className="w-5 h-5" />
           Logout

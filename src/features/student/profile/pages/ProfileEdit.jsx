@@ -206,7 +206,7 @@ export default function ProfileEdit() {
                   `https://api.dicebear.com/7.x/notionists/svg?seed=${userName || "Sandeep"}&backgroundColor=0f172a`,
                 );
               }}
-              className="text-sm font-semibold text-red-500 hover:text-red-600 transition-colors"
+              className="text-sm font-semibold text-red-500 hover:text-red-600 transition-colors cursor-pointer"
             >
               Remove
             </button>
@@ -228,7 +228,7 @@ export default function ProfileEdit() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="space-y-2">
                 <Label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">
-                  Full Name
+                  Full Name <span className="text-destructive">*</span>
                 </Label>
                 <Input
                   {...register("fullName", {
@@ -265,34 +265,65 @@ export default function ProfileEdit() {
               </div>
               <div className="space-y-2">
                 <Label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">
-                  Gender
+                  Gender <span className="text-destructive">*</span>
                 </Label>
+                <input
+                  type="hidden"
+                  {...register("gender", {
+                    validate: (value) =>
+                      value && value !== "none" ? true : "Gender is required",
+                  })}
+                />
                 <Select
-                  onValueChange={(value) => setValue("gender", value)}
-                  value={watch("gender") || "Male"}
+                  onValueChange={(value) =>
+                    setValue("gender", value, { shouldValidate: true })
+                  }
+                  value={watch("gender") || "none"}
                 >
-                  <SelectTrigger className="w-full h-11 px-4 rounded-lg bg-white shadow-none border-gray-200">
+                  <SelectTrigger
+                    aria-invalid={Boolean(errors.gender)}
+                    className="w-full h-11 px-4 rounded-lg bg-white shadow-none border-gray-200"
+                  >
                     <SelectValue placeholder="Select Gender" />
                   </SelectTrigger>
                   <SelectContent>
+                    <SelectItem value="none">None</SelectItem>
                     <SelectItem value="Male">Male</SelectItem>
                     <SelectItem value="Female">Female</SelectItem>
                     <SelectItem value="Other">Other</SelectItem>
                   </SelectContent>
                 </Select>
+                {errors.gender && (
+                  <p className="text-xs text-red-500 mt-1">
+                    {errors.gender.message}
+                  </p>
+                )}
               </div>
               <div className="space-y-2">
                 <Label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">
-                  Blood Group
+                  Blood Group <span className="text-destructive">*</span>
                 </Label>
+                <input
+                  type="hidden"
+                  {...register("bloodGroup", {
+                    validate: (value) =>
+                      value && value !== "none" ? true : "Blood group is required",
+                  })}
+                />
                 <Select
-                  onValueChange={(value) => setValue("bloodGroup", value)}
-                  value={watch("bloodGroup") || "O+"}
+                  onValueChange={(value) =>
+                    setValue("bloodGroup", value, { shouldValidate: true })
+                  }
+                  value={watch("bloodGroup") || "none"}
                 >
-                  <SelectTrigger className="w-full h-11 px-4 rounded-lg bg-white shadow-none border-gray-200">
+                  <SelectTrigger
+                    aria-invalid={Boolean(errors.bloodGroup)}
+                    className="w-full h-11 px-4 rounded-lg bg-white shadow-none border-gray-200"
+                  >
                     <SelectValue placeholder="Select Blood Group" />
                   </SelectTrigger>
                   <SelectContent>
+                    <SelectItem value="none">None</SelectItem>
                     <SelectItem value="A+">A+</SelectItem>
                     <SelectItem value="A-">A-</SelectItem>
                     <SelectItem value="B+">B+</SelectItem>
@@ -303,10 +334,15 @@ export default function ProfileEdit() {
                     <SelectItem value="AB-">AB-</SelectItem>
                   </SelectContent>
                 </Select>
+                {errors.bloodGroup && (
+                  <p className="text-xs text-red-500 mt-1">
+                    {errors.bloodGroup.message}
+                  </p>
+                )}
               </div>
               <div className="md:col-span-2 space-y-2">
                 <Label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">
-                  Address
+                  Address <span className="text-destructive">*</span>
                 </Label>
                 <Input
                   {...register("address", { required: "Address is required" })}
@@ -387,7 +423,7 @@ export default function ProfileEdit() {
           <div className="space-y-6">
             <div className="space-y-2">
               <Label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">
-                Phone Number
+                Phone Number <span className="text-destructive">*</span>
               </Label>
 
               <div className="flex">
@@ -423,7 +459,7 @@ export default function ProfileEdit() {
 
             <div className="space-y-2">
               <Label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">
-                Personal Email
+                Personal Email <span className="text-destructive">*</span>
               </Label>
 
               <Input
@@ -461,7 +497,7 @@ export default function ProfileEdit() {
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">
-                  Name
+                  Name <span className="text-destructive">*</span>
                 </Label>
                 <Input
                   {...register("emergencyName", {
@@ -488,7 +524,7 @@ export default function ProfileEdit() {
               </div>
               <div className="space-y-2">
                 <Label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">
-                  Relationship
+                  Relationship <span className="text-destructive">*</span>
                 </Label>
                 <Input
                   {...register("emergencyRelation", { required: "Required" })}
@@ -503,7 +539,7 @@ export default function ProfileEdit() {
             </div>
             <div className="space-y-2">
               <Label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">
-                Emergency Phone
+                Emergency Phone <span className="text-destructive">*</span>
               </Label>
 
               <div className="flex">
@@ -543,14 +579,14 @@ export default function ProfileEdit() {
           type="button"
           variant="outline"
           onClick={() => navigate("/student/profile")}
-          className="rounded-xl h-11 px-8 font-semibold bg-white border-gray-200"
+          className="rounded-xl h-11 px-8 font-semibold bg-white border-gray-200 cursor-pointer"
         >
           Cancel
         </Button>
         <Button
           disabled={loading}
           type="submit"
-          className="bg-[#111827] hover:bg-gray-800 text-white rounded-xl h-11 px-8 font-semibold shadow-sm"
+          className="bg-[#111827] hover:bg-gray-800 text-white rounded-xl h-11 px-8 font-semibold shadow-sm cursor-pointer"
         >
           {loading ? "Saving..." : "Save Changes"}
         </Button>

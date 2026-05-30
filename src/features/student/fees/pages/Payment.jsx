@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { IndianRupee, CreditCard, HelpCircle, CheckCircle2 } from 'lucide-react';
+import { CreditCard, HelpCircle, CheckCircle2 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '../../../../components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '../../../../components/ui/Card';
+import { Input } from '../../../../components/ui/input';
 import { Label } from '../../../../components/ui/label';
 import { getFeeStudentDetails } from "../../../../utils/utils";
 
@@ -10,6 +11,8 @@ import { getFeeStudentDetails } from "../../../../utils/utils";
 export default function Payment() {
   const navigate = useNavigate();
   const [selectedMethod, setSelectedMethod] = useState('upi');
+  const [upiId, setUpiId] = useState("");
+  const [formErrors, setFormErrors] = useState({});
   const [stuData, setStuData] = useState(null);
   const [loading, setLoading] = useState(true);
 
@@ -32,9 +35,23 @@ const StudentFeeDetails = async () => {
 
 
   const handleConfirm = () => {
+    const errors = {};
+    if (!selectedMethod) {
+      errors.paymentMethod = "Please select a payment method";
+    }
+    if (selectedMethod === "upi" && !/^[\w.-]{2,}@[A-Za-z]{2,}$/.test(upiId.trim())) {
+      errors.upiId = "Enter a valid UPI ID, for example yourname@okaxis";
+    }
+    setFormErrors(errors);
+    if (Object.keys(errors).length > 0) return;
+
     console.log("Payment Successfull");
     navigate("/student/fees");
   };
+
+  if (loading) {
+    return <div className="text-center mt-10">Loading payment details...</div>;
+  }
 
   return (
     <div className="max-w-6xl mx-auto space-y-6">
@@ -103,7 +120,9 @@ const StudentFeeDetails = async () => {
         <div className="w-full md:w-2/3">
           <Card className="rounded-2xl shadow-sm border-gray-100 h-full">
             <CardHeader className="pb-4 border-b border-gray-50">
-              <CardTitle className="text-xl font-bold text-gray-900">Select Payment Method</CardTitle>
+              <CardTitle className="text-xl font-bold text-gray-900">
+                Select Payment Method <span className="text-destructive">*</span>
+              </CardTitle>
             </CardHeader>
             <CardContent className="pt-6">
               
@@ -162,20 +181,36 @@ const StudentFeeDetails = async () => {
                   </div>
                 </Label>
               </div>
+              {formErrors.paymentMethod && (
+                <p className="mt-3 text-xs text-destructive">
+                  {formErrors.paymentMethod}
+                </p>
+              )}
 
               {selectedMethod === 'upi' && (
                 <div className="mt-8 border-t border-gray-100 pt-8">
-                  <label className="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-3">ENTER UPI ID</label>
+                  <Label className="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-3">
+                    ENTER UPI ID <span className="text-destructive">*</span>
+                  </Label>
                   <div className="flex gap-4">
-                    <input 
+                    <Input
                       type="text" 
+                      value={upiId}
+                      onChange={(event) => {
+                        setUpiId(event.target.value);
+                        setFormErrors((prev) => ({ ...prev, upiId: "" }));
+                      }}
                       placeholder="example@upi"
-                      className="flex-1 bg-gray-50 border-none rounded-xl px-4 focus:ring-2 focus:ring-slate-900 focus:outline-none text-[15px]" 
+                      aria-invalid={Boolean(formErrors.upiId)}
+                      className="flex-1 bg-gray-50 border-none rounded-xl px-4 focus:ring-2 focus:ring-ring focus:outline-none text-[15px]" 
                     />
                     <Button className="bg-[#0f172a] hover:bg-[#1e293b] text-white font-semibold py-6 px-8 rounded-xl transition-colors">
                       Verify
                     </Button>
                   </div>
+                  {formErrors.upiId && (
+                    <p className="text-xs text-destructive mt-2">{formErrors.upiId}</p>
+                  )}
                   <p className="text-[11px] text-gray-400 mt-3 align-middle">Example: yourname@okaxis, phonenumber@ybl</p>
                 </div>
               )}

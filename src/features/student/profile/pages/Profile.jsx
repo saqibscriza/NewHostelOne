@@ -3,12 +3,7 @@ import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 import {
   Edit2,
-  Shield,
-  Lock,
-  Smartphone,
-  Camera,
   Users,
-  MonitorSmartphone,
   KeyRound,
   Eye,
   EyeOff,
@@ -42,11 +37,23 @@ export default function Profile() {
     password: "",
     confirmPassword: "",
   });
+  const [passwordErrors, setPasswordErrors] = useState({});
 
   const handlePasswordChange = async (e) => {
     e.preventDefault();
+    const errors = {};
+    if (!passwordForm.oldPassword.trim()) {
+      errors.oldPassword = "Current password is required";
+    }
+    if (passwordForm.password.length < 8) {
+      errors.password = "Password must be at least 8 characters long";
+    }
     if (passwordForm.password !== passwordForm.confirmPassword) {
-      toast.error("New password and confirm password do not match");
+      errors.confirmPassword = "New password and confirm password do not match";
+    }
+    setPasswordErrors(errors);
+    if (Object.keys(errors).length > 0) {
+      toast.error("Please fix the highlighted password fields");
       return;
     }
     try {
@@ -94,7 +101,7 @@ export default function Profile() {
     fetchProfile();
   }, []);
 
-  if (!profile) {
+  if (loading || !profile) {
     return <div className="text-center py-10">Loading...</div>;
   }
 
@@ -384,80 +391,100 @@ export default function Profile() {
           </DialogHeader>
           <form onSubmit={handlePasswordChange} className="space-y-4 pt-4">
             <div className="space-y-2">
-              <Label htmlFor="oldPassword" className="text-xs font-bold text-gray-500 uppercase tracking-widest">Current Password</Label>
+              <Label htmlFor="oldPassword" className="text-xs font-bold text-gray-500 uppercase tracking-widest">
+                Current Password <span className="text-destructive">*</span>
+              </Label>
               <div className="relative">
                 <Input
                   id="oldPassword"
                   type={showOldPassword ? "text" : "password"}
                   required
                   value={passwordForm.oldPassword}
-                  onChange={(e) =>
+                  onChange={(e) => {
                     setPasswordForm((prev) => ({
                       ...prev,
                       oldPassword: e.target.value,
-                    }))
-                  }
+                    }));
+                    setPasswordErrors((prev) => ({ ...prev, oldPassword: "" }));
+                  }}
+                  aria-invalid={Boolean(passwordErrors.oldPassword)}
                   className="pr-10 h-11"
                   placeholder="Enter Current Password"
                 />
                 <button
                   type="button"
                   onClick={() => setShowOldPassword(!showOldPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 focus:outline-none"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 focus:outline-none cursor-pointer"
                 >
                   {showOldPassword ? <Eye className="w-4 h-4" /> : <EyeOff className="w-4 h-4" />}
                 </button>
               </div>
+              {passwordErrors.oldPassword && (
+                <p className="text-xs text-destructive">{passwordErrors.oldPassword}</p>
+              )}
             </div>
             <div className="space-y-2">
-              <Label htmlFor="newPassword" className="text-xs font-bold text-gray-500 uppercase tracking-widest">New Password</Label>
+              <Label htmlFor="newPassword" className="text-xs font-bold text-gray-500 uppercase tracking-widest">
+                New Password <span className="text-destructive">*</span>
+              </Label>
               <div className="relative">
                 <Input
                   id="newPassword"
                   type={showNewPassword ? "text" : "password"}
                   required
                   value={passwordForm.password}
-                  onChange={(e) =>
-                    setPasswordForm((prev) => ({ ...prev, password: e.target.value }))
-                  }
+                  onChange={(e) => {
+                    setPasswordForm((prev) => ({ ...prev, password: e.target.value }));
+                    setPasswordErrors((prev) => ({ ...prev, password: "" }));
+                  }}
+                  aria-invalid={Boolean(passwordErrors.password)}
                   className="pr-10 h-11"
                   placeholder="Enter new password"
                 />
                 <button
                   type="button"
                   onClick={() => setShowNewPassword(!showNewPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 focus:outline-none"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 focus:outline-none cursor-pointer"
                 >
                   {showNewPassword ? <Eye className="w-4 h-4" /> : <EyeOff className="w-4 h-4" />}
                 </button>
               </div>
-              <p className="text-xs text-gray-500 mt-1">Password must be at least 8 characters long.</p>
+              <p className={passwordErrors.password ? "text-xs text-destructive mt-1" : "text-xs text-gray-500 mt-1"}>
+                {passwordErrors.password || "Password must be at least 8 characters long."}
+              </p>
             </div>
             <div className="space-y-2">
-              <Label htmlFor="confirmPassword" className="text-xs font-bold text-gray-500 uppercase tracking-widest">Confirm New Password</Label>
+              <Label htmlFor="confirmPassword" className="text-xs font-bold text-gray-500 uppercase tracking-widest">
+                Confirm New Password <span className="text-destructive">*</span>
+              </Label>
               <div className="relative">
                 <Input
                   id="confirmPassword"
                   type={showConfirmPassword ? "text" : "password"}
                   required
                   value={passwordForm.confirmPassword}
-                  onChange={(e) =>
+                  onChange={(e) => {
                     setPasswordForm((prev) => ({
                       ...prev,
                       confirmPassword: e.target.value,
-                    }))
-                  }
+                    }));
+                    setPasswordErrors((prev) => ({ ...prev, confirmPassword: "" }));
+                  }}
+                  aria-invalid={Boolean(passwordErrors.confirmPassword)}
                   className="pr-10 h-11"
                   placeholder="Re-type new password"
                 />
                 <button
                   type="button"
                   onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 focus:outline-none"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 focus:outline-none cursor-pointer"
                 >
                   {showConfirmPassword ? <Eye className="w-4 h-4" /> : <EyeOff className="w-4 h-4" />}
                 </button>
               </div>
+              {passwordErrors.confirmPassword && (
+                <p className="text-xs text-destructive">{passwordErrors.confirmPassword}</p>
+              )}
             </div>
             <div className="flex justify-between gap-3 pt-4">
               <Button

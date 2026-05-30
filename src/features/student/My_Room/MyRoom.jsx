@@ -126,7 +126,7 @@ export default function MyRoom() {
                     prev === 0 ? photos.length - 1 : prev - 1,
                   )
                 }
-                className="absolute left-4 top-1/2 -translate-y-1/2 rounded-full bg-black/40 p-2 text-white backdrop-blur-sm"
+                className="absolute left-4 top-1/2 -translate-y-1/2 rounded-full bg-black/40 p-2 text-white backdrop-blur-sm cursor-pointer"
               >
                 <ChevronLeft className="h-5 w-5" />
               </button>
@@ -250,7 +250,7 @@ export default function MyRoom() {
         <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
           {roomData?.amenities?.length > 0 ? (
             roomData.amenities.map((item, index) => (
-              <Amenity key={index} icon={Wifi} text={item} />
+              <Amenity key={index} icon={Wifi} text={item?.name || "N/A"} />
             ))
           ) : (
             <div className="col-span-full text-sm text-muted-foreground">
@@ -339,9 +339,9 @@ const formatDate = (date) => {
   });
 };
 
-const Amenity = ({ icon: Icon, text }) => (
+const Amenity = ({ icon, text }) => (
   <div className="bg-muted p-4 rounded-lg flex flex-col items-center text-center gap-2">
-    <Icon className="w-5 h-5" />
+    {React.createElement(icon, { className: "w-5 h-5" })}
 
     <p className="text-sm">{text}</p>
   </div>

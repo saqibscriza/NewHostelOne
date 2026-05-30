@@ -1,7 +1,19 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Send, Paperclip } from 'lucide-react';
 
 export default function TicketChat() {
+  const [message, setMessage] = useState("");
+  const [messageError, setMessageError] = useState("");
+
+  const handleSend = () => {
+    if (message.trim().length < 2) {
+      setMessageError("Message must be at least 2 characters");
+      return;
+    }
+    setMessage("");
+    setMessageError("");
+  };
+
   return (
     <div className="max-w-6xl mx-auto space-y-6 flex flex-col h-[calc(100vh-120px)]">
       <div>
@@ -70,20 +82,34 @@ export default function TicketChat() {
         {/* Input Area */}
         <div className="p-4 bg-white border-t border-gray-100">
            <div className="flex items-end gap-3 bg-gray-50 rounded-2xl p-2 border border-gray-100 focus-within:border-slate-300 focus-within:bg-white transition-colors">
-              <textarea 
+              <textarea
                 rows={1}
+                value={message}
+                onChange={(event) => {
+                  setMessage(event.target.value);
+                  setMessageError("");
+                }}
+                maxLength={500}
+                aria-invalid={Boolean(messageError)}
                 placeholder="Type your response to Rajesh..."
                 className="flex-1 bg-transparent border-none focus:outline-none resize-none px-3 py-2 text-[15px] text-gray-700 min-h-[44px] max-h-[120px]"
               ></textarea>
               <div className="flex items-center gap-1 pb-1 pr-1 shrink-0">
-                <button className="p-2 text-gray-400 hover:text-gray-600 rounded-full hover:bg-gray-100 transition-colors">
+                <button className="p-2 text-gray-400 hover:text-gray-600 rounded-full hover:bg-gray-100 transition-colors cursor-pointer">
                   <Paperclip className="w-5 h-5" />
                 </button>
-                <button className="p-2.5 bg-[#0f172a] hover:bg-[#1e293b] text-white rounded-xl transition-colors shadow-sm">
+                <button
+                  type="button"
+                  onClick={handleSend}
+                  className="p-2.5 bg-[#0f172a] hover:bg-[#1e293b] text-white rounded-xl transition-colors shadow-sm cursor-pointer"
+                >
                   <Send className="w-4 h-4" />
                 </button>
               </div>
            </div>
+           {messageError && (
+             <p className="mt-2 text-xs text-destructive">{messageError}</p>
+           )}
         </div>
       </div>
     </div>

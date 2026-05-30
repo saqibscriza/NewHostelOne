@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { AlertCircle, CreditCard, Download, WalletCards } from "lucide-react";
+import { AlertCircle, Download, WalletCards } from "lucide-react";
+import DefaultTable from "../../../../components/DefaultTable/DefaultTable";
+import { Button } from "../../../../components/ui/button";
 import {
   Select,
   SelectContent,
@@ -9,9 +11,16 @@ import {
   SelectValue,
 } from "../../../../components/ui/select";
 import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "../../../../components/ui/Table";
+import {
   getFeeStudentDetails,
   getStudentTransectionsApi,
-  getCSV_Api,
 } from "../../../../utils/utils";
 
 export default function Fees() {
@@ -28,11 +37,11 @@ export default function Fees() {
     let matchesStatus = true;
     let matchesDays = true;
 
-    if (statusFilter !== "all") {
+    if (statusFilter !== "all" && statusFilter !== "none") {
       matchesStatus = tx.status?.toLowerCase() === statusFilter;
     }
 
-    if (daysFilter !== "all") {
+    if (daysFilter !== "all" && daysFilter !== "none") {
       const txDate = new Date(tx.date);
       const currentDate = new Date();
       const diffTime = Math.abs(currentDate - txDate);
@@ -127,15 +136,6 @@ export default function Fees() {
     });
   };
 
-  const getExportCSV = async() => {
-    try{
-      const res = getCSV_Api();
-    }
-    catch{
-      
-    }
-  }
-
   const totalOutstandingBalance =
     feeData?.totalOutstandingBalance ?? feeData?.currentDues?.grandTotal ?? 0;
   const currentBillingCycle = feeData?.currentDues?.billingCycle || "Current";
@@ -179,15 +179,15 @@ export default function Fees() {
               ₹{totalOutstandingBalance}
             </div>
             <div className="mt-8 flex flex-col items-start gap-3">
-              <button
+              <Button
                 onClick={() => navigate("/student/fees/pay")}
-                className="w-44 bg-[#0f172a] hover:bg-[#1e293b] text-white py-3 rounded-[10px] font-bold text-sm flex items-center justify-center gap-2 transition-colors"
+                className="w-44 rounded-[10px] py-3 text-sm font-bold"
               >
                 <WalletCards className="w-4 h-4" /> Pay Now
-              </button>
-              <button className="w-44 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 py-3 rounded-[10px] font-bold text-sm transition-colors">
+              </Button>
+              <Button variant="outline" className="w-44 rounded-[10px] py-3 text-sm font-bold">
                 View Full Invoice
-              </button>
+              </Button>
             </div>
           </div>
           <div className="md:w-48 flex flex-col justify-between">
@@ -264,6 +264,7 @@ export default function Fees() {
               <SelectValue placeholder="All Status" />
             </SelectTrigger>
             <SelectContent>
+              <SelectItem value="none">None</SelectItem>
               <SelectItem value="all">All Status</SelectItem>
               <SelectItem value="paid">Paid</SelectItem>
               <SelectItem value="pending">Pending</SelectItem>
@@ -275,6 +276,7 @@ export default function Fees() {
               <SelectValue placeholder="All Time" />
             </SelectTrigger>
             <SelectContent>
+              <SelectItem value="none">None</SelectItem>
               <SelectItem value="all">All Time</SelectItem>
               <SelectItem value="7">Last 7 Days</SelectItem>
               <SelectItem value="30">Last 30 Days</SelectItem>
@@ -287,7 +289,7 @@ export default function Fees() {
             setStatusFilter("all");
             setDaysFilter("all");
           }}
-          className="text-[13px] font-bold text-gray-900 hover:text-black"
+          className="text-[13px] font-bold text-gray-900 hover:text-black cursor-pointer"
         >
           Clear all filters
         </button>
@@ -299,40 +301,40 @@ export default function Fees() {
             Transaction History
           </h2>
           <div className="flex gap-3">
-            <button className="text-xs font-bold px-4 py-2 border border-gray-200 rounded-lg hover:bg-gray-50 uppercase tracking-wider text-gray-600">
+            <button className="text-xs font-bold px-4 py-2 border border-gray-200 rounded-lg hover:bg-gray-50 uppercase tracking-wider text-gray-600 cursor-pointer">
               Export
             </button>
           </div>
         </div>
 
-        <div className="overflow-x-auto">
-          <table className="w-full text-left text-sm whitespace-nowrap">
-            <thead className="bg-gray-50 border-b border-gray-100 text-xs font-bold text-gray-400 uppercase tracking-widest">
-              <tr>
-                <th className="px-6 py-4 font-bold">Date</th>
-                <th className="px-6 py-4 font-bold">Description</th>
-                <th className="px-6 py-4 font-bold text-right">Amount</th>
-                <th className="px-6 py-4 font-bold text-center">Status</th>
-                <th className="px-6 py-4 font-bold text-center">Receipt</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-100 text-gray-600">
-              {filteredTransactions.length > 0 ? (
-                filteredTransactions.map((transaction) => (
-                  <tr key={transaction.transactionId}>
-                    <td className="px-6 py-4">{formatDate(transaction.date)}</td>
-                    <td className="px-6 py-4">
+        {filteredTransactions.length > 0 ? (
+          <div className="overflow-x-auto">
+            <Table className="text-left whitespace-nowrap">
+              <TableHeader className="bg-muted/60 text-xs font-bold text-muted-foreground uppercase tracking-widest">
+                <TableRow>
+                  <TableHead className="px-6 py-4 font-bold">Date</TableHead>
+                  <TableHead className="px-6 py-4 font-bold">Description</TableHead>
+                  <TableHead className="px-6 py-4 font-bold text-right">Amount</TableHead>
+                  <TableHead className="px-6 py-4 font-bold text-center">Status</TableHead>
+                  <TableHead className="px-6 py-4 font-bold text-center">Receipt</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody className="divide-y divide-border text-muted-foreground">
+                {filteredTransactions.map((transaction) => (
+                  <TableRow key={transaction.transactionId}>
+                    <TableCell className="px-6 py-4">{formatDate(transaction.date)}</TableCell>
+                    <TableCell className="px-6 py-4">
                       <div className="font-bold text-gray-900">
                         {transaction.description || transaction.billingCycle}
                       </div>
                       <div className="text-xs text-gray-400 mt-1">
                         TXN_ID: #{transaction.transactionId}
                       </div>
-                    </td>
-                    <td className="px-6 py-4 text-right font-bold text-gray-900">
+                    </TableCell>
+                    <TableCell className="px-6 py-4 text-right font-bold text-gray-900">
                       ₹{Number(transaction.amount || 0).toFixed(2)}
-                    </td>
-                    <td className="px-6 py-4 text-center">
+                    </TableCell>
+                    <TableCell className="px-6 py-4 text-center">
                       <span
                         className={`${getStatusStyle(
                           transaction.status
@@ -340,44 +342,41 @@ export default function Fees() {
                       >
                         {transaction.status}
                       </span>
-                    </td>
-                    <td className="px-6 py-4 text-center">
+                    </TableCell>
+                    <TableCell className="px-6 py-4 text-center">
                       <button
                         type="button"
                         disabled={transaction.status !== "PAID"}
                         className={
                           transaction.status === "PAID"
-                            ? "text-gray-400 hover:text-gray-900"
+                            ? "text-gray-400 hover:text-gray-900 cursor-pointer"
                             : "text-gray-300 cursor-not-allowed"
                         }
                       >
                         <Download className="w-4 h-4 mx-auto" />
                       </button>
-                    </td>
-                  </tr>
-                ))
-              ) : (
-                <tr>
-                  <td
-                    colSpan={5}
-                    className="px-6 py-8 text-center text-sm text-gray-500"
-                  >
-                    No transactions found.
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table>
-        </div>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
+        ) : (
+          <DefaultTable
+            height="260px"
+            title="No Transactions Found"
+            description="No fee transaction records are available for the selected filters."
+          />
+        )}
         <div className="p-4 border-t border-gray-100 flex items-center justify-between text-xs text-gray-500">
           <span>
             Showing {filteredTransactions.length} of {totalItems} transactions
           </span>
           <div className="flex gap-1">
-            <button className="p-1 rounded border border-gray-200 hover:bg-gray-50">
+            <button className="p-1 rounded border border-gray-200 hover:bg-gray-50 cursor-pointer">
               &lt;
             </button>
-            <button className="p-1 rounded border border-gray-200 hover:bg-gray-50">
+            <button className="p-1 rounded border border-gray-200 hover:bg-gray-50 cursor-pointer">
               &gt;
             </button>
           </div>

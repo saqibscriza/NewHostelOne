@@ -7,7 +7,7 @@ import { cn } from "../../lib/utils";
  */
 const Button = React.forwardRef(
   (
-    { className, variant = "default", size = "default",asChild = false, ...props },
+    { className, variant = "default", size = "default", ...props },
     ref
   ) => {
     const variants = {
@@ -67,7 +67,7 @@ const Button = React.forwardRef(
            * ❌ ring-offset-white, ring-slate-950
            * ✅ theme-based ring
            */
-          "inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 ring-offset-background disabled:pointer-events-none disabled:opacity-50",
+          "inline-flex cursor-pointer items-center justify-center whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 ring-offset-background disabled:pointer-events-none disabled:opacity-50",
 
           variants[variant],
           sizes[size],

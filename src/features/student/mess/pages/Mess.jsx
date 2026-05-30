@@ -2,6 +2,22 @@ import React, { useEffect, useMemo, useState } from "react";
 import { useLocation } from "react-router-dom";
 import { Star, X } from "lucide-react";
 import { toast } from "react-hot-toast";
+import DefaultTable from "../../../../components/DefaultTable/DefaultTable";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "../../../../components/ui/select";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "../../../../components/ui/Table";
 import {
   addMessFeedbackApi,
   getMessMenuByDateApi,
@@ -26,6 +42,7 @@ export default function Mess() {
   const [rating, setRating] = useState(0);
   const [hoverRating, setHoverRating] = useState(0);
   const [comment, setComment] = useState("");
+  const [commentError, setCommentError] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [dayFilter, setDayFilter] = useState("7");
   const [feedbacks, setFeedbacks] = useState([]);
@@ -162,7 +179,7 @@ export default function Mess() {
   };
 
   const filteredFeedbacks = useMemo(() => {
-    const days = Number(dayFilter);
+    const days = dayFilter === "none" ? 7 : Number(dayFilter);
     const start = new Date();
     start.setHours(0, 0, 0, 0);
     start.setDate(start.getDate() - (days - 1));
@@ -172,6 +189,7 @@ export default function Mess() {
       const matchesDate = !date || date >= start;
       const matchesStatus =
         statusFilter === "all" ||
+        statusFilter === "none" ||
         (statusFilter === "rated" && item.isRated) ||
         (statusFilter === "unrated" && !item.isRated);
 
@@ -184,6 +202,7 @@ export default function Mess() {
     setRating(0);
     setHoverRating(0);
     setComment("");
+    setCommentError("");
     setOpenModal(true);
   };
 
@@ -191,6 +210,10 @@ export default function Mess() {
     if (!selectedMeal) return;
     if (rating === 0) {
       toast.error("Please select rating");
+      return;
+    }
+    if (comment.trim().length > 0 && comment.trim().length < 3) {
+      setCommentError("Comment must be at least 3 characters when provided");
       return;
     }
 
@@ -233,7 +256,7 @@ export default function Mess() {
             <button
               type="button"
               onClick={() => setOpenModal(false)}
-              className="absolute top-7 right-7 text-foreground hover:text-primary"
+              className="absolute top-7 right-7 text-foreground hover:text-primary cursor-pointer"
             >
               <X className="w-6 h-6" />
             </button>
@@ -262,15 +285,25 @@ export default function Mess() {
                 </label>
                 <textarea
                   value={comment}
-                  onChange={(e) => setComment(e.target.value)}
+                  onChange={(e) => {
+                    setComment(e.target.value);
+                    setCommentError("");
+                  }}
                   placeholder="Enter comment"
+                  maxLength={255}
+                  aria-invalid={Boolean(commentError)}
                   className="w-full h-24 rounded-lg border border-border bg-background px-4 py-3 text-sm text-foreground outline-none resize-none focus:ring-2 focus:ring-ring"
                 />
+                {commentError && (
+                  <p className="mt-1 text-xs text-destructive">
+                    {commentError}
+                  </p>
+                )}
               </div>
 
               <div>
                 <label className="block text-sm font-semibold text-foreground mb-3">
-                  Rating
+                  Rating <span className="text-destructive">*</span>
                 </label>
                 <div className="flex gap-2">
                   {[1, 2, 3, 4, 5].map((star) => (
@@ -293,7 +326,7 @@ export default function Mess() {
                 <button
                   type="button"
                   onClick={handleSubmitRating}
-                  className="px-8 h-11 rounded-lg bg-primary text-primary-foreground text-sm font-semibold hover:bg-primary/90"
+                  className="px-8 h-11 rounded-lg bg-primary text-primary-foreground text-sm font-semibold hover:bg-primary/90 cursor-pointer"
                 >
                   Rate Meal
                 </button>
@@ -301,7 +334,7 @@ export default function Mess() {
                 <button
                   type="button"
                   onClick={() => setOpenModal(false)}
-                  className="px-8 h-11 rounded-lg bg-muted text-foreground text-sm font-semibold hover:bg-accent"
+                  className="px-8 h-11 rounded-lg bg-muted text-foreground text-sm font-semibold hover:bg-accent cursor-pointer"
                 >
                   Cancel
                 </button>
@@ -404,7 +437,7 @@ export default function Mess() {
                       <button
                         type="button"
                         onClick={() => handleOpenModal(item)}
-                        className="px-5 py-2 bg-primary hover:bg-primary/90 text-primary-foreground text-xs font-bold rounded-lg shadow-sm shrink-0 uppercase tracking-wide"
+                        className="px-5 py-2 bg-primary hover:bg-primary/90 text-primary-foreground text-xs font-bold rounded-lg shadow-sm shrink-0 uppercase tracking-wide cursor-pointer"
                       >
                         Rate Meal
                       </button>
@@ -422,33 +455,43 @@ export default function Mess() {
 
         <div className="bg-card border border-border rounded-2xl p-5 md:p-6 shadow-sm">
           <div className="flex flex-col xl:flex-row xl:items-center xl:justify-between gap-4">
-            <div className="flex flex-wrap items-center gap-3">
+            <div className="flex items-center gap-3 overflow-x-auto">
               <p className="text-sm font-semibold text-muted-foreground mr-1">
                 Filter by:
               </p>
 
               {/* STATUS FILTER */}
-              <select
+              <Select
                 value={statusFilter}
-                onChange={(e) => setStatusFilter(e.target.value)}
-                className="h-12 min-w-[170px] rounded-xl border border-border bg-background px-5 pr-12 text-sm font-medium text-foreground outline-none cursor-pointer transition-all hover:border-primary focus:border-primary"
+                onValueChange={setStatusFilter}
               >
-                <option value="all">All Status</option>
-                <option value="rated">Rated</option>
-                <option value="unrated">Unrated</option>
-              </select>
+                <SelectTrigger className="h-12 min-w-[170px] rounded-xl">
+                  <SelectValue placeholder="All Status" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="none">None</SelectItem>
+                  <SelectItem value="all">All Status</SelectItem>
+                  <SelectItem value="rated">Rated</SelectItem>
+                  <SelectItem value="unrated">Unrated</SelectItem>
+                </SelectContent>
+              </Select>
 
               {/* DATE FILTER */}
-              <select
+              <Select
                 value={dayFilter}
-                onChange={(e) => setDayFilter(e.target.value)}
-                className="h-12 min-w-[170px] rounded-xl border border-border bg-background px-5 pr-12 text-sm font-medium text-foreground outline-none cursor-pointer transition-all hover:border-primary focus:border-primary"
+                onValueChange={setDayFilter}
               >
-                <option value="1">Today</option>
-                <option value="2">Tomorrow</option>
-                <option value="7">Full Week</option>
-                <option value="5">Last 5 Days</option>
-              </select>
+                <SelectTrigger className="h-12 min-w-[170px] rounded-xl">
+                  <SelectValue placeholder="Full Week" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="none">None</SelectItem>
+                  <SelectItem value="1">Today</SelectItem>
+                  <SelectItem value="2">Tomorrow</SelectItem>
+                  <SelectItem value="7">Full Week</SelectItem>
+                  <SelectItem value="5">Last 5 Days</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
 
             {/* CLEAR FILTER */}
@@ -472,36 +515,36 @@ export default function Mess() {
             </h2>
           </div>
 
-          <div className="overflow-x-auto">
-            <table className="w-full min-w-[900px]">
-              <thead className="bg-muted/60">
-                <tr>
-                  <TableHead>Student & Date</TableHead>
-                  <TableHead>Meal Details</TableHead>
-                  <TableHead>Category</TableHead>
-                  <TableHead>Rating</TableHead>
-                  <TableHead>Comments</TableHead>
-                </tr>
-              </thead>
-              <tbody>
-                {filteredFeedbacks.length > 0 ? (
-                  filteredFeedbacks.map((item) => (
-                    <tr key={item.id} className="border-t border-border">
-                      <td className="px-6 py-6 text-foreground text-sm">
+          {filteredFeedbacks.length > 0 ? (
+            <div className="overflow-x-auto">
+              <Table className="min-w-[900px]">
+                <TableHeader className="bg-muted/60">
+                  <TableRow>
+                    <TableHead className="px-6 py-4">Student & Date</TableHead>
+                    <TableHead className="px-6 py-4">Meal Details</TableHead>
+                    <TableHead className="px-6 py-4">Category</TableHead>
+                    <TableHead className="px-6 py-4">Rating</TableHead>
+                    <TableHead className="px-6 py-4">Comments</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {filteredFeedbacks.map((item) => (
+                    <TableRow key={item.id} className="border-t border-border">
+                      <TableCell className="px-6 py-6 text-foreground text-sm">
                         {formatDisplayDate(item.mealDate)}
                         <p className="text-xs text-muted-foreground mt-1">
                           {item.timeAgo || ""}
                         </p>
-                      </td>
-                      <td className="px-6 py-6">
+                      </TableCell>
+                      <TableCell className="px-6 py-6">
                         <p className="text-sm text-foreground font-medium">
                           {item.mealName || "No Meal"}
                         </p>
-                      </td>
-                      <td className="px-6 py-6 text-sm text-foreground">
+                      </TableCell>
+                      <TableCell className="px-6 py-6 text-sm text-foreground">
                         {titleCase(item.mealType || "No Category")}
-                      </td>
-                      <td className="px-6 py-6">
+                      </TableCell>
+                      <TableCell className="px-6 py-6">
                         <div className="flex gap-1">
                           {[1, 2, 3, 4, 5].map((star) => (
                             <Star
@@ -517,27 +560,24 @@ export default function Mess() {
                         <span className="mt-2 inline-block rounded-full bg-muted px-2 py-0.5 text-[10px] font-bold uppercase">
                           {item.isRated ? "Positive" : "Pending"}
                         </span>
-                      </td>
-                      <td className="px-6 py-6">
+                      </TableCell>
+                      <TableCell className="px-6 py-6">
                         <p className="text-sm text-muted-foreground">
                           {item.comment || "No Comment"}
                         </p>
-                      </td>
-                    </tr>
-                  ))
-                ) : (
-                  <tr>
-                    <td
-                      colSpan={5}
-                      className="text-center py-10 text-muted-foreground"
-                    >
-                      No feedback found
-                    </td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
-          </div>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
+          ) : (
+            <DefaultTable
+              height="260px"
+              title="No Feedback Found"
+              description="Feedback records will appear here after students rate meals."
+            />
+          )}
         </div>
       </div>
     </>
@@ -616,12 +656,6 @@ const TabButton = ({ active, label, onClick }) => (
   >
     {label}
   </button>
-);
-
-const TableHead = ({ children }) => (
-  <th className="text-left px-6 py-4 text-sm font-semibold text-muted-foreground">
-    {children}
-  </th>
 );
 
 const formatHeaderDate = (date) =>
