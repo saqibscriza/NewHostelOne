@@ -3,7 +3,14 @@ import { useNavigate } from "react-router-dom";
 import { Card, CardContent } from "../../../components/ui/Card";
 import { Button } from "../../../components/ui/button";
 
-import { Wifi, MapPin, Circle, ChevronLeft, ChevronRight, User } from "lucide-react";
+import {
+  Wifi,
+  MapPin,
+  Circle,
+  ChevronLeft,
+  ChevronRight,
+  User,
+} from "lucide-react";
 
 import { getStudentMyRoomApi } from "../../../utils/utils";
 
@@ -16,15 +23,15 @@ export default function MyRoom() {
 
   const photos = roomData?.roomDetails?.photos || [];
 
-useEffect(() => {
-  if (photos.length <= 1) return;
+  useEffect(() => {
+    if (photos.length <= 1) return;
 
-  const interval = setInterval(() => {
-    setCurrentImage((prev) => (prev + 1) % photos.length);
-  }, 5000);
+    const interval = setInterval(() => {
+      setCurrentImage((prev) => (prev + 1) % photos.length);
+    }, 5000);
 
-  return () => clearInterval(interval);
-}, [photos.length]);
+    return () => clearInterval(interval);
+  }, [photos.length]);
 
   // ================= API CALL =================
 
@@ -99,60 +106,60 @@ useEffect(() => {
       <div className="grid lg:grid-cols-3 gap-6">
         {/* ROOM DETAILS CARD */}
         <Card className="lg:col-span-2 overflow-hidden rounded-xl border-border shadow-sm">
-<div className="relative h-80 overflow-hidden">
-  <img
-    src={
-      photos[currentImage] ||
-      "https://images.unsplash.com/photo-1595526114035-0d45ed16cfbf?auto=format&fit=crop&w=1200&q=80"
-    }
-    alt="Room"
-    className="h-full w-full object-cover"
-  />
+          <div className="relative h-80 overflow-hidden">
+            <img
+              src={
+                photos[currentImage] ||
+                "https://images.unsplash.com/photo-1595526114035-0d45ed16cfbf?auto=format&fit=crop&w=1200&q=80"
+              }
+              alt="Room"
+              className="h-full w-full object-cover"
+            />
 
-  <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent" />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent" />
 
-  {/* Left Arrow */}
-  {photos.length > 1 && (
-    <button
-      onClick={() =>
-        setCurrentImage((prev) =>
-          prev === 0 ? photos.length - 1 : prev - 1
-        )
-      }
-      className="absolute left-4 top-1/2 -translate-y-1/2 rounded-full bg-black/40 p-2 text-white backdrop-blur-sm"
-    >
-      <ChevronLeft className="h-5 w-5" />
-    </button>
-  )}
+            {/* Left Arrow */}
+            {photos.length > 1 && (
+              <button
+                onClick={() =>
+                  setCurrentImage((prev) =>
+                    prev === 0 ? photos.length - 1 : prev - 1,
+                  )
+                }
+                className="absolute left-4 top-1/2 -translate-y-1/2 rounded-full bg-black/40 p-2 text-white backdrop-blur-sm"
+              >
+                <ChevronLeft className="h-5 w-5" />
+              </button>
+            )}
 
-  {/* Right Arrow */}
-  {photos.length > 1 && (
-    <button
-      onClick={() =>
-        setCurrentImage((prev) => (prev + 1) % photos.length)
-      }
-      className="absolute right-4 top-1/2 -translate-y-1/2 rounded-full bg-black/40 p-2 text-white backdrop-blur-sm"
-    >
-      <ChevronRight className="h-5 w-5" />
-    </button>
-  )}
-  <div className="absolute left-6 top-5 rounded-full bg-slate-950 px-4 py-1.5 text-xs font-bold uppercase tracking-wide text-white">
-    Active Stay
-  </div>
+            {/* Right Arrow */}
+            {photos.length > 1 && (
+              <button
+                onClick={() =>
+                  setCurrentImage((prev) => (prev + 1) % photos.length)
+                }
+                className="absolute right-4 top-1/2 -translate-y-1/2 rounded-full bg-black/40 p-2 text-white backdrop-blur-sm cursor-pointer"
+              >
+                <ChevronRight className="h-5 w-5" />
+              </button>
+            )}
+            <div className="absolute left-6 top-5 rounded-full bg-slate-950 px-4 py-1.5 text-xs font-bold uppercase tracking-wide text-white">
+              Active Stay
+            </div>
 
-  <div className="absolute bottom-6 left-6 text-white">
-    <h2 className="text-4xl font-bold tracking-tight">
-      {roomData?.roomDetails?.roomNumber || "Room N/A"}
-    </h2>
-    <p className="mt-2 flex items-center gap-1 text-sm font-medium text-white/90">
-      <MapPin className="h-4 w-4" />
-      {roomData?.roomDetails?.category || "Standard Room"}
-      {roomData?.roomDetails?.blockFloor
-        ? `, ${roomData.roomDetails.blockFloor}`
-        : ""}
-    </p>
-  </div>
-</div>
+            <div className="absolute bottom-6 left-6 text-white">
+              <h2 className="text-4xl font-bold tracking-tight">
+                {roomData?.roomDetails?.roomNumber || "Room N/A"}
+              </h2>
+              <p className="mt-2 flex items-center gap-1 text-sm font-medium text-white/90">
+                <MapPin className="h-4 w-4" />
+                {roomData?.roomDetails?.category || "Standard Room"}
+                {roomData?.roomDetails?.blockFloor
+                  ? `, ${roomData.roomDetails.blockFloor}`
+                  : ""}
+              </p>
+            </div>
+          </div>
 
           <CardContent className="grid grid-cols-2 gap-6 p-6 md:grid-cols-4">
             <Info
@@ -217,10 +224,7 @@ useEffect(() => {
               </h3>
 
               <p className="mt-2 text-base font-semibold tracking-normal text-[#50515e]">
-                {[
-                  roomData?.student?.course,
-                  roomData?.student?.year,
-                ]
+                {[roomData?.student?.course, roomData?.student?.year]
                   .filter(Boolean)
                   .join(", ") || "N/A"}
               </p>
@@ -229,7 +233,7 @@ useEffect(() => {
                 type="button"
                 variant="secondary"
                 onClick={() => navigate("/student/profile")}
-                className="mt-8 h-12 w-full rounded-[10px] bg-[#eef0f2] text-base font-bold text-[#202124] hover:bg-[#e3e5e8]"
+                className="mt-8 h-12 w-full rounded-[10px] bg-[#eef0f2] text-base font-bold text-[#202124] hover:bg-[#e3e5e8] cursor-pointer"
               >
                 <User className="mr-2 h-5 w-5" />
                 View Profile
@@ -249,11 +253,9 @@ useEffect(() => {
               <Amenity key={index} icon={Wifi} text={item} />
             ))
           ) : (
-            <>
-              <Amenity icon={Wifi} text="WiFi Available" />
-              <Amenity icon={MapPin} text="Attached Washroom" />
-              <Amenity icon={Circle} text="Study Area" />
-            </>
+            <div className="col-span-full text-sm text-muted-foreground">
+              N/A
+            </div>
           )}
         </div>
       </div>
