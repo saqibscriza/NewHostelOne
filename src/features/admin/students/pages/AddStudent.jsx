@@ -35,12 +35,29 @@ const numberOnlyFields = {
 const isTextOnly = (value) => /^[A-Za-z\s.]+$/.test(value);
 const isNumberOnly = (value) => /^\d+$/.test(value);
 const normalizeRoom = (room) => ({
-  roomId: room?.roomId || room?.room?.roomId || "",
+  roomId: room?.roomId || room?.id || room?.room?.roomId || room?.room?.id || "",
   blockFloor: room?.blockFloor || room?.room?.blockFloor || "",
-  categoryName: room?.categoryName || "",
-  occupancyName: room?.occupancyName || "",
+  categoryName:
+    room?.categoryName ||
+    room?.category?.categoryName ||
+    room?.room?.categoryName ||
+    "",
+  occupancyName:
+    room?.occupancyName ||
+    room?.occupancy?.occupancyName ||
+    room?.roomType ||
+    room?.room?.occupancyName ||
+    "",
   roomNameNumber: room?.roomNameNumber || room?.room?.roomNameNumber || "",
 });
+
+const getRoomListFromResponse = (response) => {
+  const data = response?.data?.data || response?.data || {};
+  if (Array.isArray(data?.content)) return data.content;
+  if (Array.isArray(data?.rooms)) return data.rooms;
+  if (Array.isArray(data)) return data;
+  return [];
+};
 
 export default function AddStudent() {
   const navigate = useNavigate();
@@ -72,20 +89,31 @@ export default function AddStudent() {
 
   const fetchRooms = async () => {
     try {
-      const res = await getRoomAllData();
+      const firstResponse = await getRoomAllData({ page: 1, size: 100 });
+      const firstData = firstResponse?.data?.data || {};
+      const totalPages = Number(firstData?.totalPages || 1);
+      const rooms = [...getRoomListFromResponse(firstResponse)];
 
-      if (res?.data?.status === "success") {
-        // const rooms = res.data.rooms || res.data.data || res.data.content || [];
-        const rooms = res?.data?.data?.content || [];
+      if (totalPages > 1) {
+        const rest = await Promise.all(
+          Array.from({ length: totalPages - 1 }, (_, index) =>
+            getRoomAllData({ page: index + 2, size: 100 }),
+          ),
+        );
 
-        const normalizedRooms = rooms.map(normalizeRoom);
-
-        setRoomData(normalizedRooms);
-
-        // UNIQUE BLOCKS
+        rest.forEach((response) => {
+          rooms.push(...getRoomListFromResponse(response));
+        });
       }
+
+      const normalizedRooms = rooms
+        .map(normalizeRoom)
+        .filter((room) => room.roomId);
+
+      setRoomData(normalizedRooms);
     } catch (err) {
       console.log(err);
+      setRoomData([]);
     }
   };
 

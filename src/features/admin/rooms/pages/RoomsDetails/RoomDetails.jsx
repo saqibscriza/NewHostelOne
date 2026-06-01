@@ -47,9 +47,8 @@ const getRoomImage = (room) =>
 const RoomDetails = () => {
   const [roomData, setRoomData] = useState([]);
   const [loaderCheck, setLoaderCheck] = useState(false);
-  const [getAllData, setGetAllData] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
-  const [pageSize, setPageSize] = useState(10);
+  const [pageSize] = useState(10);
   const [totalPages, setTotalPages] = useState(1);
   const [totalElements, setTotalElements] = useState(0);
   const [dashboardStats, setDashboardStats] = useState({
@@ -327,7 +326,9 @@ const RoomDetails = () => {
                     <DefaultTable
                       height="320px"
                       title="No Rooms Found"
-                      description="Room details will appear here once rooms are added."
+                      description="There are currently no rooms available. Add a new room to get started."
+                      buttonText="Add Room"
+                      onButtonClick={() => navigate("/admin/rooms/add")}
                     />
                   </TableCell>
                 </TableRow>
@@ -409,7 +410,7 @@ const RoomDetails = () => {
 
           <div className="flex justify-between items-center p-4 text-sm text-muted-foreground">
             <span>
-              Showing page {currentPage} of {totalPages}
+              Showing page {currentPage} of {totalPages} ({totalElements} rooms)
             </span>
 
             <div className="flex gap-2 items-center">

@@ -6,6 +6,7 @@ import RoomsAddCategoryModal from "./RoomsAddCategoryModal";
 import AddOccupancyModal from "./AddOccupancyModal";
 import EditCategoryModal from "./EditCategoryModal";
 import { toast } from "react-hot-toast";
+import DefaultTable from "../../../../../components/DefaultTable/DefaultTable";
 import {
   getAllCategoryApi,
   deleteCategoryById,
@@ -184,11 +185,14 @@ const Rooms = () => {
         )}
         {/* ❌ NO DATA */}
         {!loading && categories.length === 0 && (
-          <div className="col-span-full text-center py-10">
-            <p className="text-lg font-medium">No categories found</p>
-            <p className="text-sm text-muted-foreground">
-              Click "Add Category" to create one
-            </p>
+          <div className="col-span-full">
+            <DefaultTable
+              height="400px"
+              title="No Categories Found"
+              description="There are currently no room categories available. Add a new category to get started."
+              buttonText="Add Category"
+              onButtonClick={() => setOpenModal(true)}
+            />
           </div>
         )}
         {/* ✅ DATA */}

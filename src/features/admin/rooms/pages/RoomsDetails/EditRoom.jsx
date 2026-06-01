@@ -5,8 +5,6 @@ import { Badge } from "../../../../../components/ui/Badge";
 import { useParams } from "react-router-dom";
 import { getRoomById, deleteRoomApi } from "../../../../../utils/utils";
 import {
-  Brush,
-  Snowflake,
   Wifi,
   ChevronLeft,
   ChevronRight,
@@ -14,13 +12,20 @@ import {
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
-const defaultPhotos = [
-  "https://images.unsplash.com/photo-1598928506311-c55ded91a20c?auto=format&fit=crop&w=1000&q=80",
-  "https://images.unsplash.com/photo-1595526114035-0d45ed16cfbf?auto=format&fit=crop&w=1000&q=80",
-  "https://images.unsplash.com/photo-1505691938895-1758d7feb511?auto=format&fit=crop&w=1000&q=80",
-  "https://images.unsplash.com/photo-1540518614846-7eded433c457?auto=format&fit=crop&w=1000&q=80",
-  "https://images.unsplash.com/photo-1582719508461-905c673771fd?auto=format&fit=crop&w=1000&q=80",
-];
+const numberWords = {
+  ONE: 1,
+  TWO: 2,
+  THREE: 3,
+  FOUR: 4,
+  FIVE: 5,
+  SIX: 6,
+  SEVEN: 7,
+  EIGHT: 8,
+  NINE: 9,
+  TEN: 10,
+  ELEVEN: 11,
+  TWELVE: 12,
+};
 
 const getRoomPhotos = (room) => {
   if (Array.isArray(room?.photos) && room.photos.length > 0) {
@@ -39,6 +44,41 @@ const getRoomPhotos = (room) => {
   return [];
 };
 
+const getRoomFromResponse = (response) =>
+  response?.data?.data?.Room ||
+  response?.data?.data?.room ||
+  response?.data?.Room ||
+  response?.data?.room ||
+  response?.data?.data ||
+  {};
+
+const formatMoney = (value) => {
+  const amount = Number(value || 0);
+  return amount.toLocaleString("en-IN");
+};
+
+const formatAgreement = (room) => {
+  const term = String(room?.agreementTerm || room?.agreementType || "").toUpperCase();
+  const periodValue = String(room?.agreementPeriod || "").toUpperCase();
+  const period = numberWords[periodValue] || Number(periodValue) || "";
+
+  if (!term && !period) return "N/A";
+
+  const label = term === "YEAR" ? "Year" : "Month";
+  return `${period || ""} ${label}${String(period) === "1" ? "" : "s"}`.trim();
+};
+
+const formatDate = (date) => {
+  if (!date) return "N/A";
+  const parsed = new Date(date);
+  if (Number.isNaN(parsed.getTime())) return date;
+  return parsed.toLocaleDateString("en-GB", {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+  });
+};
+
 const EditRoom = () => {
   const [roomData, setRoomData] = useState({});
   const [lightboxOpen, setLightboxOpen] = useState(false);
@@ -47,16 +87,22 @@ const EditRoom = () => {
   const navigate = useNavigate();
   const [studentData, setStudentData] = useState(null);
   const [amenities, setAmenities] = useState([]);
+  const [activities, setActivities] = useState([]);
 
   const RoomGetByIdApi = async () => {
     try {
       const response = await getRoomById(id);
 
-      const room = response?.data?.data?.Room || response?.data?.Room || {};
-
-      const students = response?.data?.data?.Students || [];
-
-      const amenitiesData = response?.data?.data?.amenities || [];
+      const data = response?.data?.data || {};
+      const room = getRoomFromResponse(response);
+      const students = data?.Students || data?.students || response?.data?.Students || [];
+      const amenitiesData = data?.amenities || room?.amenities || [];
+      const activityData =
+        data?.recentActivities ||
+        data?.activities ||
+        room?.recentActivities ||
+        room?.activities ||
+        [];
 
       setRoomData(room);
 
@@ -64,6 +110,7 @@ const EditRoom = () => {
       setStudentData(students?.[0] || null);
 
       setAmenities(amenitiesData);
+      setActivities(Array.isArray(activityData) ? activityData : []);
     } catch (error) {
       console.log(error);
     }
@@ -89,11 +136,14 @@ const EditRoom = () => {
   };
 
   useEffect(() => {
-    RoomGetByIdApi();
-  }, []);
+    const timer = window.setTimeout(() => {
+      RoomGetByIdApi();
+    }, 0);
 
-  const photosList = getRoomPhotos(roomData);
-  const displayPhotos = photosList.length > 0 ? photosList : defaultPhotos;
+    return () => window.clearTimeout(timer);
+  }, [id]);
+
+  const displayPhotos = getRoomPhotos(roomData);
 
   const openLightbox = (index) => {
     setActivePhotoIndex(index);
@@ -138,8 +188,9 @@ const EditRoom = () => {
     name: studentData?.fullName || "No Student Assigned",
     role: studentData?.course || "Student",
     moveInDate: studentData?.dateOfJoining || "N/A",
-    agreementTerm: studentData?.year ? `${studentData.year} Year` : "N/A",
-    paymentStatus: studentData?.status ? "Active" : "Inactive",
+    agreementTerm: formatAgreement(roomData),
+    paymentStatus:
+      studentData?.paymentStatus || studentData?.feeStatus || studentData?.status || "N/A",
     photo:
       studentData?.photo ||
       `https://ui-avatars.com/api/?name=${encodeURIComponent(
@@ -188,7 +239,9 @@ const EditRoom = () => {
               {roomData?.status}
             </Badge>
             <p className="text-xs text-muted-foreground mt-4">CATEGORY</p>
-            <h3 className="text-lg font-semibold">{roomData?.categoryName}</h3>
+            <h3 className="text-lg font-semibold">
+              {roomData?.categoryName || roomData?.category?.categoryName || "N/A"}
+            </h3>
           </CardContent>
         </Card>
 
@@ -196,7 +249,7 @@ const EditRoom = () => {
           <CardContent className="p-5 space-y-3">
             <p className="text-xs text-muted-foreground">ROOM TYPE</p>
             <h3 className="text-lg font-semibold">
-              {roomData?.roomNameNumber}
+              {roomData?.occupancyName || roomData?.roomType || "N/A"}
             </h3>{" "}
             <p className="text-sm text-muted-foreground">
               No guest restrictions applied
@@ -230,7 +283,7 @@ const EditRoom = () => {
               <div className="flex justify-between items-center">
                 <span className="text-slate-400 font-medium">Move-in Date</span>
                 <span className="font-bold text-slate-700 text-xs">
-                  {resident.moveInDate}
+                  {formatDate(resident.moveInDate)}
                 </span>
               </div>
               <div className="flex justify-between items-center">
@@ -247,7 +300,8 @@ const EditRoom = () => {
                 </span>
                 <Badge
                   className={`border-none font-semibold text-[10px] px-2 py-0.5 rounded-full ${
-                    resident.paymentStatus === "Active"
+                    String(resident.paymentStatus).toUpperCase() === "PAID" ||
+                    String(resident.paymentStatus).toUpperCase() === "ACTIVE"
                       ? "bg-emerald-50 text-emerald-700"
                       : "bg-red-50 text-red-700"
                   }`}
@@ -274,7 +328,7 @@ const EditRoom = () => {
           <CardContent className="p-5">
             <p className="text-xs text-muted-foreground">MONTHLY RENT</p>
             <h3 className="text-xl font-semibold">
-              ₹{roomData?.totalRoomPrice}
+              ₹{formatMoney(roomData?.totalRoomPrice || roomData?.rentPerBed)}
             </h3>{" "}
           </CardContent>
         </Card>
@@ -282,7 +336,9 @@ const EditRoom = () => {
         <Card>
           <CardContent className="p-5">
             <p className="text-xs text-muted-foreground">BLOCK / LOCATION</p>
-            <h3 className="text-base font-semibold">{roomData?.blockFloor}</h3>
+            <h3 className="text-base font-semibold">
+              {roomData?.blockFloor || roomData?.block || "N/A"}
+            </h3>
           </CardContent>
         </Card>
 
@@ -290,43 +346,55 @@ const EditRoom = () => {
           <CardContent className="p-5">
             <p className="text-xs text-muted-foreground">SECURITY AMOUNT</p>
             <h3 className="text-xl font-semibold">
-              ₹{roomData?.securityDeposit}
+              ₹{formatMoney(roomData?.securityDeposit)}
             </h3>
           </CardContent>
         </Card>
       </div>
 
       {/* Amenities */}
-      <div>
-        <h3 className="text-sm text-muted-foreground mb-3">ROOM AMENITIES</h3>
 
-        <div className="flex flex-wrap gap-4">
-          {amenities?.length > 0 ? (
-            amenities.map((item, index) => (
-              <Card key={index}>
-                <CardContent className="p-4 flex items-center gap-2">
-                  {item?.iconUrl ? (
-                    <img
-                      src={item.iconUrl}
-                      alt={item?.name || "Amenity"}
-                      className="w-5 h-5 rounded object-cover"
-                    />
-                  ) : (
-                    <Wifi className="w-4 h-4" />
-                  )}
+      <div className="space-y-4">
+        <div className="border-b border-border pb-3">
+          <h3 className="text-sm tracking-[0.2em] text-muted-foreground uppercase">
+            Room Amenities
+          </h3>
+        </div>
 
-                  <span>{item?.name || "N/A"}</span>
+        {amenities?.length > 0 ? (
+          <div className="flex flex-wrap gap-4">
+            {amenities.map((item, index) => (
+              <Card
+                key={index}
+                className="min-w-[170px] border border-border shadow-sm"
+              >
+                <CardContent className="flex items-center gap-3 p-5">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-muted overflow-hidden">
+                    {item?.iconUrl ? (
+                      <img
+                        src={item.iconUrl}
+                        alt={item?.name || "Amenity"}
+                        className="h-6 w-6 object-cover"
+                      />
+                    ) : (
+                      <Wifi className="h-5 w-5 text-muted-foreground" />
+                    )}
+                  </div>
+
+                  <span className="text-base font-medium text-foreground">
+                    {item?.name || "N/A"}
+                  </span>
                 </CardContent>
               </Card>
-            ))
-          ) : (
-            <Card>
-              <CardContent className="p-4 text-muted-foreground">
-                N/A
-              </CardContent>
-            </Card>
-          )}
-        </div>
+            ))}
+          </div>
+        ) : (
+          <Card className="w-fit border border-border">
+            <CardContent className="px-6 py-5 text-muted-foreground font-medium">
+              N/A
+            </CardContent>
+          </Card>
+        )}
       </div>
 
       {/* Gallery + Activity */}
@@ -403,11 +471,26 @@ const EditRoom = () => {
           <CardContent className="p-5 space-y-4">
             <h3 className="text-sm text-muted-foreground">RECENT ACTIVITY</h3>
 
-            <div className="space-y-3 text-sm">
-              <p>AC Service Completed</p>
-              <p>Rent Payment Received</p>
-              <p>New Keys Issued</p>
-            </div>
+            {activities.length > 0 ? (
+              <div className="space-y-3 text-sm">
+                {activities.map((activity, index) => (
+                  <div key={activity?.id || index}>
+                    <p className="font-medium">
+                      {activity?.title || activity?.message || activity?.name || "Activity"}
+                    </p>
+                    {(activity?.timeAgo || activity?.date || activity?.createdAt) && (
+                      <p className="text-xs text-muted-foreground">
+                        {activity?.timeAgo || formatDate(activity?.date || activity?.createdAt)}
+                      </p>
+                    )}
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p className="text-sm text-muted-foreground">
+                No recent activity available.
+              </p>
+            )}
           </CardContent>
         </Card>
       </div>

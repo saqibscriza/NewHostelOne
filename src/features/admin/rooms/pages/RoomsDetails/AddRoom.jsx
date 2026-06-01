@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { Card, CardContent } from "../../../../../components/ui/Card";
 import { Button } from "../../../../../components/ui/button";
@@ -38,14 +38,6 @@ const getRoomFromResponse = (response) =>
   response?.data?.data ||
   {};
 
-const getRoomImage = (room) =>
-  room?.roomImage ||
-  room?.roomImages ||
-  room?.image ||
-  room?.imageUrl ||
-  room?.photo ||
-  "";
-
 const initialForm = {
   roomNameNumber: "",
   blockFloor: "",
@@ -54,8 +46,29 @@ const initialForm = {
   totalRoomPrice: "",
   securityDeposit: "",
   roomDescription: "",
+  agreementTerm: "",
+  agreementPeriod: "",
   status: "AVAILABLE",
 };
+
+const numberWords = {
+  1: "ONE",
+  2: "TWO",
+  3: "THREE",
+  4: "FOUR",
+  5: "FIVE",
+  6: "SIX",
+  7: "SEVEN",
+  8: "EIGHT",
+  9: "NINE",
+  10: "TEN",
+  11: "ELEVEN",
+  12: "TWELVE",
+};
+
+const wordNumbers = Object.fromEntries(
+  Object.entries(numberWords).map(([number, word]) => [word, number]),
+);
 
 const AddRoom = () => {
   const navigate = useNavigate();
@@ -72,12 +85,6 @@ const AddRoom = () => {
 
   const pageTitle = isEditMode ? "Edit Room" : "Add New Room";
   const submitText = isEditMode ? "Update Room" : "Add Room";
-
-  const selectedCategory = useMemo(
-    () =>
-      categoryList.find((item) => String(item.id) === String(form.categoryId)),
-    [categoryList, form.categoryId],
-  );
 
   useEffect(() => {
     fetchCategories();
@@ -124,6 +131,12 @@ const AddRoom = () => {
         totalRoomPrice: String(room?.totalRoomPrice || room?.rentPerBed || ""),
         securityDeposit: String(room?.securityDeposit || ""),
         roomDescription: room?.roomDescription || room?.description || "",
+        agreementTerm: String(
+          room?.agreementTerm || room?.agreementType || "",
+        ).toUpperCase(),
+        agreementPeriod:
+          wordNumbers[String(room?.agreementPeriod || "").toUpperCase()] ||
+          String(room?.agreementPeriod || ""),
         status: room?.status || "AVAILABLE",
       });
 
@@ -228,23 +241,17 @@ const AddRoom = () => {
       nextErrors.securityDeposit = numberOnlyMessage;
     }
 
+    if (!form.agreementTerm) {
+      nextErrors.agreementTerm = "Please select agreement term";
+    }
+
+    if (!form.agreementPeriod) {
+      nextErrors.agreementPeriod = "Please select agreement period";
+    }
+
     setErrors(nextErrors);
     return Object.keys(nextErrors).length === 0;
   };
-
-  const buildPayload = () => ({
-    roomNameNumber: form.roomNameNumber.trim(),
-    blockFloor: form.blockFloor.trim(),
-    categoryId: Number(form.categoryId),
-    availableBeds: Number(form.totalBeds),
-    totalBeds: Number(form.totalBeds),
-    totalRoomPrice: Number(form.totalRoomPrice),
-    securityDeposit: Number(form.securityDeposit),
-    roomDescription: form.roomDescription.trim(),
-    status: form.status,
-    roomImage: roomImages[0] || null,
-    roomImages,
-  });
 
   const buildRoomFormData = () => {
     const formData = new FormData();
@@ -257,6 +264,11 @@ const AddRoom = () => {
     formData.append("totalRoomPrice", Number(form.totalRoomPrice));
     formData.append("securityDeposit", Number(form.securityDeposit));
     formData.append("roomDescription", form.roomDescription.trim());
+    formData.append("agreementTerm", form.agreementTerm);
+    formData.append(
+      "agreementPeriod",
+      numberWords[Number(form.agreementPeriod)] || form.agreementPeriod,
+    );
     formData.append("status", form.status);
 
     roomImages.forEach((image) => {
@@ -463,6 +475,86 @@ const AddRoom = () => {
               className="min-h-24 w-full rounded-md border border-border bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
             />
           </Field>
+        </CardContent>
+      </Card>
+
+      <Card className="transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
+        <CardContent className="p-5 space-y-4">
+          <div className="flex items-center gap-2 font-medium">
+            <Settings className="h-4 w-4" />
+            Agreement Term
+          </div>
+
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+            <Field
+              label="Agreement Term"
+              error={errors.agreementTerm}
+              required
+            >
+              <Select
+                value={form.agreementTerm}
+                onValueChange={(value) => {
+                  setForm((prev) => ({
+                    ...prev,
+                    agreementTerm: value,
+                    agreementPeriod: "",
+                  }));
+                  setErrors((prev) => ({
+                    ...prev,
+                    agreementTerm: "",
+                    agreementPeriod: "",
+                  }));
+                }}
+              >
+                <SelectTrigger
+                  className={`h-10 w-full cursor-pointer ${
+                    errors.agreementTerm ? "border-destructive" : ""
+                  }`}
+                >
+                  <SelectValue placeholder="Select Month & Year" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="MONTH">Month</SelectItem>
+                  <SelectItem value="YEAR">Year</SelectItem>
+                </SelectContent>
+              </Select>
+            </Field>
+
+            <Field
+              label="Agreement Period"
+              error={errors.agreementPeriod}
+              required
+            >
+              <Select
+                value={String(form.agreementPeriod || "")}
+                onValueChange={(value) => {
+                  setField("agreementPeriod", value);
+                }}
+                disabled={!form.agreementTerm}
+              >
+                <SelectTrigger
+                  className={`h-10 w-full cursor-pointer ${
+                    errors.agreementPeriod ? "border-destructive" : ""
+                  }`}
+                >
+                  <SelectValue placeholder="Enter Months & Year" />
+                </SelectTrigger>
+                <SelectContent>
+                  {Array.from({ length: 12 }, (_, index) => {
+                    const value = String(index + 1);
+                    const suffix =
+                      form.agreementTerm === "YEAR" ? "Year" : "Month";
+                    return (
+                      <SelectItem key={value} value={value}>
+                        {value} {suffix}
+                        {value === "1" ? "" : "s"}
+                      </SelectItem>
+                    );
+                  })}
+                </SelectContent>
+              </Select>
+            </Field>
+          </div>
         </CardContent>
       </Card>
 
