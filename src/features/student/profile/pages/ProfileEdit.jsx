@@ -457,29 +457,33 @@ export default function ProfileEdit() {
               )}
             </div>
 
-            <div className="space-y-2">
-              <Label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">
-                Personal Email <span className="text-destructive">*</span>
-              </Label>
+<div className="space-y-2">
+  <Label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">
+    Personal Email <span className="text-destructive">*</span>
+  </Label>
 
-              <Input
-                {...register("email", {
-                  required: "Email is required",
-                  pattern: {
-                    value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
-                    message: "Please enter a valid email address",
-                  },
-                })}
-                type="email"
-                className={`h-11 rounded-lg bg-slate-50 border-none shadow-none text-gray-900 ${
-                  errors.email ? "ring-1 ring-red-500" : ""
-                }`}
-              />
+  <Input
+    {...register("email", {
+      required: "Email is required",
+      pattern: {
+        value: /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.(com|in)$/,
+        message: "Please enter a valid email address",
+      },
+      validate: {
+        noDoubleDots: (value) =>
+          !value.includes("..") || "Please enter a valid email address",
+      },
+    })}
+    type="email"
+    className={`h-11 rounded-lg bg-slate-50 border-none shadow-none text-gray-900 ${
+      errors.email ? "ring-1 ring-red-500" : ""
+    }`}
+  />
 
-              {errors.email && (
-                <p className="text-xs text-red-500">{errors.email.message}</p>
-              )}
-            </div>
+  {errors.email && (
+    <p className="text-xs text-red-500">{errors.email.message}</p>
+  )}
+</div>
           </div>
         </div>
 

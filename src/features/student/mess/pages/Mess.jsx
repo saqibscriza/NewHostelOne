@@ -54,7 +54,12 @@ export default function Mess() {
     return date;
   }, [activeTab]);
 
-  const menuTitle = activeTab === "week" ? "Full Week Menu" : "Today's Menu";
+const menuTitle =
+  activeTab === "week"
+    ? "Full Week Menu"
+    : activeTab === "tomorrow"
+    ? "Tomorrow's Menu"
+    : "Today's Menu";
 
   const getAllFeedbackApiData = async () => {
     try {

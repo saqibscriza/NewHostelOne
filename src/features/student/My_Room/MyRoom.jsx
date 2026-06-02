@@ -83,8 +83,16 @@ export default function MyRoom() {
     );
   }
 
-  return (
-    <div className="p-6 space-y-6 bg-background text-foreground">
+  // NOTE: Keep UI stable even if backend returns unexpected shape
+  // Avoid throwing runtime errors that can cause white screen.
+  try {
+    return (
+      <div className="p-6 space-y-6 bg-background text-foreground">
+
+
+
+
+
       {/* HEADER */}
       <div className="flex justify-between items-center">
         <div>
@@ -244,21 +252,25 @@ export default function MyRoom() {
       </div>
 
       {/* AMENITIES */}
-      <div>
-        <h2 className="font-semibold mb-3">Room Amenities</h2>
+<div>
+  <h2 className="font-semibold mb-3">Room Amenities</h2>
 
-        <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
-          {roomData?.amenities?.length > 0 ? (
-            roomData.amenities.map((item, index) => (
-              <Amenity key={index} icon={Wifi} text={item?.name || "N/A"} />
-            ))
-          ) : (
-            <div className="col-span-full text-sm text-muted-foreground">
-              N/A
-            </div>
-          )}
-        </div>
+  <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+    {roomData?.amenities?.length > 0 ? (
+      roomData.amenities.map((item, index) => (
+        <Amenity
+          key={index}
+          iconUrl={item?.iconUrl}
+          text={item?.name || "N/A"}
+        />
+      ))
+    ) : (
+      <div className="col-span-full text-sm text-muted-foreground">
+        No Amenities Available
       </div>
+    )}
+  </div>
+</div>
 
       {/* BOTTOM */}
       <div className="grid lg:grid-cols-2 gap-6">
@@ -306,7 +318,19 @@ export default function MyRoom() {
       </div>
     </div>
   );
+  } catch (error) {
+    // fallback UI instead of crashing/white screen
+    return (
+      <div className="p-6 space-y-2">
+        <h2 className="text-lg font-semibold text-red-600">My Room</h2>
+        <p className="text-sm text-muted-foreground">Something went wrong while rendering room details.</p>
+        <pre className="mt-2 whitespace-pre-wrap text-xs text-red-500">{String(error?.stack || error)}</pre>
+      </div>
+    );
+  }
 }
+
+
 
 /* ================= SMALL COMPONENTS ================= */
 
@@ -339,11 +363,25 @@ const formatDate = (date) => {
   });
 };
 
-const Amenity = ({ icon, text }) => (
-  <div className="bg-muted p-4 rounded-lg flex flex-col items-center text-center gap-2">
-    {React.createElement(icon, { className: "w-5 h-5" })}
+const Amenity = ({ iconUrl, text }) => (
+  <div className="bg-muted p-4 rounded-lg flex flex-col items-center justify-center text-center gap-2">
+    {iconUrl ? (
+      <img
+        src={iconUrl}
+        alt={text}
+        referrerPolicy="no-referrer" 
+        className="w-10 h-10 object-contain"
+        onError={(e) => {
+          e.currentTarget.onerror = null;
+          e.currentTarget.src =
+            "https://cdn-icons-png.flaticon.com/512/565/565547.png";
+        }}
+      />
+    ) : (
+      <Wifi className="w-6 h-6" />
+    )}
 
-    <p className="text-sm">{text}</p>
+    <p className="text-sm font-medium">{text}</p>
   </div>
 );
 

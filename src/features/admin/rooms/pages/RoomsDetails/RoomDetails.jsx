@@ -50,7 +50,7 @@ const RoomDetails = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize] = useState(10);
   const [totalPages, setTotalPages] = useState(1);
-  const [totalElements, setTotalElements] = useState(0);
+  const [totalItems, setTotalItems] = useState(0);
   const [dashboardStats, setDashboardStats] = useState({
     totalRooms: 0,
     occupied: 0,
@@ -87,8 +87,8 @@ const RoomDetails = () => {
       setRoomData(list);
 
       setTotalPages(response?.data?.data?.totalPages || 1);
+     setTotalItems(response?.data?.data?.totalItems || 0);
 
-      setTotalElements(response?.data?.data?.totalElements || 0);
       setDashboardStats({
         totalRooms: response?.data?.data?.totalRooms || 0,
         occupied: response?.data?.data?.occupied || 0,
@@ -410,7 +410,7 @@ const RoomDetails = () => {
 
           <div className="flex justify-between items-center p-4 text-sm text-muted-foreground">
             <span>
-              Showing page {currentPage} of {totalPages} ({totalElements} rooms)
+              Showing page {currentPage} of {totalPages} ({totalItems} rooms)
             </span>
 
             <div className="flex gap-2 items-center">

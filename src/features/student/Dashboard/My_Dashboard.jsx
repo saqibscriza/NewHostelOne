@@ -205,25 +205,23 @@ export default function My_Dashboard() {
                     </p>
 
                     {/* CUSTOM TOOLTIP */}
-                    <div className="absolute left-0 top-[110%] z-50 hidden w-72 rounded-xl border border-border bg-card/95 backdrop-blur p-3 shadow-2xl group-hover:block">
-                      <div className="space-y-2">
-                        <p className="font-semibold text-sm break-words text-foreground">
-                          {typeof notice?.title === "string"
-                            ? notice.title
-                            : ""}
-                        </p>
+<div className="absolute left-0 top-[110%] z-50 hidden w-72 rounded-xl border border-gray-700 bg-black p-3 shadow-2xl group-hover:block">
+  <div className="space-y-2">
+    <p className="font-semibold text-sm break-words text-white">
+      {typeof notice?.title === "string" ? notice.title : ""}
+    </p>
 
-                        {notice?.description && (
-                          <p className="text-sm text-muted-foreground break-words">
-                            {notice.description}
-                          </p>
-                        )}
+    {notice?.description && (
+      <p className="text-sm text-gray-300 break-words">
+        {notice.description}
+      </p>
+    )}
 
-                        <p className="text-xs text-muted-foreground pt-1 border-t border-border">
-                          Posted {notice?.timeAgo}
-                        </p>
-                      </div>
-                    </div>
+    <p className="text-xs text-gray-400 pt-1 border-t border-gray-700">
+      Posted {notice?.timeAgo}
+    </p>
+  </div>
+</div>
 
                     {/* TIME */}
                     <p className="text-sm text-muted-foreground mt-1">
