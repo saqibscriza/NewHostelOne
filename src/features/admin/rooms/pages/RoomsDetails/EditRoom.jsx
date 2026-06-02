@@ -4,13 +4,9 @@ import { Card, CardContent } from "../../../../../components/ui/Card";
 import { Badge } from "../../../../../components/ui/Badge";
 import { useParams } from "react-router-dom";
 import { getRoomById, deleteRoomApi } from "../../../../../utils/utils";
-import {
-  Wifi,
-  ChevronLeft,
-  ChevronRight,
-  X,
-} from "lucide-react";
+import { Wifi, ChevronLeft, ChevronRight, X } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { toast } from "react-hot-toast";
 
 const numberWords = {
   ONE: 1,
@@ -54,11 +50,14 @@ const getRoomFromResponse = (response) =>
 
 const formatMoney = (value) => {
   const amount = Number(value || 0);
+
   return amount.toLocaleString("en-IN");
 };
 
 const formatAgreement = (room) => {
-  const term = String(room?.agreementTerm || room?.agreementType || "").toUpperCase();
+  const term = String(
+    room?.agreementTerm || room?.agreementType || "",
+  ).toUpperCase();
   const periodValue = String(room?.agreementPeriod || "").toUpperCase();
   const period = numberWords[periodValue] || Number(periodValue) || "";
 
@@ -95,7 +94,8 @@ const EditRoom = () => {
 
       const data = response?.data?.data || {};
       const room = getRoomFromResponse(response);
-      const students = data?.Students || data?.students || response?.data?.Students || [];
+      const students =
+        data?.Students || data?.students || response?.data?.Students || [];
       const amenitiesData = data?.amenities || room?.amenities || [];
       const activityData =
         data?.recentActivities ||
@@ -118,23 +118,27 @@ const EditRoom = () => {
 
   const handleDeleteRoom = async () => {
     try {
-      const confirmDelete = window.confirm(
-        "Are you sure you want to delete this room?",
-      );
+      // const confirmDelete = window.confirm(
+      //   "Are you sure you want to delete this room?",
+      // );
+
       if (!confirmDelete) return;
+
       const response = await deleteRoomApi(id);
+
       if (response?.data?.status === "success") {
-        // alert("Room deleted successfully");
+        toast.success("Room deleted successfully");
+
         navigate("/admin/rooms/details");
       } else {
-        // alert("Failed to delete room");
+        toast.error(response?.data?.message || "Failed to delete room");
       }
     } catch (error) {
       console.log(error);
-      // alert("Something went wrong");
+
+      toast.error(error?.response?.data?.message || "Something went wrong");
     }
   };
-
   useEffect(() => {
     const timer = window.setTimeout(() => {
       RoomGetByIdApi();
@@ -190,7 +194,10 @@ const EditRoom = () => {
     moveInDate: studentData?.dateOfJoining || "N/A",
     agreementTerm: formatAgreement(roomData),
     paymentStatus:
-      studentData?.paymentStatus || studentData?.feeStatus || studentData?.status || "N/A",
+      studentData?.paymentStatus ||
+      studentData?.feeStatus ||
+      studentData?.status ||
+      "N/A",
     photo:
       studentData?.photo ||
       `https://ui-avatars.com/api/?name=${encodeURIComponent(
@@ -240,7 +247,9 @@ const EditRoom = () => {
             </Badge>
             <p className="text-xs text-muted-foreground mt-4">CATEGORY</p>
             <h3 className="text-lg font-semibold">
-              {roomData?.categoryName || roomData?.category?.categoryName || "N/A"}
+              {roomData?.categoryName ||
+                roomData?.category?.categoryName ||
+                "N/A"}
             </h3>
           </CardContent>
         </Card>
@@ -476,11 +485,17 @@ const EditRoom = () => {
                 {activities.map((activity, index) => (
                   <div key={activity?.id || index}>
                     <p className="font-medium">
-                      {activity?.title || activity?.message || activity?.name || "Activity"}
+                      {activity?.title ||
+                        activity?.message ||
+                        activity?.name ||
+                        "Activity"}
                     </p>
-                    {(activity?.timeAgo || activity?.date || activity?.createdAt) && (
+                    {(activity?.timeAgo ||
+                      activity?.date ||
+                      activity?.createdAt) && (
                       <p className="text-xs text-muted-foreground">
-                        {activity?.timeAgo || formatDate(activity?.date || activity?.createdAt)}
+                        {activity?.timeAgo ||
+                          formatDate(activity?.date || activity?.createdAt)}
                       </p>
                     )}
                   </div>
