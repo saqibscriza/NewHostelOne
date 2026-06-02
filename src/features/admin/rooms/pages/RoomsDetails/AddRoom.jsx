@@ -21,7 +21,7 @@ import {
 } from "lucide-react";
 import {
   addRoomApi,
-  getAllCategoryApi,
+  getAllActiveCategoryApi,
   getRoomById,
   updateRoomApi,
 } from "../../../../../utils/utils";
@@ -46,29 +46,8 @@ const initialForm = {
   totalRoomPrice: "",
   securityDeposit: "",
   roomDescription: "",
-  agreementTerm: "",
-  agreementPeriod: "",
   status: "AVAILABLE",
 };
-
-const numberWords = {
-  1: "ONE",
-  2: "TWO",
-  3: "THREE",
-  4: "FOUR",
-  5: "FIVE",
-  6: "SIX",
-  7: "SEVEN",
-  8: "EIGHT",
-  9: "NINE",
-  10: "TEN",
-  11: "ELEVEN",
-  12: "TWELVE",
-};
-
-const wordNumbers = Object.fromEntries(
-  Object.entries(numberWords).map(([number, word]) => [word, number]),
-);
 
 const AddRoom = () => {
   const navigate = useNavigate();
@@ -108,7 +87,7 @@ const AddRoom = () => {
 
   const fetchCategories = async () => {
     try {
-      const res = await getAllCategoryApi();
+      const res = await getAllActiveCategoryApi();
       const list = res?.data?.Category || res?.data?.data?.Category || [];
       setCategoryList(Array.isArray(list) ? list : []);
     } catch (error) {
@@ -131,12 +110,6 @@ const AddRoom = () => {
         totalRoomPrice: String(room?.totalRoomPrice || room?.rentPerBed || ""),
         securityDeposit: String(room?.securityDeposit || ""),
         roomDescription: room?.roomDescription || room?.description || "",
-        agreementTerm: String(
-          room?.agreementTerm || room?.agreementType || "",
-        ).toUpperCase(),
-        agreementPeriod:
-          wordNumbers[String(room?.agreementPeriod || "").toUpperCase()] ||
-          String(room?.agreementPeriod || ""),
         status: room?.status || "AVAILABLE",
       });
 
@@ -241,14 +214,6 @@ const AddRoom = () => {
       nextErrors.securityDeposit = numberOnlyMessage;
     }
 
-    if (!form.agreementTerm) {
-      nextErrors.agreementTerm = "Please select agreement term";
-    }
-
-    if (!form.agreementPeriod) {
-      nextErrors.agreementPeriod = "Please select agreement period";
-    }
-
     setErrors(nextErrors);
     return Object.keys(nextErrors).length === 0;
   };
@@ -264,12 +229,7 @@ const AddRoom = () => {
     formData.append("totalRoomPrice", Number(form.totalRoomPrice));
     formData.append("securityDeposit", Number(form.securityDeposit));
     formData.append("roomDescription", form.roomDescription.trim());
-    formData.append("agreementTerm", form.agreementTerm);
-    formData.append(
-      "agreementPeriod",
-      numberWords[Number(form.agreementPeriod)] || form.agreementPeriod,
-    );
-    formData.append("status", form.status);
+    formData.append("status", isEditMode ? form.status : "AVAILABLE");
 
     roomImages.forEach((image) => {
       formData.append("photos", image);
@@ -479,86 +439,6 @@ const AddRoom = () => {
       </Card>
 
       <Card className="transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
-        <CardContent className="p-5 space-y-4">
-          <div className="flex items-center gap-2 font-medium">
-            <Settings className="h-4 w-4" />
-            Agreement Term
-          </div>
-
-          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-            <Field
-              label="Agreement Term"
-              error={errors.agreementTerm}
-              required
-            >
-              <Select
-                value={form.agreementTerm}
-                onValueChange={(value) => {
-                  setForm((prev) => ({
-                    ...prev,
-                    agreementTerm: value,
-                    agreementPeriod: "",
-                  }));
-                  setErrors((prev) => ({
-                    ...prev,
-                    agreementTerm: "",
-                    agreementPeriod: "",
-                  }));
-                }}
-              >
-                <SelectTrigger
-                  className={`h-10 w-full cursor-pointer ${
-                    errors.agreementTerm ? "border-destructive" : ""
-                  }`}
-                >
-                  <SelectValue placeholder="Select Month & Year" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="MONTH">Month</SelectItem>
-                  <SelectItem value="YEAR">Year</SelectItem>
-                </SelectContent>
-              </Select>
-            </Field>
-
-            <Field
-              label="Agreement Period"
-              error={errors.agreementPeriod}
-              required
-            >
-              <Select
-                value={String(form.agreementPeriod || "")}
-                onValueChange={(value) => {
-                  setField("agreementPeriod", value);
-                }}
-                disabled={!form.agreementTerm}
-              >
-                <SelectTrigger
-                  className={`h-10 w-full cursor-pointer ${
-                    errors.agreementPeriod ? "border-destructive" : ""
-                  }`}
-                >
-                  <SelectValue placeholder="Enter Months & Year" />
-                </SelectTrigger>
-                <SelectContent>
-                  {Array.from({ length: 12 }, (_, index) => {
-                    const value = String(index + 1);
-                    const suffix =
-                      form.agreementTerm === "YEAR" ? "Year" : "Month";
-                    return (
-                      <SelectItem key={value} value={value}>
-                        {value} {suffix}
-                        {value === "1" ? "" : "s"}
-                      </SelectItem>
-                    );
-                  })}
-                </SelectContent>
-              </Select>
-            </Field>
-          </div>
-        </CardContent>
-      </Card>
-
-      <Card className="transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
         <CardContent className="p-5 space-y-6">
           <div className="flex items-center gap-2 font-medium">
             <Image className="h-4 w-4" />
@@ -632,8 +512,11 @@ const AddRoom = () => {
             <Select
               value={form.status}
               onValueChange={(value) => setField("status", value)}
+              disabled={!isEditMode}
             >
-              <SelectTrigger className="h-10 w-full cursor-pointer">
+              <SelectTrigger
+                className={`h-10 w-full ${isEditMode ? "cursor-pointer" : "cursor-not-allowed bg-muted"}`}
+              >
                 <SelectValue placeholder="Select Status" />
               </SelectTrigger>
               <SelectContent>

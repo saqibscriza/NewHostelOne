@@ -59,11 +59,29 @@ const getRoomListFromResponse = (response) => {
   return [];
 };
 
+const numberWords = {
+  1: "ONE",
+  2: "TWO",
+  3: "THREE",
+  4: "FOUR",
+  5: "FIVE",
+  6: "SIX",
+  7: "SEVEN",
+  8: "EIGHT",
+  9: "NINE",
+  10: "TEN",
+  11: "ELEVEN",
+  12: "TWELVE",
+};
+
 export default function AddStudent() {
   const navigate = useNavigate();
   const { id } = useParams();
 
-  const [form, setForm] = useState({});
+  const [form, setForm] = useState({
+    agreementTerm: "",
+    agreementPeriod: "",
+  });
   const [files, setFiles] = useState({});
   const [filePreviews, setFilePreviews] = useState({});
   const [loading, setLoading] = useState(false);
@@ -333,6 +351,12 @@ export default function AddStudent() {
       nextErrors.roomType = "Room type is required";
     }
     if (!form.roomId) nextErrors.roomId = "Please select room";
+    if (!form.agreementTerm) {
+      nextErrors.agreementTerm = "Please select agreement term";
+    }
+    if (!form.agreementPeriod) {
+      nextErrors.agreementPeriod = "Please select agreement period";
+    }
 
     setErrors(nextErrors);
     if (Object.keys(nextErrors).length > 0) return;
@@ -356,6 +380,11 @@ export default function AddStudent() {
     formData.append("emergencyContact", form.emergencyContact);
     formData.append("roomId", form.roomId);
     formData.append("status", form.status);
+    formData.append("agreementTerm", form.agreementTerm);
+    formData.append(
+      "agreementPeriod",
+      numberWords[Number(form.agreementPeriod)] || form.agreementPeriod,
+    );
 
     // formData.append("address", form.address || "");
     if (files.photo) formData.append("photo", files.photo);
@@ -389,6 +418,11 @@ export default function AddStudent() {
         updatedPayload.append("relation", form.relation);
         updatedPayload.append("emergencyContact", form.emergencyContact);
         updatedPayload.append("roomId", form.roomId);
+        updatedPayload.append("agreementTerm", form.agreementTerm);
+        updatedPayload.append(
+          "agreementPeriod",
+          numberWords[Number(form.agreementPeriod)] || form.agreementPeriod,
+        );
         // updatedPayload.append("address", form.address || "");
 
         if (files.photo) updatedPayload.append("photo", files.photo);
@@ -923,6 +957,71 @@ export default function AddStudent() {
 
             {errors.roomId && (
               <p className="text-xs text-destructive">{errors.roomId}</p>
+            )}
+          </Field>
+        </div>
+      </Section>
+
+      <Section title="Agreement Term">
+        <div className="grid grid-cols-2 gap-4">
+          <Field label="Agreement Term" required>
+            <Select
+              value={form.agreementTerm || ""}
+              onValueChange={(value) => {
+                setForm((prev) => ({
+                  ...prev,
+                  agreementTerm: value,
+                  agreementPeriod: "",
+                }));
+                setErrors((prev) => ({
+                  ...prev,
+                  agreementTerm: "",
+                  agreementPeriod: "",
+                }));
+              }}
+            >
+              <SelectTrigger className="h-11 w-full rounded-lg border border-border bg-background px-4 text-sm">
+                <SelectValue placeholder="Select Month or Year" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="MONTH">Month</SelectItem>
+                <SelectItem value="YEAR">Year</SelectItem>
+              </SelectContent>
+            </Select>
+            {errors.agreementTerm && (
+              <p className="text-xs text-destructive">
+                {errors.agreementTerm}
+              </p>
+            )}
+          </Field>
+
+          <Field label="Agreement Period" required>
+            <Select
+              value={String(form.agreementPeriod || "")}
+              onValueChange={(value) => handleChange("agreementPeriod", value)}
+              disabled={!form.agreementTerm}
+            >
+              <SelectTrigger className="h-11 w-full rounded-lg border border-border bg-background px-4 text-sm">
+                <SelectValue placeholder="Select Agreement Period" />
+              </SelectTrigger>
+              <SelectContent>
+                {Array.from({ length: 12 }, (_, index) => {
+                  const value = String(index + 1);
+                  const suffix =
+                    form.agreementTerm === "YEAR" ? "Year" : "Month";
+                  return (
+                    <SelectItem key={value} value={value}>
+                      {value} {suffix}
+                      {value === "1" ? "" : "s"}
+                    </SelectItem>
+                  );
+                })}
+              </SelectContent>
+            </Select>
+            {errors.agreementPeriod && (
+              <p className="text-xs text-destructive">
+                {errors.agreementPeriod}
+              </p>
             )}
           </Field>
         </div>

@@ -52,11 +52,30 @@ const UploadBox = ({ title, subtitle, file, onChange, accept }) => (
 const Section = ({ icon: Icon, title, children }) => (
   <Card>
     <div className="flex items-center gap-2 px-6 py-4 border-b">
-      <Icon size={18} />
+      {React.createElement(Icon, { size: 18 })}
       <h3 className="font-medium">{title}</h3>
     </div>
     <CardContent className="p-6">{children}</CardContent>
   </Card>
+);
+
+const numberWords = {
+  1: "ONE",
+  2: "TWO",
+  3: "THREE",
+  4: "FOUR",
+  5: "FIVE",
+  6: "SIX",
+  7: "SEVEN",
+  8: "EIGHT",
+  9: "NINE",
+  10: "TEN",
+  11: "ELEVEN",
+  12: "TWELVE",
+};
+
+const wordNumbers = Object.fromEntries(
+  Object.entries(numberWords).map(([number, word]) => [word, number]),
 );
 
 const EditStudent = () => {
@@ -66,7 +85,7 @@ const EditStudent = () => {
   const [rooms, setRooms] = useState([]);
   const [form, setForm] = useState({});
   const [myStatus, setMyStatus] = useState(true);
-  console.log('my form data statussss----------', form)
+  console.log("my form data statussss----------", form);
   const [selectedPhoto, setSelectedPhoto] = useState(null);
   const [idProof, setIdProof] = useState(null);
 
@@ -93,12 +112,12 @@ const EditStudent = () => {
   // ================= GET BY ID =================
   const fetchStudent = useCallback(async () => {
     const res = await getStudentByIdApi(id);
-    console.log('my get by id response----0', res);
+    console.log("my get by id response----0", res);
 
     if (res?.data?.status === "success") {
       const d = res.data.data;
-      console.log('my get by id response----0000 status', res.data.status);
-      setMyStatus(res.data.data?.personalInformation?.status)
+      console.log("my get by id response----0000 status", res.data.status);
+      setMyStatus(res.data.data?.personalInformation?.status);
       const formatted = {
         fullName: d.personalInformation?.fullName || "",
         dob: d.personalInformation?.dob || "",
@@ -124,6 +143,19 @@ const EditStudent = () => {
         block: d.roomAssignment?.roomDetails?.block || "",
         category: d.roomAssignment?.roomDetails?.category || "",
         roomType: d.roomAssignment?.roomDetails?.roomType || "",
+        agreementTerm: String(
+          d.agreementTerm ||
+            d.agreementType ||
+            d.roomAssignment?.agreementTerm ||
+            "",
+        ).toUpperCase(),
+        agreementPeriod:
+          wordNumbers[
+            String(
+              d.agreementPeriod || d.roomAssignment?.agreementPeriod || "",
+            ).toUpperCase()
+          ] ||
+          String(d.agreementPeriod || d.roomAssignment?.agreementPeriod || ""),
       };
 
       setForm(formatted);
@@ -137,9 +169,12 @@ const EditStudent = () => {
   }, [fetchStudent, fetchRooms]);
 
   // ================= HANDLE =================
+
   const handleChange = (key, value) => {
-    setMyStatus((prev) => ({ ...prev, [key]: value }));
-    // setForm((prev) => ({ ...prev, [key]: value }));
+    setForm((prev) => ({
+      ...prev,
+      [key]: value,
+    }));
   };
 
   const handlePhotoChange = (file) => {
@@ -275,6 +310,11 @@ const EditStudent = () => {
       formData.append("emergencyContact", form.emergencyContact || "");
 
       formData.append("roomId", form.roomId || "");
+      formData.append("agreementTerm", form.agreementTerm || "");
+      formData.append(
+        "agreementPeriod",
+        numberWords[Number(form.agreementPeriod)] || form.agreementPeriod || "",
+      );
       // formData.append("status", myStatus || "");
       formData.append("status", myStatus);
 
@@ -301,7 +341,6 @@ const EditStudent = () => {
       console.log("UPDATE RESPONSE 👉", response);
 
       if (response?.data?.status === "success") {
-
         setTimeout(() => {
           navigate("/admin/students");
         }, 1000);
@@ -322,9 +361,9 @@ const EditStudent = () => {
       {/* Header */}
       <div>
         <h2 className="text-2xl font-semibold">Student Details</h2>
-        <p className="text-sm text-muted-foreground">
+        {/* <p className="text-sm text-muted-foreground">
           Total 1,248 residents across 4 blocks / Location
-        </p>
+        </p> */}
       </div>
 
       {/* Personal Info */}
@@ -612,6 +651,60 @@ const EditStudent = () => {
         </div>
       </Section>
 
+      <Section icon={FileText} title="Agreement Term">
+        <div className="grid grid-cols-2 gap-4">
+          <div>
+            <Label>Agreement Term</Label>
+            <Select
+              value={form.agreementTerm || ""}
+              onValueChange={(value) =>
+                setForm((prev) => ({
+                  ...prev,
+                  agreementTerm: value,
+                  agreementPeriod: "",
+                }))
+              }
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Select month or year" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="MONTH">Month</SelectItem>
+                <SelectItem value="YEAR">Year</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div>
+            <Label>Agreement Period</Label>
+            <Select
+              value={String(form.agreementPeriod || "")}
+              onValueChange={(value) =>
+                handleChange("agreementPeriod", value)
+              }
+              disabled={!form.agreementTerm}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Select agreement period" />
+              </SelectTrigger>
+              <SelectContent>
+                {Array.from({ length: 12 }, (_, index) => {
+                  const value = String(index + 1);
+                  const suffix =
+                    form.agreementTerm === "YEAR" ? "Year" : "Month";
+                  return (
+                    <SelectItem key={value} value={value}>
+                      {value} {suffix}
+                      {value === "1" ? "" : "s"}
+                    </SelectItem>
+                  );
+                })}
+              </SelectContent>
+            </Select>
+          </div>
+        </div>
+      </Section>
+
       <Section icon={FileText} title="Document Uploads">
         <div className="grid grid-cols-2 gap-6">
           <UploadBox
@@ -679,26 +772,22 @@ const EditStudent = () => {
           </SelectContent>
         </Select> */}
 
-<Select
-  value={
-    myStatus === true
-      ? "true"
-      : myStatus === false
-      ? "false"
-      : ""
-  }
-  onValueChange={(v) => setMyStatus(v === "true")}
->
-  <SelectTrigger className="w-full">
-    <SelectValue placeholder="Select Status" />
-  </SelectTrigger>
+          <Select
+            value={
+              myStatus === true ? "true" : myStatus === false ? "false" : ""
+            }
+            onValueChange={(v) => setMyStatus(v === "true")}
+          >
+            <SelectTrigger className="w-full">
+              <SelectValue placeholder="Select Status" />
+            </SelectTrigger>
 
-  <SelectContent>
-    <SelectItem value="true">Active</SelectItem>
-    <SelectItem value="false">Inactive</SelectItem>
-  </SelectContent>
-</Select>
-        {/* <Select
+            <SelectContent>
+              <SelectItem value="true">Active</SelectItem>
+              <SelectItem value="false">Inactive</SelectItem>
+            </SelectContent>
+          </Select>
+          {/* <Select
             value={form.status || ""}
             onValueChange={(v) => handleChange("status", v)}
           >
@@ -715,19 +804,19 @@ const EditStudent = () => {
               )}
             </SelectContent>
           </Select> */}
-    </div>
-      </Section >
+        </div>
+      </Section>
 
-  {/* Footer */ }
-  <div div className = "flex justify-end gap-3" >
+      {/* Footer */}
+      <div div className="flex justify-end gap-3">
         <Button variant="outline" onClick={() => navigate(-1)}>
           Cancel
         </Button>
         <Button onClick={handleUpdate} disabled={loading}>
           {loading ? "Updating..." : "Update"}
         </Button>
-      </div >
-    </div >
+      </div>
+    </div>
   );
 };
 

@@ -8,7 +8,7 @@ import EditCategoryModal from "./EditCategoryModal";
 import { toast } from "react-hot-toast";
 import DefaultTable from "../../../../../components/DefaultTable/DefaultTable";
 import {
-  getAllCategoryApi,
+  getAllActiveCategoryApi,
   deleteCategoryById,
   getAllOccupancyApi,
   getAllAmenitiesApi,
@@ -65,8 +65,7 @@ const Rooms = () => {
   const fetchCategories = async () => {
     setLoading(true);
     try {
-      const res = await getAllCategoryApi();
-
+      const res = await getAllActiveCategoryApi();
       console.log("CATEGORY RAW 👉", res?.data);
 
       // ✅ FIX: correct key from response

@@ -254,7 +254,6 @@ export const addHostelApi = async (data) => {
   }
 };
 
-
 const toHostelCreateParams = (data) => {
   const params = toCleanParams(data);
   const adminMode = params.__adminMode;
@@ -385,7 +384,6 @@ export const getAllAdminApi = async () => {
 //************************** STAFF  API INTEGRATION ***************************/
 
 //********* Get All Staff Details********* */
-
 
 export const getAllStaffApi = async () => {
   try {
@@ -1372,16 +1370,15 @@ export const deleteOccupancyById = async (id) => {
 
 // GET api get all room category
 
-export const getAllCategoryApi = async () => {
-  // Done getToken
+export const getAllActiveCategoryApi = async () => {
   try {
     axios.defaults.headers.common["Authorization"] = getToken();
 
-    const res = await axios.get(`${Domain}/category/all`);
+    const res = await axios.get(`${Domain}/category/allActive`);
 
     return res;
   } catch (error) {
-    console.log("GET CATEGORY ERROR 👉", error);
+    console.log("GET ACTIVE CATEGORY ERROR 👉", error);
 
     return error?.response || [];
   }
@@ -2415,12 +2412,9 @@ export const addMessFeedbackApi = async (data) => {
   }
 };
 
-
-
-
 // Ishwar Singh
 // ================= GET STUDENTS BY ROOM ID =================
- 
+
 export const getStudentsByRoomId = async (roomId) => {
   try {
     axios.defaults.headers.common["Authorization"] = getToken();
