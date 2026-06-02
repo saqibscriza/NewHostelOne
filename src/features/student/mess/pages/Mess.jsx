@@ -111,20 +111,14 @@ const menuTitle =
 
       if (response?.data?.status === "success") {
         const list =
+          response?.data?.weeklyMenu ||
           response?.data?.menus ||
           response?.data?.data ||
           response?.data?.menu ||
           [];
 
         const normalizedList = Array.isArray(list)
-          ? list
-              .map((item, index) => {
-                const date = new Date();
-                date.setDate(date.getDate() + index);
-
-                return normalizeMenu(item, date);
-              })
-              .filter(Boolean)
+          ? list.map((item) => normalizeMenu(item)).filter(Boolean)
           : [];
 
         setMenus(normalizedList);
@@ -466,10 +460,7 @@ const menuTitle =
               </p>
 
               {/* STATUS FILTER */}
-              <Select
-                value={statusFilter}
-                onValueChange={setStatusFilter}
-              >
+              <Select value={statusFilter} onValueChange={setStatusFilter}>
                 <SelectTrigger className="h-12 min-w-[170px] rounded-xl">
                   <SelectValue placeholder="All Status" />
                 </SelectTrigger>
@@ -482,10 +473,7 @@ const menuTitle =
               </Select>
 
               {/* DATE FILTER */}
-              <Select
-                value={dayFilter}
-                onValueChange={setDayFilter}
-              >
+              <Select value={dayFilter} onValueChange={setDayFilter}>
                 <SelectTrigger className="h-12 min-w-[170px] rounded-xl">
                   <SelectValue placeholder="Full Week" />
                 </SelectTrigger>

@@ -52,7 +52,9 @@ export default function My_Dashboard() {
   }, []);
 
   if (loaderCheck) {
-    return <div className="p-6 text-muted-foreground">Loading dashboard...</div>;
+    return (
+      <div className="p-6 text-muted-foreground">Loading dashboard...</div>
+    );
   }
 
   return (
@@ -152,7 +154,10 @@ export default function My_Dashboard() {
                   Due: {dashboardData?.nextPayment?.dueDate || "N/A"}
                 </p>
 
-                <Button className="cursor-pointer" onClick={() => navigate("/student/fees/pay")}>
+                <Button
+                  className="cursor-pointer"
+                  onClick={() => navigate("/student/fees/pay")}
+                >
                   Pay Now
                 </Button>
               </CardContent>
@@ -169,8 +174,7 @@ export default function My_Dashboard() {
                   {dashboardData?.roomDetails?.amenities?.map((item, index) => (
                     <div key={index} className="flex items-center gap-2">
                       <Wifi size={16} />
-
-                      <span>{item}</span>
+                      <span>{item?.amenitiesName}</span>{" "}
                     </div>
                   ))}
                 </div>
