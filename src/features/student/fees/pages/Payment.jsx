@@ -91,25 +91,25 @@ export default function Payment() {
             <div className="flex justify-between text-[17px]">
               <span className="text-gray-600">Room Rent</span>
               <span className="font-medium text-gray-900">
-                {formatCurrency(currentDues.roomRent || 800)}
+                {formatCurrency(currentDues.roomRent || 0)}
               </span>
             </div>
             <div className="flex justify-between text-[17px]">
               <span className="text-gray-600">Mess Fee</span>
               <span className="font-medium text-gray-900">
-                {formatCurrency(currentDues.messFee || 320)}
+                {formatCurrency(currentDues.messFee || 0)}
               </span>
             </div>
             <div className="flex justify-between text-[17px]">
               <span className="text-gray-600">Electricity</span>
               <span className="font-medium text-gray-900">
-                {formatCurrency(currentDues.electricity || 95.5)}
+                {formatCurrency(currentDues.electricity || 0)}
               </span>
             </div>
             <div className="flex justify-between text-[17px]">
               <span className="text-gray-600">Late Fees</span>
               <span className="font-medium text-gray-900">
-                {formatCurrency(currentDues.lateFees || 25)}
+                {formatCurrency(currentDues.lateFees || 0)}
               </span>
             </div>
           </div>

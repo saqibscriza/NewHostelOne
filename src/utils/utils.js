@@ -773,6 +773,27 @@ export const getFeeStudentDetails = async () => {
   }
 };
 
+export const createOrderPayment = async (data) => {
+  try {
+    axios.defaults.headers.common["Authorization"] = getToken();
+    const res = await axios.post(`${Domain}/payment/create-order`, data);
+    return res.data;
+  } catch (error) {
+    // console.log("GET FEE STUDENT DETAILS ERROR 👉", error);
+    return null;
+  }
+};
+export const verifyPayment = async (data) => {
+  try {
+    axios.defaults.headers.common["Authorization"] = getToken();
+    const res = await axios.post(`${Domain}/payment/verify`, data);
+    return res.data;
+  } catch (error) {
+    // console.log("GET FEE STUDENT DETAILS ERROR 👉", error);
+    return null;
+  }
+};
+
 export const getStudentTransectionsApi = async (page = 1) => {
   try {
     axios.defaults.headers.common["Authorization"] = getToken();

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Dialog,
   DialogContent,
@@ -9,6 +9,8 @@ import { Button } from "../../../../components/ui/button";
 import { Input } from "../../../../components/ui/input";
 import { Receipt } from "lucide-react";
 import PaymentImage from "../../../../assets/PaymentImage.jpg";
+import { createOrderPayment, verifyPayment } from "../../../../utils/utils";
+
 
 export default function PaymentModal({
   isOpen,
@@ -18,6 +20,8 @@ export default function PaymentModal({
 }) {
   const [step, setStep] = useState(1);
   const [remark, setRemark] = useState("");
+  const [grandTotal, setGrandTotal] = useState(0);
+  console.log('my data for payment', grandTotal)
 
   const currentDues = stuData?.currentDues || {
     roomRent: 800.0,
@@ -26,6 +30,10 @@ export default function PaymentModal({
     lateFees: 25.0,
     grandTotal: 1240.5,
   };
+  useEffect(() => {
+    setGrandTotal(currentDues.grandTotal);
+  }, [stuData])
+
 
   const formatCurrency = (amount) => {
     return new Intl.NumberFormat("en-IN", {
@@ -45,16 +53,127 @@ export default function PaymentModal({
     setStep(2);
   };
 
-//   setTimeout(() => {
-// handleProceed();
-// },1500);
+  //   setTimeout(() => {
+  // handleProceed();
+  // },1500);
 
   const handlePayNow = () => {
     onConfirmPayment(remark);
   };
+  // const MyPaymentApi = async () => {
+
+  //   const Json = {
+  //     amount: grandTotal
+  //   };
+
+  //   // setLoader(true)
+  //   try {
+  //     const response = await createOrderPayment(Json);
+  //     console.log('my payment api is here',response)
+  //     if (response?.status === 200) {
+  //       if (response?.data?.status === "success") {
+  //         toast.success(response?.data?.message);
+
+  //       }
+  //       else {
+  //         toast.error(response?.data?.message);
+  //         // setLoader(false)
+  //         // setShow(true)
+  //       }
+  //     } else {
+  //       toast.error(response?.data?.message);
+  //       setLoader(false)
+  //     }
+  //   } catch (error) {
+  //     setLoader(false)
+  //   }
+  // }
+
+  // 🌟 Main Payment Handler 🌟
+  // 🌟 Main Payment Handler 🌟
+  const handlePaymentFlow = async () => {
+
+    const orderPayload = {
+      amount: grandTotal,
+      currency: "INR",
+      receipt: `receipt_${Date.now()}`,
+      notes: remark || "Fee Payment"
+    };
+
+    try {
+      const orderResponse = await createOrderPayment(orderPayload);
+
+      if (orderResponse?.status === "success") {
+
+        const { id: order_id, amount, currency, keyId } = orderResponse.data;
+        const options = {
+          key: keyId,
+          amount: amount,
+          currency: currency,
+          name: "Hostelo",
+          description: "Fee Payment",
+          order_id: order_id,
+
+          handler: async function (response) {
+            // console.log("Razorpay Success Response:", response);
+
+            const verifyPayload = {
+              razorpayOrderId: response.razorpay_order_id,
+              razorpayPaymentId: response.razorpay_payment_id,
+              razorpaySignature: response.razorpay_signature,
+              studentId: stuData?.id || "student_id",
+              roomRent: currentDues.roomRent,
+              messCharges: currentDues.messFee,
+              electricityCharges: currentDues.electricity,
+              lateFee: currentDues.lateFees,
+              billingCycle: stuData?.currentDues?.billingCycle || "October",
+              lateDays: 0,
+              notes: remark
+            };
+            try {
+              const verifyResponse = await verifyPayment(verifyPayload);
+              if (verifyResponse?.status === "success") {
+                onConfirmPayment(remark);
+                onClose();
+              } else {
+                console.log("Verification Failed:", verifyResponse);
+              }
+            } catch (err) {
+              console.error("Verification API Error:", err);
+            }
+          },
+          prefill: {
+            name: stuData?.name || "Student Name",
+            email: stuData?.email || "student@example.com",
+            contact: stuData?.phone || "9999999999",
+          },
+          theme: {
+            color: "#0f172a",
+          },
+        };
+
+        // 7. Open the Razorpay Checkout Modal
+        const rzp = new window.Razorpay(options);
+
+        rzp.on('payment.failed', function (response) {
+          console.error("Payment Failed:", response.error);
+        });
+
+        rzp.open();
+
+      } else {
+        console.error("Failed to create order. Response:", orderResponse);
+      }
+    } catch (error) {
+      console.error("Create Order API Error:", error);
+    } finally {
+      // setLoading(false);
+    }
+  };
 
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
+    <Dialog open={isOpen} onOpenChange={onClose} modal={false}>
+      {/* <Dialog open={isOpen} onOpenChange={onClose}> */}
       <DialogContent
         className="max-w-[480px] w-full p-0 overflow-hidden bg-white rounded-[24px] border-none shadow-2xl"
         showCloseButton={true}
@@ -143,7 +262,8 @@ export default function PaymentModal({
         <div className="px-6 pb-6 pt-2">
           {step === 1 ? (
             <Button
-            //   onClick={handleProceed}
+              onClick={handlePaymentFlow}
+              // onClick={MyPaymentApi}
               className="w-full bg-[#0f172a] hover:bg-[#1e293b] text-white py-6 rounded-[12px] text-[16px] font-medium transition-all shadow-md"
             >
               Proceed to Pay
