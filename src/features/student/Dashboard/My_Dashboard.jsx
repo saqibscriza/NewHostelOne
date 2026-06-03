@@ -171,12 +171,20 @@ export default function My_Dashboard() {
                 </h3>
 
                 <div className="flex flex-col gap-2 text-sm">
-                  {dashboardData?.roomDetails?.amenities?.map((item, index) => (
-                    <div key={index} className="flex items-center gap-2">
-                      <Wifi size={16} />
-                      <span>{item?.amenitiesName}</span>{" "}
-                    </div>
-                  ))}
+{dashboardData?.roomDetails?.amenities?.map((item, index) => (
+  <div key={index} className="flex items-center gap-2">
+    <img
+      src={item?.amenityIcon}
+      alt={item?.amenitiesName}
+      className="w-5 h-5 object-contain"
+      onError={(e) => {
+        e.currentTarget.style.display = "none";
+      }}
+    />
+
+    <span>{item?.amenitiesName || "N/A"}</span>
+  </div>
+))}
                 </div>
 
                 <p className="text-sm text-muted-foreground">

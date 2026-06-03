@@ -231,6 +231,7 @@ const handleSubmit = async () => {
                       SKU ID
                     </Label>
                     <Input 
+                      disabled
                       placeholder="Enter SKU Id" 
                       className="bg-transparent border-border rounded-xl h-11 text-foreground"
                       value={item.sku}

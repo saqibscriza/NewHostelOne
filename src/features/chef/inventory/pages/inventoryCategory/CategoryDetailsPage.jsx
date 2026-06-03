@@ -10,14 +10,17 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "../../../../../components/ui/Table";
-import { Badge } from '../../../../../components/ui/Badge';
+} from "../../../../../components/ui/table";
+import { Badge } from '../../../../../components/ui/badge';
 import {getCategoryItemsByIdApi, deleteInventoryItemApi, } from '../../../../../utils/utils';
 
 export default function CategoryDetailsPage() {
   const { id } = useParams(); // 🔥 URL se id mil rahi hai
   const [category, setCategory] = useState(null);
   const [items, setItems] = useState([]);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 4;
   const navigate = useNavigate();
 
     const getCategoryDetails = async () => {
@@ -31,6 +34,7 @@ export default function CategoryDetailsPage() {
 
       setCategory(categoryData);
       setItems(itemsData || []);
+      setCurrentPage(1);
       
     } catch (error) {
       console.error("Error fetching category:", error);
@@ -40,7 +44,6 @@ export default function CategoryDetailsPage() {
   useEffect(() => {
     getCategoryDetails();
   }, [id]);
-
 
   const handleDeleteItem = async (itemId) => {
     console.log('DELETE FUNCTION CALLED:', itemId);
@@ -52,11 +55,26 @@ export default function CategoryDetailsPage() {
       if (res?.status === 'success') {
         await getCategoryDetails();
       } else {
-        setError(res?.message || 'Failed to delete item.');
+        console.error(res?.message || 'Failed to delete item.');
       }
     } catch (error) {
       console.error('Error deleting item:', error);
-      setError('Failed to delete item.');
+    }
+  };
+
+  // Pagination & Filtering logic
+  const filteredItems = items.filter(item => 
+    item.itemName?.toLowerCase().includes(searchQuery.toLowerCase()) || 
+    item.skuId?.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+  const totalPages = Math.max(1, Math.ceil(filteredItems.length / itemsPerPage));
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const currentItems = filteredItems.slice(startIndex, startIndex + itemsPerPage);
+
+  const handlePageChange = (page) => {
+    if (page >= 1 && page <= totalPages) {
+      setCurrentPage(page);
     }
   };
 
@@ -80,6 +98,11 @@ export default function CategoryDetailsPage() {
       <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
       <input
         type="text"
+        value={searchQuery}
+        onChange={(e) => {
+          setSearchQuery(e.target.value);
+          setCurrentPage(1);
+        }}
         placeholder="Search dairy products, SKUs..."
         className="w-full bg-muted/40 border-none text-foreground text-sm rounded-xl focus:outline-none focus:ring-2 focus:ring-foreground py-2.5 pl-10 pr-4"
       />
@@ -111,8 +134,8 @@ export default function CategoryDetailsPage() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {items.map((item, index) => (
-                <TableRow key={index.id} className="hover:bg-muted/30 transition-colors">
+              {currentItems.map((item, index) => (
+                <TableRow key={item.id || index} className="hover:bg-muted/30 transition-colors">
                   <TableCell className="py-5">
                      <span className="font-bold text-[15px] text-foreground">{item.itemName}</span>
                   </TableCell>
@@ -143,26 +166,36 @@ export default function CategoryDetailsPage() {
         {/* Pagination */}
         <div className="flex items-center justify-between px-6 py-4 border-t border-border bg-transparent">
           <span className="text-sm font-medium text-muted-foreground">
-            Showing 1 to 4 of 24 items
+            Showing {filteredItems.length === 0 ? 0 : startIndex + 1} to {Math.min(startIndex + itemsPerPage, filteredItems.length)} of {filteredItems.length} items
           </span>
           <div className="flex items-center gap-1.5">
-            <button className="p-1.5 text-muted-foreground hover:text-foreground rounded-lg transition-colors cursor-not-allowed opacity-50">
+            <button 
+              onClick={() => handlePageChange(currentPage - 1)}
+              disabled={currentPage === 1}
+              className={`p-1.5 rounded-lg transition-colors ${currentPage === 1 ? 'text-muted-foreground cursor-not-allowed opacity-50' : 'text-foreground hover:bg-muted'}`}
+            >
               <ChevronLeft className="w-4 h-4" />
             </button>
-            <button className="w-8 h-8 flex items-center justify-center rounded-lg bg-[#0f1419] dark:bg-white text-white dark:text-black text-sm font-bold shadow-sm">
-              1
-            </button>
-            <button className="w-8 h-8 flex items-center justify-center rounded-lg text-foreground hover:bg-muted text-sm font-medium">
-              2
-            </button>
-            <button className="w-8 h-8 flex items-center justify-center rounded-lg text-foreground hover:bg-muted text-sm font-medium">
-              3
-            </button>
-            <span className="px-2 text-muted-foreground">...</span>
-            <button className="w-8 h-8 flex items-center justify-center rounded-lg text-foreground hover:bg-muted text-sm font-medium">
-              6
-            </button>
-            <button className="p-1.5 text-muted-foreground hover:text-foreground rounded-lg transition-colors">
+            
+            {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+              <button
+                key={page}
+                onClick={() => handlePageChange(page)}
+                className={`w-8 h-8 flex items-center justify-center rounded-lg text-sm font-bold shadow-sm transition-colors ${
+                  currentPage === page 
+                    ? 'bg-[#0f1419] dark:bg-white text-white dark:text-black' 
+                    : 'text-foreground hover:bg-muted font-medium'
+                }`}
+              >
+                {page}
+              </button>
+            ))}
+
+            <button 
+              onClick={() => handlePageChange(currentPage + 1)}
+              disabled={currentPage === totalPages}
+              className={`p-1.5 rounded-lg transition-colors ${currentPage === totalPages ? 'text-muted-foreground cursor-not-allowed opacity-50' : 'text-foreground hover:bg-muted'}`}
+            >
               <ChevronRight className="w-4 h-4" />
             </button>
           </div>

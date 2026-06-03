@@ -218,20 +218,25 @@ export default function AddStockPage() {
                   <Label className="text-sm font-semibold text-foreground">
                     Quantity Received <span className="text-red-500">*</span> 
                   </Label>
-<div className="flex h-12 items-center rounded-[var(--field-radius)] border border-border bg-background shadow-[0_1px_2px_rgba(15,23,42,0.03)] overflow-hidden transition-all focus-within:border-slate-300 focus-within:ring-4 focus-within:ring-slate-200/80">                    <Input
-                      type="number"
-                      step="0.01"
-                      placeholder="0.00"
-                      className="flex-1 bg-transparent border-0 focus-visible:ring-0 focus-visible:ring-offset-0 rounded-none h-full shadow-none"
-                      {...register("quantity", {
-                        required: "Quantity is required.",
-                        min: {
-                          value: 0.01,
-                          message: "Quantity must be greater than 0.",
-                        },
-                        valueAsNumber: true,
-                      })}
-                    />
+<div className="flex h-12 items-center rounded-[var(--field-radius)] border border-border bg-background shadow-[0_1px_2px_rgba(15,23,42,0.03)] overflow-hidden transition-all focus-within:border-slate-300 focus-within:ring-4 focus-within:ring-slate-200/80">
+<Input
+  type="number"
+  min="0.01"
+  step="0.01"
+  placeholder="0.00"
+  className="flex-1 bg-transparent border-0 focus-visible:ring-0 focus-visible:ring-offset-0 rounded-none h-full shadow-none"
+  onKeyDown={(e) => {
+    if (e.key === "-" || e.key === "e" || e.key === "E") {
+      e.preventDefault();
+    }
+  }}
+  {...register("quantity", {
+    required: "Quantity is required.",
+    valueAsNumber: true,
+    validate: (value) =>
+      value > 0 || "Quantity must be greater than 0.",
+  })}
+/>
                     <div className="w-[1px] h-6 bg-border" />
                     <Controller
                       name="unit"
@@ -333,20 +338,24 @@ export default function AddStockPage() {
                     <span className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground font-medium">
                       ₹
                     </span>
-                    <Input
-                      type="number"
-                      step="0.01"
-                      placeholder="0.00"
-                      className="pl-8 pr-12 bg-transparent border-border rounded-xl h-11"
-                      {...register("unitCost", {
-                        required: "Unit cost is required.",
-                        min: {
-                          value: 0.01,
-                          message: "Unit cost must be greater than 0.",
-                        },
-                        valueAsNumber: true,
-                      })}
-                    />
+<Input
+  type="number"
+  min="0.01"
+  step="0.01"
+  placeholder="0.00"
+  className="pl-8 pr-12 bg-transparent border-border rounded-xl h-11"
+  onKeyDown={(e) => {
+    if (["-", "+", "e", "E"].includes(e.key)) {
+      e.preventDefault();
+    }
+  }}
+  {...register("unitCost", {
+    required: "Unit cost is required.",
+    valueAsNumber: true,
+    validate: (value) =>
+      Number(value) > 0 || "Unit cost must be greater than 0.",
+  })}
+/>
                     <span className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground font-medium text-sm">
                       INR
                     </span>
