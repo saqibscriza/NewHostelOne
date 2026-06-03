@@ -10,8 +10,8 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "../../../../../components/ui/table";
-import { Badge } from '../../../../../components/ui/badge';
+} from "../../../../../components/ui/Table";
+import { Badge } from '../../../../../components/ui/Badge';
 import {getCategoryItemsByIdApi, deleteInventoryItemApi, } from '../../../../../utils/utils';
 
 export default function CategoryDetailsPage() {

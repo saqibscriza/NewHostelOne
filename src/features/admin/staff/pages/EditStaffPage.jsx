@@ -428,10 +428,10 @@ const response = await updateStaffApi(id, formData);
           name="email"
           {...register("email", {
             required: "Email is required",
-            pattern: {
-              value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
-              message: "Enter a valid email address",
-            },
+pattern: {
+  value: /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.(com|in|org|net|co\.in)$/,
+  message: "Please enter a valid email address",
+},
           })}
           placeholder="Enter Email"
           className="h-11 pl-9"

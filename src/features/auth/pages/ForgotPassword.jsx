@@ -87,10 +87,10 @@ const onSubmit = async (data) => {
             placeholder="Enter Email Address"
             {...register("email", {
               required: "Email is required",
-              pattern: {
-                value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
-                message: "invalid email address",
-              },
+pattern: {
+  value: /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.(com|in|org|net|co\.in)$/,
+  message: "Please enter a valid email address",
+}
             })}
             className={`w-full p-3.5 rounded-xl border bg-white focus:outline-none focus:ring-1 focus:ring-gray-300 text-sm ${
               errors.email ? "border-red-500" : "border-gray-200"
