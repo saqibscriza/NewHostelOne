@@ -137,7 +137,7 @@ const RoomDetails = () => {
       <div className="flex justify-between items-center">
         <div>
           <h1 className="text-2xl font-semibold text-foreground">
-            Room Details
+            Room Details 
           </h1>
           <p className="text-muted-foreground">
             Define a new accommodation plan for your hostel facility.
@@ -178,7 +178,7 @@ const RoomDetails = () => {
           <CardContent className="p-4 flex items-center gap-4">
             <User className="w-6 h-6 text-muted-foreground" />
             <div>
-              <p className="text-xs text-muted-foreground">OCCUPIED</p>
+              <p className="text-xs text-muted-foreground">OCCUPIED ROOMS</p>
               <h3 className="text-xl font-semibold">
                 {dashboardStats?.occupied}
               </h3>
@@ -190,7 +190,7 @@ const RoomDetails = () => {
           <CardContent className="p-4 flex items-center gap-4">
             <CheckCircle className="w-6 h-6 text-muted-foreground" />
             <div>
-              <p className="text-xs text-muted-foreground">AVAILABLE</p>
+              <p className="text-xs text-muted-foreground">AVAILABLE ROOMS</p>
               <h3 className="text-xl font-semibold">
                 {dashboardStats?.available}
               </h3>
@@ -202,7 +202,7 @@ const RoomDetails = () => {
           <CardContent className="p-4 flex items-center gap-4">
             <Wrench className="w-6 h-6 text-muted-foreground" />
             <div>
-              <p className="text-xs text-muted-foreground">MAINTENANCE</p>
+              <p className="text-xs text-muted-foreground">MAINTENANCE ROOMS</p>
               <h3 className="text-xl font-semibold">
                 {dashboardStats?.maintenance}
               </h3>

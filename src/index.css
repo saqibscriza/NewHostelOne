@@ -247,6 +247,16 @@
     background-image: none;
     padding-right: 0.75rem;
   }
+
+  .date-input-clean::-webkit-calendar-picker-indicator {
+    display: none;
+    -webkit-appearance: none;
+  }
+
+  .date-input-clean {
+    appearance: textfield;
+    -webkit-appearance: textfield;
+  }
 }
 /* Login page code */
 

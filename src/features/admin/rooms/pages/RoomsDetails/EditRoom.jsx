@@ -87,6 +87,7 @@ const EditRoom = () => {
   const [studentData, setStudentData] = useState(null);
   const [amenities, setAmenities] = useState([]);
   const [activities, setActivities] = useState([]);
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
 
   const RoomGetByIdApi = async () => {
     try {
@@ -118,16 +119,12 @@ const EditRoom = () => {
 
   const handleDeleteRoom = async () => {
     try {
-      // const confirmDelete = window.confirm(
-      //   "Are you sure you want to delete this room?",
-      // );
-
-      if (!confirmDelete) return;
-
       const response = await deleteRoomApi(id);
 
       if (response?.data?.status === "success") {
         toast.success("Room deleted successfully");
+
+        setDeleteModalOpen(false);
 
         navigate("/admin/rooms/details");
       } else {
@@ -139,6 +136,7 @@ const EditRoom = () => {
       toast.error(error?.response?.data?.message || "Something went wrong");
     }
   };
+
   useEffect(() => {
     const timer = window.setTimeout(() => {
       RoomGetByIdApi();
@@ -224,9 +222,9 @@ const EditRoom = () => {
         </div>
 
         <div className="flex gap-3">
-          <Button variant="outline" onClick={handleDeleteRoom}>
+          <Button variant="outline" onClick={() => setDeleteModalOpen(true)}>
             Delete Room
-          </Button>{" "}
+          </Button>
           <Button
             onClick={() =>
               navigate(`/admin/rooms/edit/${roomData?.roomId || id}`)
@@ -558,6 +556,33 @@ const EditRoom = () => {
           >
             <ChevronRight className="w-6 h-6" />
           </button>
+        </div>
+      )}
+      {/* Delete Confirmation Modal */}
+      {deleteModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+          <div className="bg-white rounded-xl p-6 w-full max-w-sm shadow-xl">
+            <h2 className="text-lg font-semibold text-slate-800">
+              Delete Room
+            </h2>
+
+            <p className="text-sm text-slate-500 mt-2">
+              Are you sure you want to delete this room?
+            </p>
+
+            <div className="flex justify-end gap-3 mt-6">
+              <Button
+                variant="outline"
+                onClick={() => setDeleteModalOpen(false)}
+              >
+                No
+              </Button>
+
+              <Button variant="destructive" onClick={handleDeleteRoom}>
+                Yes, Delete
+              </Button>
+            </div>
+          </div>
         </div>
       )}
     </div>

@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { getStudentDashboardApi } from "../../../utils/utils";
+import { Info } from "lucide-react";
 import {
   Card,
   CardContent,
@@ -210,38 +211,51 @@ export default function My_Dashboard() {
             <CardContent className="space-y-5">
               {dashboardData?.notices?.length > 0 ? (
                 dashboardData.notices.map((notice, index) => (
-                  <div key={index} className="relative group pb-3 last:pb-0">
-                    {/* NOTICE TITLE */}
-                    <p className="font-semibold text-base leading-snug line-clamp-2 cursor-pointer">
-                      {typeof notice?.title === "string" ? notice.title : ""}
-                    </p>
+                  <div
+                    key={index}
+                    className="flex items-start justify-between gap-3 pb-3 border-b last:border-none last:pb-0"
+                  >
+                    {/* LEFT CONTENT */}
+                    <div className="flex-1 min-w-0">
+                      <p className="font-semibold text-base leading-snug line-clamp-2">
+                        {typeof notice?.title === "string" ? notice.title : ""}
+                      </p>
 
-                    {/* CUSTOM TOOLTIP */}
-<div className="absolute left-0 top-[110%] z-50 hidden w-72 rounded-xl border border-gray-700 bg-black p-3 shadow-2xl group-hover:block">
-  <div className="space-y-2">
-    <p className="font-semibold text-sm break-words text-white">
-      {typeof notice?.title === "string" ? notice.title : ""}
-    </p>
+                      <p className="text-sm text-muted-foreground mt-1">
+                        Posted{" "}
+                        {typeof notice?.timeAgo === "string"
+                          ? notice.timeAgo
+                          : ""}
+                      </p>
+                    </div>
 
-    {notice?.description && (
-      <p className="text-sm text-gray-300 break-words">
-        {notice.description}
-      </p>
-    )}
+                    {/* TOOLTIP ICON */}
+                    <div className="relative group shrink-0 mt-1">
+                      <div className="h-6 w-6 rounded-full bg-muted flex items-center justify-center cursor-pointer hover:bg-accent transition">
+                        <Info className="w-4 h-4 text-muted-foreground" />
+                      </div>
 
-    <p className="text-xs text-gray-400 pt-1 border-t border-gray-700">
-      Posted {notice?.timeAgo}
-    </p>
-  </div>
-</div>
+                      {/* TOOLTIP */}
+                      <div className="absolute bottom-8 right-0 z-50 hidden w-72 rounded-xl bg-black p-4 shadow-2xl group-hover:block">
+                        <div className="space-y-2">
+                          <p className="font-semibold text-sm break-words text-white">
+                            {typeof notice?.title === "string"
+                              ? notice.title
+                              : ""}
+                          </p>
 
-                    {/* TIME */}
-                    <p className="text-sm text-muted-foreground mt-1">
-                      Posted{" "}
-                      {typeof notice?.timeAgo === "string"
-                        ? notice.timeAgo
-                        : ""}
-                    </p>
+                          {notice?.description && (
+                            <p className="text-sm text-gray-300 break-words">
+                              {notice.description}
+                            </p>
+                          )}
+
+                          <p className="text-xs text-gray-400 border-t border-gray-700 pt-2">
+                            Posted {notice?.timeAgo || "N/A"}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
                   </div>
                 ))
               ) : (

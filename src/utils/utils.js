@@ -1113,10 +1113,10 @@ export const getFeedbackStatsApi = async (id) => {
 };
 
 //FeedBack List
-export const getFeedbackListApi = async (id) => {
+export const getFeedbackListApi = async (params = {}) => {
   try {
     axios.defaults.headers.common["Authorization"] = getToken();
-    const res = await axios.get(`${Domain}/chef/feedback/list`);
+    const res = await axios.get(`${Domain}/chef/feedback/list`, { params });
     return res.data;
   } catch (error) {
     console.log("GET FeedBack ERROR 👉", error);

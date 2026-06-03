@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import {
   Users,
-  CircleCheck,
   ClipboardList,
   Star,
   TriangleAlert,
@@ -17,35 +16,6 @@ import { Card, CardContent } from "../../../../components/ui/Card";
 import { Button } from "../../../../components/ui/button";
 import { Badge } from "../../../../components/ui/Badge";
 import { getChefDashboardApi } from "../../../../utils/utils";
-
-const stats = [
-  {
-    title: "TODAY MEALS",
-    value: "842",
-    sub: "Meal count",
-    icon: Users,
-    topText: "TODAY",
-  },
-  {
-    title: "BREAKFAST STATUS",
-    value: "85%",
-    progress: 85,
-    icon: CircleCheck,
-  },
-  {
-    title: "LOW STOCK ITEMS",
-    value: "08",
-    sub: "Requires attention",
-    icon: ClipboardList,
-    action: "View All",
-  },
-  {
-    title: "AVERAGE STUDENT RATING",
-    value: "4.2",
-    icon: Star,
-    topText: "NEW",
-  },
-];
 
 const menuData = [
   {
@@ -202,7 +172,11 @@ export default function Dashboard() {
                     </div>
 
                     {item.action ? (
-                      <button className="text-xs font-semibold underline underline-offset-4 text-foreground">
+                      <button
+                        type="button"
+                        onClick={() => navigate("/chef/inventory/details")}
+                        className="cursor-pointer text-xs font-semibold underline underline-offset-4 text-foreground transition hover:text-primary"
+                      >
                         {item.action}
                       </button>
                     ) : (
@@ -326,7 +300,16 @@ export default function Dashboard() {
                   return (
                     <div
                       key={index}
-                      className="flex items-center justify-between rounded-2xl bg-muted px-4 py-4"
+                      role="button"
+                      tabIndex={0}
+                      onClick={() => navigate("/chef/inventory/details/add")}
+                      onKeyDown={(event) => {
+                        if (event.key === "Enter" || event.key === " ") {
+                          event.preventDefault();
+                          navigate("/chef/inventory/details/add");
+                        }
+                      }}
+                      className="flex cursor-pointer items-center justify-between rounded-2xl bg-muted px-4 py-4 transition hover:bg-muted/80"
                     >
                       <div className="flex items-center gap-3">
                         <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-background">

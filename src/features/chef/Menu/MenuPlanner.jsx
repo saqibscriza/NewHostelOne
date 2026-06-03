@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { CalendarDays, Coffee, Moon, Plus, Sun, Utensils } from "lucide-react";
 import toast from "react-hot-toast";
 
@@ -78,6 +78,41 @@ const stringifyMeal = (value) => {
   }
   return String(value);
 };
+
+function DatePickerField({ registration }) {
+  const inputRef = useRef(null);
+
+  const openPicker = () => {
+    if (typeof inputRef.current?.showPicker === "function") {
+      inputRef.current.showPicker();
+      return;
+    }
+
+    inputRef.current?.focus();
+  };
+
+  return (
+    <div className="relative">
+      <Input
+        type="date"
+        className="date-input-clean h-14 rounded-xl pr-12"
+        {...registration}
+        ref={(element) => {
+          inputRef.current = element;
+          registration.ref(element);
+        }}
+      />
+      <button
+        type="button"
+        aria-label="Open calendar"
+        onClick={openPicker}
+        className="absolute right-3 top-2 flex h-10 w-10 cursor-pointer items-center justify-center rounded-lg text-foreground transition hover:bg-muted"
+      >
+        <CalendarDays className="h-5 w-5" />
+      </button>
+    </div>
+  );
+}
 
 // ─── normalizeDay: dayName is ALWAYS derived from the actual date field ───────
 // Reason: the full week API returns dayName like "MONDAY"/"TUESDAY" as a
@@ -473,14 +508,11 @@ function AddMenuPlanner({ onCancel, onSuccess }) {
                 <label className="text-xs font-bold uppercase tracking-[0.18em] text-muted-foreground">
                   Date
                 </label>
-                <div className="relative">
-                  <Input
-                    type="date"
-                    className="h-14 rounded-xl pr-12"
-                    {...register("date", { required: "Date is required" })}
-                  />
-                  <CalendarDays className="absolute right-4 top-4 h-5 w-5 text-foreground" />
-                </div>
+                <DatePickerField
+                  registration={register("date", {
+                    required: "Date is required",
+                  })}
+                />
                 {errors.date && (
                   <p className="text-xs text-red-500">{errors.date.message}</p>
                 )}
@@ -597,14 +629,11 @@ function EditMenuPlanner({ selectedDate, onCancel, onSuccess }) {
                 <label className="text-xs font-bold uppercase tracking-[0.18em] text-muted-foreground">
                   Date
                 </label>
-                <div className="relative">
-                  <Input
-                    type="date"
-                    className="h-14 rounded-xl pr-12"
-                    {...register("date", { required: "Date is required" })}
-                  />
-                  <CalendarDays className="absolute right-4 top-4 h-5 w-5 text-foreground" />
-                </div>
+                <DatePickerField
+                  registration={register("date", {
+                    required: "Date is required",
+                  })}
+                />
                 {errors.date && (
                   <p className="text-xs text-red-500">{errors.date.message}</p>
                 )}
