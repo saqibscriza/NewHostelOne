@@ -78,6 +78,27 @@ const wordNumbers = Object.fromEntries(
   Object.entries(numberWords).map(([number, word]) => [word, number]),
 );
 
+const validateEmail = (email) => {
+  if (!email) {
+    return "Email is required";
+  }
+
+  const basicEmailRegex = /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/;
+
+  if (!basicEmailRegex.test(email)) {
+    return "Enter a valid email address";
+  }
+
+  const validEndingRegex =
+    /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.(com|in|org|net|edu)$/;
+
+  if (!validEndingRegex.test(email)) {
+    return "Invalid domain extension";
+  }
+
+  return "";
+};
+
 const EditStudent = () => {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -92,6 +113,7 @@ const EditStudent = () => {
   const [admissionLetter, setAdmissionLetter] = useState(null);
   const [photoPreview, setPhotoPreview] = useState("");
   const [loading, setLoading] = useState(false);
+  const [errors, setErrors] = useState({});
 
   const fetchRooms = useCallback(async () => {
     const res = await getRoomAllData();
@@ -514,8 +536,24 @@ const EditStudent = () => {
             <Label>Email Address</Label>
             <Input
               value={form.email || ""}
-              onChange={(e) => handleChange("email", e.target.value)}
+              onChange={(e) => {
+                const value = e.target.value;
+
+                handleChange("email", value);
+
+                const errorMessage = validateEmail(value);
+
+                setErrors((prev) => ({
+                  ...prev,
+                  email: errorMessage,
+                }));
+              }}
+              className={errors.email ? "border-destructive" : ""}
             />
+
+            {errors.email && (
+              <p className="text-xs text-destructive mt-1">{errors.email}</p>
+            )}
           </div>
 
           <div className="col-span-2">
@@ -679,9 +717,7 @@ const EditStudent = () => {
             <Label>Agreement Period</Label>
             <Select
               value={String(form.agreementPeriod || "")}
-              onValueChange={(value) =>
-                handleChange("agreementPeriod", value)
-              }
+              onValueChange={(value) => handleChange("agreementPeriod", value)}
               disabled={!form.agreementTerm}
             >
               <SelectTrigger>

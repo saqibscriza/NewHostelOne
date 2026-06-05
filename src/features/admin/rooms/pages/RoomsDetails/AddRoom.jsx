@@ -29,6 +29,8 @@ import { toast } from "react-hot-toast";
 
 const numberOnlyMessage = "Only numbers are allowed";
 const textOnlyMessage = "Only alphabets and numbers are allowed";
+const roomFieldLengthMessage =
+  "Minimum 3 characters and maximum 30 characters allowed";
 
 const getRoomFromResponse = (response) =>
   response?.data?.data?.Room ||
@@ -125,12 +127,14 @@ const AddRoom = () => {
   const setField = (key, value) => {
     let message = "";
 
-    if (
-      ["roomNameNumber", "blockFloor"].includes(key) &&
-      value &&
-      !/^[A-Za-z0-9\s./-]+$/.test(value)
-    ) {
-      message = textOnlyMessage;
+    if (["roomNameNumber", "blockFloor"].includes(key)) {
+      if (value && !/^[A-Za-z0-9\s./-]+$/.test(value)) {
+        message = textOnlyMessage;
+      } else if (value.trim().length < 3) {
+        message = "Minimum 3 characters required";
+      } else if (value.trim().length > 30) {
+        message = "Maximum 30 characters allowed";
+      }
     }
 
     if (
@@ -185,35 +189,21 @@ const AddRoom = () => {
       nextErrors.roomNameNumber = "Room number/name is required";
     } else if (!/^[A-Za-z0-9\s./-]+$/.test(form.roomNameNumber)) {
       nextErrors.roomNameNumber = textOnlyMessage;
+    } else if (form.roomNameNumber.trim().length < 3) {
+      nextErrors.roomNameNumber = "Minimum 3 characters required";
+    } else if (form.roomNameNumber.trim().length > 30) {
+      nextErrors.roomNameNumber = "Maximum 30 characters allowed";
     }
 
     if (!form.blockFloor.trim()) {
       nextErrors.blockFloor = "Block/location is required";
     } else if (!/^[A-Za-z0-9\s./-]+$/.test(form.blockFloor)) {
       nextErrors.blockFloor = textOnlyMessage;
+    } else if (form.blockFloor.trim().length < 3) {
+      nextErrors.blockFloor = "Minimum 3 characters required";
+    } else if (form.blockFloor.trim().length > 30) {
+      nextErrors.blockFloor = "Maximum 30 characters allowed";
     }
-
-    if (!form.categoryId) nextErrors.categoryId = "Please select a category";
-
-    if (!form.totalBeds) nextErrors.totalBeds = "Number of beds is required";
-    else if (!/^\d+$/.test(form.totalBeds))
-      nextErrors.totalBeds = numberOnlyMessage;
-    else if (Number(form.totalBeds) <= 0) {
-      nextErrors.totalBeds = "Beds must be greater than 0";
-    }
-
-    if (!form.totalRoomPrice)
-      nextErrors.totalRoomPrice = "Rent per bed is required";
-    else if (!/^\d+$/.test(form.totalRoomPrice)) {
-      nextErrors.totalRoomPrice = numberOnlyMessage;
-    }
-
-    if (!form.securityDeposit) {
-      nextErrors.securityDeposit = "Security deposit is required";
-    } else if (!/^\d+$/.test(form.securityDeposit)) {
-      nextErrors.securityDeposit = numberOnlyMessage;
-    }
-
     setErrors(nextErrors);
     return Object.keys(nextErrors).length === 0;
   };

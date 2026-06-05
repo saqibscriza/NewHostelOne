@@ -10,7 +10,14 @@ import {
   SelectItem,
 } from "../../../../components/ui/select";
 import { useNavigate, useParams } from "react-router-dom";
-import { ArrowLeft, Camera, FileText, Loader2, Upload, CalendarDays } from "lucide-react";
+import {
+  ArrowLeft,
+  Camera,
+  FileText,
+  Loader2,
+  Upload,
+  CalendarDays,
+} from "lucide-react";
 import { useState, useEffect } from "react";
 import {
   addStudentApi,
@@ -35,7 +42,8 @@ const numberOnlyFields = {
 const isTextOnly = (value) => /^[A-Za-z\s.]+$/.test(value);
 const isNumberOnly = (value) => /^\d+$/.test(value);
 const normalizeRoom = (room) => ({
-  roomId: room?.roomId || room?.id || room?.room?.roomId || room?.room?.id || "",
+  roomId:
+    room?.roomId || room?.id || room?.room?.roomId || room?.room?.id || "",
   blockFloor: room?.blockFloor || room?.room?.blockFloor || "",
   categoryName:
     room?.categoryName ||
@@ -57,6 +65,27 @@ const getRoomListFromResponse = (response) => {
   if (Array.isArray(data?.rooms)) return data.rooms;
   if (Array.isArray(data)) return data;
   return [];
+};
+
+const validateEmail = (email) => {
+  if (!email) {
+    return "Email is required";
+  }
+
+  const basicEmailRegex = /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/;
+
+  if (!basicEmailRegex.test(email)) {
+    return "Enter a valid email address";
+  }
+
+  const validEndingRegex =
+    /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.(com|in|org|net|edu)$/;
+
+  if (!validEndingRegex.test(email)) {
+    return "Invalid domain extension";
+  }
+
+  return "";
 };
 
 const numberWords = {
@@ -197,8 +226,9 @@ export default function AddStudent() {
     if (file.size > maxSize) {
       setErrors((prev) => ({
         ...prev,
-        [key]: `File size exceeded ${key === "admissionLetter" ? "10MB" : key === "photo" ? "2MB" : "5MB"
-          }`,
+        [key]: `File size exceeded ${
+          key === "admissionLetter" ? "10MB" : key === "photo" ? "2MB" : "5MB"
+        }`,
       }));
       return;
     }
@@ -317,14 +347,12 @@ export default function AddStudent() {
       }
     });
 
-    if (!form.email?.trim()) {
-      nextErrors.email = "Email is required";
-    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) {
-      nextErrors.email = "Enter a valid email address";
+    const emailError = validateEmail(form.email?.trim());
+
+    if (emailError) {
+      nextErrors.email = emailError;
     }
-    if (!/^[6-9]\d{9}$/.test(form.phone || "")) {
-      nextErrors.phone = "Phone number must start with 6, 7, 8 or 9";
-    }
+
     // if (!form.guardianName?.trim()) {
     //   nextErrors.guardianName = "Guardian name is required";
     // }
@@ -435,7 +463,7 @@ export default function AddStudent() {
       } else {
         // ADD
         res = await addStudentApi(formData);
-        console.log('add student console messageeeee====', res);
+        console.log("add student console messageeeee====", res);
       }
       const isSuccess =
         res?.data?.status === "success" &&
@@ -443,7 +471,7 @@ export default function AddStudent() {
 
       if (isSuccess) {
         toast.success(
-          res?.data?.message
+          res?.data?.message,
           // id ? res?.data?.message : "Student Added Successfully"
         );
         navigate("/admin/students");
@@ -555,40 +583,40 @@ export default function AddStudent() {
             </Field>
 
             <div className="grid grid-cols-2 gap-4">
-<Field label="Date of Birth" required>
-  <div className="relative">
-    <CalendarDays className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-500 pointer-events-none z-10" />
+              <Field label="Date of Birth" required>
+                <div className="relative">
+                  <CalendarDays className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-500 pointer-events-none z-10" />
 
-    <Input
-      type="date"
-      max={new Date().toISOString().split("T")[0]}
-      value={form.dob || ""}
-      onChange={(e) => {
-        const selectedDate = e.target.value;
-        const today = new Date().toISOString().split("T")[0];
+                  <Input
+                    type="date"
+                    max={new Date().toISOString().split("T")[0]}
+                    value={form.dob || ""}
+                    onChange={(e) => {
+                      const selectedDate = e.target.value;
+                      const today = new Date().toISOString().split("T")[0];
 
-        if (new Date(selectedDate) >= new Date(today)) {
-          setErrors((prev) => ({
-            ...prev,
-            dob: "DOB must be a previous date",
-          }));
+                      if (new Date(selectedDate) >= new Date(today)) {
+                        setErrors((prev) => ({
+                          ...prev,
+                          dob: "DOB must be a previous date",
+                        }));
 
-          setForm((prev) => ({
-            ...prev,
-            dob: "",
-          }));
+                        setForm((prev) => ({
+                          ...prev,
+                          dob: "",
+                        }));
 
-          return;
-        }
+                        return;
+                      }
 
-        setErrors((prev) => ({
-          ...prev,
-          dob: "",
-        }));
+                      setErrors((prev) => ({
+                        ...prev,
+                        dob: "",
+                      }));
 
-        handleChange("dob", selectedDate);
-      }}
-      className={`h-11 w-full pl-10 text-slate-500 
+                      handleChange("dob", selectedDate);
+                    }}
+                    className={`h-11 w-full pl-10 text-slate-500 
         [&::-webkit-calendar-picker-indicator]:opacity-0
         [&::-webkit-calendar-picker-indicator]:absolute
         [&::-webkit-calendar-picker-indicator]:left-0
@@ -597,15 +625,13 @@ export default function AddStudent() {
         [&::-webkit-calendar-picker-indicator]:cursor-pointer
         ${errors.dob ? "border-destructive" : ""}
       `}
-    />
-  </div>
+                  />
+                </div>
 
-  {errors.dob && (
-    <p className="text-xs text-destructive mt-1">
-      {errors.dob}
-    </p>
-  )}
-</Field>
+                {errors.dob && (
+                  <p className="text-xs text-destructive mt-1">{errors.dob}</p>
+                )}
+              </Field>
 
               <Field label="Gender" required>
                 {""}
@@ -637,17 +663,17 @@ export default function AddStudent() {
                 />
               </Field>
 
-<Field label="Date of Joining" required>
-  <div className="relative">
-    <CalendarDays className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-500 pointer-events-none z-10" />
+              <Field label="Date of Joining" required>
+                <div className="relative">
+                  <CalendarDays className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-500 pointer-events-none z-10" />
 
-    <Input
-      type="date"
-      value={form.dateOfJoining || ""}
-      onChange={(e) =>
-        handleChange("dateOfJoining", e.target.value)
-      }
-      className={`h-11 w-full pl-10 text-slate-500
+                  <Input
+                    type="date"
+                    value={form.dateOfJoining || ""}
+                    onChange={(e) =>
+                      handleChange("dateOfJoining", e.target.value)
+                    }
+                    className={`h-11 w-full pl-10 text-slate-500
         [&::-webkit-calendar-picker-indicator]:opacity-0
         [&::-webkit-calendar-picker-indicator]:absolute
         [&::-webkit-calendar-picker-indicator]:left-0
@@ -656,15 +682,15 @@ export default function AddStudent() {
         [&::-webkit-calendar-picker-indicator]:cursor-pointer
         ${errors.dateOfJoining ? "border-destructive" : ""}
       `}
-    />
-  </div>
+                  />
+                </div>
 
-  {errors.dateOfJoining && (
-    <p className="text-xs text-destructive mt-1">
-      {errors.dateOfJoining}
-    </p>
-  )}
-</Field>
+                {errors.dateOfJoining && (
+                  <p className="text-xs text-destructive mt-1">
+                    {errors.dateOfJoining}
+                  </p>
+                )}
+              </Field>
             </div>
           </div>
         </div>
@@ -730,8 +756,9 @@ export default function AddStudent() {
 
                 handleChange("year", value);
               }}
-              className={`w-full rounded-md border px-3 py-2 ${errors.year ? "border-destructive" : ""
-                }`}
+              className={`w-full rounded-md border px-3 py-2 ${
+                errors.year ? "border-destructive" : ""
+              }`}
             >
               <option value="">Select Year</option>
               <option value="1">1</option>
@@ -745,13 +772,23 @@ export default function AddStudent() {
               <p className="text-xs text-destructive">{errors.year}</p>
             )}
           </Field>
-
           <Field label="Email" required>
             <Input
               type="email"
               placeholder="Enter Email"
               value={form.email || ""}
-              onChange={(e) => handleChange("email", e.target.value)}
+              onChange={(e) => {
+                const value = e.target.value;
+
+                handleChange("email", value);
+
+                const errorMessage = validateEmail(value);
+
+                setErrors((prev) => ({
+                  ...prev,
+                  email: errorMessage,
+                }));
+              }}
               className={errors.email ? "border-destructive" : ""}
             />
 
@@ -989,9 +1026,7 @@ export default function AddStudent() {
               </SelectContent>
             </Select>
             {errors.agreementTerm && (
-              <p className="text-xs text-destructive">
-                {errors.agreementTerm}
-              </p>
+              <p className="text-xs text-destructive">{errors.agreementTerm}</p>
             )}
           </Field>
 

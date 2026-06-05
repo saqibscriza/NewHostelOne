@@ -87,7 +87,7 @@ const RoomDetails = () => {
       setRoomData(list);
 
       setTotalPages(response?.data?.data?.totalPages || 1);
-     setTotalItems(response?.data?.data?.totalItems || 0);
+      setTotalItems(response?.data?.data?.totalItems || 0);
 
       setDashboardStats({
         totalRooms: response?.data?.data?.totalRooms || 0,
@@ -137,7 +137,7 @@ const RoomDetails = () => {
       <div className="flex justify-between items-center">
         <div>
           <h1 className="text-2xl font-semibold text-foreground">
-            Room Details 
+            Room Details
           </h1>
           <p className="text-muted-foreground">
             Define a new accommodation plan for your hostel facility.
@@ -297,7 +297,7 @@ const RoomDetails = () => {
       </Card>
 
       {/* Table */}
-      <Card>
+      <Card className="overflow-hidden rounded-2xl">
         <CardContent className="p-0">
           {loaderCheck && (
             <div className="text-center py-6 text-muted-foreground">
@@ -306,7 +306,7 @@ const RoomDetails = () => {
           )}
 
           <Table>
-            <TableHeader className="bg-muted">
+            <TableHeader className="bg-muted [&_tr]:border-0">
               <TableRow>
                 <TableHead>Room Details</TableHead>
                 <TableHead>Type</TableHead>
@@ -336,7 +336,10 @@ const RoomDetails = () => {
 
               {/* ✅ FIX */}
               {filteredRooms?.map((room, index) => (
-                <TableRow key={room?.id || index}>
+                <TableRow
+                  key={room?.id || index}
+                  className="border-border/50 hover:bg-muted/30"
+                >
                   <TableCell>
                     <div className="flex items-center gap-3">
                       <img

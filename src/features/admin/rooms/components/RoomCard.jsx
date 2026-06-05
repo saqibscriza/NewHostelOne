@@ -65,6 +65,9 @@ hover:-translate-y-2
 hover:shadow-2xl
 hover:border-primary/30
 group
+
+flex flex-col
+h-full
 "
     >
       {/* Top */}
@@ -142,7 +145,8 @@ z-[9999]
         </div>
       </div>
       {/* Amenities */}
-      <div className="flex flex-wrap gap-2 mt-4">
+      <div className="flex flex-wrap gap-2 mt-4 min-h-[48px]">
+        {" "}
         {category.amenities.map((amenity, i) => (
           <span
             key={i}
@@ -166,7 +170,7 @@ hover:text-primary
         ))}
       </div>
       {/* Footer */}
-      <div className="flex justify-between items-center mt-5 pt-4 border-t border-border">
+      <div className="flex justify-between items-center mt-auto pt-4 border-t border-border">
         <span className="flex items-center gap-2 text-sm text-muted-foreground">
           <span
             className={`w-2 h-2 rounded-full ${
