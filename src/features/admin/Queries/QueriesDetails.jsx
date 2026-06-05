@@ -16,6 +16,15 @@ import {
 } from "../../../components/ui/select";
 import { CheckCircle, XCircle, Clock, ClipboardList } from "lucide-react";
 import DefaultTable from "../../../components/DefaultTable/DefaultTable";
+import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+  PaginationEllipsis,
+} from "../../../components/ui/pagination";
 
 export default function QueriesDetails() {
   const [queries, setQueries] = useState([]);
@@ -93,6 +102,38 @@ export default function QueriesDetails() {
   useEffect(() => {
     getQueriesData();
   }, [filters.status, filters.hostelId, filters.page, filters.size]);
+
+
+  const getPageNumbers = () => {
+  const pages = [];
+
+  if (totalPages <= 5) {
+    for (let i = 1; i <= totalPages; i++) {
+      pages.push(i);
+    }
+  } else {
+    pages.push(1);
+
+    if (filters.page > 3) {
+      pages.push("...");
+    }
+
+    const start = Math.max(2, filters.page - 1);
+    const end = Math.min(totalPages - 1, filters.page + 1);
+
+    for (let i = start; i <= end; i++) {
+      pages.push(i);
+    }
+
+    if (filters.page < totalPages - 2) {
+      pages.push("...");
+    }
+
+    pages.push(totalPages);
+  }
+
+  return pages;
+};
 
   return (
     <div className="p-6 space-y-6">
@@ -238,62 +279,70 @@ export default function QueriesDetails() {
           </div>
 
           {/* PAGINATION */}
-          <div className="flex justify-between items-center pt-4">
-            <p className="text-sm text-muted-foreground"></p>
-            <div className="flex items-center gap-2">
-              <Button
-                variant="outline"
-                size="sm"
-                disabled={filters.page === 1}
-                onClick={() =>
-                  setFilters((prev) => ({ ...prev, page: prev.page - 1 }))
-                }
-              >
-                Prev
-              </Button>
+{totalPages > 1 && (
+  <Pagination className="mt-4 flex justify-end">
+    <PaginationContent>
+      <PaginationItem>
+        <PaginationPrevious
+          href="#"
+          onClick={(e) => {
+            e.preventDefault();
+            setFilters((prev) => ({
+              ...prev,
+              page: Math.max(1, prev.page - 1),
+            }));
+          }}
+          className={
+            filters.page === 1
+              ? "pointer-events-none opacity-50"
+              : "cursor-pointer"
+          }
+        />
+      </PaginationItem>
 
-              {Array.from({ length: totalPages }, (_, i) => i + 1)
-                .slice(0, 5)
-                .map((pageNum) => (
-                  <Button
-                    key={pageNum}
-                    size="sm"
-                    variant={filters.page === pageNum ? "default" : "outline"}
-                    onClick={() =>
-                      setFilters((prev) => ({ ...prev, page: pageNum }))
-                    }
-                  >
-                    {pageNum}
-                  </Button>
-                ))}
+      {getPageNumbers().map((page, index) => (
+        <PaginationItem key={index}>
+          {page === "..." ? (
+            <PaginationEllipsis />
+          ) : (
+            <PaginationLink
+              href="#"
+              isActive={filters.page === page}
+              onClick={(e) => {
+                e.preventDefault();
+                setFilters((prev) => ({
+                  ...prev,
+                  page,
+                }));
+              }}
+              className="cursor-pointer"
+            >
+              {page}
+            </PaginationLink>
+          )}
+        </PaginationItem>
+      ))}
 
-              {totalPages > 5 && (
-                <>
-                  <span className="px-2">...</span>
-                  <Button
-                    size="sm"
-                    variant={filters.page === totalPages ? "default" : "outline"}
-                    onClick={() =>
-                      setFilters((prev) => ({ ...prev, page: totalPages }))
-                    }
-                  >
-                    {totalPages}
-                  </Button>
-                </>
-              )}
-
-              <Button
-                variant="outline"
-                size="sm"
-                disabled={filters.page >= totalPages}
-                onClick={() =>
-                  setFilters((prev) => ({ ...prev, page: prev.page + 1 }))
-                }
-              >
-                Next
-              </Button>
-            </div>
-          </div>
+      <PaginationItem>
+        <PaginationNext
+          href="#"
+          onClick={(e) => {
+            e.preventDefault();
+            setFilters((prev) => ({
+              ...prev,
+              page: Math.min(totalPages, prev.page + 1),
+            }));
+          }}
+          className={
+            filters.page === totalPages
+              ? "pointer-events-none opacity-50"
+              : "cursor-pointer"
+          }
+        />
+      </PaginationItem>
+    </PaginationContent>
+  </Pagination>
+)}
         </CardContent>
       </Card>
 

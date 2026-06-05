@@ -34,7 +34,7 @@ export default function Login() {
         username: data.email,
         password: data.password,
       });
-
+      
         const status = response.data.status;
         const token = response.data.token;
         const name = response.data.name || response.data.studentName || response.data.userName || response.data.fullName || "";
