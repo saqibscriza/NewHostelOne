@@ -239,6 +239,7 @@ const Topbar = ({ onMenuClick }) => {
               className="pl-9 bg-muted border-none text-foreground"
             />
           </div> */}
+
         </div>
 
         {showPackageBanner && (
@@ -262,7 +263,7 @@ const Topbar = ({ onMenuClick }) => {
         <div className="flex items-center gap-4">
           {/* dark mode button */}
 
-          {/* <ThemeToggle /> */}
+          <ThemeToggle />
 
           {/* Notifications */}
           <Button
