@@ -461,7 +461,7 @@ const menuTitle =
 
               {/* STATUS FILTER */}
               <Select value={statusFilter} onValueChange={setStatusFilter}>
-                <SelectTrigger className="h-12 min-w-[170px] rounded-xl">
+                <SelectTrigger className="h-12 min-w-[170px] rounded-xl px-4 pr-4">
                   <SelectValue placeholder="All Status" />
                 </SelectTrigger>
                 <SelectContent>
@@ -474,7 +474,7 @@ const menuTitle =
 
               {/* DATE FILTER */}
               <Select value={dayFilter} onValueChange={setDayFilter}>
-                <SelectTrigger className="h-12 min-w-[170px] rounded-xl">
+                <SelectTrigger className="h-12 min-w-[170px] rounded-xl px-4 pr-4">
                   <SelectValue placeholder="Full Week" />
                 </SelectTrigger>
                 <SelectContent>

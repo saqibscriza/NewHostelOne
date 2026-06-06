@@ -66,7 +66,7 @@ const createSupportTicket = async (data) => {
     {...register("room", {
       required: "Room is required",
       maxLength: {
-        value: 50,
+        value: 20,
         message: "Room/location must be under 50 characters",
       },
     })}
@@ -95,7 +95,7 @@ const createSupportTicket = async (data) => {
         message: "Subject must be at least 5 characters",
       },
       maxLength: {
-        value: 80,
+        value: 50,
         message: "Subject must be under 80 characters",
       },
     })}

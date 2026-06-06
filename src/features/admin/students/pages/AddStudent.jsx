@@ -1071,7 +1071,7 @@ export default function AddStudent() {
             <div className="mt-2 border-2 border-dashed border-border rounded-xl p-6 text-center cursor-pointer hover:bg-muted/30 transition">
               <input
                 type="file"
-                accept=".pdf,.jpg,.jpeg,.png"
+                accept=".jpg,.jpeg,.png"
                 className="hidden"
                 id="idProof"
                 onChange={(e) => handleFile("idProof", e.target.files[0])}
@@ -1106,7 +1106,7 @@ export default function AddStudent() {
                     </p>
 
                     <p className="text-xs text-muted-foreground mt-1">
-                      PDF, JPG up to 5MB
+                      JPEG, PNG, JPG up to 5MB
                     </p>
                   </>
                 )}

@@ -53,6 +53,8 @@ export default function QueriesDetails() {
     setLoading(true);
     try {
       const response = await getAllQueriesApi(filters);
+      console.log("API Response:", response); // Debug log
+
       if (response?.data) {
         setQueries(response?.data?.requests || []);
         setSummary(
@@ -103,37 +105,46 @@ export default function QueriesDetails() {
     getQueriesData();
   }, [filters.status, filters.hostelId, filters.page, filters.size]);
 
-
+  // Pagination - Get Page Numbers
   const getPageNumbers = () => {
-  const pages = [];
+    const pages = [];
+    if (totalPages <= 5) {
+      for (let i = 1; i <= totalPages; i++) {
+        pages.push(i);
+      }
+    } else {
+      pages.push(1);
+      if (filters.page > 3) {
+        pages.push("...");
+      }
 
-  if (totalPages <= 5) {
-    for (let i = 1; i <= totalPages; i++) {
-      pages.push(i);
+      const start = Math.max(2, filters.page - 1);
+      const end = Math.min(totalPages - 1, filters.page + 1);
+
+      for (let i = start; i <= end; i++) {
+        pages.push(i);
+      }
+
+      if (filters.page < totalPages - 2) {
+        pages.push("...");
+      }
+
+      pages.push(totalPages);
     }
-  } else {
-    pages.push(1);
+    return pages;
+  };
 
-    if (filters.page > 3) {
-      pages.push("...");
-    }
+  const pageNumbers = getPageNumbers();
 
-    const start = Math.max(2, filters.page - 1);
-    const end = Math.min(totalPages - 1, filters.page + 1);
+  // Calculate showing range
+  const getShowingRange = () => {
+    if (totalElements === 0) return { start: 0, end: 0 };
+    const start = (filters.page - 1) * filters.size + 1;
+    const end = Math.min(filters.page * filters.size, totalElements);
+    return { start, end };
+  };
 
-    for (let i = start; i <= end; i++) {
-      pages.push(i);
-    }
-
-    if (filters.page < totalPages - 2) {
-      pages.push("...");
-    }
-
-    pages.push(totalPages);
-  }
-
-  return pages;
-};
+  const { start, end } = getShowingRange();
 
   return (
     <div className="p-6 space-y-6">
@@ -168,7 +179,7 @@ export default function QueriesDetails() {
                   }))
                 }
               >
-                <SelectTrigger className="w-[150px]">
+                <SelectTrigger className="w-[150px] px-4 pr-4">
                   <SelectValue placeholder="All Statuses" />
                 </SelectTrigger>
                 <SelectContent>
@@ -188,7 +199,7 @@ export default function QueriesDetails() {
                   }))
                 }
               >
-                <SelectTrigger className="w-[150px]">
+                <SelectTrigger className="w-[150px] px-4 pr-4">
                   <SelectValue placeholder="All Hostels" />
                 </SelectTrigger>
                 <SelectContent>
@@ -231,7 +242,7 @@ export default function QueriesDetails() {
                     </p>
                   </div>
 
-                  <p>{item?.roomType}</p>
+                  <p>{item?.roomType || "-"}</p>
 
                   <div className="text-sm">
                     <p>{item?.phone}</p>
@@ -278,71 +289,74 @@ export default function QueriesDetails() {
             )}
           </div>
 
-          {/* PAGINATION */}
-{totalPages > 1 && (
-  <Pagination className="mt-4 flex justify-end">
-    <PaginationContent>
-      <PaginationItem>
-        <PaginationPrevious
-          href="#"
-          onClick={(e) => {
-            e.preventDefault();
-            setFilters((prev) => ({
-              ...prev,
-              page: Math.max(1, prev.page - 1),
-            }));
-          }}
-          className={
-            filters.page === 1
-              ? "pointer-events-none opacity-50"
-              : "cursor-pointer"
-          }
-        />
-      </PaginationItem>
+          {/* PAGINATION - Always show when there's data */}
+          {queries.length > 0 && (
+            <div className="flex w-full justify-end mt-4 pt-4 border-t">
+                            {/* RIGHT SIDE - Pagination controls */}
+              <Pagination className="!justify-end">
+                <PaginationContent>
+                  <PaginationItem>
+                    <PaginationPrevious
+                      href="#"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        setFilters((prev) => ({
+                          ...prev,
+                          page: Math.max(1, prev.page - 1),
+                        }));
+                      }}
+                      className={
+                        filters.page === 1
+                          ? "pointer-events-none opacity-50"
+                          : "cursor-pointer"
+                      }
+                    />
+                  </PaginationItem>
 
-      {getPageNumbers().map((page, index) => (
-        <PaginationItem key={index}>
-          {page === "..." ? (
-            <PaginationEllipsis />
-          ) : (
-            <PaginationLink
-              href="#"
-              isActive={filters.page === page}
-              onClick={(e) => {
-                e.preventDefault();
-                setFilters((prev) => ({
-                  ...prev,
-                  page,
-                }));
-              }}
-              className="cursor-pointer"
-            >
-              {page}
-            </PaginationLink>
+                  {pageNumbers.map((page, index) => (
+                    <PaginationItem key={index}>
+                      {page === "..." ? (
+                        <PaginationEllipsis />
+                      ) : (
+                        <PaginationLink
+                          href="#"
+                          isActive={filters.page === page}
+                          onClick={(e) => {
+                            e.preventDefault();
+                            setFilters((prev) => ({
+                              ...prev,
+                              page,
+                            }));
+                          }}
+                          className="cursor-pointer"
+                        >
+                          {page}
+                        </PaginationLink>
+                      )}
+                    </PaginationItem>
+                  ))}
+
+                  <PaginationItem>
+                    <PaginationNext
+                      href="#"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        setFilters((prev) => ({
+                          ...prev,
+                          page: Math.min(totalPages, prev.page + 1),
+                        }));
+                      }}
+                      className={
+                        filters.page === totalPages
+                          ? "pointer-events-none opacity-50"
+                          : "cursor-pointer"
+                      }
+                    />
+                  </PaginationItem>
+                </PaginationContent>
+              </Pagination>
+            </div>
           )}
-        </PaginationItem>
-      ))}
-
-      <PaginationItem>
-        <PaginationNext
-          href="#"
-          onClick={(e) => {
-            e.preventDefault();
-            setFilters((prev) => ({
-              ...prev,
-              page: Math.min(totalPages, prev.page + 1),
-            }));
-          }}
-          className={
-            filters.page === totalPages
-              ? "pointer-events-none opacity-50"
-              : "cursor-pointer"
-          }
-        />
-      </PaginationItem>
-    </PaginationContent>
-  </Pagination>
-)}
         </CardContent>
       </Card>
 

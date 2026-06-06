@@ -6,7 +6,17 @@ import { useNavigate } from "react-router-dom";
 import { getRoomAllData } from "../../../../../utils/utils";
 import DefaultTable from "../../../../../components/DefaultTable/DefaultTable";
 import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from "../../../../../components/ui/pagination";
+
+import {
   Table,
+
   TableBody,
   TableCell,
   TableHead,
@@ -219,7 +229,7 @@ const RoomDetails = () => {
 
             <Select value={locationFilter} onValueChange={setLocationFilter}>
               {" "}
-              <SelectTrigger className="w-[160px] cursor-pointer">
+              <SelectTrigger className="w-[160px] cursor-pointer px-4 pr-4">
                 {" "}
                 <SelectValue placeholder="All Location" />
               </SelectTrigger>
@@ -241,7 +251,7 @@ const RoomDetails = () => {
             </Select>
 
             <Select value={categoryFilter} onValueChange={setCategoryFilter}>
-              <SelectTrigger className="w-[160px] cursor-pointer">
+              <SelectTrigger className="w-[160px] cursor-pointer px-4 pr-4">
                 {" "}
                 <SelectValue placeholder="All Category" />
               </SelectTrigger>
@@ -259,7 +269,7 @@ const RoomDetails = () => {
             </Select>
 
             <Select value={statusFilter} onValueChange={setStatusFilter}>
-              <SelectTrigger className="w-[160px] cursor-pointer">
+              <SelectTrigger className="w-[160px] cursor-pointer px-4 pr-4">
                 {" "}
                 <SelectValue placeholder="All Status" />
               </SelectTrigger>
@@ -412,41 +422,66 @@ const RoomDetails = () => {
           </Table>
 
           <div className="flex justify-between items-center p-4 text-sm text-muted-foreground">
-            <span>
+            <span className="text-sm text-muted-foreground whitespace-nowrap">
               Showing page {currentPage} of {totalPages} ({totalItems} rooms)
             </span>
 
-            <div className="flex gap-2 items-center">
-              <button
-                className="cursor-pointer px-2 disabled:opacity-50"
-                disabled={currentPage === 1}
-                onClick={() => setCurrentPage((prev) => prev - 1)}
-              >
-                ‹
-              </button>
+            <Pagination className="!justify-end">
 
-              {Array.from({ length: totalPages }, (_, index) => (
-                <button
-                  key={index}
-                  onClick={() => setCurrentPage(index + 1)}
-                  className={`cursor-pointer px-3 py-1 rounded transition-all ${
-                    currentPage === index + 1
-                      ? "bg-primary text-white"
-                      : "bg-muted hover:bg-muted/70"
-                  }`}
-                >
-                  {index + 1}
-                </button>
-              ))}
-              <button
-                className="cursor-pointer px-2 disabled:opacity-50"
-                disabled={currentPage === totalPages}
-                onClick={() => setCurrentPage((prev) => prev + 1)}
-              >
-                ›
-              </button>
-            </div>
+              <PaginationContent>
+                <PaginationItem>
+                  <PaginationPrevious
+                    href="#"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      setCurrentPage((prev) => Math.max(1, prev - 1));
+                    }}
+                    className={
+                      currentPage === 1
+                        ? "pointer-events-none opacity-50"
+                        : "cursor-pointer"
+                    }
+                  />
+                </PaginationItem>
+
+                {Array.from({ length: totalPages }, (_, index) => index + 1).map(
+                  (page) => (
+                    <PaginationItem key={page}>
+                      <PaginationLink
+                        href="#"
+                        isActive={currentPage === page}
+                        onClick={(e) => {
+                          e.preventDefault();
+                          setCurrentPage(page);
+                        }}
+                        className="cursor-pointer"
+                      >
+                        {page}
+                      </PaginationLink>
+                    </PaginationItem>
+                  )
+                )}
+
+                <PaginationItem>
+                  <PaginationNext
+                    href="#"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      setCurrentPage((prev) => Math.min(totalPages, prev + 1));
+                    }}
+                    className={
+                      currentPage === totalPages
+                        ? "pointer-events-none opacity-50"
+                        : "cursor-pointer"
+                    }
+                  />
+                </PaginationItem>
+              </PaginationContent>
+            </Pagination>
           </div>
+
+
+
         </CardContent>
       </Card>
     </div>

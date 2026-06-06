@@ -225,19 +225,6 @@ const ViewStudent = () => {
         <Card>
           <CardContent className="p-6 space-y-4 text-sm">
             <h3 className="font-semibold">Document Uploads</h3>
-
-            {/* {["ID Proof", "Admission Letter"].map((doc, i) => (
-              <div
-                key={i}
-                className="flex justify-between items-center border rounded-lg px-3 py-2"
-              >
-                <div className="flex items-center gap-2">
-                  <FileText size={16} />
-                  <span>{doc}</span>
-                </div>
-                <Eye size={16} />
-              </div>
-            ))} */}
             {[
               {
                 name: "ID Proof",
@@ -260,7 +247,20 @@ const ViewStudent = () => {
                 <Eye
                   size={16}
                   className="cursor-pointer"
-                  onClick={() => setPreviewImage(doc.image)}
+                  onClick={() => {
+                    if (!doc.image) return;
+
+                    if (doc.name === "Admission Letter") {
+                      window.open(
+                        doc.image,
+                        "_blank",
+                        "noopener,noreferrer",
+                      );
+                    } else {
+                      // ID Proof: open in same page popup
+                      setPreviewImage(doc.image);
+                    }
+                  }}
                 />
               </div>
             ))}

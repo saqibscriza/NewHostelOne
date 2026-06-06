@@ -174,16 +174,17 @@ export default function Support() {
             <TooltipTrigger asChild>
               <AlertCircle className="w-5 h-5 text-slate-700 hover:text-slate-900 cursor-pointer flex-shrink-0" />
             </TooltipTrigger>
-            <TooltipContent 
-              side="top" 
-              className="w-72 max-w-[300px] rounded-xl bg-black text-white text-xs p-4 shadow-2xl break-words whitespace-normal"
+            <TooltipContent
+              side="top"
+              align="center"
+              className="z-[60] w-72 max-w-[300px] rounded-xl bg-black text-white text-xs p-4 shadow-2xl break-words whitespace-normal"
             >
               <p className="font-semibold mb-2 text-gray-300">
                 Ticket Description
               </p>
-              <p className="leading-relaxed break-words whitespace-pre-wrap">
+              <div className="leading-relaxed break-words whitespace-pre-wrap max-h-56 overflow-auto pr-1">
                 {ticket.description}
-              </p>
+              </div>
             </TooltipContent>
           </Tooltip>
         </TooltipProvider>

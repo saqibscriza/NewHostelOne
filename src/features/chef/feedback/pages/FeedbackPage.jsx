@@ -365,7 +365,7 @@ export default function FeedbackPage() {
             value={ratingFilter}
             onValueChange={handleFilterChange(setRatingFilter)}
           >
-            <SelectTrigger className="h-10 w-[150px] p-5 rounded-xl border-border bg-background">
+            <SelectTrigger className="h-10 w-[150px] p-5 rounded-xl border-border bg-background px-4 pr-4">
               <SelectValue placeholder="All Rating" />
             </SelectTrigger>
             <SelectContent>
@@ -382,7 +382,7 @@ export default function FeedbackPage() {
             value={categoryFilter}
             onValueChange={handleFilterChange(setCategoryFilter)}
           >
-            <SelectTrigger className="h-10 w-[165px] rounded-xl border-border bg-background">
+            <SelectTrigger className="h-10 w-[165px] rounded-xl border-border bg-background px-4 pr-4">
               <SelectValue placeholder="All Category" />
             </SelectTrigger>
             <SelectContent>
@@ -399,7 +399,7 @@ export default function FeedbackPage() {
             value={dateFilter}
             onValueChange={handleFilterChange(setDateFilter)}
           >
-            <SelectTrigger className="h-10 w-[155px] rounded-xl border-border bg-background">
+            <SelectTrigger className="h-10 w-[155px] rounded-xl border-border bg-background px-4 pr-4">
               <SelectValue placeholder="Last 7 Days" />
             </SelectTrigger>
             <SelectContent>

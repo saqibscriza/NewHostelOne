@@ -35,6 +35,15 @@ import {
 import { useNavigate, Link } from "react-router-dom";
 import { getInventoryStockDashboardApi, deleteStockApi } from "../../../../../utils/utils";
 
+import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from "../../../../../components/ui/pagination";
+
 export default function InventoryDetailsPage() {
   const navigate = useNavigate();
   const [dashboard, setDashboard] = useState({
@@ -372,21 +381,40 @@ export default function InventoryDetailsPage() {
           </Table>
         </div>
 
-        <div className="flex items-center justify-between px-6 py-5 border-t border-border bg-transparent">
-          <span className="text-sm font-medium text-muted-foreground">
+        <div className="flex justify-between items-center px-6 py-5 border-t border-border bg-transparent">
+          <span className="text-sm font-medium text-muted-foreground whitespace-nowrap">
             Showing {filteredStocks.length > 0 ? 1 : 0} to {filteredStocks.length} of {filteredStocks.length} items
           </span>
-          <div className="flex items-center gap-1.5">
-            <button type="button" className="p-1.5 text-muted-foreground hover:text-foreground rounded-lg transition-colors">
-              <ChevronLeft className="w-4 h-4" />
-            </button>
-            <button type="button" className="w-8 h-8 flex items-center justify-center rounded-lg bg-[#0f1419] dark:bg-white text-white dark:text-black text-sm font-bold shadow-sm">
-              1
-            </button>
-            <button type="button" className="p-1.5 text-muted-foreground hover:text-foreground rounded-lg transition-colors">
-              <ChevronRight className="w-4 h-4" />
-            </button>
-          </div>
+
+          <Pagination className="!justify-end">
+            <PaginationContent>
+              <PaginationItem>
+                <PaginationPrevious
+                  href="#"
+                  onClick={(e) => e.preventDefault()}
+                  className={"cursor-not-allowed pointer-events-none opacity-50"}
+                />
+              </PaginationItem>
+
+              <PaginationItem>
+                <PaginationLink
+                  href="#"
+                  isActive={true}
+                  onClick={(e) => e.preventDefault()}
+                >
+                  1
+                </PaginationLink>
+              </PaginationItem>
+
+              <PaginationItem>
+                <PaginationNext
+                  href="#"
+                  onClick={(e) => e.preventDefault()}
+                  className={"cursor-not-allowed pointer-events-none opacity-50"}
+                />
+              </PaginationItem>
+            </PaginationContent>
+          </Pagination>
         </div>
       </Card>
     </div>
