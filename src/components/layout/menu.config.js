@@ -13,6 +13,7 @@ import {
   HelpCircle,
   User,
   MessageSquare,
+  FileText,
 } from "lucide-react";
 
 export const menuConfig = {
@@ -23,6 +24,7 @@ export const menuConfig = {
     { name: "Reports", path: "/reports", icon: BarChart3 },
     { name: "Queries Details", path: "/queries/details", icon: MessageSquare },
     { name: "Settings", path: "/settings", icon: Settings },
+    { name: "Blog CMS", path: "/blogs", icon: FileText },
   ],
 
   admin: [

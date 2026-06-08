@@ -18,13 +18,12 @@ export default function StudentTable({ data }) {
 
 function TableHeader() {
   return (
-    <div className="grid grid-cols-6 px-6 py-3 text-xs font-medium text-slate-500 bg-slate-100">
-      <div>STUDENT INFO</div>
+<div className="grid grid-cols-[2.5fr_1.5fr_2.5fr_1.2fr_1fr_0.5fr] px-6 py-3 text-xs font-medium text-muted-foreground bg-muted">      <div>STUDENT INFO</div>
       <div>ROOM</div>
       <div>CONTACT</div>
       <div>PAYMENT</div>
-      <div>OCCUPANCY</div>
-      <div>ACTION</div>
+   <div className="text-center">OCCUPANCY</div>
+      <div div className="text-right pr-4" >ACTION</div>
     </div>
   );
 }
@@ -33,8 +32,7 @@ function TableHeader() {
 
 function TableRow({ student }) {
   return (
-    <div className="grid grid-cols-6 px-6 py-4 border-t border-slate-200 items-center text-sm">
-      {/* Student Info */}
+<div className="grid grid-cols-[2.5fr_1.5fr_2.5fr_1.2fr_1fr_0.5fr] px-6 py-4 border-t border-slate-200 items-center text-sm">      {/* Student Info */}
       <div className="flex items-center gap-3">
         <Avatar name={student.name} />
         <div>
@@ -151,7 +149,7 @@ function OccupancyStatus({ value }) {
   const isActive = value === "Active";
 
   return (
-    <div className="flex items-center gap-2">
+    <div className="flex items-center justify-center gap-2">
       <span
         className={`w-2 h-2 rounded-full ${
           isActive ? "bg-slate-900" : "bg-slate-400"

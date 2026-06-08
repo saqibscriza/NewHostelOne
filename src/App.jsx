@@ -77,6 +77,7 @@ import EditnewPackage from "./features/super-admin/packages/pages/EditnewPackage
 import Report from "./features/super-admin/report/pages/ReportPage";
 import Notifications from "./features/super-admin/settings/pages/SettingsPage";
 import SuperAdminQueryDetails from "./features/super-admin/queries/pages/QueryDetails";
+import BlogCMS from "./features/super-admin/blogs/pages/BlogCMS";
 
 // CHEF
 import ChefDashboard from "./features/chef/dashboard/pages/Dashboard";
@@ -188,6 +189,7 @@ export default function AppRoutes() {
               <Route path="packages/edit/:id" element={<EditnewPackage />} />
 
               <Route path="reports" element={<Report />} />
+              <Route path="blogs" element={<BlogCMS />} />
               <Route
                 path="queries/details"
                 element={<SuperAdminQueryDetails />}

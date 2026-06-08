@@ -263,7 +263,8 @@ export default function AddHostel() {
             <div className="md:col-span-2 space-y-5">
               <div className="space-y-2">
                 <Label>Hostel Name</Label>
-                <Input
+                <Input 
+                  maxLength={30}
                   className="h-11"
                   placeholder="e.g. Green Valley Residency"
                   {...register("hostelName", {

@@ -215,25 +215,25 @@ function StudentTable({ students }) {
   const navigate = useNavigate();
   return (
     <div className="bg-card border border-border rounded-xl overflow-hidden shadow-sm">
-      <div className="grid grid-cols-6 px-6 py-3 text-xs font-medium text-muted-foreground bg-muted">
-        <div>STUDENT INFO</div>
+      <div className="grid grid-cols-7 gap-x-4 px-6 py-3 text-xs font-medium text-muted-foreground bg-muted">
+        <div className="col-span-2">STUDENT INFO</div>
         <div>ROOM</div>
         <div>CONTACT</div>
         <div>PAYMENT</div>
-        <div>OCCUPANCY</div>
-        <div>ACTION</div>
+        <div className="pl-6">STATUS</div>
+        <div className="col-span-1 flex justify-end pr-2">ACTION</div>
       </div>
 
-{students.length === 0 ? (
-  <DefaultTable
-    title="No Students Found"
-    description="There are currently no students available. Add a new student to get started."
-    buttonText="Add Student"
-    onButtonClick={() => navigate("/admin/students/add")}
-    height="400px"
-  />
-) : (
-  students.map((s, i) => (
+      {students.length === 0 ? (
+        <DefaultTable
+          title="No Students Found"
+          description="There are currently no students available. Add a new student to get started."
+          buttonText="Add Student"
+          onButtonClick={() => navigate("/admin/students/add")}
+          height="400px"
+        />
+      ) : (
+        students.map((s, i) => (
           <Row
             key={i}
             id={s.studentId || s.id}
@@ -257,8 +257,8 @@ function Row({ name, id, room, block, phone, email, payment, occupancy }) {
   const navigate = useNavigate();
 
   return (
-    <div className="grid grid-cols-6 px-6 py-4 border-t border-border items-center text-sm">
-      <div className="flex items-center gap-3">
+    <div className="grid grid-cols-7 gap-x-4 px-6 py-4 border-t border-border items-center text-sm">
+      <div className="col-span-2 flex items-center gap-3">
         <Avatar name={name} />
         <div>
           <p className="font-medium text-foreground">{name}</p>
@@ -277,17 +277,21 @@ function Row({ name, id, room, block, phone, email, payment, occupancy }) {
       </div>
 
       <PaymentBadge value={payment} />
-      <OccupancyStatus value={occupancy} />
+      <div className="pl-6">
+  <OccupancyStatus value={occupancy} />
+</div>
 
-      <div className="flex gap-4 text-muted-foreground">
-        <Eye
-          className="w-4 h-4 cursor-pointer hover:text-foreground"
-          onClick={() => navigate(`/admin/students/view/${id}`)}
-        />{" "}
-        <Pencil
-          className="w-4 h-4 cursor-pointer hover:text-foreground"
-          onClick={() => navigate(`/admin/students/edit/${id}`)}
-        />
+      <div className="col-span-1 flex justify-end pr-2">
+        <div className="flex gap-4 text-muted-foreground">
+          <Eye
+            className="w-4 h-4 cursor-pointer hover:text-foreground"
+            onClick={() => navigate(`/admin/students/view/${id}`)}
+          />{" "}
+          <Pencil
+            className="w-4 h-4 cursor-pointer hover:text-foreground"
+            onClick={() => navigate(`/admin/students/edit/${id}`)}
+          />
+        </div>
       </div>
     </div>
   );

@@ -424,13 +424,17 @@ const EditStudent = () => {
           </div>
 
           <div className="md:col-span-2 grid grid-cols-2 gap-4">
-            <div className="col-span-2">
-              <Label>Full Name</Label>
-              <Input
-                value={form.fullName || ""}
-                onChange={(e) => handleChange("fullName", e.target.value)}
-              />
-            </div>
+<div className="col-span-2">
+  <Label>Full Name</Label>
+  <Input
+    maxLength={25}
+    value={form.fullName || ""}
+    onChange={(e) => handleChange("fullName", e.target.value)}
+  />
+  <p className="text-xs text-muted-foreground mt-1">
+    {(form.fullName || "").length}/25
+  </p>
+</div>
 
             <div>
               <Label>Date of Birth</Label>

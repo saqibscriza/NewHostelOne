@@ -250,6 +250,7 @@ useEffect(() => {
   </label>
 
   <Input
+  maxLength={30}
     type="text"
     placeholder="Enter Hostel Name"
     {...register("hostelName", {

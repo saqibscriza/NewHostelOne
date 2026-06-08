@@ -30,7 +30,7 @@ import { toast } from "react-hot-toast";
 const numberOnlyMessage = "Only numbers are allowed";
 const textOnlyMessage = "Only alphabets and numbers are allowed";
 const roomFieldLengthMessage =
-  "Minimum 3 characters and maximum 30 characters allowed";
+  "Minimum 3 characters and maximum 25 characters allowed";
 
 const getRoomFromResponse = (response) =>
   response?.data?.data?.Room ||
@@ -132,8 +132,8 @@ const AddRoom = () => {
         message = textOnlyMessage;
       } else if (value.trim().length < 3) {
         message = "Minimum 3 characters required";
-      } else if (value.trim().length > 30) {
-        message = "Maximum 30 characters allowed";
+      } else if (value.trim().length > 25) {
+        message = "Maximum 25 characters allowed";
       }
     }
 
@@ -191,8 +191,8 @@ const AddRoom = () => {
       nextErrors.roomNameNumber = textOnlyMessage;
     } else if (form.roomNameNumber.trim().length < 3) {
       nextErrors.roomNameNumber = "Minimum 3 characters required";
-    } else if (form.roomNameNumber.trim().length > 30) {
-      nextErrors.roomNameNumber = "Maximum 30 characters allowed";
+    } else if (form.roomNameNumber.trim().length > 25) {
+      nextErrors.roomNameNumber = "Maximum 25 characters allowed";
     }
 
     if (!form.blockFloor.trim()) {
@@ -201,8 +201,8 @@ const AddRoom = () => {
       nextErrors.blockFloor = textOnlyMessage;
     } else if (form.blockFloor.trim().length < 3) {
       nextErrors.blockFloor = "Minimum 3 characters required";
-    } else if (form.blockFloor.trim().length > 30) {
-      nextErrors.blockFloor = "Maximum 30 characters allowed";
+    } else if (form.blockFloor.trim().length > 25) {
+      nextErrors.blockFloor = "Maximum 25 characters allowed";
     }
     setErrors(nextErrors);
     return Object.keys(nextErrors).length === 0;
@@ -298,6 +298,7 @@ const AddRoom = () => {
 
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
             <Field
+            maxLength={25}
               label="Room Number / Room Name"
               error={errors.roomNameNumber}
               required
@@ -312,6 +313,7 @@ const AddRoom = () => {
 
             <Field label="Block / Location" error={errors.blockFloor} required>
               <Input
+              maxLength={25}
                 value={form.blockFloor}
                 onChange={(e) => setField("blockFloor", e.target.value)}
                 placeholder="e.g. Block A, First Floor"
@@ -419,6 +421,7 @@ const AddRoom = () => {
 
           <Field label="Room Description">
             <textarea
+            maxLength={50}
               value={form.roomDescription}
               onChange={(e) => setField("roomDescription", e.target.value)}
               placeholder="Enter room description"

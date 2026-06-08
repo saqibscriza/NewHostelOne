@@ -137,6 +137,7 @@ export default function UpdateHostel() {
               <div className="space-y-2">
                 <Label>Hostel Name</Label>
                 <Input
+                  maxLength={30}
                   className="h-11"
                   placeholder="e.g. Green Valley Residency"
                   {...register("hostelName", {
