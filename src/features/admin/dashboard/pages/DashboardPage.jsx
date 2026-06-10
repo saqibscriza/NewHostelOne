@@ -30,6 +30,7 @@ export default function DashboardPage() {
     setLoading(true);
 
     const res = await getDashboardAdminApi(filter);
+
     if (res?.data?.status === "success") {
       setDashboardData(res?.data?.data);
     } else {
@@ -40,8 +41,9 @@ export default function DashboardPage() {
   };
 
   useEffect(() => {
+    // selectedHostel change pe full dashboard refresh
     fetchDashboard();
-  }, [selectedHostel, filter]);
+  }, [selectedHostel]);
 
   useEffect(() => {
     const handleHostelChange = () => {
@@ -131,7 +133,7 @@ export default function DashboardPage() {
       {/* Layout */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
         <div className="lg:col-span-2 space-y-4">
-          {/* <OccupancyChart data={stats.roomOccupancy} /> */}
+          {/* OccupancyChart ke filter change pe sirf chart refresh ho */}
           <OccupancyChart
             data={stats.roomOccupancy}
             filter={filter}

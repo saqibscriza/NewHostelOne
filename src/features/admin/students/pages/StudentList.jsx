@@ -12,7 +12,6 @@ import {
   PaginationPrevious,
 } from "../../../../components/ui/pagination";
 
-
 export default function StudentList() {
   const navigate = useNavigate();
 
@@ -23,7 +22,6 @@ export default function StudentList() {
   const [pageSize, setPageSize] = useState(10);
   const [totalPages, setTotalPages] = useState(1);
   const [totalItems, setTotalElements] = useState(0);
-  // const [searchQuery, setSearchQuery] = useState("");
 
   // ================= API =================
 
@@ -45,16 +43,13 @@ export default function StudentList() {
         const data = response?.data?.data;
 
         setStudents(data?.content || []);
-
         setTotalPages(data?.totalPages || 1);
-
         setTotalElements(data?.totalItems || 0);
       } else {
         setStudents([]);
       }
     } catch (err) {
       console.log(err);
-
       setStudents([]);
     } finally {
       setLoaderCheck(false);
@@ -97,7 +92,7 @@ export default function StudentList() {
   return (
     <div className="p-6 space-y-6 bg-background min-h-screen">
       {/* HEADER */}
-      <div className="flex items-start justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
         <div>
           <h1 className="text-2xl font-semibold text-foreground">
             Student Details
@@ -115,8 +110,9 @@ export default function StudentList() {
           Add Student
         </button>
       </div>
+
       {/* FILTER BAR */}
-      <div className="flex items-center gap-4 bg-card border border-border rounded-xl p-4 shadow-sm">
+      <div className="flex flex-col sm:flex-row sm:items-center gap-4 bg-card border border-border rounded-xl p-4 shadow-sm">
         <span className="text-sm text-muted-foreground">Filter by:</span>
 
         {/* SEARCH */}
@@ -125,33 +121,22 @@ export default function StudentList() {
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Search"
-            className="h-9 w-64 pl-3 pr-9 rounded-md border border-border bg-background text-sm outline-none"
+            className="h-9 w-full sm:w-64 pl-3 pr-9 rounded-md border border-border bg-background text-sm outline-none"
           />
           <Search className="w-4 h-4 absolute right-3 top-2.5 text-muted-foreground" />
         </div>
-
-        {/* <button
-          onClick={() => {
-            setSearch("");
-            setCurrentPage(1);
-            setCurrentPage(1);
-          }}
-          className="ml-auto text-sm text-muted-foreground hover:text-foreground"
-        >
-          Clear all filters
-        </button> */}
       </div>
+
       {/* TABLE */}
       <StudentTable students={filteredStudents} />{" "}
 
       {totalItems > 0 && (
-        <div className="flex justify-between items-center px-2">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 px-2">
           <span className="text-sm text-muted-foreground whitespace-nowrap">
             Showing page {currentPage} of {totalPages}
           </span>
 
           <Pagination className="!justify-end">
-
             <PaginationContent>
               <PaginationItem>
                 <PaginationPrevious
@@ -204,7 +189,6 @@ export default function StudentList() {
           </Pagination>
         </div>
       )}
-
     </div>
   );
 }
@@ -215,83 +199,173 @@ function StudentTable({ students }) {
   const navigate = useNavigate();
   return (
     <div className="bg-card border border-border rounded-xl overflow-hidden shadow-sm">
-      <div className="grid grid-cols-7 gap-x-4 px-6 py-3 text-xs font-medium text-muted-foreground bg-muted">
-        <div className="col-span-2">STUDENT INFO</div>
-        <div>ROOM</div>
-        <div>CONTACT</div>
-        <div>PAYMENT</div>
-        <div className="pl-6">STATUS</div>
-        <div className="col-span-1 flex justify-end pr-2">ACTION</div>
+      
+      {/* DESKTOP / TABLET LAYOUT */}
+      <div className="hidden md:block overflow-x-auto w-full">
+        <div className="min-w-[950px]">
+          
+          <div className="grid grid-cols-8 gap-4 px-6 py-3 text-xs font-medium text-muted-foreground bg-muted border-b border-border">
+            <div className="col-span-2">STUDENT INFO</div>
+            <div className="col-span-1">ROOM</div>
+            <div className="col-span-2">CONTACT</div>
+            <div className="col-span-1">PAYMENT</div>
+            <div className="col-span-1 pl-2">STATUS</div>
+            <div className="col-span-1 flex justify-end pr-2">ACTION</div>
+          </div>
+
+          <div className="divide-y divide-border">
+            {students.length === 0 ? (
+              <DefaultTable
+                title="No Students Found"
+                description="There are currently no students available. Add a new student to get started."
+                buttonText="Add Student"
+                onButtonClick={() => navigate("/admin/students/add")}
+                height="400px"
+              />
+            ) : (
+              students.map((s, i) => (
+                <Row
+                  key={s.studentId || s.id || i}
+                  id={s.studentId || s.id}
+                  name={s.fullName}
+                  room={s?.room?.roomNameNumber || "-"}
+                  block={s?.room?.blockFloor || "-"}
+                  phone={s?.contact?.phone || "-"}
+                  email={s?.contact?.email || "-"}
+                  payment={s?.paymentStatus || "Pending"}
+                  occupancy={s?.occupancyStatus || "Inactive"}
+                />
+              ))
+            )}
+          </div>
+        </div>
       </div>
 
-      {students.length === 0 ? (
-        <DefaultTable
-          title="No Students Found"
-          description="There are currently no students available. Add a new student to get started."
-          buttonText="Add Student"
-          onButtonClick={() => navigate("/admin/students/add")}
-          height="400px"
-        />
-      ) : (
-        students.map((s, i) => (
-          <Row
-            key={i}
-            id={s.studentId || s.id}
-            name={s.fullName}
-            room={s?.room?.roomNameNumber || "-"}
-            block={s?.room?.blockFloor || "-"}
-            phone={s?.contact?.phone || "-"}
-            email={s?.contact?.email || "-"}
-            payment={s?.paymentStatus || "Pending"}
-            occupancy={s?.occupancyStatus || "Inactive"}
+      {/* MOBILE / CARDS LAYOUT */}
+      <div className="md:hidden">
+        {students.length === 0 ? (
+          <DefaultTable
+            title="No Students Found"
+            description="There are currently no students available."
+            buttonText="Add Student"
+            onButtonClick={() => navigate("/admin/students/add")}
+            height="400px"
           />
-        ))
-      )}
+        ) : (
+          <div className="divide-y divide-border">
+            {students.map((s) => (
+              <MobileRow
+                key={s.studentId || s.id}
+                id={s.studentId || s.id}
+                name={s.fullName}
+                room={s?.room?.roomNameNumber || "-"}
+                block={s?.room?.blockFloor || "-"}
+                phone={s?.contact?.phone || "-"}
+                email={s?.contact?.email || "-"}
+                payment={s?.paymentStatus || "Pending"}
+                occupancy={s?.occupancyStatus || "Inactive"}
+              />
+            ))}
+          </div>
+        )}
+      </div>
     </div>
   );
 }
 
-/* ================= ROW ================= */
+/* ================= DESKTOP ROW ================= */
 
 function Row({ name, id, room, block, phone, email, payment, occupancy }) {
   const navigate = useNavigate();
 
   return (
-    <div className="grid grid-cols-7 gap-x-4 px-6 py-4 border-t border-border items-center text-sm">
-      <div className="col-span-2 flex items-center gap-3">
+    <div className="grid grid-cols-8 gap-4 px-6 py-4 items-center text-sm hover:bg-muted/30 transition-colors">
+      <div className="col-span-2 flex items-center gap-3 min-w-0">
         <Avatar name={name} />
-        <div>
-          <p className="font-medium text-foreground">{name}</p>
-          <p className="text-xs text-muted-foreground">ID: {id}</p>
+        <div className="min-w-0">
+          <p className="font-medium text-foreground truncate" title={name}>{name}</p>
+          <p className="text-xs text-muted-foreground truncate">ID: {id}</p>
         </div>
       </div>
 
-      <div>
-        <p className="font-medium text-foreground">{room}</p>
-        <p className="text-xs text-muted-foreground">{block}</p>
+      <div className="col-span-1 min-w-0">
+        <p className="font-medium text-foreground truncate">{room}</p>
+        <p className="text-xs text-muted-foreground truncate">{block}</p>
       </div>
 
-      <div>
-        <p className="text-foreground">{phone}</p>
-        <p className="text-xs text-muted-foreground">{email}</p>
+      <div className="col-span-2 min-w-0">
+        <p className="text-foreground truncate">{phone}</p>
+        <p className="text-xs text-muted-foreground truncate" title={email}>{email}</p>
       </div>
 
-      <PaymentBadge value={payment} />
-      <div className="pl-6">
-  <OccupancyStatus value={occupancy} />
-</div>
+      <div className="col-span-1">
+        <PaymentBadge value={payment} />
+      </div>
+      
+      <div className="col-span-1 pl-2">
+        <OccupancyStatus value={occupancy} />
+      </div>
 
       <div className="col-span-1 flex justify-end pr-2">
         <div className="flex gap-4 text-muted-foreground">
           <Eye
+            className="w-4 h-4 cursor-pointer hover:text-foreground transition-colors"
+            onClick={() => navigate(`/admin/students/view/${id}`)}
+          />
+          <Pencil
+            className="w-4 h-4 cursor-pointer hover:text-foreground transition-colors"
+            onClick={() => navigate(`/admin/students/edit/${id}`)}
+          />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ================= MOBILE ROW (Was Missing Before) ================= */
+
+function MobileRow({ id, name, room, block, phone, email, payment, occupancy }) {
+  const navigate = useNavigate();
+
+  return (
+    <div className="p-4 border-b border-border">
+      <div className="flex items-start justify-between gap-3">
+        <div className="flex items-center gap-3">
+          <Avatar name={name} />
+          <div>
+            <p className="font-medium text-foreground text-sm">{name}</p>
+            <p className="text-xs text-muted-foreground">ID: {id}</p>
+          </div>
+        </div>
+
+        <div className="flex gap-3 text-muted-foreground">
+          <Eye
             className="w-4 h-4 cursor-pointer hover:text-foreground"
             onClick={() => navigate(`/admin/students/view/${id}`)}
-          />{" "}
+          />
           <Pencil
             className="w-4 h-4 cursor-pointer hover:text-foreground"
             onClick={() => navigate(`/admin/students/edit/${id}`)}
           />
         </div>
+      </div>
+
+      <div className="mt-3 grid grid-cols-2 gap-2">
+        <div>
+          <p className="text-xs text-muted-foreground">ROOM</p>
+          <p className="text-sm font-medium text-foreground">{room}</p>
+          <p className="text-xs text-muted-foreground">{block}</p>
+        </div>
+        <div>
+          <p className="text-xs text-muted-foreground">CONTACT</p>
+          <p className="text-sm font-medium text-foreground">{phone}</p>
+          <p className="text-xs text-muted-foreground break-words">{email}</p>
+        </div>
+      </div>
+
+      <div className="mt-3 flex flex-wrap items-center gap-3">
+        <PaymentBadge value={payment} />
+        <OccupancyStatus value={occupancy} />
       </div>
     </div>
   );
@@ -317,7 +391,7 @@ function PaymentBadge({ value }) {
   return (
     <div className="flex items-center gap-2">
       <div
-        className={`h-6 w-[80px] rounded-full flex items-center px-3 text-xs font-medium ${
+        className={`h-6 w-[80px] rounded-full flex items-center justify-center px-3 text-xs font-medium ${
           isPaid
             ? "bg-green-100 text-green-700"
             : "bg-muted text-muted-foreground"
@@ -325,14 +399,12 @@ function PaymentBadge({ value }) {
       >
         {value}
       </div>
-      {/* <span className="w-2 h-2 bg-muted-foreground rounded-full"></span> */}
     </div>
   );
 }
 
 function OccupancyStatus({ value }) {
-const isActive =
-  value?.toLowerCase() === "active";
+  const isActive = value?.toLowerCase() === "active";
   return (
     <div className="flex items-center gap-2">
       <span

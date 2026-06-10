@@ -249,7 +249,7 @@ const fetchSupportTickets = async () => {
                     align="center"
                     className="z-[60] w-72 max-w-[300px] rounded-xl bg-black text-white text-xs p-4 shadow-2xl break-words whitespace-normal"
                   >
-                    <p className="font-semibold mb-2 text-gray-300">Ticket Description</p>
+                    {/* <p className="font-semibold mb-2 text-gray-300">Ticket Description</p> */}
                     <div className="leading-relaxed break-words whitespace-pre-wrap max-h-56 overflow-auto pr-1">
                       {ticket.description}
                     </div>

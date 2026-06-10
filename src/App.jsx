@@ -62,9 +62,10 @@ import StudentSupportChat from "./features/student/support/pages/TicketChat";
 import StudentProfile from "./features/student/profile/pages/Profile";
 import StudentProfileEdit from "./features/student/profile/pages/ProfileEdit";
 import StudentNotice from "./features/student/StudentNotice";
+
+
 // SUPER ADMIN
 import SuperAdminDashboard from "./features/super-admin/dashboard/pages/Dashboard";
-
 import Hostel from "./features/super-admin/hostels/pages/HostelList";
 import HostelView from "./features/super-admin/hostels/pages/HostelView";
 import SuperAdminAddHostel from "./features/super-admin/hostels/pages/AddHostel";
@@ -78,6 +79,8 @@ import Report from "./features/super-admin/report/pages/ReportPage";
 import Notifications from "./features/super-admin/settings/pages/SettingsPage";
 import SuperAdminQueryDetails from "./features/super-admin/queries/pages/QueryDetails";
 import BlogCMS from "./features/super-admin/blogs/pages/BlogCMS";
+import ContentManagement from "./features/super-admin/blogs/pages/ContentManagement";
+import CreateEditBlog from "./features/super-admin/blogs/pages/CreateEditBlog";
 
 // CHEF
 import ChefDashboard from "./features/chef/dashboard/pages/Dashboard";
@@ -190,6 +193,10 @@ export default function AppRoutes() {
 
               <Route path="reports" element={<Report />} />
               <Route path="blogs" element={<BlogCMS />} />
+              <Route path="blogs/content-management" element={<ContentManagement />} />
+              <Route path="blogs/create" element={<CreateEditBlog />} />
+              <Route path="blogs/edit/:id" element={<CreateEditBlog />} />
+
               <Route
                 path="queries/details"
                 element={<SuperAdminQueryDetails />}

@@ -369,7 +369,7 @@ const Topbar = ({ onMenuClick }) => {
               ) : null}
 
               {!hostelLoading && hostels.length > 0 ? (
-                <div className="space-y-3">
+                <div className="space-y-3 max-h-[60vh] overflow-y-auto pr-1">
                   {hostels.map((hostel) => {
                     const hostelId = String(hostel.hostelId);
                     const isActive =

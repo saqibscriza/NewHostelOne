@@ -1,6 +1,11 @@
 import { Card, CardContent } from "../../../../components/ui/Card";
 
-export default function OccupancyChart({ data = [], filter, setFilter }) {
+export default function OccupancyChart({
+  data = [],
+  filter,
+  setFilter,
+  onFilterApplied,
+}) {
   const colors = [
     "bg-slate-900",
     "bg-slate-950",
@@ -10,6 +15,7 @@ export default function OccupancyChart({ data = [], filter, setFilter }) {
     "bg-slate-600",
   ];
 
+
   const maxValue = Math.max(
     ...data.map((item) => item?.occupancyPercentage || 0),
     0,
@@ -17,13 +23,22 @@ export default function OccupancyChart({ data = [], filter, setFilter }) {
 
   return (
     <Card className="rounded-xl border bg-card text-card-foreground shadow-sm">
+      {/* NOTE: select change se sirf yahin graph refresh hona chahiye */}
       <CardContent className="p-4">
         <div className="flex justify-between mb-4">
           <h2 className="font-semibold text-foreground">Room Occupancy</h2>
 
           <select
             value={filter}
-            onChange={(e) => setFilter(e.target.value)}
+            onChange={(e) => {
+              const next = e.target.value;
+              setFilter(next);
+              // Parent me filter change se full dashboard refresh na ho,
+              // isliye chart-only refresh callback call karo.
+              if (typeof onFilterApplied === "function") {
+                onFilterApplied(next);
+              }
+            }}
             className="border border-input bg-background text-foreground px-3 pr-10 py-1.5 rounded-lg text-sm outline-none cursor-pointer focus:ring-2 focus:ring-ring"
           >
             <option value="7">This Week</option>

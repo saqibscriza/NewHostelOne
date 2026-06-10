@@ -1135,6 +1135,97 @@ export const getCSV_Api = async () => {
   }
 };
 
+
+// ************************** Blog-Post-Controller APIs ************************** */
+
+export const getBlogDashboardApi = async () => {
+  try {
+    axios.defaults.headers.common["Authorization"] = getToken();
+    const res = await axios.get(`${Domain}/blog-post/dashboard/stats`);
+    return res.data;
+  } catch (error) {
+    console.log("GET BLOG DASHBOARD ERROR 👉", error);
+    return null;
+  }
+};
+
+export const addBlogPostApi = async (data) => {
+  try {
+    axios.defaults.headers.common["Authorization"] = getToken();
+    const res = await axios.post(`${Domain}/blog-post/add`, data);
+    return res.data;
+  } catch (error) {
+    console.log("ADD BLOG POST ERROR 👉", error);
+    return null;
+  }
+};
+
+export const getAllBlogPostsApi = async () => {
+  try {
+    axios.defaults.headers.common["Authorization"] = getToken();
+    const res = await axios.get(`${Domain}/blog-post/all`);
+    return res.data;
+  } catch (error) {
+    console.log("GET ALL BLOG POSTS ERROR 👉", error);
+    return [];
+  }
+};
+
+export const deleteBlogPostApi = async (id) => {
+  try {
+    axios.defaults.headers.common["Authorization"] = getToken();
+    const res = await axios.delete(`${Domain}/blog-post/delete/${id}`);
+    return res.data;
+  } catch (error) {
+    console.log("DELETE BLOG POST ERROR 👉", error);
+    return null;
+  }
+};
+
+export const updateBlogPostApi = async (id, data) => {
+  try {
+    axios.defaults.headers.common["Authorization"] = getToken();
+    const res = await axios.put(`${Domain}/blog-post/update/${id}`, data);
+    return res.data;
+  } catch (error) {
+    console.log("UPDATE BLOG POST ERROR 👉", error);
+    return null;
+  }
+};
+
+export const getAllBlogCategoriesApi = async () => {
+  try {
+    axios.defaults.headers.common["Authorization"] = getToken();
+    const res = await axios.get(`${Domain}/blog-post/categories`);
+    return res.data;
+  }catch (error) {
+    console.log("GET ALL BLOG CATEGORIES ERROR 👉", error);
+    return [];
+  }
+};  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 // ******************************************************************************************************
 // ASIM //
 // ******************************************************************************************************
