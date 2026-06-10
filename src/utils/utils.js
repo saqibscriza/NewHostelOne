@@ -1196,7 +1196,7 @@ export const updateBlogPostApi = async (id, data) => {
 export const getAllBlogCategoriesApi = async () => {
   try {
     axios.defaults.headers.common["Authorization"] = getToken();
-    const res = await axios.get(`${Domain}/blog-post/categories`);
+    const res = await axios.get(`${Domain}/blog-category/all`);
     return res.data;
   }catch (error) {
     console.log("GET ALL BLOG CATEGORIES ERROR 👉", error);
