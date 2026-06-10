@@ -17,7 +17,8 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from "../../../../components/ui/pagination";
-import {  getBlogDashboardApi, getAllBlogPostsApi,} from "../../../../utils/utils";
+import { getBlogDashboardApi, getAllBlogPostsApi, deleteBlogPostApi } from "../../../../utils/utils";
+import toast from "react-hot-toast";
 
 export default function BlogCMS() {
   const navigate = useNavigate();
@@ -56,6 +57,7 @@ const statsData = [
 
 const [blogs, setBlogs] = useState([]);
 const [loading, setLoading] = useState(true);
+const [searchTerm, setSearchTerm] = useState("");
 
 const fetchBlogData = async () => {
   try {
@@ -84,14 +86,52 @@ if (blogsRes?.data) {
   }
 };
 
+const handleDelete = async (blogId) => {
+  try {
+    const res = await deleteBlogPostApi(blogId);
+
+    if (res?.status === "success") {
+      toast.success("Blog post deleted successfully");
+      fetchBlogData();
+    } else {
+      toast.error(res?.message || "Failed to delete blog post");
+    }
+  } catch (error) {
+    console.error("Delete error:", error);
+    toast.error("An error occurred while deleting");
+  }
+};
+
 useEffect(() => {
   fetchBlogData();
 }, []);
 
-  // Pagination Logic
-  const totalPages = Math.max(1, Math.ceil(blogs.length / itemsPerPage));
-  const startIndex = (currentPage - 1) * itemsPerPage;
-  const currentBlogs = blogs.slice(startIndex, startIndex + itemsPerPage);
+
+// 👇 Yaha add karo
+const filteredBlogs = blogs.filter((blog) => {
+  const search = searchTerm.toLowerCase();
+
+  return (
+    blog?.title?.toLowerCase().includes(search) ||
+    blog?.authorName?.toLowerCase().includes(search) ||
+    blog?.categoryName?.toLowerCase().includes(search) ||
+    blog?.status?.toLowerCase().includes(search)
+  );
+});
+
+// Pagination Logic
+const totalPages = Math.max(
+  1,
+  Math.ceil(filteredBlogs.length / itemsPerPage)
+);
+
+const startIndex = (currentPage - 1) * itemsPerPage;
+
+const currentBlogs = filteredBlogs.slice(
+  startIndex,
+  startIndex + itemsPerPage
+);
+
 
   const handlePageChange = (page) => {
     if (page >= 1 && page <= totalPages) {
@@ -161,11 +201,13 @@ useEffect(() => {
 <div className="flex items-center justify-between gap-4 py-2 -mx-8 px-8 bg-transparent">
   <div className="relative w-full max-w-md">
     <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-    <input
-      type="text"
-      placeholder="Search blogs, authors or tags..."
-      className="w-full bg-muted border-none text-foreground text-sm rounded-lg py-2.5 pl-10 pr-4 focus:ring-0 focus:outline-none"
-    />
+<input
+  type="text"
+  placeholder="Search blogs, authors or tags..."
+  value={searchTerm}
+  onChange={(e) => setSearchTerm(e.target.value)}
+  className="w-full bg-muted border-none text-foreground text-sm rounded-lg py-2.5 pl-10 pr-4 focus:ring-0 focus:outline-none"
+/>
   </div>
 </div>
 
@@ -247,6 +289,7 @@ className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font
                         </DropdownMenuItem>
                         <DropdownMenuItem
                           className="cursor-pointer text-muted-foreground focus:bg-accent focus:text-foreground"
+                          onClick={() => handleDelete(blog.blogId || blog.id || blog._id)}
                         >
                           Delete
                         </DropdownMenuItem>

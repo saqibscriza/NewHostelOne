@@ -1152,11 +1152,11 @@ export const getBlogDashboardApi = async () => {
 export const addBlogPostApi = async (data) => {
   try {
     axios.defaults.headers.common["Authorization"] = getToken();
-    const res = await axios.post(`${Domain}/blog-post/add`, data);
+    const res = await axios.post(`${Domain}/blog-post/create`, data);
     return res.data;
   } catch (error) {
     console.log("ADD BLOG POST ERROR 👉", error);
-    return null;
+    return error?.response?.data || null;
   }
 };
 
@@ -1168,6 +1168,16 @@ export const getAllBlogPostsApi = async () => {
   } catch (error) {
     console.log("GET ALL BLOG POSTS ERROR 👉", error);
     return [];
+  }
+};
+export const getBlogPostByIdApi = async (id) => {
+  try {
+    axios.defaults.headers.common["Authorization"] = getToken();
+    const res = await axios.get(`${Domain}/blog-post/getById/${id}`);
+    return res.data;
+  } catch (error) {
+    console.log("GET BLOG POST BY ID ERROR 👉", error);
+    return[];
   }
 };
 
@@ -1189,7 +1199,7 @@ export const updateBlogPostApi = async (id, data) => {
     return res.data;
   } catch (error) {
     console.log("UPDATE BLOG POST ERROR 👉", error);
-    return null;
+    return error?.response?.data || null;
   }
 };
 
@@ -1204,8 +1214,38 @@ export const getAllBlogCategoriesApi = async () => {
   }
 };  
 
+export const addBlogCategoryApi = async (data) => {
+  try {
+    axios.defaults.headers.common["Authorization"] = getToken();
+    const res = await axios.post(`${Domain}/blog-category/create`, data);
+    return res.data;
+  } catch (error) {
+    console.log("ADD BLOG CATEGORY ERROR 👉", error);
+    return error?.response?.data || null;
+  }
+};
 
+export const updateBlogCategoryApi = async (id, data) => {
+  try {
+    axios.defaults.headers.common["Authorization"] = getToken();
+    const res = await axios.put(`${Domain}/blog-category/update/${id}`, data);
+    return res.data;
+  } catch (error) {
+    console.log("UPDATE BLOG CATEGORY ERROR 👉", error);
+    return error?.response?.data || null;
+  }
+};
 
+export const deleteBlogCategoryApi = async (id) => {
+  try {
+    axios.defaults.headers.common["Authorization"] = getToken();
+    const res = await axios.delete(`${Domain}/blog-category/delete/${id}`);
+    return res.data;
+  } catch (error) {
+    console.log("DELETE BLOG CATEGORY ERROR 👉", error);
+    return error?.response?.data || null;
+  }
+};
 
 
 
