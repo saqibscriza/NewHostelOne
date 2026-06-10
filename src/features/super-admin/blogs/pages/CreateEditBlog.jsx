@@ -223,18 +223,25 @@ export default function CreateEditBlog() {
               <div className="space-y-1.5">
                 <label className="text-[13px] font-bold text-slate-800">Blog Category</label>
                 <div className="relative">
-                  <select className="w-full border border-slate-200 rounded-lg px-3 py-2.5 text-[14px] font-medium bg-[#f8fafc] focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition-all appearance-none cursor-pointer pr-8 text-slate-600">
-                    <option value="">Select Category</option>
-                    <option value="industry-news">Industry News</option>
-                    <option value="product-updates">Product Updates</option>
-                    <option value="tutorials">Tutorials</option>
-                    <option value="case-studies">Case Studies</option>
-                  </select>
-                  <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-slate-400">
+<select
+  className="w-full border border-slate-200 rounded-lg px-3 py-2.5 text-[14px] font-medium bg-[#f8fafc] focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition-all cursor-pointer pr-8 text-slate-600 appearance-none"
+  style={{
+    WebkitAppearance: "none",
+    MozAppearance: "none",
+    appearance: "none",
+  }}
+>
+  <option value="">Select Category</option>
+  <option value="industry-news">Industry News</option>
+  <option value="product-updates">Product Updates</option>
+  <option value="tutorials">Tutorials</option>
+  <option value="case-studies">Case Studies</option>
+</select>
+                  {/* <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-slate-400">
                     <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
                       <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
                     </svg>
-                  </span>
+                  </span> */}
                 </div>
               </div>
 

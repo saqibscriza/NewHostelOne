@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import { ImagePlus, Pencil, Trash2 } from "lucide-react";
-import { Card, CardContent } from "../../../../components/ui/card";
+import { Card, CardContent } from "../../../../components/ui/Card";
 import { Button } from "../../../../components/ui/button";
 
 import {
