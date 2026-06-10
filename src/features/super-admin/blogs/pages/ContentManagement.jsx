@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { ImagePlus, Pencil, Trash2 } from "lucide-react";
 import { Card, CardContent } from "../../../../components/ui/card";
 import { Button } from "../../../../components/ui/button";
@@ -19,6 +19,54 @@ export default function ContentManagement() {
   const [editingCategory, setEditingCategory] = useState(null);
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(false);
+
+  // Add form image state
+  const [addImage, setAddImage] = useState(null);        // File object
+  const [addImagePreview, setAddImagePreview] = useState(null); // Object URL
+  const addImageInputRef = useRef(null);
+
+  // Edit dialog image state
+  const [editImage, setEditImage] = useState(null);
+  const [editImagePreview, setEditImagePreview] = useState(null);
+  const editImageInputRef = useRef(null);
+
+  const handleAddImageChange = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    if (file.size > 2 * 1024 * 1024) {
+      alert("Image size must be under 2 MB.");
+      return;
+    }
+    if (addImagePreview) URL.revokeObjectURL(addImagePreview);
+    setAddImage(file);
+    setAddImagePreview(URL.createObjectURL(file));
+  };
+
+  const removeAddImage = () => {
+    if (addImagePreview) URL.revokeObjectURL(addImagePreview);
+    setAddImage(null);
+    setAddImagePreview(null);
+    if (addImageInputRef.current) addImageInputRef.current.value = "";
+  };
+
+  const handleEditImageChange = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    if (file.size > 2 * 1024 * 1024) {
+      alert("Image size must be under 2 MB.");
+      return;
+    }
+    if (editImagePreview && !editImagePreview.startsWith("http")) URL.revokeObjectURL(editImagePreview);
+    setEditImage(file);
+    setEditImagePreview(URL.createObjectURL(file));
+  };
+
+  const removeEditImage = () => {
+    if (editImagePreview && !editImagePreview.startsWith("http")) URL.revokeObjectURL(editImagePreview);
+    setEditImage(null);
+    setEditImagePreview(null);
+    if (editImageInputRef.current) editImageInputRef.current.value = "";
+  };
 
   const fetchCategories = async () => {
     try {
@@ -48,30 +96,6 @@ export default function ContentManagement() {
 useEffect(() => {
   fetchCategories();
 }, []);
-
-  // const categories = [
-  //   {
-  //     id: 1,
-  //     image: "src", // usually you'd pass a placeholder image url here
-  //     name: "Industry News",
-  //     slug: "industry-news",
-  //     posts: 24,
-  //   },
-  //   {
-  //     id: 2,
-  //     image: "src",
-  //     name: "Product Updates",
-  //     slug: "product-updates",
-  //     posts: 12,
-  //   },
-  //   {
-  //     id: 3,
-  //     image: "src",
-  //     name: "Case Studies",
-  //     slug: "case-studies",
-  //     posts: 8,
-  //   },
-  // ];
 
   return (
     <div className="min-h-screen bg-[#f8fafc] p-8 space-y-8 pb-10">
@@ -118,11 +142,42 @@ useEffect(() => {
 
               <div className="space-y-1.5">
                 <label className="text-[14px] font-semibold text-slate-700">Category Image</label>
-                <div className="border-2 border-dashed border-slate-300 rounded-xl bg-slate-50 p-6 flex flex-col items-center justify-center text-center cursor-pointer hover:bg-slate-100 transition-colors">
-                  <ImagePlus className="w-5 h-5 text-slate-500 mb-2" />
-                  <span className="text-[13px] font-medium text-slate-600 block">Upload or drag an image</span>
-                  <span className="text-[11px] font-medium text-slate-400 block">( under 2 mb size )</span>
-                </div>
+                <input
+                  ref={addImageInputRef}
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={handleAddImageChange}
+                />
+                {addImagePreview ? (
+                  <div className="relative rounded-xl overflow-hidden border border-slate-200 shadow-sm">
+                    <img
+                      src={addImagePreview}
+                      alt="Preview"
+                      className="w-full h-40 object-cover"
+                    />
+                    <button
+                      type="button"
+                      onClick={removeAddImage}
+                      className="absolute top-2 right-2 bg-white/90 hover:bg-red-50 text-red-500 rounded-full p-1 shadow transition-colors"
+                      title="Remove image"
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                    </button>
+                    <div className="px-3 py-1.5 bg-white/90 border-t border-slate-100">
+                      <p className="text-[12px] text-slate-500 truncate">{addImage?.name}</p>
+                    </div>
+                  </div>
+                ) : (
+                  <div
+                    onClick={() => addImageInputRef.current?.click()}
+                    className="border-2 border-dashed border-slate-300 rounded-xl bg-slate-50 p-6 flex flex-col items-center justify-center text-center cursor-pointer hover:bg-slate-100 hover:border-blue-300 transition-colors"
+                  >
+                    <ImagePlus className="w-5 h-5 text-slate-500 mb-2" />
+                    <span className="text-[13px] font-medium text-slate-600 block">Click to upload an image</span>
+                    <span className="text-[11px] font-medium text-slate-400 block">( under 2 MB, JPG / PNG / WebP )</span>
+                  </div>
+                )}
               </div>
 
               <div className="space-y-1.5">
@@ -283,6 +338,10 @@ useEffect(() => {
                         title="Edit category"
                         onClick={() => {
                           setEditingCategory(cat);
+                          // Preload existing image as preview
+                          setEditImage(null);
+                          setEditImagePreview(cat.image || null);
+                          if (editImageInputRef.current) editImageInputRef.current.value = "";
                           setIsEditDialogOpen(true);
                         }}
                       >
@@ -319,11 +378,42 @@ useEffect(() => {
           <div className="px-6 py-6 space-y-5 bg-white max-h-[75vh] overflow-y-auto">
             <div className="space-y-1.5">
               <label className="text-[14px] font-semibold text-slate-700">Category Image</label>
-              <div className="border-2 border-dashed border-slate-300 rounded-xl bg-slate-50 p-6 flex flex-col items-center justify-center text-center cursor-pointer hover:bg-slate-100 transition-colors">
-                <ImagePlus className="w-5 h-5 text-slate-500 mb-2" />
-                <span className="text-[13px] font-medium text-slate-600 block">Upload or drag an image</span>
-                <span className="text-[11px] font-medium text-slate-400 block">( under 2 mb size )</span>
-              </div>
+              <input
+                ref={editImageInputRef}
+                type="file"
+                accept="image/*"
+                className="hidden"
+                onChange={handleEditImageChange}
+              />
+              {editImagePreview ? (
+                <div className="relative rounded-xl overflow-hidden border border-slate-200 shadow-sm">
+                  <img
+                    src={editImagePreview}
+                    alt="Preview"
+                    className="w-full h-40 object-cover"
+                  />
+                  <button
+                    type="button"
+                    onClick={removeEditImage}
+                    className="absolute top-2 right-2 bg-white/90 hover:bg-red-50 text-red-500 rounded-full p-1 shadow transition-colors"
+                    title="Remove image"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                  </button>
+                  <div className="px-3 py-1.5 bg-white/90 border-t border-slate-100">
+                    <p className="text-[12px] text-slate-500 truncate">{editImage?.name ?? editingCategory?.image?.split('/').pop()}</p>
+                  </div>
+                </div>
+              ) : (
+                <div
+                  onClick={() => editImageInputRef.current?.click()}
+                  className="border-2 border-dashed border-slate-300 rounded-xl bg-slate-50 p-6 flex flex-col items-center justify-center text-center cursor-pointer hover:bg-slate-100 hover:border-blue-300 transition-colors"
+                >
+                  <ImagePlus className="w-5 h-5 text-slate-500 mb-2" />
+                  <span className="text-[13px] font-medium text-slate-600 block">Click to upload an image</span>
+                  <span className="text-[11px] font-medium text-slate-400 block">( under 2 MB, JPG / PNG / WebP )</span>
+                </div>
+              )}
             </div>
 
             <div className="space-y-1.5">

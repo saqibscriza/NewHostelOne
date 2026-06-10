@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { ChevronRight, Info, UploadCloud } from "lucide-react";
 import { Card, CardContent } from "../../../../components/ui/Card";
@@ -18,6 +18,34 @@ export default function CreateEditBlog() {
   });
   const [content, setContent] = useState("");
   const [wordCount, setWordCount] = useState(0);
+
+  // Cover image state
+  const [coverImage, setCoverImage] = useState(null);         // File object
+  const [coverImagePreview, setCoverImagePreview] = useState(null); // Object URL or existing URL
+  const coverImageInputRef = useRef(null);
+
+  const handleCoverImageChange = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    if (file.size > 5 * 1024 * 1024) {
+      alert("Cover image size must be under 5 MB.");
+      return;
+    }
+    if (coverImagePreview && !coverImagePreview.startsWith("http")) {
+      URL.revokeObjectURL(coverImagePreview);
+    }
+    setCoverImage(file);
+    setCoverImagePreview(URL.createObjectURL(file));
+  };
+
+  const removeCoverImage = () => {
+    if (coverImagePreview && !coverImagePreview.startsWith("http")) {
+      URL.revokeObjectURL(coverImagePreview);
+    }
+    setCoverImage(null);
+    setCoverImagePreview(null);
+    if (coverImageInputRef.current) coverImageInputRef.current.value = "";
+  };
 
   const handleEditorChange = (value, delta, source, editor) => {
     setContent(value);
@@ -213,17 +241,61 @@ export default function CreateEditBlog() {
               {/* Cover Image */}
               <div className="space-y-2">
                 <label className="text-[13px] font-bold text-slate-800">Cover Image</label>
-                <div className="w-full aspect-[1.91/1] bg-slate-100 rounded-xl border border-slate-200 overflow-hidden relative group cursor-pointer hover:border-blue-300 transition-colors">
-                  <div
-                    className="absolute inset-0 bg-cover bg-center opacity-50 group-hover:opacity-40 transition-opacity"
-                    style={{ backgroundImage: "url('https://images.unsplash.com/photo-1499750310107-5fef28a66643?w=800&q=80')" }}
-                  />
-                  <div className="absolute inset-0 flex flex-col items-center justify-center gap-1 p-3">
-                    <UploadCloud className="w-7 h-7 text-[#0052cc] drop-shadow" />
-                    <span className="text-[13px] font-bold text-slate-800 drop-shadow">Replace Image</span>
-                    <span className="text-[11px] font-medium text-slate-600 drop-shadow">Recommended: 1200x630px</span>
+
+                {/* Hidden file input */}
+                <input
+                  ref={coverImageInputRef}
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={handleCoverImageChange}
+                />
+
+                {coverImagePreview ? (
+                  /* ── Preview State ── */
+                  <div className="relative w-full rounded-xl overflow-hidden border border-slate-200 shadow-sm group">
+                    <img
+                      src={coverImagePreview}
+                      alt="Cover preview"
+                      className="w-full aspect-[1.91/1] object-cover"
+                    />
+                    {/* Overlay on hover to replace */}
+                    <div
+                      onClick={() => coverImageInputRef.current?.click()}
+                      className="absolute inset-0 bg-black/0 group-hover:bg-black/30 flex flex-col items-center justify-center gap-1 opacity-0 group-hover:opacity-100 transition-all cursor-pointer"
+                    >
+                      <UploadCloud className="w-7 h-7 text-white drop-shadow" />
+                      <span className="text-[13px] font-bold text-white drop-shadow">Replace Image</span>
+                    </div>
+                    {/* Remove button */}
+                    <button
+                      type="button"
+                      onClick={removeCoverImage}
+                      className="absolute top-2 right-2 bg-white/90 hover:bg-red-50 text-red-500 rounded-full p-1.5 shadow transition-colors z-10"
+                      title="Remove cover image"
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                        <line x1="18" y1="6" x2="6" y2="18"/>
+                        <line x1="6" y1="6" x2="18" y2="18"/>
+                      </svg>
+                    </button>
+                    {/* File name badge */}
+                    <div className="px-3 py-1.5 bg-white border-t border-slate-100">
+                      <p className="text-[11px] text-slate-500 truncate">{coverImage?.name ?? "Current cover image"}</p>
+                    </div>
                   </div>
-                </div>
+                ) : (
+                  /* ── Empty / Upload State ── */
+                  <div
+                    onClick={() => coverImageInputRef.current?.click()}
+                    className="w-full aspect-[1.91/1] bg-slate-50 rounded-xl border-2 border-dashed border-slate-300 overflow-hidden relative group cursor-pointer hover:border-blue-400 hover:bg-blue-50/30 transition-colors flex flex-col items-center justify-center gap-2"
+                  >
+                    <UploadCloud className="w-8 h-8 text-slate-400 group-hover:text-[#0052cc] transition-colors" />
+                    <span className="text-[13px] font-bold text-slate-600 group-hover:text-[#0052cc] transition-colors">Click to upload cover image</span>
+                    <span className="text-[11px] font-medium text-slate-400">JPG, PNG, WebP — max 5 MB</span>
+                    <span className="text-[11px] font-medium text-slate-400">Recommended: 1200×630 px</span>
+                  </div>
+                )}
               </div>
 
               {/* Alt Text */}
