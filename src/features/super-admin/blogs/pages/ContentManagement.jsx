@@ -63,7 +63,7 @@ export default function ContentManagement() {
     const file = e.target.files[0];
     if (!file) return;
     if (file.size > 2 * 1024 * 1024) {
-      alert("Image size must be under 2 MB.");
+      console.log("Image size must be under 2 MB.");
       return;
     }
     if (addImagePreview) URL.revokeObjectURL(addImagePreview);
@@ -82,7 +82,7 @@ export default function ContentManagement() {
     const file = e.target.files[0];
     if (!file) return;
     if (file.size > 2 * 1024 * 1024) {
-      alert("Image size must be under 2 MB.");
+      console.log("Image size must be under 2 MB.");
       return;
     }
     if (editImagePreview && !editImagePreview.startsWith("http")) URL.revokeObjectURL(editImagePreview);
@@ -197,24 +197,29 @@ const onEditSubmit = async (data) => {
 };
 
 const handleDeleteCategory = (id) => {
-  toast((t) => (
-    <div className="flex flex-col gap-3">
-      <span className="text-[14px] font-semibold text-slate-800">
+toast(
+  (t) => (
+    <div className="flex flex-col gap-3 min-w-[320px]">
+      <span className="text-[14px] font-semibold text-slate-800 text-center">
         Are you sure you want to delete this category?
       </span>
-      <div className="flex gap-2 justify-end">
+
+      <div className="flex gap-2 justify-center">
         <button
-          className="bg-slate-200 hover:bg-slate-300 text-slate-700 px-3 py-1.5 rounded-md text-[13px] font-medium transition-colors"
+          className="bg-slate-200 hover:bg-slate-300 text-slate-700 px-3 py-1.5 rounded-md text-[13px] font-medium"
           onClick={() => toast.dismiss(t.id)}
         >
           Cancel
         </button>
+
         <button
-          className="bg-red-500 hover:bg-red-600 text-white px-3 py-1.5 rounded-md text-[13px] font-medium transition-colors"
+          className="bg-red-500 hover:bg-red-600 text-white px-3 py-1.5 rounded-md text-[13px] font-medium"
           onClick={async () => {
             toast.dismiss(t.id);
+
             try {
               const res = await deleteBlogCategoryApi(id);
+
               if (res?.status === "success") {
                 toast.success("Category deleted successfully");
                 fetchCategories();
@@ -222,7 +227,6 @@ const handleDeleteCategory = (id) => {
                 toast.error(res?.message || "Failed to delete category");
               }
             } catch (error) {
-              console.error(error);
               toast.error("An error occurred while deleting category");
             }
           }}
@@ -231,9 +235,12 @@ const handleDeleteCategory = (id) => {
         </button>
       </div>
     </div>
-  ), {
+  ),
+  {
     duration: Infinity,
-  });
+    position: "top-center",
+  }
+);
 };
 
   return (

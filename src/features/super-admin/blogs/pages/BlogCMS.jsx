@@ -86,20 +86,54 @@ if (blogsRes?.data) {
   }
 };
 
-const handleDelete = async (blogId) => {
-  try {
-    const res = await deleteBlogPostApi(blogId);
+const handleDelete = (blogId) => {
+  toast(
+    (t) => (
+      <div className="flex flex-col gap-3 min-w-[320px]">
+        <span className="text-[14px] font-semibold text-slate-800 text-center">
+          Are you sure you want to delete this blog post?
+        </span>
 
-    if (res?.status === "success") {
-      toast.success("Blog post deleted successfully");
-      fetchBlogData();
-    } else {
-      toast.error(res?.message || "Failed to delete blog post");
+        <div className="flex gap-2 justify-center">
+          <button
+            className="bg-slate-200 hover:bg-slate-300 text-slate-700 px-3 py-1.5 rounded-md text-[13px] font-medium"
+            onClick={() => toast.dismiss(t.id)}
+          >
+            Cancel
+          </button>
+
+          <button
+            className="bg-red-500 hover:bg-red-600 text-white px-3 py-1.5 rounded-md text-[13px] font-medium"
+            onClick={async () => {
+              toast.dismiss(t.id);
+
+              try {
+                const res = await deleteBlogPostApi(blogId);
+
+                if (res?.status === "success") {
+                  toast.success("Blog post deleted successfully");
+                  fetchBlogData();
+                } else {
+                  toast.error(
+                    res?.message || "Failed to delete blog post"
+                  );
+                }
+              } catch (error) {
+                console.error("Delete error:", error);
+                toast.error("An error occurred while deleting");
+              }
+            }}
+          >
+            Delete
+          </button>
+        </div>
+      </div>
+    ),
+    {
+      duration: Infinity,
+      position: "top-center",
     }
-  } catch (error) {
-    console.error("Delete error:", error);
-    toast.error("An error occurred while deleting");
-  }
+  );
 };
 
 useEffect(() => {
