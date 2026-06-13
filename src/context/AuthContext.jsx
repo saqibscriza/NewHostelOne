@@ -12,8 +12,12 @@ export const AuthProvider = ({ children }) => {
 
   const [role, setRole] = useState(hasSession ? storedRole : null);
   const [token, setToken] = useState(hasSession ? storedToken : null);
-  const [userName, setUserName] = useState(hasSession ? storedName || "User" : null);
-  const [userPhoto, setUserPhoto] = useState(hasSession ? storedPhoto || "" : null);
+  const [userName, setUserName] = useState(
+    hasSession ? storedName || "User" : null,
+  );
+  const [userPhoto, setUserPhoto] = useState(
+    hasSession ? storedPhoto || "" : null,
+  );
   const [isAuthenticated, setIsAuthenticated] = useState(hasSession);
   const [isReady] = useState(true);
 
@@ -43,6 +47,8 @@ export const AuthProvider = ({ children }) => {
     sessionStorage.setItem("role", userRole);
     sessionStorage.setItem("token", userToken);
     sessionStorage.setItem("userName", defaultName);
+    localStorage.setItem("theme", "light");
+    document.documentElement.classList.remove("dark");
 
     setRole(userRole);
     setToken(userToken);

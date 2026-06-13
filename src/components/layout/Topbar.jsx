@@ -3,7 +3,7 @@ import { Menu, Bell, MapPin } from "lucide-react";
 import { Button } from "../ui/button";
 import { useAuth } from "../../context/AuthContext";
 import { useLocation, useNavigate } from "react-router-dom";
-import { ThemeToggle } from "../../theme/ThemeToggle";
+// import { ThemeToggle } from "../../theme/ThemeToggle";
 import {
   Getadminswitchaccount,
   getAdminProfileApi,
@@ -263,7 +263,7 @@ const Topbar = ({ onMenuClick }) => {
         <div className="flex items-center gap-4">
           {/* dark mode button */}
 
-          <ThemeToggle />
+          {/* <ThemeToggle /> */}
 
           {/* Notifications */}
           <Button
