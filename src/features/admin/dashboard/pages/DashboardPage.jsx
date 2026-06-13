@@ -96,10 +96,9 @@ export default function DashboardPage() {
             title="Total Students"
             value={metrics.totalStudents || 0}
             icon={<Users />}
-            badge={`${metrics.totalStudentsGrowth || 0}%`}
+            // badge={`${metrics.totalStudentsGrowth || 0}%`}
           />
         </div>
-
         <div
           onClick={() => navigate("/admin/rooms/details")}
           className="cursor-pointer"

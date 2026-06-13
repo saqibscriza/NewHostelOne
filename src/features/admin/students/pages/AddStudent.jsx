@@ -363,6 +363,9 @@ export default function AddStudent() {
     } else if (!/^[A-Za-z\s.'-]+$/.test(form.guardianName)) {
       nextErrors.guardianName = "Invalid guardian name";
     }
+    if (!/^[6-9]\d{9}$/.test(form.phone || "")) {
+      nextErrors.phone = "Contact number must start with 6, 7, 8 or 9";
+    }
     if (!/^[6-9]\d{9}$/.test(form.emergencyContact || "")) {
       nextErrors.emergencyContact =
         "Contact number must start with 6, 7, 8 or 9";
@@ -813,13 +816,25 @@ export default function AddStudent() {
               placeholder="Enter 10 digit phone number"
               value={form.phone || ""}
               onChange={(e) => {
-                let value = e.target.value;
+                let value = e.target.value.replace(/\D/g, "");
 
                 if (value.length > 10) {
                   value = value.slice(0, 10);
                 }
 
                 handleChange("phone", value);
+
+                if (value && !/^[6-9]\d{0,9}$/.test(value)) {
+                  setErrors((prev) => ({
+                    ...prev,
+                    phone: "Contact number must start with 6, 7, 8 or 9",
+                  }));
+                } else {
+                  setErrors((prev) => ({
+                    ...prev,
+                    phone: "",
+                  }));
+                }
               }}
               className={errors.phone ? "border-destructive" : ""}
             />

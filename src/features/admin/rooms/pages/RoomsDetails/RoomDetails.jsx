@@ -365,9 +365,9 @@ const RoomDetails = () => {
                         <p className="font-medium">
                           {room?.roomNameNumber || room?.roomNumber}
                         </p>
-                        <span className="text-xs text-muted-foreground">
+                        {/* <span className="text-xs text-muted-foreground">
                           Room Image
-                        </span>
+                        </span> */}
                       </div>
                     </div>
                   </TableCell>
