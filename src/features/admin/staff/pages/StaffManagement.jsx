@@ -185,7 +185,7 @@ export default function StaffManagement() {
         </Card>
 
         {/* Card 2 */}
-        <Card className="border-border shadow-sm rounded-xl">
+        {/* <Card className="border-border shadow-sm rounded-xl">
           <CardContent className="p-6">
             <p className="text-xs font-bold text-muted-foreground tracking-wider uppercase mb-3">
               Present Today
@@ -197,10 +197,10 @@ export default function StaffManagement() {
               </div>
             </div>
           </CardContent>
-        </Card>
+        </Card> */}
 
         {/* Card 3 */}
-        <Card className="border-border shadow-sm rounded-xl">
+        {/* <Card className="border-border shadow-sm rounded-xl">
           <CardContent className="p-6">
             <p className="text-xs font-bold text-muted-foreground tracking-wider uppercase mb-3">
               On Leave
@@ -212,10 +212,10 @@ export default function StaffManagement() {
               </span>
             </div>
           </CardContent>
-        </Card>
+        </Card> */}
 
         {/* Card 4 */}
-        <Card className="border-border shadow-sm rounded-xl">
+        {/* <Card className="border-border shadow-sm rounded-xl">
           <CardContent className="p-6">
             <p className="text-xs font-bold text-muted-foreground tracking-wider uppercase mb-3">
               New Applications
@@ -227,7 +227,7 @@ export default function StaffManagement() {
               </span>
             </div>
           </CardContent>
-        </Card>
+        </Card> */}
       </div>
 
       {/* Table Section */}

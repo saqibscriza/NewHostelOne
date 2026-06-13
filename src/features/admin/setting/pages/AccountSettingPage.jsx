@@ -182,7 +182,7 @@ export default function AccountSettingPage() {
                   required: "Contact number is required",
                   pattern: {
                     value: /^[6-9]\d{9}$/,
-                    message: "Enter valid 10-digit contact number",
+                    message: "Enter valid 10-digit contact number starting with 6-9",
                   },
                   minLength: {
                     value: 10,
@@ -221,7 +221,7 @@ export default function AccountSettingPage() {
                 {...register("alternateContactNumber", {
                   pattern: {
                     value: /^[6-9]\d{9}$/,
-                    message: "Enter valid 10-digit contact number",
+                    message: "Enter valid 10-digit contact number starting with 6-9",
                   },
                 })}
                 onInput={(e) => {

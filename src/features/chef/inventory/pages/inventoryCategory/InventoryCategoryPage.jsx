@@ -23,17 +23,19 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from "../../../../../components/ui/pagination";
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Card, CardContent } from '../../../../../components/ui/Card';
 import { Button } from '../../../../../components/ui/button';
 import {getAllInventoryCategoryApi} from '../../../../../utils/utils';
 import { deleteInventoryCategoryApi } from "../../../../../utils/utils";
+import DefaultTable from "../../../../../components/DefaultTable/DefaultTable";
 
 
 export default function InventoryCategoryPage() {
 
 const [categories, setCategories] = useState([]);
 const [currentPage, setCurrentPage] = useState(1);
+const navigate = useNavigate();
 const itemsPerPage = 12;
 
 // Get all categories from the API
@@ -85,6 +87,20 @@ const deleteCategory = async (id) => {
           </Link>
         </Button>
       </div>
+
+      {/* --- CONDITION CHECKS --- */}
+      {categories.length === 0 ? (
+        /* Jab koi category nahi hogi tab yeh dikhega */
+        <DefaultTable 
+          title="No Categories Found"
+          description="Looks like you haven't added any inventory categories yet. Get started by creating your first category."
+          buttonText="Create Category"
+          onButtonClick={() => navigate("/chef/inventory/category/add")}
+          height="450px"
+        />
+      ) : (
+        /* Jab data hoga tab grid aur pagination dono dikhenge */
+        <>
 
       {/* Grid Section */}
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-6">
@@ -195,6 +211,8 @@ const deleteCategory = async (id) => {
             </PaginationContent>
           </Pagination>
         </div>
+        )}
+        </>
       )}
     </div>
   );
