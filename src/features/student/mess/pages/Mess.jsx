@@ -54,12 +54,12 @@ export default function Mess() {
     return date;
   }, [activeTab]);
 
-const menuTitle =
-  activeTab === "week"
-    ? "Full Week Menu"
-    : activeTab === "tomorrow"
-    ? "Tomorrow's Menu"
-    : "Today's Menu";
+  const menuTitle =
+    activeTab === "week"
+      ? "Full Week Menu"
+      : activeTab === "tomorrow"
+        ? "Tomorrow's Menu"
+        : "Today's Menu";
 
   const getAllFeedbackApiData = async () => {
     try {
@@ -251,7 +251,7 @@ const menuTitle =
     <>
       {openModal && selectedMeal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-          <div className="w-full max-w-lg rounded-xl bg-card border border-border shadow-2xl p-8 relative">
+          <div className="w-full max-w-lg rounded-xl bg-card border border-border shadow-2xl p-4 sm:p-8 relative">
             <button
               type="button"
               onClick={() => setOpenModal(false)}
@@ -343,7 +343,7 @@ const menuTitle =
         </div>
       )}
 
-      <div className="mx-auto max-w-6xl space-y-6 bg-background text-foreground">
+      <div className="mx-auto max-w-6xl space-y-6 bg-background text-foreground px-4 sm:px-0 overflow-hidden">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Mess Details</h1>
           <p className="text-muted-foreground mt-1">
@@ -364,7 +364,7 @@ const menuTitle =
               </p>
             </div>
 
-            <div className="flex bg-muted p-1 rounded-lg">
+            <div className="grid grid-cols-1 sm:grid-cols-3 bg-muted p-1 rounded-lg w-full sm:w-auto">
               <TabButton
                 // className="cursor-pointer"
                 active={activeTab === "today"}
@@ -424,8 +424,8 @@ const menuTitle =
                     )}
                   </div>
 
-                  <div className="bg-muted p-4 rounded-xl flex-1 flex items-center justify-between gap-4">
-                    <p className="text-foreground text-[15px]">
+                  <div className="bg-muted p-4 rounded-xl flex-1 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                    <p className="text-foreground text-[15px] break-words">
                       {item.mealName}
                     </p>
                     {isMealRated(item) ? (
@@ -436,7 +436,7 @@ const menuTitle =
                       <button
                         type="button"
                         onClick={() => handleOpenModal(item)}
-                        className="px-5 py-2 bg-primary hover:bg-primary/90 text-primary-foreground text-xs font-bold rounded-lg shadow-sm shrink-0 uppercase tracking-wide cursor-pointer"
+                        className="w-full sm:w-auto px-5 py-2 bg-primary hover:bg-primary/90 text-primary-foreground text-xs font-bold rounded-lg shadow-sm shrink-0 uppercase tracking-wide cursor-pointer"
                       >
                         Rate Meal
                       </button>
@@ -454,14 +454,14 @@ const menuTitle =
 
         <div className="bg-card border border-border rounded-2xl p-5 md:p-6 shadow-sm">
           <div className="flex flex-col xl:flex-row xl:items-center xl:justify-between gap-4">
-            <div className="flex items-center gap-3 overflow-x-auto">
+            <div className="flex flex-col sm:flex-row flex-wrap gap-3 w-full">
               <p className="text-sm font-semibold text-muted-foreground mr-1">
                 Filter by:
               </p>
 
               {/* STATUS FILTER */}
               <Select value={statusFilter} onValueChange={setStatusFilter}>
-                <SelectTrigger className="h-12 min-w-[170px] rounded-xl px-4 pr-4">
+                <SelectTrigger className="h-12 w-full sm:min-w-[170px] rounded-xl px-4 pr-4">
                   <SelectValue placeholder="All Status" />
                 </SelectTrigger>
                 <SelectContent>
@@ -474,7 +474,7 @@ const menuTitle =
 
               {/* DATE FILTER */}
               <Select value={dayFilter} onValueChange={setDayFilter}>
-                <SelectTrigger className="h-12 min-w-[170px] rounded-xl px-4 pr-4">
+                <SelectTrigger className="h-12 w-full sm:min-w-[170px] rounded-xl px-4 pr-4">
                   <SelectValue placeholder="Full Week" />
                 </SelectTrigger>
                 <SelectContent>
@@ -494,7 +494,7 @@ const menuTitle =
                 setStatusFilter("all");
                 setDayFilter("7");
               }}
-              className="h-12 px-5 rounded-xl border border-border bg-background text-sm font-medium text-foreground cursor-pointer hover:border-primary hover:text-primary transition-all"
+              className="h-12 w-full sm:w-auto px-5 rounded-xl border border-border bg-background text-sm font-medium text-foreground cursor-pointer hover:border-primary hover:text-primary transition-all"
             >
               Clear Filters
             </button>
@@ -641,7 +641,7 @@ const TabButton = ({ active, label, onClick }) => (
   <button
     type="button"
     onClick={onClick}
-    className={`px-6 py-3 text-sm rounded-xl transition-all cursor-pointer ${
+    className={`w-full px-4 py-3 text-sm rounded-xl transition-all cursor-pointer ${
       active
         ? "bg-card shadow-sm text-primary font-semibold"
         : "text-muted-foreground hover:text-foreground"

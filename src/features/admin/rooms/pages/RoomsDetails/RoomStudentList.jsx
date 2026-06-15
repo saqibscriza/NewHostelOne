@@ -34,7 +34,7 @@ const RoomStudentList = () => {
   }, [roomId]);
 
   return (
-    <div className="p-6 space-y-6">
+    <div className="p-3 sm:p-4 md:p-6 space-y-4 sm:space-y-6">
       {/* Back Button */}
       <Button variant="outline" onClick={() => navigate(-1)}>
         <ArrowLeft className="w-4 h-4 mr-2" />
@@ -43,7 +43,7 @@ const RoomStudentList = () => {
 
       {/* Header */}
       <div>
-        <h1 className="text-2xl font-semibold">Room Students</h1>
+        <h1 className="text-xl sm:text-2xl font-semibold">Room Students</h1>
         <p className="text-muted-foreground text-sm">
           All students assigned to Room ID:{" "}
           <span className="font-medium text-foreground">{roomId}</span>
@@ -69,10 +69,10 @@ const RoomStudentList = () => {
 
       {/* Students Grid */}
       {!loading && students.length > 0 && (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3 sm:gap-4">
           {students.map((student, index) => (
             <Card key={student?.studentId || student?.id || index}>
-              <CardContent className="p-5 space-y-4">
+              <CardContent className="p-4 sm:p-5 space-y-4">
                 {/* Student Header */}
                 <div className="flex items-center gap-3">
                   {student?.photo ? (
@@ -94,7 +94,7 @@ const RoomStudentList = () => {
                   )}
 
                   <div>
-                    <h4 className="font-semibold text-slate-800 text-sm">
+                    <h4 className="font-semibold text-slate-800 text-sm truncate max-w-[180px]">
                       {student?.fullName || "N/A"}
                     </h4>
 
@@ -111,7 +111,7 @@ const RoomStudentList = () => {
                   {/* Email */}
                   <div className="flex items-center gap-2 text-muted-foreground">
                     <Mail className="w-3.5 h-3.5 shrink-0" />
-                    <span className="truncate text-xs">
+                    <span className="text-xs break-all">
                       {student?.contact?.email || "N/A"}
                     </span>
                   </div>
@@ -168,7 +168,7 @@ const RoomStudentList = () => {
                 {/* View Profile Button */}
                 <Button
                   variant="secondary"
-                  className="w-full bg-slate-50 hover:bg-slate-100 text-slate-800 font-bold text-sm"
+                  className="w-full bg-slate-50 hover:bg-slate-100 text-slate-800 font-bold text-xs sm:text-sm"
                   onClick={() =>
                     navigate(
                       `/admin/students/view/${student?.studentId || student?.id}`,

@@ -56,13 +56,15 @@ export default function StudentNotice() {
           (item) => (item?.category || "LOW").toUpperCase() === activeFilter,
         );
   return (
-    <div className="min-h-screen bg-background p-6">
+    <div className="min-h-screen bg-background p-4 sm:p-6">
       {/* HEADER */}
 
       <div className="mb-8">
-        <h1 className="text-4xl font-bold text-foreground">Notice Details</h1>
+        <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-foreground">
+          Notice Details
+        </h1>
 
-        <p className="mt-2 text-muted-foreground">
+        <p className="mt-2 text-sm sm:text-base text-muted-foreground">
           Don't miss out on important updates—find all your notices in one
           place.
         </p>
@@ -70,12 +72,12 @@ export default function StudentNotice() {
 
       {/* FILTERS */}
 
-      <div className="mb-8 flex flex-wrap gap-3">
+      <div className="mb-8 grid grid-cols-2 sm:flex sm:flex-wrap gap-3">
         {["ALL", "HIGH", "MEDIUM", "LOW"].map((item) => (
           <button
             key={item}
             onClick={() => setActiveFilter(item)}
-            className={`rounded-full border px-6 py-2 text-sm font-medium cursor-pointer transition-all duration-300 hover:scale-105 ${
+            className={`rounded-full border px-4 sm:px-6 py-2 text-xs sm:text-sm w-full sm:w-auto text-sm font-medium cursor-pointer transition-all duration-300 hover:scale-105 ${
               activeFilter === item
                 ? "bg-primary text-primary-foreground border-primary"
                 : "bg-card text-foreground border-border hover:bg-muted"
@@ -90,7 +92,7 @@ export default function StudentNotice() {
 
       {/* NOTICE GRID */}
 
-      <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
+      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-6">
         {loaderCheck ? (
           <div className="col-span-3 flex justify-center py-20 text-muted-foreground">
             Loading notices...
@@ -112,7 +114,7 @@ group
 cursor-pointer
 "
             >
-              <CardContent className="p-6 flex flex-col h-full">
+              <CardContent className="p-4 sm:p-6 flex flex-col h-full">
                 {/* TOP */}
                 <div className="flex items-start justify-between">
                   <span
@@ -134,7 +136,7 @@ ${
 
                 {/* CONTENT */}
                 <div className="mt-6 flex-1">
-                  <h2 className="text-2xl font-bold tracking-tight text-foreground line-clamp-2">
+                  <h2 className="text-lg sm:text-xl lg:text-2xl font-bold tracking-tight text-foreground line-clamp-2 break-words">
                     {notice?.title || notice?.noticeTitle || "No Title"}
                   </h2>
 
@@ -145,12 +147,12 @@ ${
                       <div className="flex-1 min-w-0">
                         <p
                           className="
-      text-sm leading-7 text-muted-foreground
-
-      overflow-hidden
-      text-ellipsis
-      whitespace-nowrap
-      "
+  text-sm leading-6 text-muted-foreground
+  overflow-hidden
+  text-ellipsis
+  whitespace-nowrap
+  max-w-full
+  "
                         >
                           {notice?.description ||
                             notice?.message ||
@@ -165,24 +167,20 @@ ${
                         {/* TOOLTIP */}
                         <div
                           className="
-                                        absolute bottom-full right-0 mb-4
-                                        hidden group-hover/tooltip:block
-
-                                        w-[340px]
-                                        max-h-[260px]
-                                        overflow-y-auto
-
-                                        rounded-2xl
-                                        bg-black text-white
-
-                                        p-5
-
-                                        text-sm leading-7
-                                        break-all
-
-                                        shadow-2xl
-                                        z-[9999]
-                                        "
+absolute bottom-full right-0 mb-4
+hidden md:group-hover/tooltip:block
+w-[260px] sm:w-[320px]
+max-w-[85vw]
+max-h-[260px]
+overflow-y-auto
+rounded-2xl
+bg-black text-white
+p-4
+text-sm leading-6
+break-words
+shadow-2xl
+z-[9999]
+"
                         >
                           <p className="whitespace-pre-wrap">
                             {notice?.description ||
@@ -196,7 +194,7 @@ ${
                     {/* TOOLTIP ICON */}
                   </div>
                   {/* DATE */}
-                  <div className="mt-6 flex items-center gap-2 text-xs text-muted-foreground">
+                  <div className="mt-4 flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
                     <CalendarDays className="w-4 h-4" />
 
                     <span>
@@ -208,7 +206,7 @@ ${
             </Card>
           ))
         ) : (
-          <div className="col-span-3">
+          <div className="col-span-full">
             <DefaultTable
               height="300px"
               title="No Notices Found"

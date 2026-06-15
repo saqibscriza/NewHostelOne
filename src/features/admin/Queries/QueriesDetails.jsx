@@ -63,7 +63,7 @@ export default function QueriesDetails() {
             pendingQueries: 0,
             acceptedQueries: 0,
             rejectedQueries: 0,
-          }
+          },
         );
         setTotalPages(response?.data?.totalPages || 1);
         setTotalElements(response?.data?.totalElements || 0);
@@ -147,7 +147,7 @@ export default function QueriesDetails() {
   const { start, end } = getShowingRange();
 
   return (
-    <div className="p-6 space-y-6">
+    <div className="p-3 sm:p-4 md:p-6 space-y-4 sm:space-y-6">
       {/* HEADER */}
       <div>
         <h1 className="text-2xl font-semibold">Room Queries</h1>
@@ -157,19 +157,36 @@ export default function QueriesDetails() {
       </div>
 
       {/* STATS */}
-      <div className="grid grid-cols-4 gap-4">
-        <StatCard title="Total Queries" value={summary.totalQueries} icon={<ClipboardList />} />
-        <StatCard title="Pending" value={summary.pendingQueries} icon={<Clock />} />
-        <StatCard title="Accepted" value={summary.acceptedQueries} icon={<CheckCircle />} />
-        <StatCard title="Rejected" value={summary.rejectedQueries} icon={<XCircle />} />
+      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
+        {" "}
+        <StatCard
+          title="Total Queries"
+          value={summary.totalQueries}
+          icon={<ClipboardList />}
+        />
+        <StatCard
+          title="Pending"
+          value={summary.pendingQueries}
+          icon={<Clock />}
+        />
+        <StatCard
+          title="Accepted"
+          value={summary.acceptedQueries}
+          icon={<CheckCircle />}
+        />
+        <StatCard
+          title="Rejected"
+          value={summary.rejectedQueries}
+          icon={<XCircle />}
+        />
       </div>
 
       {/* TABLE CARD */}
       <Card>
         <CardContent className="p-4 space-y-4">
           {/* FILTERS */}
-          <div className="flex items-center justify-between">
-            <div className="flex gap-3">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+            <div className="flex flex-col sm:flex-row gap-3">
               <Select
                 onValueChange={(v) =>
                   setFilters((prev) => ({
@@ -179,7 +196,7 @@ export default function QueriesDetails() {
                   }))
                 }
               >
-                <SelectTrigger className="w-[150px] px-4 pr-4">
+                <SelectTrigger className="w-full sm:w-[150px] px-4 pr-4">
                   <SelectValue placeholder="All Statuses" />
                 </SelectTrigger>
                 <SelectContent>
@@ -208,91 +225,96 @@ export default function QueriesDetails() {
               </Select>
             </div>
           </div>
+          <div className="overflow-x-auto">
+            <div className="min-w-[1100px]">
+              {/* TABLE HEADER */}
+              <div className="grid grid-cols-6 gap-6 text-sm font-medium text-muted-foreground px-2 pb-3">
+                <span>STUDENT</span>
+                <span>ROOM TYPE</span>
+                <span>CONTACT INFO</span>
+                <span>HOSTEL APPLIED</span>
+                <span>STATUS</span>
+                <span className="text-right">ACTIONS</span>
+              </div>
 
-          {/* TABLE HEADER */}
-          <div className="grid grid-cols-6 text-sm font-medium text-muted-foreground px-2">
-            <span>STUDENT</span>
-            <span>ROOM TYPE</span>
-            <span>CONTACT INFO</span>
-            <span>HOSTEL APPLIED</span>
-            <span>STATUS</span>
-            <span className="text-right">ACTIONS</span>
-          </div>
-
-          {/* ROWS */}
-          <div className="space-y-2">
-            {loading ? (
-              <p className="text-center py-6">Loading...</p>
-            ) : queries.length === 0 ? (
-              <DefaultTable
-                title="No Queries Found"
-                description="There are currently no room queries available."
-                height="400px"
-              />
-            ) : (
-              queries.map((item, i) => (
-                <div
-                  key={i}
-                  className="grid grid-cols-6 items-center bg-muted/40 p-3 rounded-lg"
-                >
-                  <div>
-                    <p className="font-medium">{item?.fullName}</p>
-                    <p className="text-xs text-muted-foreground">
-                      Reg ID: {item?.userId || "-"}
-                    </p>
-                  </div>
-
-                  <p>{item?.roomType || "-"}</p>
-
-                  <div className="text-sm">
-                    <p>{item?.phone}</p>
-                    <p className="text-muted-foreground">{item?.email}</p>
-                  </div>
-
-                  <div>
-                    <p>{item?.hostelName}</p>
-                    <p className="text-xs text-muted-foreground">Campus North</p>
-                  </div>
-
-                  <Badge
-                    variant={
-                      item?.status === "REJECTED"
-                        ? "destructive"
-                        : item?.status === "APPROVED"
-                        ? "default"
-                        : "secondary"
-                    }
-                  >
-                    {item?.status}
-                  </Badge>
-
-                  <div className="flex justify-end gap-2">
-                    <Button
-                      size="sm"
-                      className="bg-green-600 hover:bg-green-700"
-                      disabled={item?.status !== "PENDING"}
-                      onClick={() => handleAccept(item)}
+              {/* ROWS */}
+              <div className="space-y-2">
+                {loading ? (
+                  <p className="text-center py-6">Loading...</p>
+                ) : queries.length === 0 ? (
+                  <DefaultTable
+                    title="No Queries Found"
+                    description="There are currently no room queries available."
+                    height="400px"
+                  />
+                ) : (
+                  queries.map((item, i) => (
+                    <div
+                      key={i}
+                      className="grid grid-cols-6 gap-6 items-center bg-muted/40 p-3 rounded-lg"
                     >
-                      Accept
-                    </Button>
-                    <Button
-                      size="sm"
-                      variant="destructive"
-                      disabled={item?.status !== "PENDING"}
-                      onClick={() => handleReject(item)}
-                    >
-                      Reject
-                    </Button>
-                  </div>
-                </div>
-              ))
-            )}
-          </div>
+                      <div>
+                        <p className="font-medium">{item?.fullName}</p>
+                        <p className="text-xs text-muted-foreground">
+                          Reg ID: {item?.userId || "-"}
+                        </p>
+                      </div>
 
+                      <p>{item?.roomType || "-"}</p>
+
+                      <div className="text-sm">
+                        <p>{item?.phone}</p>
+                        <p className="text-muted-foreground">{item?.email}</p>
+                      </div>
+
+                      <div>
+                        <p>{item?.hostelName}</p>
+                        <p className="text-xs text-muted-foreground">
+                          Campus North
+                        </p>
+                      </div>
+
+                      <Badge
+                        variant={
+                          item?.status === "REJECTED"
+                            ? "destructive"
+                            : item?.status === "APPROVED"
+                              ? "default"
+                              : "secondary"
+                        }
+                      >
+                        {item?.status}
+                      </Badge>
+
+                      <div className="flex justify-end gap-2">
+                        <Button
+                          size="sm"
+                          className="bg-green-600 hover:bg-green-700"
+                          disabled={item?.status !== "PENDING"}
+                          onClick={() => handleAccept(item)}
+                        >
+                          Accept
+                        </Button>
+
+                        <Button
+                          size="sm"
+                          variant="destructive"
+                          disabled={item?.status !== "PENDING"}
+                          onClick={() => handleReject(item)}
+                        >
+                          Reject
+                        </Button>
+                      </div>
+                    </div>
+                  ))
+                )}
+              </div>
+            </div>
+          </div>
           {/* PAGINATION - Always show when there's data */}
           {queries.length > 0 && (
             <div className="flex w-full justify-end mt-4 pt-4 border-t">
-                            {/* RIGHT SIDE - Pagination controls */}
+              {/* RIGHT SIDE - Pagination controls */}
               <Pagination className="!justify-end">
                 <PaginationContent>
                   <PaginationItem>
@@ -363,7 +385,7 @@ export default function QueriesDetails() {
       {/* SUCCESS MODAL */}
       {successModal && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-3xl p-10 w-[500px] text-center">
+          <div className="bg-white rounded-3xl p-5 sm:p-8 w-[95%] max-w-[500px] text-center">
             <div className="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mx-auto">
               <CheckCircle className="w-10 h-10 text-black" />
             </div>
@@ -372,10 +394,15 @@ export default function QueriesDetails() {
               Success! The room for{" "}
               <span className="font-semibold">{selectedStudent?.fullName}</span>{" "}
               at{" "}
-              <span className="font-semibold">{selectedStudent?.hostelName}</span>{" "}
+              <span className="font-semibold">
+                {selectedStudent?.hostelName}
+              </span>{" "}
               has been successfully confirmed.
             </p>
-            <Button className="w-full mt-8 h-12 text-lg" onClick={() => setSuccessModal(false)}>
+            <Button
+              className="w-full mt-8 h-12 text-lg"
+              onClick={() => setSuccessModal(false)}
+            >
               Done
             </Button>
           </div>

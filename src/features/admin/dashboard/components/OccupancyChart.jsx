@@ -15,7 +15,6 @@ export default function OccupancyChart({
     "bg-slate-600",
   ];
 
-
   const maxValue = Math.max(
     ...data.map((item) => item?.occupancyPercentage || 0),
     0,
@@ -47,7 +46,7 @@ export default function OccupancyChart({
           </select>
         </div>
 
-        <div className="flex items-end justify-between h-60 gap-3 overflow-visible relative">
+        <div className="flex items-end h-60 gap-2 overflow-x-auto relative pb-2">
           {" "}
           {data?.map((value, i) => {
             const scaledHeight =
@@ -56,11 +55,11 @@ export default function OccupancyChart({
             return (
               <div
                 key={i}
-                className="flex flex-col items-center justify-end gap-2 flex-1 min-w-[70px]"
+                className="flex flex-col items-center justify-end gap-2 shrink-0 w-10 sm:w-12 md:w-16"
               >
                 <div className="relative group flex flex-col items-center">
                   <div
-                    className={`w-[60px] rounded-md transition-all duration-300 hover:opacity-80 hover:scale-105 cursor-pointer ${
+                    className={`w-5 sm:w-7 md:w-10 lg:w-12 rounded-md transition-all duration-300 hover:opacity-80 hover:scale-105 cursor-pointer ${
                       colors[i % colors.length]
                     }`}
                     style={{

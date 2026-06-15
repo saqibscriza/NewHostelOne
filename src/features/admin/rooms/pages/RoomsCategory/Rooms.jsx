@@ -146,26 +146,27 @@ const Rooms = () => {
   return (
     <div className="max-w-7xl mx-auto space-y-8 pb-12 p-6">
       {/* Header */}
-      <div className="flex justify-between items-center">
+      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
+        {" "}
         <div>
           <h1 className="text-3xl font-bold">Room Category</h1>
           <p className="text-muted-foreground">
             Manage and configure all room categories
           </p>
         </div>
-
-        <div className="flex gap-3">
+        <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
           <Button
             onClick={() => setOpenOccupancyModal(true)}
-            className="cursor-pointer"
+            className="cursor-pointer w-full sm:w-auto"
           >
-            {" "}
             <Plus className="w-4 h-4 mr-2" />
             Add Occupancy
           </Button>
 
-          <Button onClick={() => setOpenModal(true)} className="cursor-pointer">
-            {" "}
+          <Button
+            onClick={() => setOpenModal(true)}
+            className="cursor-pointer w-full sm:w-auto"
+          >
             <Plus className="w-4 h-4 mr-2" />
             Add Category
           </Button>

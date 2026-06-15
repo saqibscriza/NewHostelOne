@@ -110,7 +110,6 @@ export default function StudentList() {
           Add Student
         </button>
       </div>
-
       {/* FILTER BAR */}
       <div className="flex flex-col sm:flex-row sm:items-center gap-4 bg-card border border-border rounded-xl p-4 shadow-sm">
         <span className="text-sm text-muted-foreground">Filter by:</span>
@@ -126,10 +125,8 @@ export default function StudentList() {
           <Search className="w-4 h-4 absolute right-3 top-2.5 text-muted-foreground" />
         </div>
       </div>
-
       {/* TABLE */}
       <StudentTable students={filteredStudents} />{" "}
-
       {totalItems > 0 && (
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 px-2">
           <span className="text-sm text-muted-foreground whitespace-nowrap">
@@ -168,7 +165,7 @@ export default function StudentList() {
                       {page}
                     </PaginationLink>
                   </PaginationItem>
-                )
+                ),
               )}
 
               <PaginationItem>
@@ -199,11 +196,9 @@ function StudentTable({ students }) {
   const navigate = useNavigate();
   return (
     <div className="bg-card border border-border rounded-xl overflow-hidden shadow-sm">
-      
       {/* DESKTOP / TABLET LAYOUT */}
-      <div className="hidden md:block overflow-x-auto w-full">
+      <div className="overflow-x-auto w-full">
         <div className="min-w-[950px]">
-          
           <div className="grid grid-cols-8 gap-4 px-6 py-3 text-xs font-medium text-muted-foreground bg-muted border-b border-border">
             <div className="col-span-2">STUDENT INFO</div>
             <div className="col-span-1">ROOM</div>
@@ -242,33 +237,6 @@ function StudentTable({ students }) {
       </div>
 
       {/* MOBILE / CARDS LAYOUT */}
-      <div className="md:hidden">
-        {students.length === 0 ? (
-          <DefaultTable
-            title="No Students Found"
-            description="There are currently no students available."
-            buttonText="Add Student"
-            onButtonClick={() => navigate("/admin/students/add")}
-            height="400px"
-          />
-        ) : (
-          <div className="divide-y divide-border">
-            {students.map((s) => (
-              <MobileRow
-                key={s.studentId || s.id}
-                id={s.studentId || s.id}
-                name={s.fullName}
-                room={s?.room?.roomNameNumber || "-"}
-                block={s?.room?.blockFloor || "-"}
-                phone={s?.contact?.phone || "-"}
-                email={s?.contact?.email || "-"}
-                payment={s?.paymentStatus || "Pending"}
-                occupancy={s?.occupancyStatus || "Inactive"}
-              />
-            ))}
-          </div>
-        )}
-      </div>
     </div>
   );
 }
@@ -283,7 +251,9 @@ function Row({ name, id, room, block, phone, email, payment, occupancy }) {
       <div className="col-span-2 flex items-center gap-3 min-w-0">
         <Avatar name={name} />
         <div className="min-w-0">
-          <p className="font-medium text-foreground truncate" title={name}>{name}</p>
+          <p className="font-medium text-foreground truncate" title={name}>
+            {name}
+          </p>
           <p className="text-xs text-muted-foreground truncate">ID: {id}</p>
         </div>
       </div>
@@ -295,13 +265,15 @@ function Row({ name, id, room, block, phone, email, payment, occupancy }) {
 
       <div className="col-span-2 min-w-0">
         <p className="text-foreground truncate">{phone}</p>
-        <p className="text-xs text-muted-foreground truncate" title={email}>{email}</p>
+        <p className="text-xs text-muted-foreground truncate" title={email}>
+          {email}
+        </p>
       </div>
 
       <div className="col-span-1">
         <PaymentBadge value={payment} />
       </div>
-      
+
       <div className="col-span-1 pl-2">
         <OccupancyStatus value={occupancy} />
       </div>
@@ -324,7 +296,16 @@ function Row({ name, id, room, block, phone, email, payment, occupancy }) {
 
 /* ================= MOBILE ROW (Was Missing Before) ================= */
 
-function MobileRow({ id, name, room, block, phone, email, payment, occupancy }) {
+function MobileRow({
+  id,
+  name,
+  room,
+  block,
+  phone,
+  email,
+  payment,
+  occupancy,
+}) {
   const navigate = useNavigate();
 
   return (

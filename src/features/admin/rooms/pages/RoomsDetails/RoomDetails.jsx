@@ -144,7 +144,7 @@ const RoomDetails = () => {
   return (
     <div className="space-y-6 p-6">
       {/* Header */}
-      <div className="flex justify-between items-center">
+      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
         <div>
           <h1 className="text-2xl font-semibold text-foreground">
             Room Details
@@ -171,7 +171,7 @@ const RoomDetails = () => {
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <Card>
           <CardContent className="p-4 flex items-center gap-4">
             <BedDouble className="w-6 h-6 text-muted-foreground" />
@@ -223,13 +223,13 @@ const RoomDetails = () => {
 
       {/* Filters */}
       <Card>
-        <CardContent className="p-4 flex items-center justify-between">
-          <div className="flex gap-3 items-center">
+        <CardContent className="p-4 flex flex-col lg:flex-row gap-4 lg:items-center lg:justify-between">
+          <div className="flex flex-col sm:flex-row flex-wrap gap-3 w-full">
             <span className="text-sm text-muted-foreground">Filter by:</span>
 
             <Select value={locationFilter} onValueChange={setLocationFilter}>
               {" "}
-              <SelectTrigger className="w-[160px] cursor-pointer px-4 pr-4">
+              <SelectTrigger className="w-full sm:w-[160px] cursor-pointer">
                 {" "}
                 <SelectValue placeholder="All Location" />
               </SelectTrigger>
@@ -251,7 +251,7 @@ const RoomDetails = () => {
             </Select>
 
             <Select value={categoryFilter} onValueChange={setCategoryFilter}>
-              <SelectTrigger className="w-[160px] cursor-pointer px-4 pr-4">
+              <SelectTrigger className="w-full sm:w-[160px] cursor-pointer">
                 {" "}
                 <SelectValue placeholder="All Category" />
               </SelectTrigger>
@@ -269,7 +269,7 @@ const RoomDetails = () => {
             </Select>
 
             <Select value={statusFilter} onValueChange={setStatusFilter}>
-              <SelectTrigger className="w-[160px] cursor-pointer px-4 pr-4">
+              <SelectTrigger className="w-full sm:w-[160px] cursor-pointer">
                 {" "}
                 <SelectValue placeholder="All Status" />
               </SelectTrigger>
@@ -307,7 +307,7 @@ const RoomDetails = () => {
       </Card>
 
       {/* Table */}
-      <Card className="overflow-hidden rounded-2xl">
+      <Card className="rounded-2xl overflow-hidden">
         <CardContent className="p-0">
           {loaderCheck && (
             <div className="text-center py-6 text-muted-foreground">
