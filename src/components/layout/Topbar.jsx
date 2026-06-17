@@ -402,8 +402,11 @@ const Topbar = ({ onMenuClick }) => {
 )}
                         </div>
                         <div className="min-w-0">
-                          <div className="flex items-center gap-2">
-                            <p className="text-lg font-semibold leading-6 text-foreground">
+                          <div className="flex items-start gap-2 min-w-0">
+                            <p
+  className="max-w-[250px] truncate text-lg font-semibold leading-6 text-foreground"
+  title={hostel.hostelName || hostel.name || `Hostel ${hostelId}`}
+>
                               {hostel.hostelName ||
                                 hostel.name ||
                                 `Hostel ${hostelId}`}

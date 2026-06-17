@@ -229,6 +229,7 @@ function StudentTable({ students }) {
                   email={s?.contact?.email || "-"}
                   payment={s?.paymentStatus || "Pending"}
                   occupancy={s?.occupancyStatus || "Inactive"}
+                  photo={s?.photo}
                 />
               ))
             )}
@@ -243,13 +244,23 @@ function StudentTable({ students }) {
 
 /* ================= DESKTOP ROW ================= */
 
-function Row({ name, id, room, block, phone, email, payment, occupancy }) {
+function Row({
+  name,
+  id,
+  photo,
+  room,
+  block,
+  phone,
+  email,
+  payment,
+  occupancy,
+}) {
   const navigate = useNavigate();
 
   return (
     <div className="grid grid-cols-8 gap-4 px-6 py-4 items-center text-sm hover:bg-muted/30 transition-colors">
       <div className="col-span-2 flex items-center gap-3 min-w-0">
-        <Avatar name={name} />
+        <Avatar name={name} photo={photo} />
         <div className="min-w-0">
           <p className="font-medium text-foreground truncate" title={name}>
             {name}
@@ -354,13 +365,19 @@ function MobileRow({
 
 /* ================= SMALL COMPONENTS ================= */
 
-function Avatar({ name }) {
+function Avatar({ name, photo }) {
   const initials = name
     ?.split(" ")
     ?.map((n) => n[0])
     ?.join("");
 
-  return (
+  return photo ? (
+    <img
+      src={photo}
+      alt={name}
+      className="w-10 h-10 rounded-full object-cover"
+    />
+  ) : (
     <div className="w-10 h-10 rounded-full bg-muted flex items-center justify-center text-sm font-medium text-foreground">
       {initials}
     </div>
