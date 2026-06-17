@@ -250,10 +250,10 @@ export default function AddStockPage() {
 <SelectTrigger className="w-[80px] flex-shrink-0 border-0 focus:ring-0 focus:ring-offset-0 bg-muted/30 rounded-none h-full shadow-none px-3">                            <SelectValue placeholder="unit" />
                           </SelectTrigger>
                           <SelectContent>
-                            <SelectItem value="kg">kg</SelectItem>
+                            <SelectItem value="kg">Kg</SelectItem>
                             <SelectItem value="L">L</SelectItem>
-                            <SelectItem value="units">units</SelectItem>
-                            <SelectItem value="pacs">pacs</SelectItem>
+                            <SelectItem value="units">Units</SelectItem>
+                            <SelectItem value="pacs">Pacs</SelectItem>
                           </SelectContent>
                         </Select>
                       )}
@@ -262,6 +262,11 @@ export default function AddStockPage() {
                   {errors.quantity ? (
                     <p className="text-xs text-red-500">
                       {errors.quantity.message}
+                    </p>
+                  ) : null}
+                  {errors.unit ? (
+                    <p className="text-xs text-red-500">
+                      {errors.unit.message}
                     </p>
                   ) : null}
                 </div>

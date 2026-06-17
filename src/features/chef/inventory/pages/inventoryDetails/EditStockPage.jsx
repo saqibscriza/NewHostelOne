@@ -263,10 +263,10 @@ export default function EditStockPage() {
                             <SelectValue placeholder="unit" />
                           </SelectTrigger>
                           <SelectContent>
-                            <SelectItem value="kg">kg</SelectItem>
+                            <SelectItem value="kg">Kg</SelectItem>
                             <SelectItem value="L">L</SelectItem>
-                            <SelectItem value="units">units</SelectItem>
-                            <SelectItem value="pacs">pacs</SelectItem>
+                            <SelectItem value="units">Units</SelectItem>
+                            <SelectItem value="pacs">Pacs</SelectItem>
                           </SelectContent>
                         </Select>
                       )}
@@ -275,6 +275,11 @@ export default function EditStockPage() {
                   {errors.quantity ? (
                     <p className="text-xs text-red-500">
                       {errors.quantity.message}
+                    </p>
+                  ) : null}
+                  {errors.unit ? (
+                    <p className="text-xs text-red-500">
+                      {errors.unit.message}
                     </p>
                   ) : null}
                 </div>

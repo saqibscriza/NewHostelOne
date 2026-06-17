@@ -9,6 +9,7 @@ import {
   getAdminProfileApi,
   selectHostelApi,
 } from "../../utils/utils";
+import Notification from "./Notification";
 
 const getFirstValue = (source, keys) => {
   for (const key of keys) {
@@ -266,16 +267,8 @@ const Topbar = ({ onMenuClick }) => {
           {/* <ThemeToggle /> */}
 
           {/* Notifications */}
-          <Button
-            style={{cursor:'pointer'}}
-            variant="ghost"
-            size="icon"
-            className="relative text-muted-foreground hover:text-foreground"
-          >
-            <Bell className="h-5 w-5" />
-            {/* Notification Dot */}
-            <span className="absolute right-2 top-2 h-2 w-2 rounded-full bg-destructive"></span>
-          </Button>
+          <Notification />
+
 
           {/* TEXT */}
           <div className="text-right min-w-[140px]">
