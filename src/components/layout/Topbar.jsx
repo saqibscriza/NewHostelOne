@@ -240,11 +240,13 @@ const Topbar = ({ onMenuClick }) => {
               className="pl-9 bg-muted border-none text-foreground"
             />
           </div> */}
-
         </div>
 
         {showPackageBanner && (
-          <div className="absolute left-1/2 hidden -translate-x-1/2 md:block" style={{cursor:'pointer'}}>
+          <div
+            className="absolute left-1/2 hidden -translate-x-1/2 md:block"
+            style={{ cursor: "pointer" }}
+          >
             <div className="flex items-center gap-3 rounded-xl border border-border bg-background/90 px-4 py-2 shadow-sm backdrop-blur">
               <p className="text-sm text-foreground">
                 Package - <span className="font-semibold">Free Tier</span>
@@ -252,7 +254,7 @@ const Topbar = ({ onMenuClick }) => {
               <button
                 className="text-sm font-medium text-primary transition hover:opacity-80"
                 onClick={() => navigate("/admin/packages")}
-                style={{cursor:'pointer'}}
+                style={{ cursor: "pointer" }}
               >
                 Upgrade
               </button>
@@ -267,8 +269,16 @@ const Topbar = ({ onMenuClick }) => {
           {/* <ThemeToggle /> */}
 
           {/* Notifications */}
-          <Notification />
-
+          <Button
+            style={{cursor:'pointer'}}
+            variant="ghost"
+            size="icon"
+            className="relative text-muted-foreground hover:text-foreground"
+          >
+            {/* <Bell className="h-5 w-5" /> */}
+            {/* Notification Dot */}
+            {/* <span className="absolute right-2 top-2 h-2 w-2 rounded-full bg-destructive"></span> */}
+          </Button>
 
           {/* TEXT */}
           <div className="text-right min-w-[140px]">
@@ -382,24 +392,28 @@ const Topbar = ({ onMenuClick }) => {
                         } ${isSwitching ? "opacity-70" : ""}`}
                       >
                         <div className="h-14 w-14 shrink-0 overflow-hidden rounded-xl bg-muted">
-{hostel.hostelImages ? (
-  <img
-    src={hostel.hostelImages}
-    alt={hostel.hostelName || hostel.name || "Hostel"}
-    className="h-full w-full object-cover"
-  />
-) : (
-  <div className="flex h-full w-full items-center justify-center text-muted-foreground">
-    <MapPin className="h-5 w-5" />
-  </div>
-)}
+                          {hostel.hostelImages ? (
+                            <img
+                              src={hostel.hostelImages}
+                              alt={hostel.hostelName || hostel.name || "Hostel"}
+                              className="h-full w-full object-cover"
+                            />
+                          ) : (
+                            <div className="flex h-full w-full items-center justify-center text-muted-foreground">
+                              <MapPin className="h-5 w-5" />
+                            </div>
+                          )}
                         </div>
                         <div className="min-w-0">
                           <div className="flex items-start gap-2 min-w-0">
                             <p
-  className="max-w-[250px] truncate text-lg font-semibold leading-6 text-foreground"
-  title={hostel.hostelName || hostel.name || `Hostel ${hostelId}`}
->
+                              className="max-w-[250px] truncate text-lg font-semibold leading-6 text-foreground"
+                              title={
+                                hostel.hostelName ||
+                                hostel.name ||
+                                `Hostel ${hostelId}`
+                              }
+                            >
                               {hostel.hostelName ||
                                 hostel.name ||
                                 `Hostel ${hostelId}`}

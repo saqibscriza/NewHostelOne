@@ -556,40 +556,43 @@ export default function AddStudent() {
           </div>
 
           <div className="col-span-2 space-y-4">
-<Field label="Full Name" required>
-  <Input
-    placeholder="Enter Full Name"
-    maxLength={25}
-    value={form.fullName || ""}
-    onChange={(e) => {
-      let value = e.target.value;
+            <Field label="Full Name" required>
+              <Input
+                placeholder="Enter Full Name"
+                maxLength={25}
+                value={form.fullName || ""}
+                onChange={(e) => {
+                  let value = e.target.value;
 
-      if (!/^[A-Za-z\s]*$/.test(value)) {
-        setErrors((prev) => ({
-          ...prev,
-          fullName: "Only alphabets are allowed",
-        }));
-      } else if (value.trim().length > 0 && value.trim().length < 3) {
-        setErrors((prev) => ({
-          ...prev,
-          fullName: "Full name must be at least 3 characters",
-        }));
-      } else {
-        setErrors((prev) => ({
-          ...prev,
-          fullName: "",
-        }));
-      }
+                  if (!/^[A-Za-z\s]*$/.test(value)) {
+                    setErrors((prev) => ({
+                      ...prev,
+                      fullName: "Only alphabets are allowed",
+                    }));
+                  } else if (
+                    value.trim().length > 0 &&
+                    value.trim().length < 3
+                  ) {
+                    setErrors((prev) => ({
+                      ...prev,
+                      fullName: "Full name must be at least 3 characters",
+                    }));
+                  } else {
+                    setErrors((prev) => ({
+                      ...prev,
+                      fullName: "",
+                    }));
+                  }
 
-      handleChange("fullName", value);
-    }}
-    className={errors.fullName ? "border-destructive" : ""}
-  />
+                  handleChange("fullName", value);
+                }}
+                className={errors.fullName ? "border-destructive" : ""}
+              />
 
-  {errors.fullName && (
-    <p className="text-xs text-destructive">{errors.fullName}</p>
-  )}
-</Field>
+              {errors.fullName && (
+                <p className="text-xs text-destructive">{errors.fullName}</p>
+              )}
+            </Field>
 
             <div className="grid grid-cols-2 gap-4">
               <Field label="Date of Birth" required>
@@ -678,19 +681,20 @@ export default function AddStudent() {
 
                   <Input
                     type="date"
+                    min={new Date().toISOString().split("T")[0]}
                     value={form.dateOfJoining || ""}
                     onChange={(e) =>
                       handleChange("dateOfJoining", e.target.value)
                     }
                     className={`h-11 w-full pl-10 text-slate-500
-        [&::-webkit-calendar-picker-indicator]:opacity-0
-        [&::-webkit-calendar-picker-indicator]:absolute
-        [&::-webkit-calendar-picker-indicator]:left-0
-        [&::-webkit-calendar-picker-indicator]:w-full
-        [&::-webkit-calendar-picker-indicator]:h-full
-        [&::-webkit-calendar-picker-indicator]:cursor-pointer
-        ${errors.dateOfJoining ? "border-destructive" : ""}
-      `}
+    [&::-webkit-calendar-picker-indicator]:opacity-0
+    [&::-webkit-calendar-picker-indicator]:absolute
+    [&::-webkit-calendar-picker-indicator]:left-0
+    [&::-webkit-calendar-picker-indicator]:w-full
+    [&::-webkit-calendar-picker-indicator]:h-full
+    [&::-webkit-calendar-picker-indicator]:cursor-pointer
+    ${errors.dateOfJoining ? "border-destructive" : ""}
+  `}
                   />
                 </div>
 
@@ -710,7 +714,7 @@ export default function AddStudent() {
           <Field label="Course" required>
             {" "}
             <Input
-            maxLength={30}
+              maxLength={30}
               value={form.course || ""}
               placeholder="Enter Course"
               onChange={(e) => handleChange("course", e.target.value)}
