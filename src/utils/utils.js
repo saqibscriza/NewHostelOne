@@ -35,6 +35,19 @@ export const loginApi = async (data) => {
     return [];
   }
 };
+// register api with FCM token 
+export const registerApiWithFCMToek = async (data) => {
+  try {
+    var res = await axios.post(`${Domain}/api/device-token/register`, data);
+    if (res) {
+      return res;
+    } else {
+      return [];
+    }
+  } catch (error) {
+    return [];
+  }
+};
 
 // Logout //
 export const logoutApi = async () => {
@@ -145,6 +158,66 @@ export const setPasswordApi = async (data) => {
     throw error;
   }
 };
+
+// Notification Apis 
+export const getAllNotification = async (filter) => {
+  try {
+    axios.defaults.headers.common["Authorization"] = getToken();
+    var res = await axios.get(`${Domain}/api/notifications/user?filter=${filter}`);
+    if (res) {
+      return res;
+    } else {
+      return [];
+    }
+  } catch (error) {
+    return [];
+  }
+};
+// Notification count Apis 
+export const getAllNotificationCount = async () => {
+  try {
+    axios.defaults.headers.common["Authorization"] = getToken();
+    var res = await axios.get(`${Domain}/api/notifications/unread/count`);
+    if (res) {
+      return res;
+    } else {
+      return [];
+    }
+  } catch (error) {
+    return [];
+  }
+};
+// Notification read put Apis 
+export const getAllNotificationReadPut = async (id) => {
+  try {
+    axios.defaults.headers.common["Authorization"] = getToken();
+    var res = await axios.put(`${Domain}/api/notifications/${id}/read`);
+    if (res) {
+      return res;
+    } else {
+      return [];
+    }
+  } catch (error) {
+    return [];
+  }
+};
+
+// Notification get by id put Apis 
+export const getAllNotificationGetById = async (id) => {
+  try {
+    axios.defaults.headers.common["Authorization"] = getToken();
+    var res = await axios.get(`${Domain}/api/notifications/${id}`);
+    if (res) {
+      return res;
+    } else {
+      return [];
+    }
+  } catch (error) {
+    return [];
+  }
+};
+
+// Notification Apis 
 
 //************************ Chef APIs ************************ */
 

@@ -4,12 +4,15 @@ import { Button } from "../ui/button";
 import { useAuth } from "../../context/AuthContext";
 import { useLocation, useNavigate } from "react-router-dom";
 // import { ThemeToggle } from "../../theme/ThemeToggle";
+// import Notification from "./Notification";
 import {
   Getadminswitchaccount,
   getAdminProfileApi,
   selectHostelApi,
 } from "../../utils/utils";
-import Notification from "./Notification";
+import Notification from "../Notification";
+import { toast } from "react-hot-toast";
+
 
 const getFirstValue = (source, keys) => {
   for (const key of keys) {
@@ -28,7 +31,8 @@ const getInitials = (name = "") => {
   return `${first}${last}`.toUpperCase() || "U";
 };
 
-const Topbar = ({ onMenuClick }) => {
+const Topbar = ({ onMenuClick, fireBaseValue }) => {
+  console.log('inside the topbar', fireBaseValue)
   const { role, token, login, userName, userPhoto, updateUserProfile } =
     useAuth(); // get role from context
   const [open, setOpen] = useState(false);
@@ -220,6 +224,60 @@ const Topbar = ({ onMenuClick }) => {
     setSwitchingHostelId("");
   };
 
+
+  useEffect(() => {
+    if (!fireBaseValue) return;
+
+    toast.custom((t) => (
+      <div
+        className={`${t.visible ? "animate-custom-enter" : "animate-custom-leave"
+          } w-[360px] bg-white rounded-2xl shadow-2xl overflow-hidden border-l-4`}
+        style={{ borderColor: "#bb0121" }}
+      >
+        {/* HEADER */}
+        <div
+          className="px-4 py-3 flex items-center gap-3"
+          style={{
+            background: "linear-gradient(90deg, #bb0121, #000000)",
+          }}
+        >
+          <div className="flex-1">
+            <p className="text-white font-semibold text-sm leading-tight">
+              {fireBaseValue?.title || "Hostel Notification"}
+            </p>
+
+            <p className="text-white/80 text-xs">
+              Just now • Hostel Alert
+            </p>
+          </div>
+
+          {/* Close */}
+          <button
+            onClick={() => toast.dismiss(t.id)}
+            className="text-white/80 hover:text-white text-lg"
+          >
+            ✕
+          </button>
+        </div>
+
+        {/* BODY */}
+        <div className="px-4 py-3 bg-white">
+          <p className="text-gray-700 text-sm leading-relaxed">
+            {fireBaseValue?.body || "You have a new update from hostel admin."}
+          </p>
+        </div>
+
+        {/* FOOTER STRIP */}
+        <div
+          className="h-1 animate-pulse"
+          style={{
+            background: "linear-gradient(90deg, #bb0121, #000000, #bb0121)",
+          }}
+        />
+      </div>
+    ));
+  }, [fireBaseValue]);
+
   return (
     <>
       <header className="relative flex h-16 items-center justify-between border-b border-border bg-card px-4 sm:px-6">
@@ -269,16 +327,16 @@ const Topbar = ({ onMenuClick }) => {
           {/* <ThemeToggle /> */}
 
           {/* Notifications */}
-          <Button
+          <Notification />
+          {/* <Button
             style={{cursor:'pointer'}}
             variant="ghost"
             size="icon"
-            className="relative text-muted-foreground hover:text-foreground"
-          >
-            {/* <Bell className="h-5 w-5" /> */}
-            {/* Notification Dot */}
-            {/* <span className="absolute right-2 top-2 h-2 w-2 rounded-full bg-destructive"></span> */}
-          </Button>
+            className="relative text-muted-foreground hover:text-foreground">
+            <Bell className="h-5 w-5" />
+            Notification Dot
+            <span className="absolute right-2 top-2 h-2 w-2 rounded-full bg-destructive"></span>
+          </Button> */}
 
           {/* TEXT */}
           <div className="text-right min-w-[140px]">
@@ -344,6 +402,7 @@ const Topbar = ({ onMenuClick }) => {
           </div>
         </div>
       </header>
+
       {showModal && (
         <div
           className="fixed inset-0 bg-black/40 flex items-center justify-center z-50"
@@ -387,11 +446,10 @@ const Topbar = ({ onMenuClick }) => {
                         type="button"
                         onClick={() => handleHostelSelect(hostelId)}
                         disabled={Boolean(switchingHostelId)}
-                        className={`flex w-full items-start gap-3 rounded-xl border p-3 text-left transition ${
-                          isActive
-                            ? "border-primary bg-primary/5"
-                            : "border-border hover:bg-muted/40"
-                        } ${isSwitching ? "opacity-70" : ""}`}
+                        className={`flex w-full items-start gap-3 rounded-xl border p-3 text-left transition ${isActive
+                          ? "border-primary bg-primary/5"
+                          : "border-border hover:bg-muted/40"
+                          } ${isSwitching ? "opacity-70" : ""}`}
                       >
                         <div className="h-14 w-14 shrink-0 overflow-hidden rounded-xl bg-muted">
                           {hostel.hostelImages ? (
@@ -460,6 +518,7 @@ const Topbar = ({ onMenuClick }) => {
           </div>
         </div>
       )}
+    
     </>
   );
 };

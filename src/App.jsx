@@ -2,6 +2,13 @@ import { Routes, Route, Navigate } from "react-router-dom";
 import { useAuth } from "./context/AuthContext";
 import MainLayout from "./components/layout/MainLayout";
 import { Toaster } from "react-hot-toast";
+
+import { useEffect, useState } from "react";
+import { onMessage } from "firebase/messaging";
+import { messaging } from "../src/firebase/firebase";
+import { requestNotificationPermission } from "../src/firebase/notificationPermission";
+import GlobalNotification from "./components/GlobalNotification";
+
 // import { useSearchParams } from "react-router-dom";
 // AUTH
 import Login from "./features/auth/pages/Login";
@@ -106,9 +113,42 @@ export default function AppRoutes() {
   const { role } = useAuth();
   // const [searchParams] = useSearchParams();
   // const showRegisterHostel = searchParams.get("register") === "true";
+  const [fireBaseValue, setFireBaseValue] = useState(null);
+  console.log('my firebse fireBaseValue state', fireBaseValue)
+
+  const [fireBaseId, setFireBaseId] = useState(null);
+  console.log('my firebse id state', fireBaseId)
+
+  useEffect(() => {
+    const unsubscribe = onMessage(messaging, (payload) => {
+      console.log("Foreground message:", payload);
+      setFireBaseValue(payload.notification);
+      setFireBaseId({
+        messageId: payload?.data?.messageId,
+        trigger: Date.now(),
+      });
+    });
+
+    return () => unsubscribe();
+  }, []);
+
+  useEffect(() => {
+    const initFCM = async () => {
+      const existingToken = sessionStorage.getItem("fcmToken2");
+      console.log('my token in app.jsx', existingToken)
+
+      if (!existingToken) {
+        await requestNotificationPermission();
+      }
+    };
+
+    initFCM();
+  }, []);
+
 
   return (
     <>
+      {/* <GlobalNotification fireBaseValue={fireBaseValue} /> */}
       {/* {showRegisterHostel && <RegisterHostel />} */}
 
       <Toaster position="top-right" />
@@ -119,7 +159,7 @@ export default function AppRoutes() {
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<SignUp />} />
           <Route path="/register-hostel" element={<RegisterHostel />} />
-           <Route path="/forgot-password" element={<ForgotPassword />} />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/verify-otp" element={<VerifyOTP />} />
           <Route path="/reset-password" element={<ResetPassword />} />
           <Route path="/password-updated" element={<PasswordUpdated />} />
@@ -129,7 +169,11 @@ export default function AppRoutes() {
         <Routes>
           {/* ================= ADMIN ================= */}
           {role === "admin" && (
-            <Route path="/admin" element={<MainLayout />}>
+            // <Route path="/admin" element={<MainLayout  />}>
+            <Route
+              path="/admin"
+              element={<MainLayout fireBaseValue={fireBaseValue} />}
+            >
               <Route index element={<AdminDashboard />} />
 
               <Route path="defaulttable" element={<DefaultTable />} />
@@ -290,6 +334,7 @@ export default function AppRoutes() {
           <Route path="*" element={<Navigate to={`/${role}`} replace />} />
         </Routes>
       )}
+
     </>
   );
 }

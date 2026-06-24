@@ -7,15 +7,19 @@ import { Rings } from "react-loader-spinner";
 import { Button } from "../../../components/ui/button";
 import toast from "react-hot-toast";
 import { loginApi } from "../../../utils/utils";
+import { registerApiWithFCMToek } from "../../../utils/utils";
 import { Eye, EyeOff } from "lucide-react";
 import AuthLayout from "../../auth/component/AuthLayout";
 
 export default function Login() {
   const navigate = useNavigate();
   const { login } = useAuth();
+  const fcmToken = sessionStorage.getItem("fcmToken2");
+  console.log('my hostel fcm token', fcmToken)
 
   const [loading, setLoading] = useState(false);
   const [apiError, setApiError] = useState("");
+  const [webNotification, setWebNotification] = useState('WEB');
 
   const [showPassword, setShowPassword] = useState(false);
 
@@ -24,6 +28,24 @@ export default function Login() {
     handleSubmit,
     formState: { errors },
   } = useForm();
+
+  const MyRegisterWithFcmTokenApi = async () => {
+    try {
+      const data = {
+        token: fcmToken,
+        deviceType: webNotification,
+      };
+      const response = await registerApiWithFCMToek(data);
+      console.log('response of regisetr api with fcm token ----', response)
+      if (response?.status === 200) {
+
+      } else {
+
+      }
+    } catch (error) {
+    } finally {
+    }
+  }
 
   const onSubmit = async (data) => {
     setLoading(true);
@@ -34,82 +56,87 @@ export default function Login() {
         username: data.email,
         password: data.password,
       });
-      
-        const status = response.data.status;
-        const token = response.data.token;
-        const name = response.data.name || response.data.studentName || response.data.userName || response.data.fullName || "";
 
-        let userRole = response.data.role;
+      const status = response.data.status;
+      const token = response.data.token;
+      const name = response.data.name || response.data.studentName || response.data.userName || response.data.fullName || "";
 
-        // normalize role
-        const roleMap = {
-          superadmin: "superadmin",
-          "super-admin": "superadmin",
-          super_admin: "superadmin",
-          admin: "admin",
-          user: "user",
-          student: "student",
-          chef: "chef",
-        };
+      let userRole = response.data.role;
 
-        userRole =
-          roleMap[userRole?.toLowerCase()] || userRole?.toLowerCase()?.trim();
-        
-    // 🔥 FIRST HANDLE MULTIPLE HOSTELS
-    if (status === "multiple-hostels") {
-      const hostels = response?.data?.hostels || [];
+      // normalize role
+      const roleMap = {
+        superadmin: "superadmin",
+        "super-admin": "superadmin",
+        super_admin: "superadmin",
+        admin: "admin",
+        user: "user",
+        student: "student",
+        chef: "chef",
+      };
 
-      navigate("/select-hostel", {
-        state: { token, userRole, hostels },
-      });
-      return;
-    }
+      userRole =
+        roleMap[userRole?.toLowerCase()] || userRole?.toLowerCase()?.trim();
 
-    // 🔥 THEN HANDLE SUCCESS
-    if (status === "success") {
-      const staffId =
-        response.data.staffId ||
-        response.data.chefId ||
-        response.data.userId ||
-        response.data.id;
+      // 🔥 FIRST HANDLE MULTIPLE HOSTELS
+      if (status === "multiple-hostels") {
+        const hostels = response?.data?.hostels || [];
 
-      if (userRole === "chef" && staffId) {
-        sessionStorage.setItem("staffId", staffId);
+        navigate("/select-hostel", {
+          state: { token, userRole, hostels },
+        });
+        setTimeout(() => {
+          MyRegisterWithFcmTokenApi()
+        }, 1000)
+        return;
       }
 
-      login(userRole, token, name);
+      // 🔥 THEN HANDLE SUCCESS
+      if (status === "success") {
+        const staffId =
+          response.data.staffId ||
+          response.data.chefId ||
+          response.data.userId ||
+          response.data.id;
 
-      toast.success(response?.data?.message || "Login successful");
+        if (userRole === "chef" && staffId) {
+          sessionStorage.setItem("staffId", staffId);
+        }
+        setTimeout(() => {
+          MyRegisterWithFcmTokenApi()
+        }, 1000)
+        login(userRole, token, name);
 
-      if (userRole === "superadmin") navigate("/superadmin");
-      else if (userRole === "admin") navigate("/admin");
-      else if (userRole === "student") navigate("/student");
-      else if (userRole === "chef") navigate("/chef");
-      else navigate("/user");
+        toast.success(response?.data?.message || "Login successful");
 
-      return;
+        if (userRole === "superadmin") navigate("/superadmin");
+        else if (userRole === "admin") navigate("/admin");
+        else if (userRole === "student") navigate("/student");
+        else if (userRole === "chef") navigate("/chef");
+        else navigate("/user");
+
+        return;
+      }
+      // API ERROR
+      const errorMessage =
+        response?.data?.message || "Login failed";
+
+      toast.error(errorMessage);
+
+    } catch (error) {
+      console.error(error);
+
+      const errorMessage =
+        error?.response?.data?.message ||
+        error?.response?.data?.error ||
+        error?.message ||
+        "Something went wrong";
+
+      toast.error(errorMessage);
+
+    } finally {
+      setLoading(false);
     }
-   // API ERROR
-    const errorMessage =
-      response?.data?.message || "Login failed";
-
-    toast.error(errorMessage);
-
-  } catch (error) {
-    console.error(error);
-
-    const errorMessage =
-      error?.response?.data?.message ||
-      error?.response?.data?.error ||
-      error?.message ||
-      "Something went wrong";
-
-    toast.error(errorMessage);
-
-  } finally {
-    setLoading(false);
-  }
-};
+  };
 
   return (
     <AuthLayout
@@ -140,56 +167,54 @@ export default function Login() {
             {...register("email", {
               required: "Email is required",
             })}
-            className={`w-full p-3.5 rounded-xl border bg-white focus:outline-none focus:ring-1 focus:ring-gray-300 text-sm ${
-              errors.email ? "border-red-500" : "border-gray-200"
-            }`}
+            className={`w-full p-3.5 rounded-xl border bg-white focus:outline-none focus:ring-1 focus:ring-gray-300 text-sm ${errors.email ? "border-red-500" : "border-gray-200"
+              }`}
           />
           {errors.email && (
             <p className="text-red-500 text-xs mt-1">{errors.email.message}</p>
           )}
         </div>
 
-<div className="space-y-2">
-      <div className="flex justify-between items-center">
-        <label className="text-sm font-semibold text-[rgb(17,24,39)]">
-          Password<span className="text-red-500"> *</span>
-        </label>
+        <div className="space-y-2">
+          <div className="flex justify-between items-center">
+            <label className="text-sm font-semibold text-[rgb(17,24,39)]">
+              Password<span className="text-red-500"> *</span>
+            </label>
 
-        <span
-          onClick={() => navigate("/forgot-password")}
-          className="text-xs text-[#6B7280] hover:text-[#111827] cursor-pointer"
-        >
-          Forgot Password?
-        </span>
-      </div>
+            <span
+              onClick={() => navigate("/forgot-password")}
+              className="text-xs text-[#6B7280] hover:text-[#111827] cursor-pointer"
+            >
+              Forgot Password?
+            </span>
+          </div>
 
-      <div className="relative">
-        <input
-          type={showPassword ? "text" : "password"}
-          placeholder="Enter your password"
-          {...register("password", {
-            required: "Password is required",
-          })}
-          className={`w-full p-3.5 pr-12 rounded-xl border bg-white focus:outline-none focus:ring-1 focus:ring-gray-300 text-sm ${
-            errors.password ? "border-red-500" : "border-gray-200"
-          }`}
-        />
+          <div className="relative">
+            <input
+              type={showPassword ? "text" : "password"}
+              placeholder="Enter your password"
+              {...register("password", {
+                required: "Password is required",
+              })}
+              className={`w-full p-3.5 pr-12 rounded-xl border bg-white focus:outline-none focus:ring-1 focus:ring-gray-300 text-sm ${errors.password ? "border-red-500" : "border-gray-200"
+                }`}
+            />
 
-        <button
-          type="button"
-          onClick={() => setShowPassword(!showPassword)}
-          className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
-        >
-          {showPassword ? <Eye size={20} /> : <EyeOff size={20} />}
-        </button>
-      </div>
+            <button
+              type="button"
+              onClick={() => setShowPassword(!showPassword)}
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
+            >
+              {showPassword ? <Eye size={20} /> : <EyeOff size={20} />}
+            </button>
+          </div>
 
-      {errors.password && (
-        <p className="text-red-500 text-xs mt-1">
-          {errors.password.message}
-        </p>
-      )}
-    </div>
+          {errors.password && (
+            <p className="text-red-500 text-xs mt-1">
+              {errors.password.message}
+            </p>
+          )}
+        </div>
 
         {apiError && (
           <p className="text-red-500 text-sm font-medium">{apiError}</p>

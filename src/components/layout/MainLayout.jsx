@@ -2,11 +2,13 @@ import React, { useState, useEffect } from "react";
 import { Outlet } from "react-router-dom";
 import Sidebar from "./Sidebar";
 import Topbar from "./Topbar";
+// import GlobalNotification from "../GlobalNotification";
 
 import { useAuth } from "../../context/AuthContext";
 import { menuConfig } from "./menu.config";
 
-const MainLayout = () => {
+const MainLayout = ({fireBaseValue}) => {
+  console.log('my forebas emessage now inside main layout',fireBaseValue)
   const { role, isReady, devLoginAsUser } = useAuth(); // ✅ include devLogin
   const [isOpen, setIsOpen] = useState(false);
 
@@ -22,7 +24,10 @@ const MainLayout = () => {
   }
 
   return (
-    <div className="flex h-screen overflow-hidden bg-background text-foreground">
+    <>
+          {/* <GlobalNotification fireBaseValue={fireBaseValue} /> */}
+
+     <div className="flex h-screen overflow-hidden bg-background text-foreground">
       {/* Desktop Sidebar */}
       <div className="hidden md:flex w-64 h-full border-r border-border">
         <Sidebar menu={menuConfig[role]} variant={role} />
@@ -53,13 +58,15 @@ const MainLayout = () => {
 
       {/* Main */}
       <div className="flex flex-1 flex-col overflow-hidden">
-        <Topbar onMenuClick={() => setIsOpen(true)} role={role} />
+        <Topbar onMenuClick={() => setIsOpen(true)} role={role} fireBaseValue={fireBaseValue} />
 
         <main className="flex-1 overflow-y-auto p-4 sm:p-6 bg-background">
           <Outlet />
         </main>
       </div>
     </div>
+    </>
+   
   );
 };
 
