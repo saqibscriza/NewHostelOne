@@ -316,27 +316,29 @@ const Topbar = ({ onMenuClick }) => {
                 </span>
               )}
             </div>
-            {role === "admin" && open && (
+            {(role === "admin" || role === "chef" || role === "student") && open && (
               <div className="absolute right-0 top-12 w-48 bg-card border border-border rounded-lg shadow-md p-2 z-50">
                 <div
                   className="px-3 py-2 text-sm text-foreground hover:bg-muted rounded cursor-pointer"
                   onClick={() => {
-                    navigate("/admin/profile");
+                    navigate(`/${role}/profile`);
                     setOpen(false);
                   }}
                 >
                   Profile
                 </div>
 
-                <div
-                  className="px-3 py-2 text-sm text-foreground hover:bg-muted rounded cursor-pointer"
-                  onClick={() => {
-                    openSwitchAccountModal();
-                    setOpen(false); // close dropdown
-                  }}
-                >
-                  Switch Account
-                </div>
+                {role === "admin" && (
+                  <div
+                    className="px-3 py-2 text-sm text-foreground hover:bg-muted rounded cursor-pointer"
+                    onClick={() => {
+                      openSwitchAccountModal();
+                      setOpen(false); // close dropdown
+                    }}
+                  >
+                    Switch Account
+                  </div>
+                )}
               </div>
             )}
           </div>

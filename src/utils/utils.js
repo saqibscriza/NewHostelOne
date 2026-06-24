@@ -381,6 +381,39 @@ export const getAllAdminApi = async () => {
   }
 };
 
+
+
+//***************************** Chef APIs *****************************/
+export const getChefProfileApi = async () => {
+  try {
+    axios.defaults.headers.common["Authorization"] = getToken();
+    var res = await axios.get(`${Domain}/staff/profile`);
+    if (res) {
+      return res;
+    } else {
+      return [];
+    }
+  } catch (error) {
+    return [];
+  }
+}; 
+
+
+export const updateChefProfileApi = async (data) => {
+  try {
+    axios.defaults.headers.common["Authorization"] = getToken();
+    var res = await axios.put(`${Domain}/staff/updateProfile`, data);
+    if (res) {
+      return res;
+    } else {
+      return [];
+    }
+  } catch (error) {
+    return [];
+  }
+};
+
+
 //************************** STAFF  API INTEGRATION ***************************/
 
 //********* Get All Staff Details********* */

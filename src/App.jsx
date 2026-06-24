@@ -43,6 +43,7 @@ import AdminProfilePage from "./features/admin/profile/pages/ProfilePage";
 import AdminEditProfilePage from "./features/admin/profile/pages/EditProfilePage";
 
 import AdminPackagePage from "./features/admin/packages/pages/PackagePage";
+import AdminUpgradePlanPage from "./features/admin/packages/pages/UpgradePlanPage";
 
 import AdminNoticesPage from "./features/admin/notices/pages/NoticesPage";
 import AdminCreateNoticePage from "./features/admin/notices/pages/CreateNoticePage";
@@ -96,6 +97,8 @@ import EditCategoryPage from "./features/chef/inventory/pages/inventoryCategory/
 import EditCategoryItemPage from "./features/chef/inventory/pages/inventoryCategory/EditCategoryItemPage";
 import FeedbackPage from "./features/chef/feedback/pages/FeedbackPage";
 import NoticesPage from "../src/features/chef/notices/pages/NoticesPage";
+import ChefProfile from "./features/chef/profile/Profile";
+import ChefEditProfile from "./features/chef/profile/EditProfile";
 import DefaultTable from "./components/DefaultTable/DefaultTable";
 
 export default function AppRoutes() {
@@ -172,6 +175,7 @@ export default function AppRoutes() {
                 element={<AdminEditNoticePage />}
               />
 
+              <Route path="packages/upgrade" element={<AdminUpgradePlanPage />} />
               <Route path="packages" element={<AdminPackagePage />} />
               <Route path="hostel/add" element={<AddNewHostel />} />
             </Route>
@@ -277,6 +281,8 @@ export default function AppRoutes() {
               <Route path="notices" element={<NoticesPage />} />
 
               <Route path="feedback" element={<FeedbackPage />} />
+              <Route path="profile" element={<ChefProfile />} />
+              <Route path="profile/edit" element={<ChefEditProfile />} />
             </Route>
           )}
 

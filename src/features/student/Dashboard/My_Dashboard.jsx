@@ -72,7 +72,7 @@ export default function My_Dashboard() {
       </div>
 
       {/* STATS */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <StatCard
           title="Monthly Fee"
           value={dashboardData?.monthlyFee?.status || "N/A"}
@@ -84,11 +84,11 @@ export default function My_Dashboard() {
           icon={Users}
         />
 
-        <StatCard
+        {/* <StatCard
           title="Attendance"
           value={dashboardData?.attendance || "N/A"}
           icon={Calendar}
-        />
+        /> */}
       </div>
 
       {/* MAIN GRID */}

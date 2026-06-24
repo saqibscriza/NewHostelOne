@@ -222,89 +222,70 @@ const RoomDetails = () => {
       </div>
 
       {/* Filters */}
-      <Card>
-        <CardContent className="p-4 flex flex-col lg:flex-row gap-4 lg:items-center lg:justify-between">
-          <div className="flex flex-col sm:flex-row flex-wrap gap-3 w-full">
-            <span className="text-sm text-muted-foreground">Filter by:</span>
+<Card>
+  <CardContent className="p-4 flex flex-col lg:flex-row gap-4 items-start lg:items-center lg:justify-between">
+    <div className="flex flex-col sm:flex-row flex-wrap gap-4 items-center w-full">
+      <span className="text-sm font-medium text-muted-foreground whitespace-nowrap">Filter by:</span>
 
-            <Select value={locationFilter} onValueChange={setLocationFilter}>
-              {" "}
-              <SelectTrigger className="w-full sm:w-[160px] cursor-pointer">
-                {" "}
-                <SelectValue placeholder="All Location" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Location</SelectItem>
+      {/* Location Filter */}
+      <Select value={locationFilter} onValueChange={setLocationFilter}>
+        <SelectTrigger className="w-full sm:w-[180px] cursor-pointer">
+          <SelectValue placeholder="All Location" />
+        </SelectTrigger>
+        <SelectContent position="popper"> {/* <-- position popper add kiya */}
+          <SelectItem value="all">All Location</SelectItem>
+          {[...new Set(roomData.map((room) => room?.blockFloor || room?.block))]
+            .filter(Boolean)
+            .map((location, index) => (
+              <SelectItem key={index} value={location}>
+                {location}
+              </SelectItem>
+            ))}
+        </SelectContent>
+      </Select>
 
-                {[
-                  ...new Set(
-                    roomData.map((room) => room?.blockFloor || room?.block),
-                  ),
-                ]
-                  .filter(Boolean)
-                  .map((location, index) => (
-                    <SelectItem key={index} value={location}>
-                      {location}
-                    </SelectItem>
-                  ))}
-              </SelectContent>
-            </Select>
+      {/* Category Filter */}
+      <Select value={categoryFilter} onValueChange={setCategoryFilter}>
+        <SelectTrigger className="w-full sm:w-[180px] cursor-pointer">
+          <SelectValue placeholder="All Category" />
+        </SelectTrigger>
+        <SelectContent position="popper"> {/* <-- position popper add kiya */}
+          <SelectItem value="all">All Category</SelectItem>
+          {[...new Set(roomData.map((room) => room?.categoryName))].map((category, index) => (
+            <SelectItem key={index} value={category}>
+              {category}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
 
-            <Select value={categoryFilter} onValueChange={setCategoryFilter}>
-              <SelectTrigger className="w-full sm:w-[160px] cursor-pointer">
-                {" "}
-                <SelectValue placeholder="All Category" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Category</SelectItem>
+      {/* Status Filter */}
+      <Select value={statusFilter} onValueChange={setStatusFilter}>
+        <SelectTrigger className="w-full sm:w-[180px] cursor-pointer">
+          <SelectValue placeholder="All Status" />
+        </SelectTrigger>
+        <SelectContent position="popper"> {/* <-- position popper add kiya */}
+          <SelectItem value="all">All Status</SelectItem>
+          <SelectItem value="AVAILABLE">AVAILABLE</SelectItem>
+          <SelectItem value="OCCUPIED">OCCUPIED</SelectItem>
+          <SelectItem value="MAINTENANCE">MAINTENANCE</SelectItem>
+        </SelectContent>
+      </Select>
+    </div>
 
-                {[...new Set(roomData.map((room) => room?.categoryName))].map(
-                  (category, index) => (
-                    <SelectItem key={index} value={category}>
-                      {category}
-                    </SelectItem>
-                  ),
-                )}
-              </SelectContent>
-            </Select>
-
-            <Select value={statusFilter} onValueChange={setStatusFilter}>
-              <SelectTrigger className="w-full sm:w-[160px] cursor-pointer">
-                {" "}
-                <SelectValue placeholder="All Status" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Status</SelectItem>
-
-                <SelectItem value="AVAILABLE">AVAILABLE</SelectItem>
-
-                <SelectItem value="OCCUPIED">OCCUPIED</SelectItem>
-
-                <SelectItem value="MAINTENANCE">MAINTENANCE</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-          {/* <input
-            type="text"
-            placeholder="Search room, type or category..."
-            value={searchFilter}
-            onChange={(e) => setSearchFilter(e.target.value)}
-            className="border rounded-md px-3 py-2 text-sm w-[250px]"
-          /> */}
-
-          <button
-            className="cursor-pointer text-sm text-muted-foreground hover:underline"
-            onClick={() => {
-              setCategoryFilter("all");
-              setStatusFilter("all");
-              setSearchFilter("");
-              setLocationFilter("all");
-            }}
-          >
-            Clear all filters
-          </button>
-        </CardContent>
-      </Card>
+    <button
+      className="cursor-pointer text-sm font-medium text-muted-foreground hover:underline whitespace-nowrap self-end lg:self-auto mt-2 lg:mt-0"
+      onClick={() => {
+        setCategoryFilter("all");
+        setStatusFilter("all");
+        setSearchFilter("");
+        setLocationFilter("all");
+      }}
+    >
+      Clear all filters
+    </button>
+  </CardContent>
+</Card>
 
       {/* Table */}
       <Card className="rounded-2xl overflow-hidden">
