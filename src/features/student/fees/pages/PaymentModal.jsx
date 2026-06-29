@@ -102,9 +102,7 @@ export default function PaymentModal({
 
     try {
       const orderResponse = await createOrderPayment(orderPayload);
-
       if (orderResponse?.status === "success") {
-
         const { id: order_id, amount, currency, keyId } = orderResponse.data;
         const options = {
           key: keyId,

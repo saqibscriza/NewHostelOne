@@ -264,10 +264,8 @@ const SubscriptionDetails = ({ currentPlan }) => {
       toast.error("Subscription ID not found");
       return;
     }
-
     try {
       const response = await getPlanInvoiceApi(currentPlan.subscriptionId);
-
       if (!response || !response.data) {
         toast.error("Failed to fetch invoice data");
         return;
@@ -512,6 +510,7 @@ export default function PackagePage() {
   const fetchCurrentPlan = async () => {
     try {
       const response = await getCurrentPlanApi();
+      console.log('all current ',response)
       // Adjust if the structure differs, but using response.data or response directly
       setCurrentPlan(response?.data || response || null);
     } catch (error) {

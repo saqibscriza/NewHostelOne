@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { ArrowLeft, Lock, ShieldCheck, Users, CheckCircle2, ArrowUpCircle } from "lucide-react";
+import { createOrderPaymentHostelo, verifyPaymentHostelo } from "../../../../utils/utils";
 
 import { Button } from "../../../../components/ui/button";
 
@@ -19,12 +20,24 @@ export default function UpgradePlanPage() {
   }
 
   const { plan, isYearly: initialIsYearly } = location.state;
-  const [isYearly, setIsYearly] = useState(initialIsYearly || false);
+  console.log('my data parse', location.state)
+  console.log('checkkkk', initialIsYearly)
+  console.log('plannnn', plan)
+
+  const [isYearly, setIsYearly] = useState(initialIsYearly);
+  const [billingCycle, setBillingCycle] = useState(
+    initialIsYearly ? "YEARLY" : "MONTHLY"
+  );
+  console.log('my billingCycle--',billingCycle)
+
+
+  const [grandTotal, setGrandTotal] = useState(0);
+  const [remark, setRemark] = useState("");
 
   // Extract base price
   const priceString = isYearly && plan.yearlyPrice ? plan.yearlyPrice : plan.price;
   const numericPrice = parseFloat(priceString.replace(/[^0-9.]/g, ""));
-  
+
   const isCustom = isNaN(numericPrice);
 
   const subtotal = isCustom ? 0 : numericPrice;
@@ -43,6 +56,90 @@ export default function UpgradePlanPage() {
     month: 'short',
     year: 'numeric'
   });
+
+  const handlePaymentFlow = async () => {
+    const orderPayload = {
+      packageId: plan.packageId,
+      // hostelId: '',
+      billingCycle: billingCycle,
+      currency: "INR",
+      receipt: `receipt_${Date.now()}`,
+      amount: total,
+    };
+
+    try {
+      const orderResponse = await createOrderPaymentHostelo(orderPayload);
+      if (orderResponse?.status === "success") {
+        const { id: order_id, amount, currency, keyId } = orderResponse.data;
+        const options = {
+          key: keyId,
+          amount: amount,
+          currency: currency,
+          name: "Hostelo",
+          description: "Fee Payment",
+          order_id: order_id,
+
+          handler: async function (response) {
+            // console.log("Razorpay Success Response:", response);
+
+            const verifyPayload = {
+              razorpayOrderId: response.razorpay_order_id,
+              razorpayPaymentId: response.razorpay_payment_id,
+              razorpaySignature: response.razorpay_signature,
+              packageId: plan.packageId,
+              // hostelId: "string",
+              billingCycle: billingCycle,
+              amount: total || 0
+
+              // studentId: stuData?.id || "student_id",
+              // roomRent: currentDues.roomRent,
+              // messCharges: currentDues.messFee,
+              // electricityCharges: currentDues.electricity,
+              // lateFee: currentDues.lateFees,
+              // billingCycle: stuData?.currentDues?.billingCycle || "October",
+              // lateDays: 0,
+              // notes: remark
+            };
+            try {
+              const verifyResponse = await verifyPaymentHostelo(verifyPayload);
+              if (verifyResponse?.status === "success") {
+                onConfirmPayment(remark);
+                onClose();
+              } else {
+                console.log("Verification Failed:", verifyResponse);
+              }
+            } catch (err) {
+              console.error("Verification API Error:", err);
+            }
+          },
+          prefill: {
+            name: stuData?.name || "Student Name",
+            email: stuData?.email || "student@example.com",
+            contact: stuData?.phone || "9999999999",
+          },
+          theme: {
+            color: "#0f172a",
+          },
+        };
+
+        // 7. Open the Razorpay Checkout Modal
+        const rzp = new window.Razorpay(options);
+
+        rzp.on('payment.failed', function (response) {
+          console.error("Payment Failed:", response.error);
+        });
+
+        rzp.open();
+
+      } else {
+        console.error("Failed to create order. Response:", orderResponse);
+      }
+    } catch (error) {
+      console.error("Create Order API Error:", error);
+    } finally {
+      // setLoading(false);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-[#F8FAFC] p-6 lg:p-10">
@@ -73,24 +170,49 @@ export default function UpgradePlanPage() {
                   <p className="mb-3 text-xs font-bold uppercase tracking-wider text-muted-foreground">
                     BILLING CYCLE
                   </p>
-                  <div className="flex rounded-xl bg-muted/50 p-1">
+                  {/* <div className="flex rounded-xl bg-muted/50 p-1">
                     <button
                       onClick={() => setIsYearly(false)}
-                      className={`flex-1 rounded-lg py-2.5 text-sm font-semibold transition-colors ${
-                        !isYearly
-                          ? "bg-primary text-primary-foreground shadow"
-                          : "text-muted-foreground hover:text-foreground"
-                      }`}
+                      className={`flex-1 rounded-lg py-2.5 text-sm font-semibold transition-colors ${!isYearly
+                        ? "bg-primary text-primary-foreground shadow"
+                        : "text-muted-foreground hover:text-foreground"
+                        }`}
                     >
                       Monthly
                     </button>
                     <button
                       onClick={() => setIsYearly(true)}
-                      className={`flex-1 rounded-lg py-2.5 text-sm font-semibold transition-colors ${
-                        isYearly
+                      className={`flex-1 rounded-lg py-2.5 text-sm font-semibold transition-colors ${isYearly
+                        ? "bg-primary text-primary-foreground shadow"
+                        : "text-muted-foreground hover:text-foreground"
+                        }`}
+                    >
+                      Yearly
+                    </button>
+                  </div> */}
+                  <div className="flex rounded-xl bg-muted/50 p-1">
+                    <button
+                      onClick={() => {
+                        setIsYearly(false);
+                        setBillingCycle("MONTHLY");
+                      }}
+                      className={`flex-1 rounded-lg py-2.5 text-sm font-semibold transition-colors ${!isYearly
                           ? "bg-primary text-primary-foreground shadow"
                           : "text-muted-foreground hover:text-foreground"
-                      }`}
+                        }`}
+                    >
+                      Monthly
+                    </button>
+
+                    <button
+                      onClick={() => {
+                        setIsYearly(true);
+                        setBillingCycle("YEARLY");
+                      }}
+                      className={`flex-1 rounded-lg py-2.5 text-sm font-semibold transition-colors ${isYearly
+                          ? "bg-primary text-primary-foreground shadow"
+                          : "text-muted-foreground hover:text-foreground"
+                        }`}
                     >
                       Yearly
                     </button>
@@ -143,11 +265,11 @@ export default function UpgradePlanPage() {
 
               {/* Action Button */}
               <div className="mt-8 space-y-4">
-                <Button className="h-14 w-full rounded-xl bg-primary text-base font-bold text-primary-foreground hover:bg-primary/90">
+                <Button onClick={handlePaymentFlow} className="h-14 w-full rounded-xl bg-primary text-base font-bold text-primary-foreground hover:bg-primary/90">
                   <Lock className="mr-2 h-5 w-5" />
                   {isCustom ? "Contact Us" : "Complete Payment"}
                 </Button>
-                
+
                 <div className="text-center">
                   <p className="flex items-center justify-center gap-1.5 text-sm font-medium text-emerald-600">
                     <ShieldCheck className="h-4 w-4" />
