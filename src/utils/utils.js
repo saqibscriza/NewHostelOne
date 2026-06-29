@@ -1354,6 +1354,57 @@ export const deleteBlogCategoryApi = async (id) => {
 };
 
 
+export const getCurrentPlanApi = async () => {
+  try {
+    axios.defaults.headers.common["Authorization"] = getToken();
+    const res = await axios.get(`${Domain}/package/current`);
+    return res.data;
+  } catch (error) {
+    console.log("GET CURRENT PLAN ERROR 👉", error);
+    return error?.response?.data || null;
+  }
+};
+
+export const getPlanInvoiceApi = async (subscriptionId) => {
+  try {
+    axios.defaults.headers.common["Authorization"] = getToken();
+    const res = await axios.get(`${Domain}/package/invoice/${subscriptionId}`, {
+      responseType: 'blob'
+    });
+    return res;
+  } catch (error) {
+    console.log("GET PLAN INVOICE ERROR 👉", error);
+    return error?.response || null;
+  }
+};
+
+export const getAllPlansApi = async () => {
+  try {
+    axios.defaults.headers.common["Authorization"] = getToken();
+    const res = await axios.get(`${Domain}/package/all`);
+    return res.data;
+  } catch (error) {
+    console.log("GET ALL PLANS ERROR 👉", error);
+    return error?.response?.data || null;
+  }
+};  
+
+
+
+//******************************** Room Active Category ***************/
+
+export const getAllRoomActiveCategoryApi = async () => {
+  try {
+    axios.defaults.headers.common["Authorization"] = getToken();
+    const res = await axios.get(`${Domain}/category/activeOnly`);
+    return res.data;
+  } catch (error) {
+    console.log("GET ALL ACTIVE CATEGORY ERROR 👉", error);
+    return error?.response?.data || null;
+  }
+};
+
+
 
 
 

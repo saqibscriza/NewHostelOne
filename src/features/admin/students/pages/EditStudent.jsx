@@ -536,37 +536,56 @@ const EditStudent = () => {
             </Select>
           </div>
 
-          <div>
-            <Label>Email Address</Label>
-            <Input
-              value={form.email || ""}
-              onChange={(e) => {
-                const value = e.target.value;
+<div>
+  <Label>Email Address</Label>
+  <Input
+    value={form.email || ""}
+    onChange={(e) => {
+      const value = e.target.value;
 
-                handleChange("email", value);
+      handleChange("email", value);
 
-                const errorMessage = validateEmail(value);
+      setErrors((prev) => ({
+        ...prev,
+        email:
+          value &&
+          !/^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.(com|in)$/.test(value)
+            ? "Please enter a valid .com or .in email address"
+            : "",
+      }));
+    }}
+    className={errors.email ? "border-destructive" : ""}
+  />
 
-                setErrors((prev) => ({
-                  ...prev,
-                  email: errorMessage,
-                }));
-              }}
-              className={errors.email ? "border-destructive" : ""}
-            />
+  {errors.email && (
+    <p className="text-xs text-destructive mt-1">{errors.email}</p>
+  )}
+</div>
 
-            {errors.email && (
-              <p className="text-xs text-destructive mt-1">{errors.email}</p>
-            )}
-          </div>
+<div className="col-span-2">
+  <Label>Phone Number</Label>
+  <Input
+    value={form.phone || ""}
+    onChange={(e) => {
+      const value = e.target.value.replace(/\D/g, "").slice(0, 10);
 
-          <div className="col-span-2">
-            <Label>Phone Number</Label>
-            <Input
-              value={form.phone || ""}
-              onChange={(e) => handleChange("phone", e.target.value)}
-            />
-          </div>
+      handleChange("phone", value);
+
+      setErrors((prev) => ({
+        ...prev,
+        phone:
+          value.length > 0 && value.length !== 10
+            ? "Phone number must be 10 digits"
+            : "",
+      }));
+    }}
+    className={errors.phone ? "border-destructive" : ""}
+  />
+
+  {errors.phone && (
+    <p className="text-xs text-destructive mt-1">{errors.phone}</p>
+  )}
+</div>
         </div>
       </Section>
 

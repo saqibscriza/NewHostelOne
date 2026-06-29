@@ -252,7 +252,7 @@ if (file.size > 2 * 1024 * 1024) {
 
               {/* Blog Title */}
               <div className="space-y-1.5">
-                <label className="text-[14px] font-bold text-slate-800">Blog Title *</label>
+                <label className="text-[14px] font-bold text-slate-800">Blog Title <span className="text-red-500">*</span></label>
                 <input
                   type="text"
                   {...register("title", { required: "Title is required" })}
@@ -264,7 +264,7 @@ if (file.size > 2 * 1024 * 1024) {
 
               {/* URL Slug */}
               <div className="space-y-1.5">
-                <label className="text-[14px] font-bold text-slate-800">URL Slug *</label>
+                <label className="text-[14px] font-bold text-slate-800">URL Slug <span className="text-red-500">*</span></label>
                 <div className="flex border border-slate-200 rounded-lg overflow-hidden bg-[#f8fafc] focus-within:ring-2 focus-within:ring-blue-500 focus-within:bg-white transition-all">
                   <input
                     type="text"
@@ -285,9 +285,9 @@ if (file.size > 2 * 1024 * 1024) {
 
               {/* Short Description */}
               <div className="space-y-1.5">
-                <label className="text-[14px] font-bold text-slate-800">Short Description</label>
+                <label className="text-[14px] font-bold text-slate-800">Short Description <span className="text-red-500">*</span></label>
                 <textarea
-                  {...register("shortDescription")}
+                  {...register("shortDescription", {required: "Short Description is required"})}
                   placeholder="A brief summary for the blog card and search results..."
                   rows={4}
                   className="w-full border border-slate-200 rounded-lg px-4 py-3 text-[15px] font-medium placeholder:text-slate-400 bg-[#f8fafc] focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white focus:border-transparent transition-all resize-none"
@@ -340,12 +340,12 @@ if (file.size > 2 * 1024 * 1024) {
 {/* Meta Title */}
 <div className="space-y-1.5">
   <label className="text-[13px] font-bold text-slate-800">
-    Meta Title
+    Meta Title <span className="text-red-500">*</span>
   </label>
 
   <input
     type="text"
-    {...register("metaTitle")}
+    {...register("metaTitle", { required: "Meta title is required" })}
     maxLength={60}
     placeholder="Meta title..."
     className="w-full border border-slate-200 rounded-lg px-3 py-2.5 text-[14px] font-medium placeholder:text-slate-400 bg-[#f8fafc] focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white focus:border-transparent transition-all"
@@ -365,11 +365,11 @@ if (file.size > 2 * 1024 * 1024) {
               {/* Meta Description */}
 <div className="space-y-1.5">
   <label className="text-[13px] font-bold text-slate-800">
-    Meta Description
+    Meta Description <span className="text-red-500">*</span>
   </label>
 
   <textarea
-    {...register("metaDescription")}
+    {...register("metaDescription", { required: "Meta description is required" })}
     maxLength={160}
     placeholder="Meta description..."
     rows={4}
@@ -389,10 +389,11 @@ if (file.size > 2 * 1024 * 1024) {
 
               {/* Blog Category */}
               <div className="space-y-1.5">
-                <label className="text-[13px] font-bold text-slate-800">Blog Category</label>
+                <label className="text-[13px] font-bold text-slate-800">Blog Category <span className="text-red-500">*</span> </label>
                 <div className="relative">
 <select
   {...register("categoryId", { required: "Category is required" })}
+  value={watch("categoryId") || ""}
   className="w-full border border-slate-200 rounded-lg px-3 py-2.5 text-[14px] font-medium bg-[#f8fafc] focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition-all cursor-pointer pr-8 text-slate-600 appearance-none"
   style={{
     WebkitAppearance: "none",
@@ -421,7 +422,7 @@ if (file.size > 2 * 1024 * 1024) {
 
               {/* Cover Image */}
               <div className="space-y-2">
-                <label className="text-[13px] font-bold text-slate-800">Cover Image</label>
+                <label className="text-[13px] font-bold text-slate-800">Cover Image <span className="text-red-500">*</span></label>
 
                 {/* Hidden file input */}
                 <input
@@ -481,10 +482,10 @@ if (file.size > 2 * 1024 * 1024) {
 
               {/* Alt Text */}
               <div className="space-y-1.5">
-                <label className="text-[13px] font-bold text-slate-800">Alt Text</label>
+                <label className="text-[13px] font-bold text-slate-800">Alt Text <span className="text-red-500">*</span></label>
                 <input
                   type="text"
-                  {...register("altText")}
+                  {...register("altText", { required: "Alt text is required" })}
                   placeholder="Image alt text for SEO..."
                   className="w-full border border-slate-200 rounded-lg px-3 py-2.5 text-[14px] font-medium placeholder:text-slate-400 bg-[#f8fafc] focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white focus:border-transparent transition-all"
                 />
@@ -492,9 +493,9 @@ if (file.size > 2 * 1024 * 1024) {
 
               {/* Meta Keywords */}
               <div className="space-y-1.5">
-                <label className="text-[13px] font-bold text-slate-800">Meta Keywords</label>
+                <label className="text-[13px] font-bold text-slate-800">Meta Keywords <span className="text-red-500">*</span></label>
                 <textarea
-                  {...register("metaKeywords")}
+                  {...register("metaKeywords", { required: "Meta keywords is required" })}
                   rows={4}
                   placeholder="keyword1, keyword2..."
                   className="w-full border border-slate-200 rounded-lg px-3 py-2.5 text-[14px] font-medium placeholder:text-slate-400 bg-[#f8fafc] focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white focus:border-transparent transition-all"

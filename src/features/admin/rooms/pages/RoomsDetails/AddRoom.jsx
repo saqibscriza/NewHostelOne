@@ -21,7 +21,7 @@ import {
 } from "lucide-react";
 import {
   addRoomApi,
-  getAllActiveCategoryApi,
+  getAllRoomActiveCategoryApi,
   getRoomById,
   updateRoomApi,
 } from "../../../../../utils/utils";
@@ -89,11 +89,11 @@ const AddRoom = () => {
 
   const fetchCategories = async () => {
     try {
-      const res = await getAllActiveCategoryApi();
-      const list = res?.data?.Category || res?.data?.data?.Category || [];
+      const res = await getAllRoomActiveCategoryApi();
+      const list = res?.Category || res?.data?.Category || res?.data?.data?.Category || (Array.isArray(res) ? res : []);
       setCategoryList(Array.isArray(list) ? list : []);
     } catch (error) {
-      console.log("CATEGORY ERROR 👉", error);
+      console.log("FETCH CATEGORIES ERROR 👉", error);
       setCategoryList([]);
     }
   };
@@ -349,13 +349,13 @@ const AddRoom = () => {
                 >
                   <SelectValue placeholder="Select Category" />
                 </SelectTrigger>
-                <SelectContent>
-                  {categoryList.map((item) => (
-                    <SelectItem key={item.id} value={String(item.id)}>
-                      {item.categoryName}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
+<SelectContent>
+  {categoryList.map((item) => (
+    <SelectItem key={item.id} value={String(item.id)}>
+      {item.categoryName}
+    </SelectItem>
+  ))}
+</SelectContent>
               </Select>
             </Field>
 

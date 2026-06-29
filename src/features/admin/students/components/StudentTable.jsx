@@ -8,8 +8,6 @@ export default function StudentTable({ data }) {
       {data.map((student) => (
         <TableRow key={student.id} student={student} />
       ))}
-
-      <TablePagination />
     </div>
   );
 }
@@ -68,47 +66,7 @@ function TableRow({ student }) {
   );
 }
 
-/* ---------------- PAGINATION ---------------- */
 
-function TablePagination() {
-  return (
-    <div className="flex items-center justify-between px-6 py-4 border-t border-slate-200 text-sm">
-      <p className="text-slate-500">
-        Showing 1 to 4 of 24 hostels
-      </p>
-
-      <div className="flex items-center gap-2">
-        <button className="px-2 text-slate-400 hover:text-slate-900">
-          {"<"}
-        </button>
-
-        <button className="w-8 h-8 rounded-md bg-slate-900 text-white text-sm">
-          1
-        </button>
-
-        <button className="w-8 h-8 rounded-md hover:bg-slate-100">
-          2
-        </button>
-
-        <button className="w-8 h-8 rounded-md hover:bg-slate-100">
-          3
-        </button>
-
-        <span className="px-1 text-slate-400">...</span>
-
-        <button className="w-8 h-8 rounded-md hover:bg-slate-100">
-          6
-        </button>
-
-        <button className="px-2 text-slate-400 hover:text-slate-900">
-          {">"}
-        </button>
-      </div>
-    </div>
-  );
-}
-
-/* ---------------- REUSABLES ---------------- */
 
 function Avatar({ name }) {
   const initials = name

@@ -289,7 +289,7 @@ toast(
               <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
 
               <div className="space-y-1.5">
-                <label className="text-[14px] font-semibold text-slate-700">Category Image</label>
+                <label className="text-[14px] font-semibold text-slate-700">Category Image <span className="text-red-500">*</span></label>
                 <input
                   ref={addImageInputRef}
                   type="file"
@@ -329,29 +329,36 @@ toast(
               </div>
 
               <div className="space-y-1.5">
-                <label className="text-[14px] font-semibold text-slate-700">Alt Text</label>
+                <label className="text-[14px] font-semibold text-slate-700">Alt Text <span className="text-red-500">*</span></label>
                 <input
                   type="text"
-                  {...register("altText")}
+                  {...register("altText",{required:"Alt Text is required"})}
                   placeholder="Describe the image for accessibility"
                   className="w-full border border-slate-300 rounded-lg px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#0052cc] focus:border-transparent transition-all"
                 />
+                {errors.altText && <p className="text-[11px] text-red-500">{errors.altText.message}</p>}
               </div>
 
               <div className="space-y-1.5">
-                <label className="text-[14px] font-semibold text-slate-700">Category Name *</label>
-                <input
-                  type="text"
-                  {...register("name", { required: "Category Name is required" })}
-                  placeholder="e.g. Technology"
-                  className="w-full border border-slate-300 rounded-lg px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#0052cc] focus:border-transparent transition-all"
-                />
+                <label className="text-[14px] font-semibold text-slate-700">Category Name <span className="text-red-500">*</span></label>
+<input
+  type="text"
+  {...register("name", {
+    required: "Category Name is required",
+    onChange: (e) => {
+      e.target.value =
+        e.target.value.charAt(0).toUpperCase() + e.target.value.slice(1);
+    },
+  })}
+  placeholder="e.g. Technology"
+  className="w-full border border-slate-300 rounded-lg px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#0052cc] focus:border-transparent transition-all"
+/>
                 {errors.name && <p className="text-[11px] text-red-500">{errors.name.message}</p>}
               </div>
 
 <div className="space-y-1.5">
   <label className="text-[14px] font-semibold text-slate-700">
-    Slug *
+    Slug <span className="text-red-500">*</span>
   </label>
 
   <input
@@ -372,19 +379,19 @@ toast(
 </div>
 
               <div className="space-y-1.5">
-                <label className="text-[14px] font-semibold text-slate-700">Category Heading</label>
+                <label className="text-[14px] font-semibold text-slate-700">Category Heading<span className="text-red-500">*</span></label>
                 <input
                   type="text"
-                  {...register("heading")}
+                  {...register("heading",{required:"Category heading is required"})}
                   placeholder="Enter Category Heading"
                   className="w-full border border-slate-300 rounded-lg px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#0052cc] focus:border-transparent transition-all"
                 />
               </div>
 
               <div className="space-y-1.5">
-                <label className="text-[14px] font-semibold text-slate-700">Description</label>
+                <label className="text-[14px] font-semibold text-slate-700">Description <span className="text-red-500">*</span></label>
                 <textarea
-                  {...register("description")}
+                  {...register("description",{required:"Description is required"})}
                   placeholder="Brief category description..."
                   rows={4}
                   className="w-full border border-slate-300 rounded-lg px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#0052cc] focus:border-transparent transition-all resize-none"
@@ -396,12 +403,12 @@ toast(
                  <div className="space-y-6">
 <div className="space-y-1.5">
   <label className="text-[14px] font-semibold text-slate-700">
-    Meta Title
+    Meta Title<span className="text-red-500">*</span>
   </label>
 
   <input
     type="text"
-    {...register("metaTitle")}
+    {...register("metaTitle",{required:"Meta Title is required"})}
     maxLength={60}
     placeholder="3-60 characters"
     className="w-full border border-slate-300 rounded-lg px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#0052cc] focus:border-transparent transition-all"
@@ -420,11 +427,11 @@ toast(
 
 <div className="space-y-1.5">
   <label className="text-[14px] font-semibold text-slate-700">
-    Meta Description
+    Meta Description<span className="text-red-500">*</span>
   </label>
 
   <textarea
-    {...register("metaDescription")}
+    {...register("metaDescription",{required:"Meta Description is required"})}
     minLength={3}
     maxLength={160}
     rows={3}
@@ -444,9 +451,9 @@ toast(
 </div>  
 
                     <div className="space-y-1.5">
-                      <label className="text-[14px] font-semibold text-slate-700">Meta Keywords</label>
+                      <label className="text-[14px] font-semibold text-slate-700">Meta Keywords <span className="text-red-500">*</span></label>
                 <textarea
-                  {...register("metaKeywords")}
+                  {...register("metaKeywords",{ required: "Meta Keywords is required" })}
                   placeholder="eg, test, hdhja"
                   rows={4}
                   className="w-full border border-slate-300 rounded-lg px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#0052cc] focus:border-transparent transition-all resize-none"
@@ -470,7 +477,7 @@ toast(
                 <div className="text-[13px] font-bold text-[#64748b] uppercase tracking-wider">Image</div>
                 <div className="text-[13px] font-bold text-[#64748b] uppercase tracking-wider pl-4">Name</div>
                 <div className="text-[13px] font-bold text-[#64748b] uppercase tracking-wider pl-4">Posts</div>
-                <div className="text-[13px] font-bold text-[#64748b] uppercase tracking-wider pl-4">Read</div>
+                {/* <div className="text-[13px] font-bold text-[#64748b] uppercase tracking-wider pl-4">Read</div> */}
                 <div className="text-[13px] font-bold text-[#64748b] uppercase tracking-wider text-right w-24">Actions</div>
               </div>
             </div>
@@ -516,15 +523,15 @@ toast(
                     {/* Posts */}
                     <div className="pl-4">
                       <div className="inline-flex flex-col items-start justify-center bg-slate-100 text-slate-700 text-[13px] font-bold px-3 py-1.5 rounded-xl leading-tight">
-                        <span>{cat.post ?? 0}</span>
-                        <span className="text-[11px] font-semibold text-slate-500">Posts</span>
+                        <span>{cat.post ?? 0} Posts</span>
+                        {/* <span className="text-[11px] font-semibold text-slate-500">Posts</span> */}
                       </div>
                     </div>
 
                     {/* Read */}
-                    <div className="pl-4">
+                    {/* <div className="pl-4">
                       <span className="text-[14px] font-semibold text-slate-700">{cat.read ?? '0k'}</span>
-                    </div>
+                    </div> */}
 
                     {/* Actions */}
                     <div className="flex items-center justify-end gap-1 w-24">
@@ -584,7 +591,7 @@ toast(
           
           <div className="px-6 py-6 space-y-5 bg-white overflow-y-auto">
             <div className="space-y-1.5">
-              <label className="text-[14px] font-semibold text-slate-700">Thumbnail Image</label>
+              <label className="text-[14px] font-semibold text-slate-700">Thumbnail Image <span className="text-red-500">*</span></label>
               <input
                 ref={editImageInputRef}
                 type="file"
@@ -624,17 +631,18 @@ toast(
             </div>
 
             <div className="space-y-1.5">
-              <label className="text-[14px] font-semibold text-slate-700">Alt Text</label>
+              <label className="text-[14px] font-semibold text-slate-700">Alt Text <span className="text-red-500">*</span></label>
               <input
                 type="text"
-                {...registerEdit("altText")}
+                {...registerEdit("altText",{required:"Alt text is required"})}
                 placeholder="Describe the image for accessibility"
                 className="w-full border border-slate-300 rounded-lg px-3.5 py-2.5 text-[15px] font-medium focus:outline-none focus:ring-2 focus:ring-[#0052cc] focus:border-transparent transition-all text-slate-900"
-              />
+              />  
+              {editErrors.altText && <p className="text-[11px] text-red-500">{editErrors.altText.message}</p>}
             </div>
 
             <div className="space-y-1.5">
-              <label className="text-[14px] font-semibold text-slate-700">Category Name *</label>
+              <label className="text-[14px] font-semibold text-slate-700">Category Name <span className="text-red-500">*</span></label>
               <input
                 type="text"
                 {...registerEdit("name", { required: "Category Name is required" })}
@@ -645,7 +653,7 @@ toast(
             </div>
 
             <div className="space-y-1.5">
-              <label className="text-[14px] font-semibold text-slate-700">Slug *</label>
+              <label className="text-[14px] font-semibold text-slate-700">Slug <span className="text-red-500">*</span></label>
               <input
                 type="text"
                 {...registerEdit("slug", { required: "Slug is required" })}
@@ -663,58 +671,63 @@ toast(
             </div>
 
             <div className="space-y-1.5">
-              <label className="text-[14px] font-semibold text-slate-700">Category Heading</label>
+              <label className="text-[14px] font-semibold text-slate-700">Category Heading <span className="text-red-500">*</span></label>
               <input
                 type="text"
-                {...registerEdit("heading")}
+                {...registerEdit("heading",{required:"Category heading is required"}  )}
                 placeholder="e.g. Technology"
                 className="w-full border border-slate-300 rounded-lg px-3.5 py-2.5 text-[15px] font-medium focus:outline-none focus:ring-2 focus:ring-[#0052cc] focus:border-transparent transition-all text-slate-900"
               />
+              {editErrors.heading && <p className="text-[11px] text-red-500">{editErrors.heading.message}</p>}
             </div>
 
             <div className="space-y-1.5">
-              <label className="text-[14px] font-semibold text-slate-700">Description</label>
+              <label className="text-[14px] font-semibold text-slate-700">Description <span className="text-red-500">*</span></label>
               <textarea
-                {...registerEdit("description")}
+                {...registerEdit("description", { required: "Description is required" } )}
                 placeholder="Brief category description..."
                 rows={4}
                 className="w-full border border-slate-300 rounded-lg px-3.5 py-2.5 text-[15px] font-medium focus:outline-none focus:ring-2 focus:ring-[#0052cc] focus:border-transparent transition-all resize-none text-slate-900"
               />
+              {editErrors.description && <p className="text-[11px] text-red-500">{editErrors.description.message}</p>}
             </div>
 
             <div className="pt-2">
                <h3 className="text-[12px] font-bold text-[#0f172a] uppercase tracking-wider mb-4 border-b border-slate-200 pb-2">SEO Settings</h3>
                <div className="space-y-5">
                   <div className="space-y-1.5">
-                    <label className="text-[14px] font-semibold text-slate-700">Meta Title</label>
+                    <label className="text-[14px] font-semibold text-slate-700">Meta Title <span className="text-red-500">*</span></label>
                     <input
                       type="text"
-                      {...registerEdit("metaTitle")}
+                      {...registerEdit("metaTitle", { required: "Meta title is required" })}
                       maxLength={60}
                       placeholder="3-60 characters"
                       className="w-full border border-slate-300 rounded-lg px-3.5 py-2.5 text-[15px] font-medium focus:outline-none focus:ring-2 focus:ring-[#0052cc] focus:border-transparent transition-all text-slate-900"
                     />
+                    {editErrors.metaTitle && <p className="text-[11px] text-red-500">{editErrors.metaTitle.message}</p>}
                   </div>
 
                   <div className="space-y-1.5">
-                    <label className="text-[14px] font-semibold text-slate-700">Meta Description</label>
+                    <label className="text-[14px] font-semibold text-slate-700">Meta Description <span className="text-red-500">*</span></label>
                     <textarea
-                      {...registerEdit("metaDescription")}
+                      {...registerEdit("metaDescription", { required: "Meta description is required" })}
                       rows={3}
                       maxLength={160}
                       placeholder="3-160 characters"
                       className="w-full border border-slate-300 rounded-lg px-3.5 py-2.5 text-[15px] font-medium focus:outline-none focus:ring-2 focus:ring-[#0052cc] focus:border-transparent transition-all resize-none text-slate-900"
                     />
+                    {editErrors.metaDescription && <p className="text-[11px] text-red-500">{editErrors.metaDescription.message}</p>}
                   </div>
 
                   <div className="space-y-1.5">
-                    <label className="text-[14px] font-semibold text-slate-700">Meta Keywords</label>
+                    <label className="text-[14px] font-semibold text-slate-700">Meta Keywords <span className="text-red-500">*</span></label>
                     <textarea
-                      {...registerEdit("metaKeywords")}
+                      {...registerEdit("metaKeywords", { required: "Meta keywords are required" } )}
                       placeholder="eg, test, hdhja"
                       rows={4}
                       className="w-full border border-slate-300 rounded-lg px-3.5 py-2.5 text-[15px] font-medium focus:outline-none focus:ring-2 focus:ring-[#0052cc] focus:border-transparent transition-all text-slate-900"
                     />
+                    {editErrors.metaKeywords && <p className="text-[11px] text-red-500">{editErrors.metaKeywords.message}</p>}
                   </div>
                </div>
             </div>

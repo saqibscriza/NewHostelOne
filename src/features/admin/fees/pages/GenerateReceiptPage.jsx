@@ -68,9 +68,9 @@ console.log("Receipt Data =>", receiptData);
                         <span className="text-2xl font-bold text-foreground tracking-tight">Scriza</span>
                       </div>
                       <div className="text-sm text-muted-foreground space-y-1">
-                        <p>124 Education Hub, Tech Park Phase II</p>
-                        <p>Bangalore, Karnataka 560066</p>
-                        <p>contact@scriza-hostels.com</p>
+                        <p>Ground Floor, Logix Park (Supreme Work),</p>
+                        <p>A-4-5, A Block, Sector 16, Noida, Uttar</p>
+                        <p>Pradesh 201301</p>
                       </div>
                     </div>
                     <div className="text-left sm:text-right">

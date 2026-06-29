@@ -16,7 +16,7 @@ import {
   TableRow,
 } from "../../../../components/ui/Table";
 
-import { getAllPackageData } from "../../../../utils/utils";
+import { getAllPlansApi, getCurrentPlanApi, getPlanInvoiceApi } from "../../../../utils/utils";
 
 // ================= PLAN CARD =================
 
@@ -256,7 +256,63 @@ const STATIC_PACKAGES = [
 
 // ================= SUBSCRIPTION DETAILS =================
 
-const SubscriptionDetails = () => {
+const SubscriptionDetails = ({ currentPlan }) => {
+  if (!currentPlan) return null;
+
+  const handleDownloadInvoice = async () => {
+    if (!currentPlan.subscriptionId) {
+      toast.error("Subscription ID not found");
+      return;
+    }
+
+    try {
+      const response = await getPlanInvoiceApi(currentPlan.subscriptionId);
+
+      if (!response || !response.data) {
+        toast.error("Failed to fetch invoice data");
+        return;
+      }
+
+      const contentType = response.headers && response.headers['content-type'];
+
+      if (contentType && contentType.includes('application/json')) {
+        // If the backend returns JSON with a URL instead of the file itself
+        const text = await response.data.text();
+        const json = JSON.parse(text);
+        const url = json?.invoiceUrl || json?.data?.invoiceUrl || json?.url || json?.data;
+        const filename = json?.filename || json?.data?.filename || "invoice.pdf";
+
+        if (url && typeof url === "string" && url.startsWith("http")) {
+          const link = document.createElement("a");
+          link.href = url;
+          link.target = "_blank";
+          link.setAttribute("download", filename);
+          document.body.appendChild(link);
+          link.click();
+          link.remove();
+          toast.success("Invoice downloaded successfully");
+        } else {
+          toast.error("Invoice URL not found or invalid in the response.");
+        }
+      } else {
+        // The backend returns the file blob directly
+        const blob = new Blob([response.data], { type: contentType || 'application/pdf' });
+        const url = window.URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.href = url;
+        link.setAttribute("download", `invoice-${currentPlan.subscriptionId}.pdf`);
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+        window.URL.revokeObjectURL(url);
+        toast.success("Invoice downloaded successfully");
+      }
+    } catch (error) {
+      console.error("Download Invoice Error:", error);
+      toast.error("An error occurred during invoice download.");
+    }
+  };
+
   return (
     <div>
       <h2 className="mb-4 text-2xl font-bold text-foreground">
@@ -264,8 +320,8 @@ const SubscriptionDetails = () => {
       </h2>
       <div className="relative overflow-hidden rounded-2xl border-2 border-primary bg-card shadow-sm">
         {/* Active Banner */}
-        <div className="absolute -right-12 top-6 w-40 rotate-45 bg-primary py-1 text-center text-[10px] font-bold tracking-widest text-primary-foreground">
-          ACTIVE
+        <div className="absolute -right-12 top-6 w-40 rotate-45 bg-primary py-1 text-center text-[10px] font-bold tracking-widest text-primary-foreground uppercase">
+          {currentPlan.paymentStatus || "ACTIVE"}
         </div>
 
         <div className="p-6 md:p-8">
@@ -276,11 +332,11 @@ const SubscriptionDetails = () => {
             </span>
             <div className="flex items-center gap-3">
               <span className="rounded-lg bg-primary px-4 py-1.5 text-sm font-semibold text-primary-foreground shadow-sm">
-                Premium Plan
+                {currentPlan.packageName || "N/A"}
               </span>
-              <span className="flex items-center gap-1.5 rounded-lg bg-chart-2/20 px-3 py-1.5 text-sm font-semibold text-chart-2">
+              <span className="flex items-center gap-1.5 rounded-lg bg-chart-2/20 px-3 py-1.5 text-sm font-semibold text-chart-2 uppercase">
                 <CheckCircle2 className="h-4 w-4" strokeWidth={3} />
-                Active
+                {currentPlan.paymentStatus === "ACTIVE" ? "Active" : currentPlan.paymentStatus}
               </span>
             </div>
           </div>
@@ -294,19 +350,19 @@ const SubscriptionDetails = () => {
               <div className="flex">
                 <span className="w-1/2 text-muted-foreground">Subscription Start Date</span>
                 <span className="w-1/2 font-semibold text-foreground">
-                  : 01/05/2026
+                  : {currentPlan.subscriptionStartDate || "N/A"}
                 </span>
               </div>
               <div className="flex">
                 <span className="w-1/2 text-muted-foreground">Subscription End Date</span>
                 <span className="w-1/2 font-semibold text-foreground">
-                  : 01/05/2027
+                  : {currentPlan.subscriptionEndDate || "N/A"}
                 </span>
               </div>
               <div className="flex">
                 <span className="w-1/2 text-muted-foreground">Remaining Days</span>
                 <span className="w-1/2 font-bold text-chart-2">
-                  : 314 Days
+                  : {currentPlan.remainingDays ?? "N/A"} Days
                 </span>
               </div>
             </div>
@@ -316,19 +372,19 @@ const SubscriptionDetails = () => {
               <div className="flex">
                 <span className="w-1/2 text-muted-foreground">Amount</span>
                 <span className="w-1/2 font-semibold text-foreground">
-                  : ₹ 4999
+                  : ₹ {currentPlan.amount || 0}
                 </span>
               </div>
               <div className="flex">
                 <span className="w-1/2 text-muted-foreground">Billing Cycle</span>
                 <span className="w-1/2 font-semibold text-foreground">
-                  : Yearly
+                  : {currentPlan.billingCycle || "N/A"}
                 </span>
               </div>
               <div className="flex">
                 <span className="w-1/2 text-muted-foreground">User Limit</span>
                 <span className="w-1/2 font-semibold text-foreground">
-                  : 100
+                  : {currentPlan.userLimit || "N/A"}
                 </span>
               </div>
             </div>
@@ -337,14 +393,14 @@ const SubscriptionDetails = () => {
             <div className="space-y-4">
               <div className="flex">
                 <span className="w-1/2 text-muted-foreground">Payment Status</span>
-                <span className="w-1/2 font-semibold text-chart-3">
-                  : Pending
+                <span className="w-1/2 font-semibold text-chart-3 capitalize">
+                  : {currentPlan.paymentStatus ? currentPlan.paymentStatus.toLowerCase() : "N/A"}
                 </span>
               </div>
               <div className="flex">
                 <span className="w-1/2 text-muted-foreground">Payment Method</span>
                 <span className="w-1/2 font-semibold text-foreground">
-                  : -
+                  : {currentPlan.paymentMethod || "N/A"}
                 </span>
               </div>
             </div>
@@ -352,7 +408,10 @@ const SubscriptionDetails = () => {
 
           {/* Footer Action */}
           <div className="mt-8">
-            <Button className="flex h-11 items-center gap-2 rounded-lg bg-primary px-6 font-semibold text-primary-foreground transition-colors hover:bg-primary/90">
+            <Button 
+              onClick={handleDownloadInvoice}
+              className="flex h-11 items-center gap-2 rounded-lg bg-primary px-6 font-semibold text-primary-foreground transition-colors hover:bg-primary/90 cursor-pointer"
+            >
               <FileText className="h-4 w-4" />
               Download Invoice
             </Button>
@@ -369,6 +428,7 @@ export default function PackagePage() {
   const [plans, setPlans] = useState([]);
   const [subscriptionHistory, setSubscriptionHistory] = useState([]);
   const [detailedPackages, setDetailedPackages] = useState([]);
+  const [currentPlan, setCurrentPlan] = useState(null);
   const [loaderCheck, setLoaderCheck] = useState(true);
   const [isYearly, setIsYearly] = useState(false);
 
@@ -378,43 +438,58 @@ export default function PackagePage() {
     setLoaderCheck(true);
 
     try {
-      const response = await getAllPackageData();
+      const response = await getAllPlansApi();
 
       console.log("FULL PACKAGE RESPONSE =>", response);
-      console.log("PACKAGE DATA =>", response?.data);
+      console.log("PACKAGE DATA =>", response?.allPackages || response?.data?.allPackages);
 
-      const packageData = response?.data?.allPackages || [];
+      // Depending on axios/API config, the data could be directly in response or response.data
+      const packageData = response?.allPackages || response?.data?.allPackages || [];
 
       console.log("FINAL PACKAGE DATA =>", packageData);
 
       const formattedPackages = Array.isArray(packageData)
         ? packageData.map((item) => ({
             id: item?.id,
-
             packageId: item?.packageId,
-
             name: item?.packageName || "Package",
-
+            
+            // Map UI specific properties
+            price: item?.monthlyPrice === null ? "Custom Pricing" : `₹${item?.monthlyPrice || 0}`,
+            yearlyPrice: item?.annualPrice === null ? "Custom Pricing" : `₹${item?.annualPrice || 0}`,
+            description: item?.packageName === "Free Plan" ? "Perfect for exploring Hostelo" :
+                         item?.packageName === "Starter Plan" ? "Ideal for Small Hostels & PGs" :
+                         item?.packageName === "Professional Plan" ? "Built for Growing Hostel Businesses" :
+                         item?.packageName === "Enterprise Plan" ? "Tailored for Large Hostels, Hostel Chains & Institutions" : "",
+            limits: item?.maxStudents === null ? [] : [
+              `Up to ${item?.maxStudents} Students`, 
+              item?.maxHostels === 1 ? "1 Hostel" : `Up to ${item?.maxHostels || 0} Hostels`, 
+              item?.maxAdmins === 1 ? "1 Admin Account" : `Up to ${item?.maxAdmins || 0} Admin Accounts`
+            ],
+            limitsSubtitle: item?.packageName === "Enterprise Plan" ? "Built Around Your Requirements" : "Limits",
+            badge: item?.packageName === "Professional Plan" ? "⭐ Most Popular" : undefined,
+            bestFor: item?.packageName === "Enterprise Plan" ? [
+              "Hostel Chains",
+              "Universities & Colleges",
+              "Franchise Networks",
+              "Multi-Campus Accommodation Providers",
+              "Organizations Requiring Custom Workflows",
+            ] : [],
+            support: item?.packageName === "Enterprise Plan" ? "Dedicated Success Manager\nSLA-Based Support" : 
+                     item?.packageName === "Professional Plan" ? "Priority Support" :
+                     item?.packageName === "Starter Plan" ? "Standard Email Support" : "Community Support",
+            
+            // Original properties
             monthlyPrice: item?.monthlyPrice || 0,
-
             annualPrice: item?.annualPrice || 0,
-
             yearlyDiscountPercentage: item?.yearlyDiscountPercentage || 0,
-
             maxBeds: item?.maxBeds || 0,
-
             maxStaff: item?.maxStaff || 0,
-
             maxStudents: item?.maxStudents || 0,
-
             maxRooms: item?.maxRooms || 0,
-
             active: item?.active || false,
-
-            features: Array.isArray(item?.features) ? item.features : [],
-
+            features: Array.isArray(item?.features) ? item.features.map(f => f.replace(/_/g, ' ').toLowerCase().replace(/\b\w/g, c => c.toUpperCase())) : [],
             createdAt: item?.createdAt || "",
-
             currentPlan: item?.activeSubscription || false,
           }))
         : [];
@@ -422,9 +497,9 @@ export default function PackagePage() {
       console.log("FORMATTED PACKAGES =>", formattedPackages);
 
       setPlans(formattedPackages);
-      setSubscriptionHistory(response?.data?.subscriptionHistory || []);
+      setSubscriptionHistory(response?.subscriptionHistory || response?.data?.subscriptionHistory || []);
 
-      setDetailedPackages(response?.data?.detailedPackageList || []);
+      setDetailedPackages(response?.detailedPackageList || response?.data?.detailedPackageList || []);
     } catch (error) {
       console.log("PACKAGE API ERROR =>", error);
 
@@ -434,10 +509,21 @@ export default function PackagePage() {
     }
   };
 
+  const fetchCurrentPlan = async () => {
+    try {
+      const response = await getCurrentPlanApi();
+      // Adjust if the structure differs, but using response.data or response directly
+      setCurrentPlan(response?.data || response || null);
+    } catch (error) {
+      console.log("CURRENT PLAN API ERROR =>", error);
+    }
+  };
+
   // ================= USE EFFECT =================
 
   useEffect(() => {
     PackageGetAllApi();
+    fetchCurrentPlan();
   }, []);
 
   // ================= DUMMY TABLE DATA =================
@@ -446,7 +532,7 @@ export default function PackagePage() {
     <div className="min-h-screen bg-background p-6">
       <div className="space-y-10">
         {/* SUBSCRIPTION DETAILS */}
-        <SubscriptionDetails />
+        <SubscriptionDetails currentPlan={currentPlan} />
 
         {/* HEADER */}
 
@@ -490,7 +576,7 @@ export default function PackagePage() {
           </div>
         ) : (
           <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
-            {STATIC_PACKAGES.map((plan, index) => (
+            {plans.map((plan, index) => (
               <PlanCard key={index} plan={plan} index={index} isYearly={isYearly} />
             ))}
           </div>

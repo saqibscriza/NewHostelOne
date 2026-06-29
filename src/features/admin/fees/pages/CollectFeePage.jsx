@@ -262,7 +262,7 @@ export default function CollectFeePage() {
                                   {student.fullName || "Unnamed Student"}
                                 </h4>
                                 <p className="text-xs text-slate-500 mt-0.5 truncate">
-                                  ID: {student.studentId || "N/A"} • Room: {student.roomId || "Not assigned"}
+                                  ID: {student.studentId || "N/A"} • Room: {student?.room?.roomNameNumber || "Not assigned"}
                                 </p>
                               </div>
                             </div>

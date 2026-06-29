@@ -197,10 +197,10 @@ export default function QueriesDetails() {
                 }
               >
                 <SelectTrigger className="w-full sm:w-[150px] px-4 pr-4">
-                  <SelectValue placeholder="All Statuses" />
+                  <SelectValue placeholder="All Status" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">All Statuses</SelectItem>
+                  <SelectItem value="all">All Status</SelectItem>
                   <SelectItem value="pending">Pending</SelectItem>
                   <SelectItem value="approved">Accepted</SelectItem>
                   <SelectItem value="rejected">Rejected</SelectItem>
