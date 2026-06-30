@@ -35,10 +35,15 @@ export const loginApi = async (data) => {
     return [];
   }
 };
-// register api with FCM token 
+// register api with FCM token
 export const registerApiWithFCMToek = async (data) => {
   try {
-    var res = await axios.post(`${Domain}/api/device-token/register`, data);
+    // var res = await axios.post(`${Domain}/api/device-token/register`, data);
+    var res = await axios.post(`${Domain}/api/device-token/register`, data, {
+      headers: {
+        Authorization: getToken(),
+      },
+    });
     if (res) {
       return res;
     } else {
@@ -159,11 +164,13 @@ export const setPasswordApi = async (data) => {
   }
 };
 
-// Notification Apis 
+// Notification Apis
 export const getAllNotification = async (filter) => {
   try {
     axios.defaults.headers.common["Authorization"] = getToken();
-    var res = await axios.get(`${Domain}/api/notifications/user?filter=${filter}`);
+    var res = await axios.get(
+      `${Domain}/api/notifications/user?filter=${filter}`,
+    );
     if (res) {
       return res;
     } else {
@@ -173,7 +180,7 @@ export const getAllNotification = async (filter) => {
     return [];
   }
 };
-// Notification count Apis 
+// Notification count Apis
 export const getAllNotificationCount = async () => {
   try {
     axios.defaults.headers.common["Authorization"] = getToken();
@@ -187,7 +194,7 @@ export const getAllNotificationCount = async () => {
     return [];
   }
 };
-// Notification read put Apis 
+// Notification read put Apis
 export const getAllNotificationReadPut = async (id) => {
   try {
     axios.defaults.headers.common["Authorization"] = getToken();
@@ -202,7 +209,7 @@ export const getAllNotificationReadPut = async (id) => {
   }
 };
 
-// Notification get by id put Apis 
+// Notification get by id put Apis
 export const getAllNotificationGetById = async (id) => {
   try {
     axios.defaults.headers.common["Authorization"] = getToken();
@@ -217,7 +224,7 @@ export const getAllNotificationGetById = async (id) => {
   }
 };
 
-// Notification Apis 
+// Notification Apis
 
 //************************ Chef APIs ************************ */
 
@@ -454,8 +461,6 @@ export const getAllAdminApi = async () => {
   }
 };
 
-
-
 //***************************** Chef APIs *****************************/
 export const getChefProfileApi = async () => {
   try {
@@ -469,8 +474,7 @@ export const getChefProfileApi = async () => {
   } catch (error) {
     return [];
   }
-}; 
-
+};
 
 export const updateChefProfileApi = async (data) => {
   try {
@@ -485,7 +489,6 @@ export const updateChefProfileApi = async (data) => {
     return [];
   }
 };
-
 
 //************************** STAFF  API INTEGRATION ***************************/
 
@@ -902,7 +905,10 @@ export const verifyPayment = async (data) => {
 export const createOrderPaymentHostelo = async (data) => {
   try {
     axios.defaults.headers.common["Authorization"] = getToken();
-    const res = await axios.post(`${Domain}/payment/package/create-order`, data);
+    const res = await axios.post(
+      `${Domain}/payment/package/create-order`,
+      data,
+    );
     return res.data;
   } catch (error) {
     // console.log("GET FEE STUDENT DETAILS ERROR 👉", error);
@@ -1261,7 +1267,6 @@ export const getCSV_Api = async () => {
   }
 };
 
-
 // ************************** Blog-Post-Controller APIs ************************** */
 
 export const getBlogDashboardApi = async () => {
@@ -1303,7 +1308,7 @@ export const getBlogPostByIdApi = async (id) => {
     return res.data;
   } catch (error) {
     console.log("GET BLOG POST BY ID ERROR 👉", error);
-    return[];
+    return [];
   }
 };
 
@@ -1334,11 +1339,11 @@ export const getAllBlogCategoriesApi = async () => {
     axios.defaults.headers.common["Authorization"] = getToken();
     const res = await axios.get(`${Domain}/blog-category/all`);
     return res.data;
-  }catch (error) {
+  } catch (error) {
     console.log("GET ALL BLOG CATEGORIES ERROR 👉", error);
     return [];
   }
-};  
+};
 
 export const addBlogCategoryApi = async (data) => {
   try {
@@ -1373,7 +1378,6 @@ export const deleteBlogCategoryApi = async (id) => {
   }
 };
 
-
 export const getCurrentPlanApi = async () => {
   try {
     axios.defaults.headers.common["Authorization"] = getToken();
@@ -1389,7 +1393,7 @@ export const getPlanInvoiceApi = async (subscriptionId) => {
   try {
     axios.defaults.headers.common["Authorization"] = getToken();
     const res = await axios.get(`${Domain}/package/invoice/${subscriptionId}`, {
-      responseType: 'blob'
+      responseType: "blob",
     });
     return res;
   } catch (error) {
@@ -1407,9 +1411,7 @@ export const getAllPlansApi = async () => {
     console.log("GET ALL PLANS ERROR 👉", error);
     return error?.response?.data || null;
   }
-};  
-
-
+};
 
 //******************************** Room Active Category ***************/
 
@@ -1423,25 +1425,6 @@ export const getAllRoomActiveCategoryApi = async () => {
     return error?.response?.data || null;
   }
 };
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 // ******************************************************************************************************
 // ASIM //
