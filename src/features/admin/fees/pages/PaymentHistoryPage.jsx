@@ -246,11 +246,11 @@ useEffect(() => {
     {/* Payment Method */}
     <Select value={method} onValueChange={setMethod}>
       <SelectTrigger className="w-full sm:w-[200px] bg-muted/30 border-border cursor-pointer">
-        <SelectValue placeholder="All Payment Method" />
+        <SelectValue placeholder="Payment Mode" />
       </SelectTrigger>
 
       <SelectContent>
-        <SelectItem value="ALL">All Payment Method</SelectItem>
+        <SelectItem value="ALL">Payment Mode</SelectItem>
         <SelectItem value="ONLINE">Online</SelectItem>
         <SelectItem value="CARD">Card</SelectItem>
         <SelectItem value="CASH">Cash</SelectItem>

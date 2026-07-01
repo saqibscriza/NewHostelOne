@@ -44,6 +44,18 @@ export default function SelectHostelForm() {
       if (response?.data?.status === "success") {
         const newToken = response.data.token;
         sessionStorage.setItem("selectedHostel", selectedHostel);
+        
+        const selectedHostelData = hostels.find(
+          (item) => String(item.hostelId) === String(selectedHostel)
+        );
+
+        if (selectedHostelData) {
+          const name = selectedHostelData.hostelName || selectedHostelData.name || `Hostel ${selectedHostel}`;
+          sessionStorage.setItem("selectedHostelName", name);
+        }
+        
+        window.dispatchEvent(new Event("hostelChanged"));
+        
         login(userRole, newToken);
         navigate("/");
       } else {

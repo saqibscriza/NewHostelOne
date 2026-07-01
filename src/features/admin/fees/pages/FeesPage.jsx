@@ -265,7 +265,7 @@ const methods = [
               value={filterMethod}
               onChange={(e) => setFilterMethod(e.target.value)}
               className="appearance-none bg-none bg-white border border-slate-200 text-slate-700 text-sm rounded-lg focus:outline-none focus:ring-2 focus:ring-slate-900 focus:border-transparent py-2 pl-3 pr-8 cursor-pointer">
-              <option value="All Payment Method">All Payment Method</option>
+              <option value="All Payment Method">Payment Mode</option>
               {uniqueMethods.map(m => (
                 <option key={m} value={m}>{m}</option>
               ))}

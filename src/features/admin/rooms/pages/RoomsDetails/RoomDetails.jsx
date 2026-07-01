@@ -188,7 +188,7 @@ const RoomDetails = () => {
           <CardContent className="p-4 flex items-center gap-4">
             <User className="w-6 h-6 text-muted-foreground" />
             <div>
-              <p className="text-xs text-muted-foreground">OCCUPIED ROOMS</p>
+              <p className="text-xs text-muted-foreground">AVAILABLE BEDS</p>
               <h3 className="text-xl font-semibold">
                 {dashboardStats?.occupied}
               </h3>
@@ -300,10 +300,10 @@ const RoomDetails = () => {
             <TableHeader className="bg-muted [&_tr]:border-0">
               <TableRow>
                 <TableHead>Room Details</TableHead>
-                <TableHead>Type</TableHead>
+                <TableHead>Occupant Type</TableHead>
                 <TableHead>Category</TableHead>
                 <TableHead>Location</TableHead>
-                <TableHead>Occupants</TableHead>
+                <TableHead>Available Beds</TableHead>
                 <TableHead>Status</TableHead>
                 <TableHead>Actions</TableHead>
               </TableRow>

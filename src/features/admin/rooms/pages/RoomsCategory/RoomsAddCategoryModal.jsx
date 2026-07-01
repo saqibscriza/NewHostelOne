@@ -251,7 +251,7 @@ const RoomsAddCategoryModal = ({
             </div>
             <div className="flex items-center gap-3 mt-6">
               <span className="text-sm text-muted-foreground">
-                Active Status
+                Active
               </span>
               <label className="relative inline-flex items-center cursor-pointer">
                 <input
