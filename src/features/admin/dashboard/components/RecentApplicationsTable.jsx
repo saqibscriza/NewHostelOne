@@ -1,6 +1,7 @@
 import { Card, CardContent } from "../../../../components/ui/Card";
 import { Eye } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import DefaultTable from "../../../../components/DefaultTable/DefaultTable";
 
 export default function RecentApplicationsTable({ data = [] }) {
   const navigate = useNavigate();
@@ -32,7 +33,13 @@ export default function RecentApplicationsTable({ data = [] }) {
     </div>
 
     {/* ROWS */}
-    {data.map((item, i) => (
+    {data.length === 0 ? (
+      <DefaultTable
+        title="No Recent Applications"
+        description="There are currently no recent student applications to display."
+      />
+    ) : 
+      data.map((item, i) => (
       <div
         key={i}
         className="grid grid-cols-5 items-center px-5 py-4 border-t border-border"
@@ -82,6 +89,7 @@ export default function RecentApplicationsTable({ data = [] }) {
         </div>
       </div>
     ))}
+
   </CardContent>
 </Card>
   );

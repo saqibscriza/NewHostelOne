@@ -51,6 +51,10 @@ export default function Login() {
     setLoading(true);
     setApiError("");
 
+    sessionStorage.removeItem("selectedHostelName");
+    sessionStorage.removeItem("selectedHostel");
+    sessionStorage.removeItem("hostelSelectionToken");
+
     try {
       const response = await loginApi({
         username: data.email,

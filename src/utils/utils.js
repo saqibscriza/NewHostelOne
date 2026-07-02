@@ -953,6 +953,23 @@ export const getStudentProfileApi = async () => {
   }
 };
 
+
+
+export const sendEmailOtpApi = async (data) => {
+  try{
+    axios.defaults.headers.common["Authorization"] = getToken();
+    const res = await axios.post(`${Domain}/student/send-email-change-otp`, data);
+    if(res){
+      return res;
+    }else{
+      return [];
+    }
+  }catch(error){
+    return [];  
+  }
+};
+
+
 // admin student get stundent by id api
 // Done getToken
 

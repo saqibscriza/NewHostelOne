@@ -106,6 +106,11 @@ export default function AccountSettingPage() {
       if (response?.data?.status === "success") {
         toast.success(response?.data?.message);
 
+        if (data.hostelName) {
+          sessionStorage.setItem("selectedHostelName", data.hostelName);
+          window.dispatchEvent(new Event("hostelChanged"));
+        }
+
         await MyHostelDataById();
 
         setTimeout(() => {

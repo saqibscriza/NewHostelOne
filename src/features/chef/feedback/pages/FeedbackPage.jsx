@@ -164,39 +164,15 @@ export default function FeedbackPage() {
     return Array.from(uniqueCategories);
   }, [feedbacks]);
 
-  const filteredFeedbacks = useMemo(() => {
-    return feedbacks.filter((item) => {
-      const matchesRating =
-        ratingFilter === "all-rating" ||
-        Number(item?.rating) === Number(ratingFilter.replace("-star", ""));
-      const matchesCategory =
-        categoryFilter === "all-category" || item?.category === categoryFilter;
-      const matchesDate = isWithinDateFilter(item?.date, dateFilter);
-
-      return matchesRating && matchesCategory && matchesDate;
-    });
-  }, [categoryFilter, dateFilter, feedbacks, ratingFilter]);
-
-  const hasActiveFilters =
-    ratingFilter !== "all-rating" ||
-    categoryFilter !== "all-category" ||
-    dateFilter !== "last-7-days";
-  const visibleTotalItems = hasActiveFilters
-    ? filteredFeedbacks.length
-    : meta.totalItems;
-  const visibleTotalPages = Math.max(
-    1,
-    hasActiveFilters
-      ? Math.ceil(filteredFeedbacks.length / meta.pageSize)
-      : meta.totalPages,
-  );
+  const visibleTotalItems = meta.totalItems;
+  const visibleTotalPages = meta.totalPages;
   const safeCurrentPage = Math.min(currentPage, visibleTotalPages);
   const pageStart =
     visibleTotalItems === 0 ? 0 : (safeCurrentPage - 1) * meta.pageSize + 1;
   const pageEnd =
     visibleTotalItems === 0
       ? 0
-      : Math.min(pageStart + filteredFeedbacks.length - 1, visibleTotalItems);
+      : Math.min(pageStart + feedbacks.length - 1, visibleTotalItems);
   const paginationPages = getPaginationPages(
     safeCurrentPage,
     visibleTotalPages,
@@ -427,22 +403,22 @@ export default function FeedbackPage() {
         </div>
 
         <div className="overflow-x-auto">
-          <Table>
+          <Table className="table-fixed min-w-[800px]">
             <TableHeader className="border-b border-border bg-muted/10">
               <TableRow className="hover:bg-transparent">
-                <TableHead className="h-14 pl-6 text-xs font-bold text-muted-foreground">
+                <TableHead className="w-1/5 h-14 pl-6 text-xs font-bold text-muted-foreground">
                   Student & Date
                 </TableHead>
-                <TableHead className="h-14 text-xs font-bold text-muted-foreground">
+                <TableHead className="w-1/5 h-14 text-xs font-bold text-muted-foreground">
                   Meal Details
                 </TableHead>
-                <TableHead className="h-14 text-xs font-bold text-muted-foreground">
+                <TableHead className="w-1/5 h-14 text-xs font-bold text-muted-foreground">
                   Rating
                 </TableHead>
-                <TableHead className="h-14 text-xs font-bold text-muted-foreground">
+                <TableHead className="w-1/5 h-14 text-xs font-bold text-muted-foreground">
                   Category
                 </TableHead>
-                <TableHead className="h-14 pr-6 text-xs font-bold text-muted-foreground">
+                <TableHead className="w-1/5 h-14 pr-6 text-xs font-bold text-muted-foreground">
                   Comments
                 </TableHead>
               </TableRow>
@@ -457,8 +433,8 @@ export default function FeedbackPage() {
                     Loading feedbacks...
                   </TableCell>
                 </TableRow>
-              ) : filteredFeedbacks.length > 0 ? (
-                filteredFeedbacks.map((item) => {
+              ) : feedbacks.length > 0 ? (
+                feedbacks.map((item) => {
                   const comment = item.comment?.trim() || "No comment";
                   const isExpanded = Boolean(expandedComments[item.id]);
                   const canExpand = comment.length > 80;
@@ -470,10 +446,10 @@ export default function FeedbackPage() {
                     >
                       <TableCell className="py-5 pl-6">
                         <div className="text-[14px] font-bold text-foreground">
-                          {item.studentName || "-"}
+                          {item.studentName || item.userId?.studentName || item.userId?.fullName || "-"}
                         </div>
                         <div className="mt-1 text-xs text-muted-foreground">
-                          {formatDate(item.date)}
+                          {formatDate(item.date || item.createdAt)}
                         </div>
                       </TableCell>
                       <TableCell className="py-5">
@@ -503,8 +479,8 @@ export default function FeedbackPage() {
                           {formatCategory(item.category)}
                         </Badge>
                       </TableCell>
-                      <TableCell className="w-[420px] py-5 pr-6">
-                        <div className="flex min-w-[260px] items-start gap-2">
+                      <TableCell className="py-5 pr-6">
+                        <div className="flex items-start gap-2">
                           <div className="min-w-0 flex-1">
                             <p
                               className={`text-sm leading-6 text-muted-foreground ${

@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Card, CardContent } from "../../../../components/ui/Card";
+import DefaultTable from "../../../../components/DefaultTable/DefaultTable";
 import { Button } from "../../../../components/ui/button";
 import { Input } from "../../../../components/ui/input";
 import {
@@ -278,22 +279,32 @@ const ProfilePage = () => {
                 </p>
 
                 <div className="mt-6 space-y-6">
-                  {profileData?.activityTimeline?.map((item, index) => (
-                    <div key={index} className="flex gap-4">
-                      <div className="flex flex-col items-center">
-                        <span className="mt-1 h-2.5 w-2.5 rounded-full bg-foreground" />
-                        <span className="mt-2 h-full w-px bg-border" />
+                  {profileData?.activityTimeline?.length > 0 ? (
+                    profileData.activityTimeline.map((item, index) => (
+                      <div key={index} className="flex gap-4">
+                        <div className="flex flex-col items-center">
+                          <span className="mt-1 h-2.5 w-2.5 rounded-full bg-foreground" />
+                          <span className="mt-2 h-full w-px bg-border" />
+                        </div>
+                        <div className="pb-2">
+                          <p className="text-sm font-medium leading-6 text-foreground">
+                            {item.description}
+                          </p>
+                          <p className="mt-1 text-xs text-muted-foreground">
+                            {item.timeAgo}
+                          </p>
+                        </div>
                       </div>
-                      <div className="pb-2">
-                        <p className="text-sm font-medium leading-6 text-foreground">
-                          {item.description}
-                        </p>
-                        <p className="mt-1 text-xs text-muted-foreground">
-                          {item.timeAgo}
-                        </p>
-                      </div>
+                    ))
+                  ) : (
+                    <div className="py-2">
+                      <DefaultTable
+                        title="No Recent Activity"
+                        description="Activities will appear here once they occur."
+                        height="200px"
+                      />
                     </div>
-                  ))}
+                  )}
                 </div>
               </CardContent>
             </Card>

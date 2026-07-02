@@ -88,6 +88,9 @@ export const AuthProvider = ({ children }) => {
     sessionStorage.removeItem("token");
     sessionStorage.removeItem("userName");
     sessionStorage.removeItem("userPhoto");
+    sessionStorage.removeItem("selectedHostelName");
+    sessionStorage.removeItem("selectedHostel");
+    sessionStorage.removeItem("hostelSelectionToken");
     localStorage.removeItem("userPhoto");
 
     setRole(null);

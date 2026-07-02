@@ -46,7 +46,7 @@ export default function SelectHostelForm() {
         sessionStorage.setItem("selectedHostel", selectedHostel);
         
         const selectedHostelData = hostels.find(
-          (item) => String(item.hostelId) === String(selectedHostel)
+          (item) => String(item.hostelId || item._id) === String(selectedHostel)
         );
 
         if (selectedHostelData) {
@@ -96,8 +96,8 @@ export default function SelectHostelForm() {
             </SelectTrigger>
             <SelectContent>
               {hostels.map((hostel) => (
-                <SelectItem key={hostel.hostelId} value={hostel.hostelId}>
-                  {hostel.hostelName || hostel.name || `Hostel ${hostel.hostelId}`}
+                <SelectItem key={hostel.hostelId || hostel._id} value={hostel.hostelId || hostel._id}>
+                  {hostel.hostelName || hostel.name || `Hostel ${hostel.hostelId || hostel._id}`}
                 </SelectItem>
               ))}
             </SelectContent>

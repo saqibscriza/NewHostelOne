@@ -307,7 +307,7 @@ function Row({
       </div>
 
       <div className="col-span-1">
-        <PaymentBadge value={payment} />
+        <PaymentBadge value={payment} studentId={id} />
       </div>
 
       <div className="col-span-1 pl-2">
@@ -381,7 +381,7 @@ function MobileRow({
       </div>
 
       <div className="mt-3 flex flex-wrap items-center gap-3">
-        <PaymentBadge value={payment} />
+        <PaymentBadge value={payment} studentId={id} />
         <OccupancyStatus value={occupancy} />
       </div>
     </div>
@@ -409,15 +409,19 @@ function Avatar({ name, photo }) {
   );
 }
 
-function PaymentBadge({ value }) {
+function PaymentBadge({ value, studentId }) {
+  const navigate = useNavigate();
   const isPaid = value?.toLowerCase() === "paid";
   return (
     <div className="flex items-center gap-2">
       <div
-        className={`h-6 w-[80px] rounded-full flex items-center justify-center px-3 text-xs font-medium ${
+        onClick={() => {
+            navigate(`/admin/fees/collect`);
+        }}
+        className={`h-6 w-[80px] rounded-full flex items-center justify-center px-3 text-xs font-medium transition-colors ${
           isPaid
             ? "bg-green-100 text-green-700"
-            : "bg-muted text-muted-foreground"
+            : "bg-orange-100 text-orange-700 cursor-pointer hover:bg-orange-200"
         }`}
       >
         {value}

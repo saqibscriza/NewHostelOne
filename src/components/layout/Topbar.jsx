@@ -12,6 +12,7 @@ import {
 } from "../../utils/utils";
 import Notification from "../Notification";
 import { toast } from "react-hot-toast";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "../ui/tooltip";
 
 
 const getFirstValue = (source, keys) => {
@@ -49,11 +50,16 @@ const Topbar = ({ onMenuClick, fireBaseValue }) => {
     sessionStorage.getItem("selectedHostelName") || "",
   );
   useEffect(() => {
-    const storedHostelName = sessionStorage.getItem("selectedHostelName");
+    const handleHostelChange = () => {
+      const storedHostelName = sessionStorage.getItem("selectedHostelName");
+      if (storedHostelName) {
+        setHostelName(storedHostelName);
+      }
+    };
 
-    if (storedHostelName) {
-      setHostelName(storedHostelName);
-    }
+    handleHostelChange();
+    window.addEventListener("hostelChanged", handleHostelChange);
+    return () => window.removeEventListener("hostelChanged", handleHostelChange);
   }, []);
 
   const [hostelError, setHostelError] = useState("");
@@ -195,7 +201,7 @@ const Topbar = ({ onMenuClick, fireBaseValue }) => {
       const newToken = response?.data?.token;
 
       const selectedHostelData = hostels.find(
-        (item) => String(item.hostelId) === String(hostelId),
+        (item) => String(item.hostelId || item._id) === String(hostelId),
       );
 
       sessionStorage.setItem("hostelSelectionToken", selectionToken);
@@ -203,13 +209,14 @@ const Topbar = ({ onMenuClick, fireBaseValue }) => {
       sessionStorage.setItem("selectedHostel", String(hostelId));
       window.dispatchEvent(new Event("hostelChanged"));
 
-      if (selectedHostelData?.hostelName) {
+      if (selectedHostelData) {
+        const name = selectedHostelData.hostelName || selectedHostelData.name || `Hostel ${hostelId}`;
         sessionStorage.setItem(
           "selectedHostelName",
-          selectedHostelData.hostelName,
+          name,
         );
 
-        setHostelName(selectedHostelData.hostelName);
+        setHostelName(name);
       }
 
       login(role, newToken, userName);
@@ -339,6 +346,10 @@ const Topbar = ({ onMenuClick, fireBaseValue }) => {
           </Button> */}
 
           {/* TEXT */}
+        <div
+            className="flex items-center gap-2 relative cursor-pointer profile-menu"
+            onClick={() => setOpen(!open)}
+          >
           <div className="text-right min-w-[140px]">
             <p className="text-sm font-semibold text-foreground leading-tight whitespace-nowrap">
               {user || "User"}
@@ -349,18 +360,27 @@ const Topbar = ({ onMenuClick, fireBaseValue }) => {
             </p>
 
             {role === "admin" && (
-              <p className="text-[11px] text-muted-foreground whitespace-nowrap truncate max-w-[140px]">
-                {hostelName || "Hostel"}
-              </p>
+              <TooltipProvider>
+                <Tooltip delayDuration={300}>
+                  <TooltipTrigger asChild>
+                    <p className="text-[11px] text-muted-foreground whitespace-nowrap truncate max-w-[140px]">
+                      {hostelName || "Hostel"}
+                    </p>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>{hostelName || "Hostel"}</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
             )}
           </div>
 
           {/* USER */}
 
-          <div
+          {/* <div
             className="flex items-center gap-2 relative cursor-pointer profile-menu"
             onClick={() => setOpen(!open)}
-          >
+          > */}
             <div className="h-8 w-8 bg-muted rounded-full flex items-center justify-center">
               {userPhoto ? (
                 <img
@@ -400,6 +420,7 @@ const Topbar = ({ onMenuClick, fireBaseValue }) => {
               </div>
             )}
           </div>
+        {/* </div> */}
         </div>
       </header>
 
@@ -435,7 +456,7 @@ const Topbar = ({ onMenuClick, fireBaseValue }) => {
               {!hostelLoading && hostels.length > 0 ? (
                 <div className="space-y-3 max-h-[60vh] overflow-y-auto pr-1">
                   {hostels.map((hostel) => {
-                    const hostelId = String(hostel.hostelId);
+                    const hostelId = String(hostel.hostelId || hostel._id);
                     const isActive =
                       sessionStorage.getItem("selectedHostel") === hostelId;
                     const isSwitching = switchingHostelId === hostelId;

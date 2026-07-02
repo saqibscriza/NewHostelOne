@@ -300,7 +300,7 @@ const RoomDetails = () => {
             <TableHeader className="bg-muted [&_tr]:border-0">
               <TableRow>
                 <TableHead>Room Details</TableHead>
-                <TableHead>Occupant Type</TableHead>
+                <TableHead>Occupancy Type</TableHead>
                 <TableHead>Category</TableHead>
                 <TableHead>Location</TableHead>
                 <TableHead>Available Beds</TableHead>

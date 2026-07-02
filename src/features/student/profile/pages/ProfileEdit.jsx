@@ -18,6 +18,7 @@ import {
   getStudentProfileByIdApi,
   getAdminProfileApi,
   updateStudentProfileApi,
+  sendEmailOtpApi
 } from "../../../../utils/utils";
 
 export default function ProfileEdit() {
@@ -33,6 +34,12 @@ export default function ProfileEdit() {
   );
   const [selectedImage, setSelectedImage] = useState(null);
   const [isPhotoRemoved, setIsPhotoRemoved] = useState(false);
+
+  // Email verification state
+  const [initialEmail, setInitialEmail] = useState("");
+  const [otpRequested, setOtpRequested] = useState(false);
+  const [sendingOtp, setSendingOtp] = useState(false);
+  const [otpError, setOtpError] = useState("");
 
   const {
     register,
@@ -61,6 +68,7 @@ export default function ProfileEdit() {
         setValue("address", data.personalInformation?.address || "");
         setValue("phone", data.academicAndContactDetails?.phone || "");
         setValue("email", data.academicAndContactDetails?.email || "");
+        setInitialEmail(data.academicAndContactDetails?.email || "");
         setValue("emergencyName", data.guardianInformation?.guardianName || "");
         setValue("emergencyRelation", data.guardianInformation?.relation || "");
         setValue(
@@ -97,6 +105,41 @@ export default function ProfileEdit() {
     }
   };
 
+  const currentEmail = watch("email");
+  const isEmailChanged = currentEmail && currentEmail !== initialEmail;
+  const isSubmitDisabled = loading;
+
+  // If email changes back to initial, reset verification state
+  useEffect(() => {
+    if (!isEmailChanged) {
+      setOtpRequested(false);
+      setValue("otp", "");
+      setOtpError("");
+    }
+  }, [isEmailChanged, setValue]);
+
+  const handleSendOtp = async () => {
+    if (errors.email || !currentEmail) return;
+    setSendingOtp(true);
+    setOtpError("");
+    try {
+      const otpFormData = new FormData();
+      otpFormData.append("newEmail", currentEmail);
+      const res = await sendEmailOtpApi(otpFormData);
+      if (res?.data?.status === "success" || res?.status === 200 || res?.status === "success") {
+        setOtpRequested(true);
+        toast.success("OTP sent to your new email");
+      } else {
+        throw new Error(res?.data?.message || "Failed to send OTP");
+      }
+    } catch (error) {
+      setOtpError(error.message || "Failed to send OTP");
+      toast.error(error.message || "Failed to send OTP");
+    } finally {
+      setSendingOtp(false);
+    }
+  };
+
   const onSubmit = async (data) => {
     try {
       setLoading(true);
@@ -119,16 +162,26 @@ export default function ProfileEdit() {
         formData.append("photo", "");
       }
 
+      if (isEmailChanged) {
+        formData.append("otp", data.otp || "");
+      }
+
       // Call API with form data
       const res = await updateStudentProfileApi(formData);
 
       if (res?.status === "success") {
         toast.success(res?.message || "Profile updated successfully");
+        
+        if (isEmailChanged) {
+          setInitialEmail(currentEmail);
+          setOtpRequested(false);
+          setValue("otp", "");
+        }
 
         await getAdminProfileApi();
         window.location.reload();
         setTimeout(() => {
-          navigate("/student/profile");
+          navigate(-1);
         }, 1500);
       } else {
         toast.error(res?.message || "Something went wrong");
@@ -458,31 +511,92 @@ export default function ProfileEdit() {
             </div>
 
 <div className="space-y-2">
-  <Label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">
-    Personal Email <span className="text-destructive">*</span>
-  </Label>
+  <div className="flex items-center justify-between">
+    <Label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">
+      Personal Email <span className="text-destructive">*</span>
+    </Label>
+    {isEmailChanged && !otpRequested && (
+      <span className="text-[10px] font-bold text-orange-500 uppercase tracking-widest">
+        Verification Required
+      </span>
+    )}
+  </div>
 
-  <Input
-    {...register("email", {
-      required: "Email is required",
-      pattern: {
-        value: /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.(com|in)$/,
-        message: "Please enter a valid email address",
-      },
-      validate: {
-        noDoubleDots: (value) =>
-          !value.includes("..") || "Please enter a valid email address",
-      },
-    })}
-    type="email"
-    className={`h-11 rounded-lg bg-slate-50 border-none shadow-none text-gray-900 ${
-      errors.email ? "ring-1 ring-red-500" : ""
-    }`}
-  />
+  <div className="flex flex-col gap-2">
+    <div className="flex gap-2 items-start">
+      <div className="flex-1 space-y-1">
+        <Input
+          {...register("email", {
+            required: "Email is required",
+            pattern: {
+              value: /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.(com|in)$/,
+              message: "Please enter a valid email address",
+            },
+            validate: {
+              noDoubleDots: (value) =>
+                !value.includes("..") || "Please enter a valid email address",
+            },
+          })}
+          type="email"
+          className={`h-11 rounded-lg bg-slate-50 border-none shadow-none text-gray-900 ${
+            errors.email ? "ring-1 ring-red-500" : ""
+          }`}
+        />
+        {errors.email && (
+          <p className="text-xs text-red-500">{errors.email.message}</p>
+        )}
+      </div>
 
-  {errors.email && (
-    <p className="text-xs text-red-500">{errors.email.message}</p>
-  )}
+      {isEmailChanged && !otpRequested && (
+        <Button
+          type="button"
+          onClick={handleSendOtp}
+          disabled={sendingOtp || !!errors.email}
+          className="h-11 px-4 bg-gray-900 hover:bg-gray-800 text-white rounded-lg shrink-0 cursor-pointer"
+        >
+          {sendingOtp ? "Sending..." : "Verify Email"}
+        </Button>
+      )}
+    </div>
+
+    {/* OTP Panel */}
+    {isEmailChanged && otpRequested && (
+      <div className="mt-2 p-4 bg-slate-50 rounded-lg border border-gray-200 flex flex-col gap-3 transition-all duration-300">
+        <Label className="text-[10px] font-bold text-gray-500 uppercase tracking-widest">
+          Enter 6-Digit OTP <span className="text-destructive">*</span>
+        </Label>
+        <div className="flex flex-col gap-1">
+          <Input
+            type="text"
+            maxLength={6}
+            inputMode="numeric"
+            {...register("otp", {
+              required: isEmailChanged ? "OTP is required to change email" : false,
+              pattern: {
+                value: /^[0-9]{6}$/,
+                message: "OTP must be exactly 6 digits"
+              },
+              onChange: (e) => {
+                e.target.value = e.target.value.replace(/\D/g, "");
+              }
+            })}
+            placeholder="000000"
+            className={`h-11 rounded-lg bg-white shadow-none border-gray-200 tracking-[0.5em] text-center font-bold text-lg max-w-[200px] ${
+              errors.otp || otpError ? "border-red-500 ring-1 ring-red-500" : "focus:border-gray-900 focus:ring-1 focus:ring-gray-900"
+            }`}
+          />
+          {(errors.otp || otpError) && (
+            <p className="text-xs text-red-500 mt-1">
+              {errors.otp?.message || otpError}
+            </p>
+          )}
+          <p className="text-xs text-gray-500 mt-2">
+            Enter the OTP sent to your new email. It will be verified when you save changes.
+          </p>
+        </div>
+      </div>
+    )}
+  </div>
 </div>
           </div>
         </div>
@@ -582,15 +696,15 @@ export default function ProfileEdit() {
         <Button
           type="button"
           variant="outline"
-          onClick={() => navigate("/student/profile")}
+          onClick={() => navigate(-1)}
           className="rounded-xl h-11 px-8 font-semibold bg-white border-gray-200 cursor-pointer"
         >
           Cancel
         </Button>
         <Button
-          disabled={loading}
+          disabled={isSubmitDisabled}
           type="submit"
-          className="bg-[#111827] hover:bg-gray-800 text-white rounded-xl h-11 px-8 font-semibold shadow-sm cursor-pointer"
+          className="bg-[#111827] hover:bg-gray-800 text-white rounded-xl h-11 px-8 font-semibold shadow-sm cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {loading ? "Saving..." : "Save Changes"}
         </Button>
