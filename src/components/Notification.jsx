@@ -169,7 +169,7 @@ const Notification = () => {
         <SheetContent side="right" showCloseButton={false} className="w-[400px] sm:w-[500px] p-0 flex flex-col bg-[#F9FAFB] dark:bg-card">
           <SheetHeader className="flex flex-row items-center justify-between p-4 bg-white dark:bg-card border-b border-border shadow-sm m-0">
             <SheetClose className="cursor-pointer flex items-center justify-center p-1 rounded-md hover:bg-muted transition-colors">
-              <ArrowLeft className="w-5 h-5 text-emerald-600" />
+              <ArrowLeft className="w-5 h-5 text-emerald-600" style={{ color: '#bb0121' }} />
             </SheetClose>
             <div className="flex items-center gap-1 cursor-pointer">
               <DropdownMenu>
@@ -183,18 +183,47 @@ const Notification = () => {
               </DropdownMenu>
             </div>
           </SheetHeader>
-
           <div className="flex-1 overflow-y-auto p-4 space-y-4">
-            {notifications?.length === 0 ? (
-              <div className="flex justify-center items-center h-20 text-red-500 text-[15px]">
-                No notifications available..
-              </div>
+            {notificationsAllData?.length > 0 ? (
+              notificationsAllData.map((data) => (
+                <div
+                  key={data.id}
+                  style={{ height: "123px", width: "350px" }}
+                  onClick={() => {
+                    myGetAllNotificationReadPut(data?.id);
+                    myGetAllNotificationGetByIdApi(data?.id);
+                    setOpen(true);
+                  }}
+                  className={`p-4 rounded-xl border border-border/60 shadow-sm hover:shadow-md transition-shadow cursor-pointer
+          ${!data.isRead
+                      ? "bg-[#bfaeb1] !text-white"
+                      : "bg-white dark:bg-muted/40 text-foreground"
+                    }`}
+                >
+                  <p className="text-[16px] font-medium">
+                    {data?.title || "Notification title"}
+                  </p>
+
+                  <p className="text-[14px] mt-1.5 leading-snug">
+                    {data?.message
+                      ? data.message.split(" ").slice(0, 25).join(" ") +
+                      (data.message.split(" ").length > 25 ? " ..." : "")
+                      : "Notification message"}
+                  </p>
+                </div>
+              ))
             ) : (
+              <div className="flex justify-center items-center h-20 text-red-500 text-[15px]">
+                No notifications available.
+              </div>
+            )}
+          </div>
+          {/* <div className="flex-1 overflow-y-auto p-4 space-y-4">
+            {notifications?.length === 0 ? (
               notificationsAllData?.map((data) => (
-                // <div key={data.id} className="bg-white dark:bg-muted/40 p-4 rounded-xl border border-border/60 shadow-sm hover:shadow-md transition-shadow">
                 <div
 
-                  style={{ height: "123px",width:'350px' }}
+                  style={{ height: "123px", width: '350px' }}
                   key={data.id}
                   onClick={() => {
                     myGetAllNotificationReadPut(data?.id);
@@ -208,7 +237,6 @@ const Notification = () => {
   `}
                 >
                   <p className="text-[16px] font-medium">{data?.title ? data?.title : 'Notification title'}</p>
-                  {/* <p className="text-[13px] text-muted-foreground mt-1.5 leading-snug">{data?.message ? data?.message : 'Notification message'}</p> */}
                   <p className="text-[14px] mt-1.5 leading-snug">
                     {data?.message
                       ? data.message.split(" ").slice(0, 25).join(" ") +
@@ -217,10 +245,16 @@ const Notification = () => {
                   </p>
                 </div>
               ))
+
+            ) : (
+              <div className="flex justify-center items-center h-20 text-red-500 text-[15px]">
+                No notifications available..
+
+              </div>
             )}
-          </div>
+          </div> */}
         </SheetContent>
-      </Sheet>
+      </Sheet >
 
 
       <Dialog open={open} onOpenChange={setOpen}>

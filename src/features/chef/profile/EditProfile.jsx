@@ -140,7 +140,7 @@ export default function EditProfile() {
 
   return (
     <div className="w-full min-h-[calc(100vh-4rem)] p-8 bg-[#f9fafb] relative pb-32">
-      <h1 className="text-[28px] font-bold text-gray-900 mb-8">Edit Admin Profile</h1>
+      <h1 className="text-[28px] font-bold text-gray-900 mb-8">Edit Chef Profile</h1>
 
       {/* Profile Photo Section */}
       <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-8 mb-6 flex items-center gap-8">

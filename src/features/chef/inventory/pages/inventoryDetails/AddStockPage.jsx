@@ -24,6 +24,8 @@ export default function AddStockPage() {
   const [loadingOptions, setLoadingOptions] = useState(true);
   const [fetchingSku, setFetchingSku] = useState(true);
   const [submitError, setSubmitError] = useState("");
+  // const [unit, setUnit] = useState("");
+
 
   const {
     control,
@@ -35,6 +37,7 @@ export default function AddStockPage() {
     formState: { errors, isSubmitting },
   } = useForm();
 
+  const selectedUnit = watch("unit");
   useEffect(() => {
     fetchIngredients();
     // fetchSkuId();
@@ -47,10 +50,10 @@ export default function AddStockPage() {
   );
 
   useEffect(() => {
-  if (selectedIngredient) {
-    setValue("skuId", selectedIngredient.skuId || "");
-  }
-}, [selectedIngredient, setValue]);
+    if (selectedIngredient) {
+      setValue("skuId", selectedIngredient.skuId || "");
+    }
+  }, [selectedIngredient, setValue]);
 
   const fetchIngredients = async () => {
     try {
@@ -77,13 +80,13 @@ export default function AddStockPage() {
       const formData = new FormData();
 
 
-    const date = new Date(data.expiryDate);
+      const date = new Date(data.expiryDate);
 
-    const day = String(date.getDate()).padStart(2, "0");
-    const month = String(date.getMonth() + 1).padStart(2, "0");
-    const year = date.getFullYear();
+      const day = String(date.getDate()).padStart(2, "0");
+      const month = String(date.getMonth() + 1).padStart(2, "0");
+      const year = date.getFullYear();
 
-    const formattedDate = `${day}/${month}/${year}`;
+      const formattedDate = `${day}/${month}/${year}`;
 
       formData.append("itemId", data.itemId);
       formData.append("quantity", data.quantity);
@@ -160,13 +163,13 @@ export default function AddStockPage() {
                         onValueChange={field.onChange}
                         disabled={loadingOptions}
                       >
-<SelectTrigger className="w-full h-12 rounded-[var(--field-radius)] border border-border bg-background px-4 text-[15px] text-foreground shadow-[0_1px_2px_rgba(15,23,42,0.03)] transition-[border-color,box-shadow,background-color] focus:ring-4 focus:ring-slate-200/80 focus:border-slate-300">                          <SelectValue
-                            placeholder={
-                              loadingOptions
-                                ? "Loading ingredients..."
-                                : "Search or select ingredient..."
-                            }
-                          />
+                        <SelectTrigger className="w-full h-12 rounded-[var(--field-radius)] border border-border bg-background px-4 text-[15px] text-foreground shadow-[0_1px_2px_rgba(15,23,42,0.03)] transition-[border-color,box-shadow,background-color] focus:ring-4 focus:ring-slate-200/80 focus:border-slate-300">                          <SelectValue
+                          placeholder={
+                            loadingOptions
+                              ? "Loading ingredients..."
+                              : "Search or select ingredient..."
+                          }
+                        />
                         </SelectTrigger>
                         <SelectContent>
                           {ingredientOptions.map((item) => (
@@ -193,12 +196,12 @@ export default function AddStockPage() {
                   <Label className="text-sm font-semibold text-foreground">
                     Category <span className="text-red-500">*</span>
                   </Label>
-<Input
-  disabled
-  value={selectedIngredient?.categoryName || ""}
-  placeholder="Auto-filled based on selection"
-  className="bg-muted/30"
-/>
+                  <Input
+                    disabled
+                    value={selectedIngredient?.categoryName || ""}
+                    placeholder="Auto-filled based on selection"
+                    className="bg-muted/30"
+                  />
                 </div>
               </div>
             </div>
@@ -216,27 +219,27 @@ export default function AddStockPage() {
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6 pl-0 md:pl-12">
                 <div className="space-y-3">
                   <Label className="text-sm font-semibold text-foreground">
-                    Quantity Received <span className="text-red-500">*</span> 
+                    Quantity Received <span className="text-red-500">*</span>
                   </Label>
-<div className="flex h-12 items-center rounded-[var(--field-radius)] border border-border bg-background shadow-[0_1px_2px_rgba(15,23,42,0.03)] overflow-hidden transition-all focus-within:border-slate-300 focus-within:ring-4 focus-within:ring-slate-200/80">
-<Input
-  type="number"
-  min="0.01"
-  step="0.01"
-  placeholder="0.00"
-  className="flex-1 bg-transparent border-0 focus-visible:ring-0 focus-visible:ring-offset-0 rounded-none h-full shadow-none"
-  onKeyDown={(e) => {
-    if (e.key === "-" || e.key === "e" || e.key === "E") {
-      e.preventDefault();
-    }
-  }}
-  {...register("quantity", {
-    required: "Quantity is required.",
-    valueAsNumber: true,
-    validate: (value) =>
-      value > 0 || "Quantity must be greater than 0.",
-  })}
-/>
+                  <div className="flex h-12 items-center rounded-[var(--field-radius)] border border-border bg-background shadow-[0_1px_2px_rgba(15,23,42,0.03)] overflow-hidden transition-all focus-within:border-slate-300 focus-within:ring-4 focus-within:ring-slate-200/80">
+                    <Input
+                      type="number"
+                      min="0.01"
+                      step="0.01"
+                      placeholder="0.00"
+                      className="flex-1 bg-transparent border-0 focus-visible:ring-0 focus-visible:ring-offset-0 rounded-none h-full shadow-none"
+                      onKeyDown={(e) => {
+                        if (e.key === "-" || e.key === "e" || e.key === "E") {
+                          e.preventDefault();
+                        }
+                      }}
+                      {...register("quantity", {
+                        required: "Quantity is required.",
+                        valueAsNumber: true,
+                        validate: (value) =>
+                          value > 0 || "Quantity must be greater than 0.",
+                      })}
+                    />
                     <div className="w-[1px] h-6 bg-border" />
                     <Controller
                       name="unit"
@@ -247,8 +250,10 @@ export default function AddStockPage() {
                           value={field.value}
                           onValueChange={field.onChange}
                         >
-<SelectTrigger className="w-[80px] flex-shrink-0 border-0 focus:ring-0 focus:ring-offset-0 bg-muted/30 rounded-none h-full shadow-none px-3">                            <SelectValue placeholder="unit" />
+                          <SelectTrigger className="w-[80px] flex-shrink-0 border-0 focus:ring-0 focus:ring-offset-0 bg-muted/30 rounded-none h-full shadow-none px-3">
+                            <SelectValue placeholder="Unit" />
                           </SelectTrigger>
+
                           <SelectContent>
                             <SelectItem value="kg">Kg</SelectItem>
                             <SelectItem value="L">L</SelectItem>
@@ -258,6 +263,25 @@ export default function AddStockPage() {
                         </Select>
                       )}
                     />
+                    {/* <Controller
+                      name="unit"
+                      control={control}
+                      rules={{ required: "Unit is required." }}
+                      render={({ field }) => (
+                        <Select
+                          value={field.value}
+                          onValueChange={field.onChange}>
+                          <SelectTrigger className="w-[80px] flex-shrink-0 border-0 focus:ring-0 focus:ring-offset-0 bg-muted/30 rounded-none h-full shadow-none px-3">                            <SelectValue placeholder="unit" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="kg">Kg</SelectItem>
+                            <SelectItem value="L">L</SelectItem>
+                            <SelectItem value="units">Units</SelectItem>
+                            <SelectItem value="pacs">Pacs</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      )}
+                    /> */}
                   </div>
                   {errors.quantity ? (
                     <p className="text-xs text-red-500">
@@ -308,7 +332,7 @@ export default function AddStockPage() {
                         required: "Expiry date is required",
                         validate: (value) =>
                           new Date(value) >
-                            new Date(new Date().setHours(0, 0, 0, 0)) ||
+                          new Date(new Date().setHours(0, 0, 0, 0)) ||
                           "Past date not allowed",
                       })}
                       className="w-full pl-10 [&::-webkit-calendar-picker-indicator]:opacity-0 [&::-webkit-calendar-picker-indicator]:absolute [&::-webkit-calendar-picker-indicator]:left-0 [&::-webkit-calendar-picker-indicator]:w-full [&::-webkit-calendar-picker-indicator]:h-full [&::-webkit-calendar-picker-indicator]:cursor-pointer"
@@ -337,30 +361,34 @@ export default function AddStockPage() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pl-0 md:pl-12">
                 <div className="space-y-3">
                   <Label className="text-sm font-semibold text-foreground">
-                    Unit Cost (₹) <span className="text-red-500">*</span>
+                   Per {selectedUnit || "Unit"} Cost (₹){" "}
+                    <span className="text-red-500">*</span>
                   </Label>
+                  {/* <Label className="text-sm font-semibold text-foreground">
+                    Unit Cost (₹) <span className="text-red-500">*</span>
+                  </Label> */}
                   <div className="relative">
                     <span className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground font-medium">
                       ₹
                     </span>
-<Input
-  type="number"
-  min="0.01"
-  step="0.01"
-  placeholder="0.00"
-  className="pl-8 pr-12 bg-transparent border-border rounded-xl h-11"
-  onKeyDown={(e) => {
-    if (["-", "+", "e", "E"].includes(e.key)) {
-      e.preventDefault();
-    }
-  }}
-  {...register("unitCost", {
-    required: "Unit cost is required.",
-    valueAsNumber: true,
-    validate: (value) =>
-      Number(value) > 0 || "Unit cost must be greater than 0.",
-  })}
-/>
+                    <Input
+                      type="number"
+                      min="0.01"
+                      step="0.01"
+                      placeholder="0.00"
+                      className="pl-8 pr-12 bg-transparent border-border rounded-xl h-11"
+                      onKeyDown={(e) => {
+                        if (["-", "+", "e", "E"].includes(e.key)) {
+                          e.preventDefault();
+                        }
+                      }}
+                      {...register("unitCost", {
+                        required: "Unit cost is required.",
+                        valueAsNumber: true,
+                        validate: (value) =>
+                          Number(value) > 0 || "Unit cost must be greater than 0.",
+                      })}
+                    />
                     <span className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground font-medium text-sm">
                       INR
                     </span>

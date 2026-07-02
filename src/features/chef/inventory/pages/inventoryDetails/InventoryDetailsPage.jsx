@@ -92,26 +92,26 @@ export default function InventoryDetailsPage() {
 
 
   const handleDelete = async (stockId) => {
-  try {
-    const res = await deleteStockApi(stockId);
-    console.log("DELETE RESPONSE =>", res);
-    // API success check
-    if (res?.status === "success" || res?.statusCode === 200) {
-      // UI se remove instantly
-      setStocks((prev) =>
-        prev.filter((item) => item.stockId !== stockId)
-      );
-    } else {
-      console.log("Stock delete error");
+    try {
+      const res = await deleteStockApi(stockId);
+      console.log("DELETE RESPONSE =>", res);
+      // API success check
+      if (res?.status === "success" || res?.statusCode === 200) {
+        // UI se remove instantly
+        setStocks((prev) =>
+          prev.filter((item) => item.stockId !== stockId)
+        );
+      } else {
+        console.log("Stock delete error");
+      }
+    } catch (error) {
+      console.log(error);
     }
-  } catch (error) {
-    console.log(error);
-  }
-};
+  };
 
- const uniqueCategories = Array.from(new Set(stocks.map((item) => item.categoryName).filter(Boolean)));
- const filteredStocks = selectedCategory === "all-category" ? stocks : stocks.filter((item) => item.categoryName === selectedCategory);
-
+  const uniqueCategories = Array.from(new Set(stocks.map((item) => item.categoryName).filter(Boolean)));
+  const filteredStocks = selectedCategory === "all-category" ? stocks : stocks.filter((item) => item.categoryName === selectedCategory);
+  console.log('my data of invenory', filteredStocks);
 
   return (
     <div className="max-w-7xl mx-auto space-y-6 pb-10">
@@ -216,7 +216,7 @@ export default function InventoryDetailsPage() {
             Filter by:
           </span>
 
-                    <Select value={selectedCategory} onValueChange={setSelectedCategory}>
+          <Select value={selectedCategory} onValueChange={setSelectedCategory}>
             <SelectTrigger className="w-full sm:w-[150px] bg-muted/30 border-border rounded-md px-3 flex justify-between font-medium">
               <SelectValue placeholder="All Category" />
             </SelectTrigger>
@@ -297,9 +297,13 @@ export default function InventoryDetailsPage() {
                 filteredStocks.map((item) => (
                   <TableRow
                     key={item.stockId}
-                    className="hover:bg-muted/30 transition-colors border-b border-border"
+                    className={`hover:bg-muted/30 transition-colors border-b border-border  ${item.expiry === "Expired"
+                      ? "bg-red-50 "
+                      : ""
+                      }`}
+                  // className="hover:bg-muted/30 transition-colors border-b border-border"
                   >
-                    <TableCell className="py-5 pl-6">
+                    <TableCell className="py-3 pl-3">
                       <div className="font-bold text-[15px] text-foreground">
                         {item.itemName}
                       </div>
@@ -308,7 +312,7 @@ export default function InventoryDetailsPage() {
                       </div>
                     </TableCell>
 
-                    <TableCell className="py-5">
+                    <TableCell className="py-3">
                       <Badge
                         variant="secondary"
                         className="bg-slate-200 text-slate-700 dark:bg-slate-800 dark:text-slate-300 rounded-full text-[10px] font-bold uppercase tracking-wider py-1 px-3 border-none"
@@ -317,21 +321,25 @@ export default function InventoryDetailsPage() {
                       </Badge>
                     </TableCell>
 
-                    <TableCell className="py-5">
+                    <TableCell className="py-3">
                       <div className="w-[120px]">
                         <div className="font-bold text-[13px] text-foreground mb-1.5 flex items-center">
                           {item.quantity} / {item.maxQuantity || (item.quantity > 50 ? 100 : item.quantity > 10 ? 20 : 10)} {item.unit}
                         </div>
                         <div className="h-1.5 w-full bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
-                          <div 
-                            className="h-full bg-slate-800 dark:bg-slate-200 rounded-full" 
-                            style={{ width: `${Math.min(100, Math.max(0, (item.quantity / (item.maxQuantity || (item.quantity > 50 ? 100 : item.quantity > 10 ? 20 : 10))) * 100))}%` }} 
+                          <div
+                            className={`h-full rounded-full ${item.expiry === "Expired"
+                                ? "bg-red-600 dark:bg-red-500"
+                                : "bg-slate-800 dark:bg-slate-200"
+                              }`}
+                            // className="h-full bg-slate-800 dark:bg-slate-200 rounded-full"
+                            style={{ width: `${Math.min(100, Math.max(0, (item.quantity / (item.maxQuantity || (item.quantity > 50 ? 100 : item.quantity > 10 ? 20 : 10))) * 100))}%` }}
                           />
                         </div>
                       </div>
                     </TableCell>
 
-                    <TableCell className="py-5">
+                    <TableCell className="py-3">
                       <div className="font-bold text-[14px] text-slate-800 dark:text-slate-100">
                         {formatCurrency(item.unitCost)}
                         <span className="font-medium text-[12px] text-slate-400">
@@ -344,17 +352,24 @@ export default function InventoryDetailsPage() {
                     </TableCell>
 
 
-                    <TableCell className="py-5">
-                      <span className="text-[13px] font-bold text-slate-800 dark:text-slate-100">
-                        {item.expiry}
+                    <TableCell className="py-3">
+                      <span
+                        className={`text-[13px] ${item.expiry === "Expired"
+                          ? "text-red-600 dark:text-red-400 "
+                          : "text-slate-800 dark:text-slate-100"
+                          }`}
+                      // className={`text-[13px]  text-slate-800 dark:text-slate-100 ${item.expiry === "Expired" ? "text-red-600 dark:text-red-400 font-bold" : ""}`}
+                      >
+                        <b>{item.expiry}</b> <br />
+                        {item.expiryDate}
                       </span>
                     </TableCell>
 
-                    <TableCell className="py-5 text-right pr-6">
+                    <TableCell className="py-3 text-right pr-6">
                       <div className="flex items-center justify-end gap-3">
                         <button
                           type="button"
-                           onClick={() => navigate(`/chef/inventory/details/${item.stockId}/edit`, { state: { stockData: item } })}
+                          onClick={() => navigate(`/chef/inventory/details/${item.stockId}/edit`, { state: { stockData: item } })}
                           className="p-1.5 text-muted-foreground hover:text-foreground transition-colors rounded-lg hover:bg-muted"
                         >
                           <Edit2 className="w-[18px] h-[18px]" />
@@ -383,7 +398,8 @@ export default function InventoryDetailsPage() {
 
         <div className="flex justify-between items-center px-6 py-5 border-t border-border bg-transparent">
           <span className="text-sm font-medium text-muted-foreground whitespace-nowrap">
-            Showing {filteredStocks.length > 0 ? 1 : 0} to {filteredStocks.length} of {filteredStocks.length} items
+            Showing {filteredStocks.length > 0 ? 1 : 0} to {filteredStocks.length} data   
+            {/* Showing {filteredStocks.length > 0 ? 1 : 0} to {filteredStocks.length} of {filteredStocks.length} items */}
           </span>
 
           <Pagination className="!justify-end">

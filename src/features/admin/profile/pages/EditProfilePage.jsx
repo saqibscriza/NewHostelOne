@@ -35,11 +35,10 @@ const InfoBlock = ({ icon, label, value, helper, tone = "default" }) => (
         {label}
       </p>
       <p
-        className={`mt-1 text-base font-semibold ${
-          tone === "success"
+        className={`mt-1 text-base font-semibold ${tone === "success"
             ? "text-emerald-600 dark:text-emerald-400"
             : "text-foreground"
-        }`}
+          }`}
       >
         {value}
       </p>
@@ -242,21 +241,48 @@ const EditProfilePage = () => {
 
 
   useEffect(() => {
-  const fetchLocation = async () => {
-    if (!form.pinCode || form.pinCode.length !== 6) return;
+    const fetchLocation = async () => {
+      if (!form.pinCode || form.pinCode.length !== 6) return;
 
-    try {
-      const res = await getLocationByPincodeApi(form.pinCode);
+      try {
+        const res = await getLocationByPincodeApi(form.pinCode);
 
-      const locationData = res?.data || res;
+        const locationData = res?.data || res;
 
-      if (
-        !locationData ||
-        locationData?.status === "failure" ||
-        locationData?.statusCode === 400 ||
-        locationData?.statusCode === 404
-      ) {
-        toast.error(locationData?.message || "Invalid PinCode");
+        if (
+          !locationData ||
+          locationData?.status === "failure" ||
+          locationData?.statusCode === 400 ||
+          locationData?.statusCode === 404
+        ) {
+          toast.error(locationData?.message || "Invalid PinCode");
+
+          setForm((prev) => ({
+            ...prev,
+            country: "",
+            state: "",
+            city: "",
+          }));
+
+          return;
+        }
+
+        setForm((prev) => ({
+          ...prev,
+          country: locationData.country || "",
+          state: locationData.state || "",
+          city:
+            locationData.district ||
+            locationData.city ||
+            locationData.region ||
+            "",
+        }));
+      } catch (error) {
+        console.log(error);
+
+        toast.error(
+          error?.response?.data?.message || "Invalid PinCode"
+        );
 
         setForm((prev) => ({
           ...prev,
@@ -264,38 +290,11 @@ const EditProfilePage = () => {
           state: "",
           city: "",
         }));
-
-        return;
       }
+    };
 
-      setForm((prev) => ({
-        ...prev,
-        country: locationData.country || "",
-        state: locationData.state || "",
-        city:
-          locationData.district ||
-          locationData.city ||
-          locationData.region ||
-          "",
-      }));
-    } catch (error) {
-      console.log(error);
-
-      toast.error(
-        error?.response?.data?.message || "Invalid PinCode"
-      );
-
-      setForm((prev) => ({
-        ...prev,
-        country: "",
-        state: "",
-        city: "",
-      }));
-    }
-  };
-
-  fetchLocation();
-}, [form.pinCode]);
+    fetchLocation();
+  }, [form.pinCode]);
 
   return (
     <div className="min-h-screen bg-background">
@@ -340,19 +339,30 @@ const EditProfilePage = () => {
                 <Button
                   type="button"
                   className="gap-2 cursor-pointer"
-                  onClick={() => fileInputRef.current?.click()}
-                >
+                  onClick={() => fileInputRef.current?.click()}>
                   <Upload className="h-4 w-4" />
                   Upload New Photo
                 </Button>
-                <Button
+
+                {previewImage && (
+                  <Button
+                    type="button"
+                    variant="outline"
+                    className="gap-2 cursor-pointer"
+                    onClick={handleRemoveImage}
+                  >
+                    Remove
+                  </Button>
+                )}
+                {/* <Button
                   type="button"
                   variant="outline"
                   className="gap-2 cursor-pointer"
                   onClick={handleRemoveImage}
                 >
                   Remove
-                </Button>{" "}
+                </Button> */}
+                {" "}
               </div>
               <input
                 type="file"
@@ -411,50 +421,50 @@ const EditProfilePage = () => {
                   />
                 </div>
 
-<div className="space-y-2">
-  <Label>Pin Code</Label>
-  <Input
-    value={form.pinCode}
-    maxLength={6}
-    onChange={(e) =>
-      handleChange(
-        "pinCode",
-        e.target.value.replace(/\D/g, "").slice(0, 6)
-      )
-    }
-    placeholder="Enter Pin Code"
-  />
-</div>
+                <div className="space-y-2">
+                  <Label>Pin Code</Label>
+                  <Input
+                    value={form.pinCode}
+                    maxLength={6}
+                    onChange={(e) =>
+                      handleChange(
+                        "pinCode",
+                        e.target.value.replace(/\D/g, "").slice(0, 6)
+                      )
+                    }
+                    placeholder="Enter Pin Code"
+                  />
+                </div>
 
-<div className="space-y-2">
-  <Label>Country</Label>
-  <Input
-    value={form.country}
-    readOnly
-    placeholder="Country"
-    className="bg-muted/30"
-  />
-</div>
+                <div className="space-y-2">
+                  <Label>Country</Label>
+                  <Input
+                    value={form.country}
+                    readOnly
+                    placeholder="Country"
+                    className="bg-muted/30"
+                  />
+                </div>
 
-<div className="space-y-2">
-  <Label>State</Label>
-  <Input
-    value={form.state}
-    readOnly
-    placeholder="State"
-    className="bg-muted/30"
-  />
-</div>
+                <div className="space-y-2">
+                  <Label>State</Label>
+                  <Input
+                    value={form.state}
+                    readOnly
+                    placeholder="State"
+                    className="bg-muted/30"
+                  />
+                </div>
 
-<div className="space-y-2">
-  <Label>City</Label>
-  <Input
-    value={form.city}
-    readOnly
-    placeholder="City"
-    className="bg-muted/30"
-  />
-</div>
+                <div className="space-y-2">
+                  <Label>City</Label>
+                  <Input
+                    value={form.city}
+                    readOnly
+                    placeholder="City"
+                    className="bg-muted/30"
+                  />
+                </div>
               </div>
             </CardContent>
           </Card>
@@ -505,7 +515,7 @@ const EditProfilePage = () => {
 
             <div className="flex flex-col gap-3 sm:flex-row">
               <Button
-              className="cursor-pointer"
+                className="cursor-pointer"
                 variant="outline"
                 onClick={() => navigate("/admin/profile")}
               >

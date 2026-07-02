@@ -61,7 +61,7 @@ const formatCategory = (value) => {
   return text.charAt(0).toUpperCase() + text.slice(1);
 };
 
-const isWithinDateFilter = (date, filter) => {
+const isWithinallTimeFilter = (date, filter) => {
   if (filter === "all-time") return true;
   if (!date) return false;
 
@@ -97,7 +97,10 @@ export default function FeedbackPage() {
   const [loadingList, setLoadingList] = useState(true);
   const [ratingFilter, setRatingFilter] = useState("all-rating");
   const [categoryFilter, setCategoryFilter] = useState("all-category");
-  const [dateFilter, setDateFilter] = useState("last-7-days");
+  // just change last-7-days to all-time below 
+  // const [allTimeFilter, setAllTimeFilter] = useState("last-7-days");
+  const [allTimeFilter, setAllTimeFilter] = useState("all-time");
+  
   const [currentPage, setCurrentPage] = useState(1);
   const [expandedComments, setExpandedComments] = useState({});
 
@@ -128,7 +131,7 @@ export default function FeedbackPage() {
             : Number(ratingFilter.replace("-star", "")),
         category:
           categoryFilter === "all-category" ? undefined : categoryFilter,
-        dateRange: dateFilter,
+        dateRange: allTimeFilter,
       });
 
       if (res?.status === "success") {
@@ -146,7 +149,7 @@ export default function FeedbackPage() {
     } finally {
       setLoadingList(false);
     }
-  }, [categoryFilter, currentPage, dateFilter, ratingFilter]);
+  }, [categoryFilter, currentPage, allTimeFilter, ratingFilter]);
 
   useEffect(() => {
     fetchFeedbackStats();
@@ -164,8 +167,32 @@ export default function FeedbackPage() {
     return Array.from(uniqueCategories);
   }, [feedbacks]);
 
-  const visibleTotalItems = meta.totalItems;
-  const visibleTotalPages = meta.totalPages;
+  const filteredFeedbacks = useMemo(() => {
+    return feedbacks.filter((item) => {
+      const matchesRating =
+        ratingFilter === "all-rating" ||
+        Number(item?.rating) === Number(ratingFilter.replace("-star", ""));
+      const matchesCategory =
+        categoryFilter === "all-category" || item?.category === categoryFilter;
+      const matchesDate = isWithinDateFilter(item?.date, dateFilter);
+
+      return matchesRating && matchesCategory && matchesDate;
+    });
+  }, [categoryFilter, dateFilter, feedbacks, ratingFilter]);
+
+  const hasActiveFilters =
+    ratingFilter !== "all-rating" ||
+    categoryFilter !== "all-category" ||
+    dateFilter !== "last-7-days";
+  const visibleTotalItems = hasActiveFilters
+    ? filteredFeedbacks.length
+    : meta.totalItems;
+  const visibleTotalPages = Math.max(
+    1,
+    hasActiveFilters
+      ? Math.ceil(filteredFeedbacks.length / meta.pageSize)
+      : meta.totalPages,
+  );
   const safeCurrentPage = Math.min(currentPage, visibleTotalPages);
   const pageStart =
     visibleTotalItems === 0 ? 0 : (safeCurrentPage - 1) * meta.pageSize + 1;
@@ -187,7 +214,8 @@ export default function FeedbackPage() {
   const clearFilters = () => {
     setRatingFilter("all-rating");
     setCategoryFilter("all-category");
-    setDateFilter("last-7-days");
+    setAllTimeFilter("last-7-days");
+    setAllTimeFilter("all-time");
     setCurrentPage(1);
     setExpandedComments({});
   };
@@ -372,8 +400,9 @@ export default function FeedbackPage() {
           </Select>
 
           <Select
-            value={dateFilter}
-            onValueChange={handleFilterChange(setDateFilter)}
+            value={allTimeFilter}
+            onValueChange={handleFilterChange(setAllTimeFilter)}
+            // onValueChange={handleFilterChange(setAllTimeFilter)}
           >
             <SelectTrigger className="h-10 w-[155px] rounded-xl border-border bg-background px-4 pr-4">
               <SelectValue placeholder="Last 7 Days" />
